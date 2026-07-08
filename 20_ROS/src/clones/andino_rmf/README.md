@@ -10,10 +10,10 @@ This package intends to utilize OpenRMF to send a high-level task planning to [A
   - [RMF sim](https://github.com/ekumenlabs/andino_fleet_open_rmf/tree/main/andino_rmf_sim) to launch everything
 
 ## Project dependencies
-- <b>ROS 2</b>: Humble Hawksbill
+- <b>ROS 2</b>: kilted Hawksbill
 - <b>OS</b>: Ubuntu 22.04 Jammy Jellyfish
 - <b>Simulation</b>: 
-    - [andino_gz](https://github.com/Ekumen-OS/andino_gz/tree/humble?tab=readme-ov-file): a simulation environment for [Andino](https://github.com/Ekumen-OS/andino) in Gazebo Fortress
+    - [andino_gz](https://github.com/Ekumen-OS/andino_gz/tree/kilted?tab=readme-ov-file): a simulation environment for [Andino](https://github.com/Ekumen-OS/andino) in Gazebo Fortress
 - <b>Task Planning</b>:
   - [OpenRMF](https://github.com/open-rmf/rmf) : The Open-RMF platform for multi-fleet robot management
 - <b>Python module</b>:

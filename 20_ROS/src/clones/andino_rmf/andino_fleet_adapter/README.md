@@ -1,6 +1,6 @@
 # Andino Fleet Adapter Package
 An implementation of a Python-based full-control RMF fleet adapter for Andino fleet.
-Please refer to https://github.com/open-rmf/fleet_adapter_template/tree/humble for implementation detail.
+Please refer to https://github.com/open-rmf/fleet_adapter_template/tree/kilted for implementation detail.
 
 ## Fleet Adapter Architecture
 This package contains a main executable called fleet_adapter to create a node for enabling ROS-RMF communication and initialize robot fleet.
