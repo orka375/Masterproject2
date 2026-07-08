@@ -36,8 +36,8 @@ set +e
 function show_help() {
   echo $'\nUsage:\t run.sh [OPTIONS] \n
   Options:\n
-  \t-i --image_name\t\t Name of the image to be run (default ros2_kilted_andino_fleet).\n
-  \t-c --container_name\t Name of the container(default ros2_kilted_andino_fleet_container).\n
+  \t-i --image_name\t\t Name of the image to be run (default ros2_kilted_eta_fleet).\n
+  \t-c --container_name\t Name of the container(default ros2_kilted_eta_fleet_container).\n
   \t--use_nvidia\t\t Use nvidia runtime.\n
   Examples:\n
   \trun.sh\n
@@ -79,8 +79,8 @@ done
 
 # Update the arguments to default values if needed.
 
-IMAGE_NAME=${IMAGE_NAME:-ros2_kilted_andino_fleet}
-CONTAINER_NAME=${CONTAINER_NAME:-ros2_kilted_andino_fleet_container}
+IMAGE_NAME=${IMAGE_NAME:-ros2_kilted_eta_fleet}
+CONTAINER_NAME=${CONTAINER_NAME:-ros2_kilted_eta_fleet_container}
 
 SSH_PATH=/home/$USER/.ssh
 WORKSPACE_SRC_CONTAINER=/home/$(whoami)/ws/src/$REPOSITORY_FOLDER_NAME
@@ -130,7 +130,7 @@ function onexit() {
     fi
   done
   docker stop $CONTAINER_NAME > /dev/null
-  docker rm $CONTAINER_NAME > /dev/null
+
 }
 
 trap onexit EXIT

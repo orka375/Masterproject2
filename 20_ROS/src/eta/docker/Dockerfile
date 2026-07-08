@@ -23,8 +23,11 @@ COPY docker/ros_requirements.txt .
 RUN apt-get update && apt-get install --no-install-recommends -y $(sed "s/\${ROS_DISTRO}/${ROS_DISTRO}/g" ros_requirements.txt | grep -v '^#' | grep -v '^$')
 RUN rm ros_requirements.txt
 
+RUN echo "export ROS_DOMAIN_ID=1" >> /home/$USER/.bashrc
+
 # Create a user with passwordless sudo
-RUN adduser --uid $USERID --gecos "ekumen developer" --disabled-password $USER
+# RUN adduser --uid $USERID --gecos "admin" --disabled-password $USER
+RUN adduser --gecos "admin" --disabled-password $USER
 RUN adduser $USER sudo
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN echo "export QT_X11_NO_MITSHM=1" >> /home/$USER/.bashrc
