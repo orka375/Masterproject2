@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'odin'
+package_name = 'tc_ros2_itf'
 
 setup(
     name=package_name,

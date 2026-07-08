@@ -14,6 +14,8 @@ COPY docker/requirements.txt .
 RUN apt-get update && apt-get install --no-install-recommends -y $(cat requirements.txt)
 RUN rm requirements.txt
 
+RUN echo "export ROS_DOMAIN_ID=1" >> /home/$USER/.bashrc
+
 # Install Gazebo Fortress
 RUN sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
 RUN wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
