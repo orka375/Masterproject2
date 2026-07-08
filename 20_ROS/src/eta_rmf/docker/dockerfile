@@ -18,10 +18,10 @@ RUN rm requirements.txt
 RUN sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
 RUN wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 RUN sudo apt-get update
-RUN sudo apt-get install ignition-fortress -y
+RUN sudo apt-get install gz-ionic -y
 
 # Create a user with passwordless sudo
-RUN adduser --uid $USERID --gecos "ekumen developer" --disabled-password $USER
+RUN adduser --gecos "admin" --disabled-password $USER
 RUN adduser $USER sudo
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN echo "export QT_X11_NO_MITSHM=1" >> /home/$USER/.bashrc
@@ -40,9 +40,9 @@ RUN sudo apt upgrade -y && sudo apt update && rosdep update
 RUN mkdir -p /home/$USER/ros_deps_ws/src
 WORKDIR /home/$USER/ros_deps_ws/src
 # Clone andino_gz
-RUN git clone --no-checkout https://github.com/Ekumen-OS/andino_gz.git . \
-    && git checkout b3d780631db953c33253e9a6a871bfe3f70c1884 \
-    && rm -rf .git
+# RUN git clone --no-checkout https://github.com/Ekumen-OS/andino_gz.git . \
+#     && git checkout b3d780631db953c33253e9a6a871bfe3f70c1884 \
+#     && rm -rf .git
 # RUN git clone https://github.com/Ekumen-OS/andino_gz.git -b kilted
 # RUN cd andino_gz && git checkout b3d780631db953c33253e9a6a871bfe3f70c1884
 WORKDIR /home/$USER/ros_deps_ws
@@ -68,7 +68,7 @@ RUN echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> 
 #########################
 # Pip installation setup
 #########################
-RUN sudo pip install nudged transforms3d
+RUN sudo pip install nudged transforms3d --break-system-packages
 
 #########################
 # Workspace configuration

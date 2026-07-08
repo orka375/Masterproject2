@@ -64,6 +64,7 @@ IMAGE_NAME=${IMAGE_NAME:-ros2_${ROS_DISTRO}_eta}
 DOCKERFILE_PATH=$SCRIPT_FOLDER_PATH/Dockerfile
 
 USERID=$(id -u)
+# USERID=37
 USER=$(whoami)
 
 echo "Building image for ROS 2 $ROS_DISTRO..."
