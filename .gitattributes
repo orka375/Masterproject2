@@ -1,0 +1,13 @@
+# Keep all text files with LF
+* text eol=lf
+
+# TwinCAT files
+*.TcPOU text eol=lf
+*.TcTTO text eol=lf
+*.TcGVL text eol=lf
+*.TcDUT text eol=lf
+*.TcIO text eol=lf
+
+# Do not modify binary files
+*.library binary
+*.compiled-library binary

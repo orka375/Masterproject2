@@ -1,0 +1,97 @@
+FROM osrf/ros:kilted-desktop-full-noble
+
+ARG USERID=1000
+ARG USER=rosdev
+
+ENV TERM=linux
+ENV DEBIAN_FRONTEND=noninteractive
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+
+# Copy requirement files and install dependencies
+#Install Gazebo Ionic
+RUN apt-get install curl lsb-release gnupg
+RUN curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
+RUN "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] https://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
+RUN apt-get update
+RUN apt-get install gz-ionic
+
+#PYTHON
+RUN pip install nudged \
+ transforms3d \
+  --break-system-packages
+
+
+COPY docker/requirements.txt .
+RUN apt-get update && apt-get install --no-install-recommends -y $(cat requirements.txt) && rm -rf /var/lib/apt/lists/*
+RUN rm requirements.txt
+
+
+
+# Create a non-root developer user with passwordless sudo.
+RUN adduser --uid ${USERID} --gecos "ros developer" --disabled-password ${USER} && \
+	adduser ${USER} sudo && \
+	echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+RUN rosdep init || true && rosdep update
+
+RUN echo "export QT_X11_NO_MITSHM=1" >> /home/$USER/.bashrc && \
+	echo "export IGN_IP=127.0.0.1" >> /home/$USER/.bashrc
+
+USER $USER
+
+# Updates
+RUN sudo apt update && sudo apt upgrade -y
+
+#####################################
+# ROS2 dependencies built from source
+#####################################
+
+WORKDIR /home/$USER/
+# Clone project repository
+RUN git clone https://github.com/orka375/Masterarbeit.git -b master
+
+
+RUN git clone https://github.com/open-rmf/rmf_demos.git -b kilted
+
+#INSTALL ROS2 DEPENDENCIES
+# RUN rosdep install \
+#   --from-paths $(colcon list | awk '{print $2}' | grep '/eta') \
+#   --ignore-src \
+#   -r \
+#   -y
+
+
+WORKDIR /home/$USER/Masterarbeit/20_ROS/
+# Rosdep install
+RUN . /opt/ros/kilted/setup.sh && rosdep install -y -i --from-paths src
+# Build
+RUN . /opt/ros/kilted/setup.sh && colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+# Adds overlay to the bashrc
+RUN echo "source /home/$USER/Masterarbeit/20_ROS/install/setup.bash" >> /home/$USER/.bashrc
+
+######################
+# Bashrc configuration
+######################
+
+# Adds to bashrc the ros kilted overlay sourcing.
+RUN echo "source /opt/ros/kilted/setup.bash" >> /home/$USER/.bashrc
+# Adds colcon autocomplete
+RUN echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> /home/$USER/.bashrc
+
+
+#########################
+# Pip installation setup
+#########################
+RUN sudo pip3 install --no-cache-dir nudged transforms3d
+
+#########################
+# Workspace configuration
+#########################
+
+
+
+
+# Defines a workspace folder.
+WORKDIR /home/$USER/Masterarbeit/20_ROS/
+
+CMD ["/bin/bash"]

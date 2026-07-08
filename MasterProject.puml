@@ -1,0 +1,308 @@
+@startuml
+title Robot System Architecture
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+' ==========================================================
+' Base Classes
+' ==========================================================
+
+abstract class BaseComponent {
+  == Base Props ==
+  + name : STRING
+  + id : INT
+  + state: State
+  + activity: Activity
+  + state : State
+  + error : Error
+
+  --
+  + enable()
+  + disable()
+  + reset()
+  + update()
+}
+
+struct Error {
+  + index : INT
+  + code : INT
+  + message : STRING
+  + timestamp : DATETIME
+  + severity : STRING
+}
+
+enum State {
+  Offline
+  Connected
+  Idle
+  Active
+  Disconnected
+  Paused
+  Error
+}
+
+
+enum Activity {
+  Idling
+  Initializing
+  Connecting 
+  Moving
+  Executing
+  Disconnecting
+}
+
+enum ToolActivity extends Activity {
+  Opening
+  Closing
+}
+' ==========================================================
+' Robot
+' ==========================================================
+
+enum Mode {
+  Manual
+  Automatic
+  Free
+}
+
+class Robot extends BaseComponent {
+
+  == Robot Props ==
+  + Mode : Mode
+  + safetyOk : BOOL
+  + velocityOverride: BOOL
+  + 
+  --
+  + powerOn()
+  + activateVelocityOverride()
+  + deactivateVelocityOverride()
+  + powerOff()
+  + home()
+  + stop()
+  + emergencyStop()
+}
+
+class 6AxisRobot extends Robot {
+
+  == Robot Props ==
+  + inHome : BOOL
+  + programRunning : BOOL
+
+  + currentTool : Tool
+  + payload : REAL
+  + jointPosition : 6JointPosition
+  + tcpPosition : 3DPose
+  + tcpVelocity : 3DPose
+
+  --
+  + powerOn()
+  + powerOff()
+  + home()
+  + stop()
+  + emergencyStop()
+}
+
+struct 6JointPosition {
+  + j1 : REAL
+  + j2 : REAL
+  + j3 : REAL
+  + j4 : REAL
+  + j5 : REAL
+  + j6 : REAL
+}
+
+struct 3DPose {
+  + x : REAL
+  + y : REAL
+  + z : REAL
+  + rx : REAL
+  + ry : REAL
+  + rz : REAL
+}
+  
+struct 2DPose {
+  + x : REAL
+  + y : REAL
+  + theta : REAL
+}
+
+struct 2DPoint {
+  + x : REAL
+  + y : REAL
+  + theta : REAL
+  + frameId : STRING
+}
+
+' ==========================================================
+' AMR (Autonomous Mobile Robot)
+' ==========================================================
+
+struct 2JointPosition {
+  + left : REAL
+  + right : REAL
+}
+
+class AMR extends Robot {
+
+  == AMR Props ==
+  + pose : 2DPose
+  + velocity : 2DPose
+  + jointPosition : 2JointPosition
+  + batteryLevel : REAL
+
+  + localizationState : Int
+
+  + navigationState : NavigationState
+  + currentGoal : 2DPose
+
+  + mapId : STRING
+  + isDocked : BOOL
+
+  --
+  + navigateTo(goal : 2DPose)
+  + navigateTo(point : 2DPoint)
+  + stopNavigation()
+  + dock()
+  + undock()
+  + setMap(mapId : STRING)
+  + updateLocalization()
+}
+
+' ==========================================================
+' Tool
+' ==========================================================
+
+class Tool extends BaseComponent {
+
+  == Tool Props ==
+  + opened : BOOL
+  + gripping : BOOL
+  + partDetected : BOOL
+
+  --
+  + open()
+  + close()
+}
+
+' ==========================================================
+' Camera
+' ==========================================================
+
+enum CameraState extends State {
+  Streaming
+  Capturing
+}
+
+abstract class Camera extends BaseComponent {
+
+  == Camera Props ==
+  + state : CameraState
+  + currentImage : Image
+  --
+  + trigger() : Image
+  + startStream()
+  + stopStream()
+}
+
+class TwinCATCamera implements Camera {
+
+}
+
+class ROS2Camera implements Camera {
+
+}
+
+' Camera <|-- TwinCATCamera
+' Camera <|-- ROS2Camera
+
+' ==========================================================
+' Skills
+' ==========================================================
+
+abstract class Skill {
+
+  == Skill Props ==
+  + state : SkillState
+  + progress : REAL
+  + active : BOOL
+  + finished : BOOL
+  + error : BOOL
+  + abortRequested : BOOL
+  + resetRequested : BOOL
+
+  --
+  + start()
+  + execute()
+  + abort()
+  + reset()
+}
+
+class PickAndPlaceSkill
+class PalletizingSkill
+class InspectionSkill
+
+Skill <|-- PickAndPlaceSkill
+Skill <|-- PalletizingSkill
+Skill <|-- InspectionSkill
+
+' ==========================================================
+' Base Actions
+' ==========================================================
+
+abstract class BaseAction {
+  + state : ActionState
+  + execute()
+  + abort()
+}
+
+class MoveJ
+class MoveL
+class MoveC
+class Wait
+class SetDO
+class GetDI
+
+BaseAction <|-- MoveJ
+BaseAction <|-- MoveL
+BaseAction <|-- MoveC
+BaseAction <|-- Wait
+BaseAction <|-- SetDO
+BaseAction <|-- GetDI
+
+' ==========================================================
+' Enumerations
+' ==========================================================
+
+
+
+
+enum SkillState {
+  Idle
+  Starting
+  Running
+  Finished
+  Aborted
+  Error
+}
+
+enum ActionState {
+  Ready
+  Running
+  Finished
+  Error
+}
+
+' ==========================================================
+' Relationships
+' ==========================================================
+
+6AxisRobot "1" o-- "0..1" Tool : equipped with
+6AxisRobot "1" o-- "0..1" Camera : has
+BaseComponent "1" o-- "0..*" Skill : has
+
+
+
+' Skill *-- "1..*" BaseAction : sequence of
+
+@enduml

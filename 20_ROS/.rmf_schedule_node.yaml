@@ -1,0 +1,60 @@
+- operation: Add
+  participant_description:
+    name: andino1
+    group: Andino
+    responsiveness: Responsive
+    profile:
+      footprint:
+        type: Circle
+        index: 0
+      vicinity:
+        type: Circle
+        index: 1
+      shape_context:
+        - 0.5
+        - 0.80000000000000004
+- operation: Add
+  participant_description:
+    name: andino2
+    group: Andino
+    responsiveness: Responsive
+    profile:
+      footprint:
+        type: Circle
+        index: 0
+      vicinity:
+        type: Circle
+        index: 1
+      shape_context:
+        - 0.5
+        - 0.80000000000000004
+- operation: Add
+  participant_description:
+    name: andino3
+    group: Andino
+    responsiveness: Responsive
+    profile:
+      footprint:
+        type: Circle
+        index: 0
+      vicinity:
+        type: Circle
+        index: 1
+      shape_context:
+        - 0.5
+        - 0.80000000000000004
+- operation: Add
+  participant_description:
+    name: andino4
+    group: Andino
+    responsiveness: Responsive
+    profile:
+      footprint:
+        type: Circle
+        index: 0
+      vicinity:
+        type: Circle
+        index: 1
+      shape_context:
+        - 0.5
+        - 0.80000000000000004

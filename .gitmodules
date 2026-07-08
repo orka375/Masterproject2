@@ -1,0 +1,9 @@
+[submodule "20_ROS/src/clones/andino_rmf"]
+	path = 20_ROS/src/clones/andino_rmf
+	url = https://github.com/Ekumen-OS/andino_rmf.git
+[submodule "20_ROS/src/clones/beckhoff_ads_driver"]
+	path = 20_ROS/src/clones/beckhoff_ads_driver
+	url = https://github.com/b-robotized/beckhoff_ads_driver.git
+[submodule "20_ROS/src/clones/rmf_demos"]
+	path = 20_ROS/src/clones/rmf_demos
+	url = https://github.com/open-rmf/rmf_demos.git

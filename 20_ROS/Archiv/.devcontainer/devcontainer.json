@@ -1,0 +1,34 @@
+// {
+//     "name": "ODIN ROS2",
+//     "image": "starrynight:latest",
+
+//     "workspaceFolder": "/ros2_ws",
+
+//     "workspaceMount": "source=\\\\wsl.localhost\\Ubuntu-24.04\\home\\fabian\\ros2_ws,target=/ros2_ws,type=bind",
+
+//     "runArgs": [
+//         "--name=ODIN",
+//         "--net=host",
+//         "--ipc=host"
+//     ],
+
+//     "containerEnv": {
+//         "DISPLAY": ":0",
+//         "QT_X11_NO_MITSHM": "1"
+//     },
+
+//     "mounts": [
+//         "source=\\\\wsl.localhost\\Ubuntu-24.04\\mnt\\wslg,target=/mnt/wslg,type=bind"
+//     ],
+
+//     "customizations": {
+//         "vscode": {
+//             "extensions": [
+//                 "ms-iot.vscode-ros",
+//                 "ms-python.python",
+//                 "ms-vscode.cpptools",
+//                 "twxs.cmake"
+//             ]
+//         }
+//     }
+// }
