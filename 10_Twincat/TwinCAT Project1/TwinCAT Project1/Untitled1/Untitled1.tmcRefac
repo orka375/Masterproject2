@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Refactors>
+  <Renames>
+    <RenamedType>
+      <Type guid="2b58a7de-95d9-467c-85d1-db9dec921482">CREATE_1</Type>
+      <From>create_1</From>
+      <To>cleanup</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="e50a6f49-0903-48ba-8271-1c9d1e1e510c">CREATE_2</Type>
+      <From>create_2</From>
+      <To>configure</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="421c2108-8179-4a12-ba41-35989c996212">CREATE_3</Type>
+      <From>create_3</From>
+      <To>activate</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="543d663f-3433-4738-bb10-46e710584fb3">CREATE_4</Type>
+      <From>create_4</From>
+      <To>deactivate</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="d44b7757-327e-4329-96cc-8c180a9fb4f3">CREATE_5</Type>
+      <From>create_5</From>
+      <To>shutdown</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="8dc262df-163a-4e11-9777-3fbb1a531627">CREATE_6</Type>
+      <From>create_6</From>
+      <To>destroy</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="5400f4d2-21c5-44f4-af11-064140524d3d">CREATE_7</Type>
+      <From>create_7</From>
+      <To>onConfigure</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="aeb6ee92-c260-499d-8c85-ecf0511ec7d2">CREATE_8</Type>
+      <From>create_8</From>
+      <To>onCleanup</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="db5ccdf9-dda4-4656-8a40-44601294dbda">CREATE_4</Type>
+      <From>create_4</From>
+      <To>onActivate</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="f1a21cdc-6225-4962-9570-04e28e96710c">CREATE_3</Type>
+      <From>create_3</From>
+      <To>onDeactivate</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="6b29e55c-0bb5-4ed2-8d4c-29a2f4547848">CREATE_2</Type>
+      <From>create_2</From>
+      <To>onShutdown</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="6370aa46-a510-420e-b2b1-4a92b9216869">CREATE_1</Type>
+      <From>create_1</From>
+      <To>onError</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="1f5c5c05-2dcb-40b6-85b7-e14de76733ca">ENABLE_1</Type>
+      <From>enable_1</From>
+      <To>disable</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="4a5f6fe2-c0ac-4a0a-ac11-a7823ebd0b5f">ENABLE_2</Type>
+      <From>enable_2</From>
+      <To>M_AUTO</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="bd189bc6-367b-4937-84f7-9d3aaa9bc52d">ENABLE_3</Type>
+      <From>enable_3</From>
+      <To>M_MAN</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="6bd7f640-7106-49dd-a5cd-96054e8ed6ff">ENABLE_4</Type>
+      <From>enable_4</From>
+      <To>estop</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="3ff1b608-cbee-4153-8537-8c5ca10ccc31">ENABLE_5</Type>
+      <From>enable_5</From>
+      <To>stop</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="a219643f-8e25-47f8-b4f4-e2335d3e6ead">ENABLE_6</Type>
+      <From>enable_6</From>
+      <To>enableVelocityOverride</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="1643e2ed-a195-4fb9-bcc2-d0e7b52e61fb">ENABLE_7</Type>
+      <From>enable_7</From>
+      <To>disableVelocityOverride</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="e8bb4eaf-5055-49b0-a341-8aba2f3636ff">MC_1</Type>
+      <From>MC_1</From>
+      <To>MC_MoveLinearAbsolute</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="3f8dd969-4475-4859-99c9-640266c99491">MC</Type>
+      <From>MC</From>
+      <To>MC_MoveAxesAbsolute</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="622605cf-64f8-437c-8219-d922cc2e68c1">MC_2</Type>
+      <From>MC_2</From>
+      <To>MC_MoveAxesRelative</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="a1b2c3d4-2222-2222-2222-222222222222">E_SEVERITY</Type>
+      <From>E_Severity</From>
+      <To>eSeverity</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="c1b2c3d4-1111-1111-1111-111111111111">ST_ERROR</Type>
+      <From>ST_Error</From>
+      <To>stError</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="b1b2c3d4-2222-2222-2222-222222222222">ST_JOINTPOSITION2</Type>
+      <From>ST_JointPosition2</From>
+      <To>stJointPosition2</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="b1b2c3d4-1111-1111-1111-111111111111">ST_JOINTPOSITION6</Type>
+      <From>ST_JointPosition6</From>
+      <To>stJointPosition6</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="b1b2c3d4-3333-3333-3333-333333333333">ST_POSE</Type>
+      <From>ST_Pose</From>
+      <To>stPose</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="b1b2c3d4-4444-4444-4444-444444444444">ST_POSE2D</Type>
+      <From>ST_Pose2D</From>
+      <To>stPose2D</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="b1b2c3d4-5555-5555-5555-555555555555">ST_POSE3D</Type>
+      <From>ST_Pose3D</From>
+      <To>stPose3D</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="c1b2c3d4-2222-2222-2222-222222222222">ST_TARGET</Type>
+      <From>ST_Target</From>
+      <To>stTarget</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="c1b2c3d4-3333-3333-3333-333333333333">ST_TARGET2D</Type>
+      <From>ST_Target2D</From>
+      <To>stTarget2D</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="c1b2c3d4-4444-4444-4444-444444444444">ST_TARGET3D</Type>
+      <From>ST_Target3D</From>
+      <To>stTarget3D</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="a1b2c3d4-5555-5555-5555-555555555555">E_INTERNALTRANSITIONS</Type>
+      <From>E_InternalTransitions</From>
+      <To>eInternalTransitions</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="a1b2c3d4-1111-1111-1111-111111111111">E_STATE</Type>
+      <From>E_State</From>
+      <To>eState</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="a1b2c3d4-4444-4444-4444-444444444444">E_SUPERVISORYTRANSITIONS</Type>
+      <From>E_SupervisoryTransitions</From>
+      <To>eSupervisoryTransitions</To>
+    </RenamedType>
+  </Renames>
+</Refactors>

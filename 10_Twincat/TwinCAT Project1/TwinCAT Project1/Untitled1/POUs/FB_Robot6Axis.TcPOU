@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_Robot6Axis" Id="{f1b2c3d4-2222-2222-2222-222222222222}">
+	<Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FB_Robot6Axis EXTENDS FB_Robot
+VAR
+	// 6 Axis Robot Properties
+	currentTool : STRING(80); // TODO: Replace with TOOL type when defined
+	currentFrame : STRING(80); // TODO: Replace with FRAME type when defined
+	currentFrameId : INT;
+	jointPosition : ST_JointPosition6;
+	jointVelocity : ST_JointPosition6;
+	TCPPosition : ST_Pose3D;
+	TCPVelocity : ST_Pose3D;
+	isInHomePosition : BOOL;
+	isInCollision : BOOL;
+	// Cam: Camera // TODO: Add camera reference
+END_VAR
+]]>
+	</Declaration>
+	<Implementation>
+	  <ST><![CDATA[// 6 Axis Robot implementation
+]]>
+	  </ST>
+	</Implementation>
+	<Method Name="Home" Id="{f1b2c3d4-2221-2222-2222-222222222222}">
+	  <Declaration><![CDATA[METHOD PUBLIC Home : BOOL
+VAR_INPUT
+END_VAR
+]]>
+	  </Declaration>
+	  <Implementation>
+		<ST><![CDATA[// Move robot to home position
+]]>
+		</ST>
+	  </Implementation>
+	</Method>
+	<Method Name="SwitchTool" Id="{f1b2c3d4-2222-2222-2222-222222222222}">
+	  <Declaration><![CDATA[METHOD PUBLIC SwitchTool : BOOL
+VAR_INPUT
+	tool : STRING(80); // TODO: Replace with TOOL type when defined
+END_VAR
+]]>
+	  </Declaration>
+	  <Implementation>
+		<ST><![CDATA[currentTool := tool;
+]]>
+		</ST>
+	  </Implementation>
+	</Method>
+  </POU>
+</TcPlcObject>

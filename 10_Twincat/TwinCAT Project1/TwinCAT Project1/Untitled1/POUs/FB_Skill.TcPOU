@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_Skill" Id="{f1b2c3d4-6666-6666-6666-666666666666}">
+	<Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK ABSTRACT FB_Skill EXTENDS FB_BaseComponent
+VAR
+	// Skill Properties
+	// usedBaseActions : List<BaseAction> // TODO: Not supported in IEC 61131-3
+	// Using array instead
+	usedBaseActions : ARRAY[1..10] OF POINTER TO FB_BaseAction;
+	actionCount : INT := 0;
+END_VAR
+]]>
+	</Declaration>
+	<Implementation>
+	  <ST><![CDATA[// Skill implementation
+]]>
+	  </ST>
+	</Implementation>
+	<Method Name="checkAvailability" Id="{f1b2c3d4-6661-6666-6666-666666666666}">
+	  <Declaration><![CDATA[METHOD PUBLIC checkAvailability : BOOL
+VAR_INPUT
+END_VAR
+]]>
+	  </Declaration>
+	  <Implementation>
+		<ST><![CDATA[// Check if skill is available
+checkAvailability := (state = E_State.Active);
+]]>
+		</ST>
+	  </Implementation>
+	</Method>
+  </POU>
+</TcPlcObject>

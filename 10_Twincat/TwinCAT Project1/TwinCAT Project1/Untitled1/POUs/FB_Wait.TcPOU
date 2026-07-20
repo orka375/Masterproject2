@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_Wait" Id="{f1b2c3d4-7774-7777-7777-777777777777}">
+	<Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FB_Wait EXTENDS FB_BaseAction
+VAR
+	// Wait specific properties
+	duration : TIME;
+	elapsedTime : TIME;
+END_VAR
+]]>
+	</Declaration>
+	<Implementation>
+	  <ST><![CDATA[// Wait implementation
+]]>
+	  </ST>
+	</Implementation>
+  </POU>
+</TcPlcObject>

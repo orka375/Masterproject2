@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="eMode" Id="{a1b2c3d4-3333-3333-3333-333333333333}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE eMode :
+(
+	Manual := 0,
+	Automatic := 1,
+	Free := 2,
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

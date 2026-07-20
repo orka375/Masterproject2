@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_AMR" Id="{f1b2c3d4-3333-3333-3333-333333333333}">
+	<Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FB_AMR EXTENDS FB_Robot
+VAR
+	// AMR Properties
+	jointPosition : ST_JointPosition2;
+	jointVelocity : ST_JointPosition2;
+	TCPPosition : ST_Pose2D;
+	TCPVelocity : ST_Pose2D;
+	currentGoal : ST_Target2D;
+	batteryVoltage : LREAL;
+	batteryLevel : INT;
+	localizationPrecision : LREAL;
+	isDocked : BOOL;
+END_VAR
+]]>
+	</Declaration>
+	<Implementation>
+	  <ST><![CDATA[// AMR implementation
+]]>
+	  </ST>
+	</Implementation>
+	<Method Name="navigateTo" Id="{f1b2c3d4-3331-3333-3333-333333333333}">
+	  <Declaration><![CDATA[METHOD PUBLIC navigateTo : BOOL
+VAR_INPUT
+	goal : ST_Target2D;
+END_VAR
+]]>
+	  </Declaration>
+	  <Implementation>
+		<ST><![CDATA[currentGoal := goal;
+// Navigate to goal
+]]>
+		</ST>
+	  </Implementation>
+	</Method>
+	<Method Name="stopNavigation" Id="{f1b2c3d4-3332-3333-3333-333333333333}">
+	  <Declaration><![CDATA[METHOD PUBLIC stopNavigation : BOOL
+VAR_INPUT
+END_VAR
+]]>
+	  </Declaration>
+	  <Implementation>
+		<ST><![CDATA[// Stop navigation
+]]>
+		</ST>
+	  </Implementation>
+	</Method>
+	<Method Name="dock" Id="{f1b2c3d4-3333-3333-3333-333333333333}">
+	  <Declaration><![CDATA[METHOD PUBLIC dock : BOOL
+VAR_INPUT
+	dockId : INT;
+END_VAR
+]]>
+	  </Declaration>
+	  <Implementation>
+		<ST><![CDATA[// Dock to station
+isDocked := TRUE;
+]]>
+		</ST>
+	  </Implementation>
+	</Method>
+	<Method Name="undock" Id="{f1b2c3d4-3334-3333-3333-333333333333}">
+	  <Declaration><![CDATA[METHOD PUBLIC undock : BOOL
+VAR_INPUT
+END_VAR
+]]>
+	  </Declaration>
+	  <Implementation>
+		<ST><![CDATA[// Undock from station
+isDocked := FALSE;
+]]>
+		</ST>
+	  </Implementation>
+	</Method>
+  </POU>
+</TcPlcObject>

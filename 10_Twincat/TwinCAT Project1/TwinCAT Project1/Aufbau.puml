@@ -8,10 +8,9 @@ allowmixing
 ' Base Classes
 ' ==========================================================
 
-interface BaseComponent {
+abstract class BaseComponent {
   == Base Props ==
   + name : STRING
-  + path: STRING
   + id : INT
   + state : State
   + transition : InternalTransitions
@@ -190,8 +189,8 @@ class 6AxisRobot extends Robot {
   + currentTool : TOOL
   + currentFrame : FRAME
   + currentFrameId : INT
-  + jointPosition : stJointPosition6
-  + jointVelocity : stJointPosition2
+  + jointPosition : 6JointPosition
+  + jointVelocity : 6JointPosition
   + TCPPosition : 3DPose
   + TCPVelocity : 3DPose
   + isInHomePosition : BOOL
