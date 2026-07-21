@@ -1,9 +1,15 @@
-[submodule "20_ROS/src/clones/andino_rmf"]
-	path = 20_ROS/src/clones/andino_rmf
-	url = https://github.com/Ekumen-OS/andino_rmf.git
-[submodule "20_ROS/src/clones/beckhoff_ads_driver"]
-	path = 20_ROS/src/clones/beckhoff_ads_driver
-	url = https://github.com/b-robotized/beckhoff_ads_driver.git
-[submodule "20_ROS/src/clones/rmf_demos"]
-	path = 20_ROS/src/clones/rmf_demos
-	url = https://github.com/open-rmf/rmf_demos.git
+[submodule "20_ROS/src/Robots"]
+	path = 20_ROS/src/Robots
+	url = https://github.com/orka375/eta_robots.git
+[submodule "20_ROS/src/RMF"]
+	path = 20_ROS/src/RMF
+	url = https://github.com/orka375/eta_rmf.git
+[submodule "20_ROS/src/Base"]
+	path = 20_ROS/src/Base
+	url = https://github.com/orka375/eta_base.git
+[submodule "20_ROS/src/Gz"]
+	path = 20_ROS/src/Gz
+	url = https://github.com/orka375/eta_gz.git
+[submodule "20_ROS/src/Interface"]
+	path = 20_ROS/src/Interface
+	url = https://github.com/orka375/tc_ros2_itf.git

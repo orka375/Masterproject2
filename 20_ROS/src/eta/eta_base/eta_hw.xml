@@ -1,9 +1,0 @@
-<library path="diffdrive_eta">
-
-  <class name="eta_base/DiffDriveeta" type="eta_base::DiffDriveeta" base_class_type="hardware_interface::SystemInterface">
-    <description>
-      Hardware interface implementation for the eta robot.
-    </description>
-  </class>
-
-</library>
