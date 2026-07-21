@@ -32,42 +32,39 @@ services:
   #   stdin_open: true
   #   tty: true
 
-
-  db:
-    image: postgres:17
+  db: 
+    image: postgres:18.4
     container_name: postgres_db_container
     restart: unless-stopped
-
+    # network_mode: host
     environment:
       POSTGRES_USER: admin
-      POSTGRES_PASSWORD: "1"
+      POSTGRES_PASSWORD: 1
       POSTGRES_DB: robotdata
-
     volumes:
-      # Docker managed database storage
-      - postgres_data:/var/lib/postgresql/data
+      - ./postgres_data:/var/lib/postgresql
+      - ./40_DB/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-      # Create database on first startup
-      - ./40_DB/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-
+    # networks:
+    #   - robot_network
     ports:
       - "5432:5432"
-
-
+   
+    # stdin_open: true
+    # tty: true
   db_gui:
     image: dpage/pgadmin4:latest
+
     container_name: postgres_db_gui_container
+
     restart: unless-stopped
 
     environment:
       PGADMIN_DEFAULT_EMAIL: fabian.nachbur@eta.ch
-      PGADMIN_DEFAULT_PASSWORD: "1"
+      PGADMIN_DEFAULT_PASSWORD: 1
 
     ports:
       - "8080:80"
-
-    depends_on:
-      - db
 
 
 volumes:

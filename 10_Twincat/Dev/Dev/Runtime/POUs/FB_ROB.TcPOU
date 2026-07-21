@@ -1,0 +1,693 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_ROB" Id="{7ce28b50-28f8-4d4c-bb25-1006bf064637}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ROB IMPLEMENTS ITF_6AxisRobot
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+	_inCollision: BOOL;
+	_inHomePosition: BOOL;
+END_VAR
+VAR
+	id: UINT;
+	{attribute 'instance-path'}
+	spath: STRING;
+	{attribute 'instance-name'}
+	sname: STRING;
+	
+	_state: eState := eState.Unconfigured;
+	_enabled: BOOL;
+	_mode: eMode;
+	_locked: BOOL;
+	
+	tcppos, tcpvel : stPose3D;
+	jointpos, jointvel: stJointPosition6;
+	currFrame: stTarget3D;
+	currTool: FB_Tool;
+	velovr: BOOL;
+	velfact: REAL;
+	
+	
+	dummy: INT;
+END_VAR
+
+VAR
+	transitionresult: ERESULT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//State Machine
+
+CASE _state OF
+	eState.Unconfigured:
+		dummy:=1;
+	eState.Inactive:
+		dummy:=1;
+	eState.Active:
+		dummy:=1;
+	eState.Finalized:
+		destroy();
+		
+END_CASE]]></ST>
+    </Implementation>
+    <Folder Name="Done" Id="{d14dad14-4780-4b1d-94ed-a217c650169e}" />
+    <Method Name="activate" Id="{8d29e9eb-3e7c-4311-8303-d07f52bcf283}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD activate : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _state=eState.Inactive THEN
+	_state:=eState.Activating;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="cleanup" Id="{c4819076-2442-41bd-8aa1-fe9bd8639fb5}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD cleanup : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _state=eState.Inactive THEN
+	_state:=eState.CleaningUp;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="configure" Id="{e049feb0-d020-4b0d-9355-74a020722637}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD configure : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _state=eState.Unconfigured THEN
+	_state:=eState.Configuring;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="currentFrame" Id="{3defce60-7e49-4e7e-bf87-270fbfdc4916}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY currentFrame : stTarget3D
+]]></Declaration>
+      <Get Name="Get" Id="{a56e3f12-806b-469f-85ba-bdee874448be}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[currentFrame := currFrame;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{ba173aef-d6ff-4638-8f1d-57ecfae59ab8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[currFrame := currentFrame;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="currentFrameID" Id="{dd11d988-e0a0-48bf-8bf0-22f43478126e}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY currentFrameID : UINT
+]]></Declaration>
+      <Get Name="Get" Id="{5fa3de6d-f0e0-41a8-a0ac-2914acd41e6f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[currentFrameID:= currFrame.frameId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="currentTool" Id="{320630e8-a077-4c75-9162-7e203f456dd6}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY currentTool : stTool
+]]></Declaration>
+      <Get Name="Get" Id="{55a159c1-4d4a-409e-a4c4-7d4981bc697e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[currentTool:= currTool;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{a4b28fed-5fac-49f4-a5aa-d9b3e904be49}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[currTool:= currentTool;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="deactivate" Id="{4dfdb93c-87ba-4697-9eee-0c2811499a1b}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD deactivate : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _state=eState.Active THEN
+	_state:=eState.Deactivating;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="destroy" Id="{84232af5-24cf-43e3-b44a-0f85cd0c58bf}" FolderPath="Done\">
+      <Declaration><![CDATA[METHOD destroy : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _state=eState.Finalized THEN
+	_state:=eState.Unconfigured;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="disable" Id="{bbb8a1cb-19df-48a2-aa34-15efcd08818d}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD disable : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_enabled:=False;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="disableVelocityOverride" Id="{ee13b86f-55fa-4515-ac1d-c418ff59ec19}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD disableVelocityOverride : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[velovr:=False;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="enable" Id="{3bb80d4c-ff29-49a1-abc5-c8b4d3120296}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD enable : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_enabled:=True;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="enableVelocityOverride" Id="{1ca0163b-6260-47a4-b242-d72534327ea7}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD enableVelocityOverride : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[velovr:=True;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="estop" Id="{ff1c583d-626a-4142-b727-591a7a8cf9e6}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD estop : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="fb_init" Id="{0c3d41bf-b6bf-43af-8e5f-2f9cff8b78af}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+//The return value is not evaluated. For a specific influence, you can also declare the
+//methods explicitly and provide additional code there with the standard initialization
+//code. You can evaluate the return value.
+METHOD FB_Init: BOOL
+VAR_INPUT
+    bInitRetains: BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+    bInCopyCode: BOOL;  // TRUE: the instance will be copied to the copy code afterward (online change)   
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Home" Id="{7014fdc2-2a99-4667-afa3-702d64117306}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD Home : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ID" Id="{02103499-eeb3-4503-af89-00f08586bb91}" FolderPath="Done\">
+      <Declaration><![CDATA[PROPERTY ID : UINT]]></Declaration>
+      <Get Name="Get" Id="{deab2396-2641-431f-a830-53ed4e86a56e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ID:= id;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{b7cbcd67-4ab7-4291-9b8b-98c4619f6c20}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[id:=ID;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="isInCollision" Id="{8eea56b9-50ca-4510-b567-db19e3eca5c7}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY isInCollision : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{885867df-c0d3-4443-aec9-8d2b982d76c4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[isInCollision:=_inCollision;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="isInHomePosition" Id="{b291bd7a-b376-43ca-9c5d-6e69b1474653}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY isInHomePosition : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{48377aff-eac7-42a4-9977-4f8cac049a47}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[isInHomePosition:=_inHomePosition;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="jointPosition" Id="{62bdfa01-4f49-48e5-b78e-48d9db8502fb}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY jointPosition : stJointPosition6
+]]></Declaration>
+      <Get Name="Get" Id="{377890e9-edca-45df-9527-8e0180554c23}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[jointPosition:= jointpos;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="jointVelocity" Id="{7fd56bfe-aed4-4499-a51a-1aa012883b57}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY jointVelocity : stJointPosition6
+]]></Declaration>
+      <Get Name="Get" Id="{615bccea-fca6-4734-bc44-2f71771b6a9f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[jointVelocity:= jointvel;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="M_AUTO" Id="{a36cbff6-922e-4670-8cae-63446b6e1765}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD M_AUTO : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_mode:=eMode.Automatic;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_MAN" Id="{3ea33c07-baa7-444c-a0bc-e71071e519dd}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD M_MAN : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_mode:=eMode.Manual;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_ChangeSpeedOverride" Id="{a5e39256-a687-447d-8a2a-a95ea9e40d2e}" FolderPath="Done\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_ChangeSpeedOverride : INT
+VAR_INPUT
+	factor	: REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[velfact:=factor;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_MoveAxesAbsolute" Id="{4a57e296-bf8b-45fd-b7f9-2bbc19da0ff1}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_MoveAxesAbsolute : BOOL
+VAR_INPUT
+	target	: Target;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_MoveAxesRelative" Id="{35510a32-0c4b-4c39-90b5-26b6db5807e5}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_MoveAxesRelative : BOOL
+VAR_INPUT
+	axes	: ARRAY [1..6] OF Axis;
+	offsets	: ARRAY [1..6] OF REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_MoveLinearAbsolute" Id="{b50e8fbc-c234-463b-83a8-1fdc913913c2}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_MoveLinearAbsolute : BOOL
+VAR_INPUT
+	target	: Target;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_ReadActualVelocity" Id="{d27e5b53-66ec-4d8d-a87b-1e29eacaa9cf}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_ReadActualVelocity : stPose
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_ReadAnalogInput" Id="{a0771a4d-d78e-4b48-be08-5a3eddd97117}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_ReadAnalogInput : LREAL
+VAR_INPUT
+	input	: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_ReadDigitalInput" Id="{810cf3e7-826c-4948-9cd2-e22f196b395b}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_ReadDigitalInput : BOOL
+VAR_INPUT
+	input	: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_SetDigitalOutput" Id="{0506e1df-210a-4545-b3d9-24747eac6402}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_SetDigitalOutput : BOOL
+VAR_INPUT
+	output	: INT;
+	value	: BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_SetOperationMode" Id="{88066684-cd5d-4e91-8d6c-ef889f6cb09d}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_SetOperationMode : BOOL
+VAR_INPUT
+	mode	: eMode;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_mode:=mode;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="name" Id="{015b8274-bea0-4717-acc8-15b80b3c72df}" FolderPath="Done\">
+      <Declaration><![CDATA[PROPERTY name : STRING
+]]></Declaration>
+      <Get Name="Get" Id="{2759d57a-7f95-46dc-b3ac-80dc4cee932d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[name:=sname;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="onActivate" Id="{9da44456-9079-48c4-a422-180073049c7f}" FolderPath="Done\">
+      <Declaration><![CDATA[METHOD onActivate : BOOL
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+_mode:= eMode.Automatic;
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	_state:=eState.Active;
+ELSIF transitionresult= eResult.FAILURE THEN
+	_state:=eState.Inactive;
+ELSIF transitionresult= eResult.ERROR THEN
+	_state:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onActivate is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onCleanup" Id="{1cbf57cd-f144-4499-ac40-e58b878ddcfc}" FolderPath="Done\">
+      <Declaration><![CDATA[METHOD onCleanup : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+_mode:= eMode.Free;
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	_state:=eState.Unconfigured;
+ELSIF transitionresult= eResult.FAILURE THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is FAILURE ','');
+ELSIF transitionresult= eResult.ERROR THEN
+	_state:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is NONE','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onConfigure" Id="{c7df3a26-6fc2-40b8-b279-df837148749a}" FolderPath="Done\">
+      <Declaration><![CDATA[METHOD onConfigure : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+_mode:= eMode.Free;
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	_state:=eState.Inactive;
+ELSIF transitionresult= eResult.FAILURE THEN
+	_state:=eState.Unconfigured;
+ELSIF transitionresult= eResult.ERROR THEN
+	_state:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onConfigure is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onDeactivate" Id="{46dc1863-bc20-4aa6-822e-d746ed6280bd}" FolderPath="Done\">
+      <Declaration><![CDATA[METHOD onDeactivate : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+_mode:= eMode.Free;
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	_state:=eState.Inactive;
+ELSIF transitionresult= eResult.FAILURE THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is FAILURE','');
+ELSIF transitionresult= eResult.ERROR THEN
+	_state:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onError" Id="{c4fcde18-52a6-416e-9375-25c35d4fb566}" FolderPath="Done\">
+      <Declaration><![CDATA[METHOD onError : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+_mode:= eMode.Free;
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	_state:=eState.Unconfigured;
+ELSIF transitionresult= eResult.FAILURE THEN
+	_state:=eState.Finalized;
+ELSIF transitionresult= eResult.ERROR THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is Error','');
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onShutdown" Id="{05a5db8e-a9c0-4764-9498-22b8037c7c75}" FolderPath="Done\">
+      <Declaration><![CDATA[METHOD onShutdown : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+_mode:= eMode.Free;
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	_state:=eState.Finalized;
+ELSIF transitionresult= eResult.FAILURE THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is FAILURE','');
+ELSIF transitionresult= eResult.ERROR THEN
+	_state:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="path" Id="{358969a8-215d-44b2-ab6a-c65c386dcd92}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY path : STRING
+]]></Declaration>
+      <Get Name="Get" Id="{a93e3425-df2c-4bdc-b6da-5ba321fe55c3}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="shutdown" Id="{3ead6a19-7dc5-40d4-a71b-bdd872496dd3}" FolderPath="Done\">
+      <Declaration><![CDATA[METHOD shutdown : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF state=eState.Active OR state=eState.Inactive OR state=eState.Unconfigured THEN
+	state:=eState.ShuttingDown;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="state" Id="{f677a766-006d-41e6-82ef-8dc9a81e2c7b}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY state : eState
+]]></Declaration>
+      <Get Name="Get" Id="{bbf22036-7d03-45e8-9ef0-7ca7687be28b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="stop" Id="{c82d13a7-e9c4-4f5f-93b0-c76541164560}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD stop : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SwitchTool" Id="{6f23de8e-ce10-4474-a455-75880ed83c64}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD SwitchTool : UINT
+VAR_INPUT
+	tool	: stTool;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="TCPPosition" Id="{f72ec0ef-2e69-4575-bc40-42bf95538a4b}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY TCPPosition : stPose3D
+]]></Declaration>
+      <Get Name="Get" Id="{c3c3121b-b122-40b3-9423-b6a68eb7f739}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="TCPVelocity" Id="{40670a72-df15-4856-b9cf-de156d9555e7}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY TCPVelocity : stPose3D
+]]></Declaration>
+      <Get Name="Get" Id="{bf27e25c-fc96-46ca-8f22-ce6cb385d76e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

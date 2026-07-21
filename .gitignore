@@ -15,3 +15,5 @@
 20_ROS/build/
 20_ROS/install/
 20_ROS/log/
+
+postgres_data/

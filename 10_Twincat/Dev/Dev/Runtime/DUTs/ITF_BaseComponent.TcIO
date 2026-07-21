@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="ITF_BaseComponent" Id="{65885d39-4024-4344-a8ab-374a6ccc4c59}">
+    <Declaration><![CDATA[INTERFACE ITF_BaseComponent
+]]></Declaration>
+    <Folder Name="Activities" Id="{5e3aa71c-ec0e-47b3-8f33-f08f0fb99381}" />
+    <Folder Name="Transitions" Id="{6560e606-0171-480a-9918-20910c0e5bdf}" />
+    <Method Name="activate" Id="{421c2108-8179-4a12-ba41-35989c996212}" FolderPath="Transitions\">
+      <Declaration><![CDATA[METHOD activate : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="cleanup" Id="{2b58a7de-95d9-467c-85d1-db9dec921482}" FolderPath="Transitions\">
+      <Declaration><![CDATA[METHOD cleanup : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="configure" Id="{e50a6f49-0903-48ba-8271-1c9d1e1e510c}" FolderPath="Transitions\">
+      <Declaration><![CDATA[METHOD configure : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="deactivate" Id="{543d663f-3433-4738-bb10-46e710584fb3}" FolderPath="Transitions\">
+      <Declaration><![CDATA[METHOD deactivate : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="destroy" Id="{8dc262df-163a-4e11-9777-3fbb1a531627}" FolderPath="Transitions\">
+      <Declaration><![CDATA[METHOD destroy : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="ID" Id="{fc62148d-d821-4a08-a5bf-6bdef92d59d5}">
+      <Declaration><![CDATA[PROPERTY ID : UINT]]></Declaration>
+      <Get Name="Get" Id="{c2985394-0d19-4b0e-a4c8-339d4db8e630}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{98424317-6db3-4da6-80d9-cb32dfe7d9a6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="name" Id="{8e02e470-71da-44a6-a68f-092954d86151}">
+      <Declaration><![CDATA[PROPERTY name : String]]></Declaration>
+      <Get Name="Get" Id="{7f1ff7dd-a478-4f29-885d-9677ae5d4a7e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="onActivate" Id="{db5ccdf9-dda4-4656-8a40-44601294dbda}" FolderPath="Activities\">
+      <Declaration><![CDATA[METHOD onActivate : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="onCleanup" Id="{aeb6ee92-c260-499d-8c85-ecf0511ec7d2}" FolderPath="Activities\">
+      <Declaration><![CDATA[METHOD onCleanup : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="onConfigure" Id="{5400f4d2-21c5-44f4-af11-064140524d3d}" FolderPath="Activities\">
+      <Declaration><![CDATA[METHOD onConfigure : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="onDeactivate" Id="{f1a21cdc-6225-4962-9570-04e28e96710c}" FolderPath="Activities\">
+      <Declaration><![CDATA[METHOD onDeactivate : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="onError" Id="{6370aa46-a510-420e-b2b1-4a92b9216869}" FolderPath="Activities\">
+      <Declaration><![CDATA[METHOD onError : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="onShutdown" Id="{6b29e55c-0bb5-4ed2-8d4c-29a2f4547848}" FolderPath="Activities\">
+      <Declaration><![CDATA[METHOD onShutdown : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="path" Id="{755b1bdf-ea5e-45d8-b845-25d127de2ac2}">
+      <Declaration><![CDATA[PROPERTY path : String]]></Declaration>
+      <Get Name="Get" Id="{bdac12b3-22bb-41f6-8039-bf0761521d8e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="shutdown" Id="{d44b7757-327e-4329-96cc-8c180a9fb4f3}" FolderPath="Transitions\">
+      <Declaration><![CDATA[METHOD shutdown : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="state" Id="{4c5eddbd-3571-4017-85b4-cee88242beba}">
+      <Declaration><![CDATA[PROPERTY state : eState]]></Declaration>
+      <Get Name="Get" Id="{42aa47ea-f1d7-4040-ade8-b3efc7baaa84}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

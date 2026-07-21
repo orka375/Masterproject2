@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<RobotSystem>
+
+```
+<!-- ========================= -->
+<!-- Plants                    -->
+<!-- ========================= -->
+
+<Plants>
+
+    <Plant id="1">
+        <Name>BFH Plant</Name>
+        <Description>
+            Test and development plant with ABB, KUKA and UR robots
+        </Description>
+
+        <Robots>
+
+            <!-- UR5e -->
+            <Robot id="1">
+                <Name>UR5e_01</Name>
+                <Manufacturer>Universal Robots</Manufacturer>
+                <Model>UR5e</Model>
+                <Type>Collaborative Robot</Type>
+                <Axes>6</Axes>
+                <Payload unit="kg">5</Payload>
+                <Reach unit="mm">850</Reach>
+                <Controller>UR Controller</Controller>
+                <IPAddress>192.168.10.10</IPAddress>
+
+                <Tools>
+
+                    <Tool id="1">
+                        <Name>SCHUNK_PG160_01</Name>
+
+                        <TCP>
+                            <X unit="mm">0</X>
+                            <Y unit="mm">0</Y>
+                            <Z unit="mm">150</Z>
+                            <RX unit="deg">180</RX>
+                            <RY unit="deg">0</RY>
+                            <RZ unit="deg">0</RZ>
+                        </TCP>
+
+                        <Weight unit="kg">1.8</Weight>
+
+                        <COG>
+                            <X unit="mm">0</X>
+                            <Y unit="mm">0</Y>
+                            <Z unit="mm">75</Z>
+                        </COG>
+
+                    </Tool>
+
+                </Tools>
+
+            </Robot>
+
+
+            <!-- ABB -->
+            <Robot id="2">
+
+                <Name>ABB_IRB1200_01</Name>
+                <Manufacturer>ABB</Manufacturer>
+                <Model>IRB 1200</Model>
+                <Type>Industrial Robot</Type>
+                <Axes>6</Axes>
+                <Payload unit="kg">7</Payload>
+                <Reach unit="mm">900</Reach>
+                <Controller>IRC5</Controller>
+                <IPAddress>192.168.10.20</IPAddress>
+
+                <Tools>
+
+                    <Tool id="2">
+                        <Name>ABB_Gripper_01</Name>
+
+                        <TCP>
+                            <X unit="mm">0</X>
+                            <Y unit="mm">0</Y>
+                            <Z unit="mm">220</Z>
+                            <RX unit="deg">180</RX>
+                            <RY unit="deg">0</RY>
+                            <RZ unit="deg">0</RZ>
+                        </TCP>
+
+                        <Weight unit="kg">3.2</Weight>
+
+                        <COG>
+                            <X unit="mm">0</X>
+                            <Y unit="mm">0</Y>
+                            <Z unit="mm">110</Z>
+                        </COG>
+
+                    </Tool>
+
+                </Tools>
+
+            </Robot>
+
+
+            <!-- KUKA -->
+            <Robot id="3">
+
+                <Name>KUKA_KR210_01</Name>
+                <Manufacturer>KUKA</Manufacturer>
+                <Model>KR210</Model>
+                <Type>Industrial Robot</Type>
+                <Axes>6</Axes>
+                <Payload unit="kg">210</Payload>
+                <Reach unit="mm">2700</Reach>
+                <Controller>KRC4</Controller>
+                <IPAddress>192.168.10.30</IPAddress>
+
+                <Tools>
+
+                    <Tool id="3">
+                        <Name>KUKA_Gripper_01</Name>
+
+                        <TCP>
+                            <X unit="mm">0</X>
+                            <Y unit="mm">0</Y>
+                            <Z unit="mm">300</Z>
+                            <RX unit="deg">180</RX>
+                            <RY unit="deg">0</RY>
+                            <RZ unit="deg">0</RZ>
+                        </TCP>
+
+                        <Weight unit="kg">12.5</Weight>
+
+                        <COG>
+                            <X unit="mm">0</X>
+                            <Y unit="mm">0</Y>
+                            <Z unit="mm">150</Z>
+                        </COG>
+
+                    </Tool>
+
+                </Tools>
+
+            </Robot>
+
+        </Robots>
+
+
+        <CoordinateSystems>
+
+            <CoordSys id="1">
+                <Name>MachineZero</Name>
+
+                <Pose>
+                    <X unit="mm">1500</X>
+                    <Y unit="mm">500</Y>
+                    <Z unit="mm">0</Z>
+                    <RX unit="deg">0</RX>
+                    <RY unit="deg">0</RY>
+                    <RZ unit="deg">0</RZ>
+                </Pose>
+
+            </CoordSys>
+
+
+            <CoordSys id="2">
+                <Name>RobotCell_A</Name>
+
+                <Pose>
+                    <X unit="mm">0</X>
+                    <Y unit="mm">0</Y>
+                    <Z unit="mm">0</Z>
+                    <RX unit="deg">0</RX>
+                    <RY unit="deg">0</RY>
+                    <RZ unit="deg">0</RZ>
+                </Pose>
+
+            </CoordSys>
+
+        </CoordinateSystems>
+
+    </Plant>
+
+
+
+    <!-- ETA Plant -->
+
+    <Plant id="2">
+
+        <Name>ETA Plant</Name>
+
+        <Description>
+            Test and development plant
+        </Description>
+
+
+        <Robots>
+
+            <Robot id="4">
+
+                <Name>UR5_ETA_01</Name>
+                <Manufacturer>Universal Robots</Manufacturer>
+                <Model>UR5</Model>
+                <Type>Collaborative Robot</Type>
+                <Axes>6</Axes>
+                <Payload unit="kg">5</Payload>
+                <Reach unit="mm">850</Reach>
+                <Controller>UR Controller</Controller>
+                <IPAddress>192.168.20.10</IPAddress>
+
+
+                <Tools>
+
+                    <Tool id="4">
+
+                        <Name>VacuumTool_01</Name>
+
+                        <TCP>
+                            <X unit="mm">0</X>
+                            <Y unit="mm">0</Y>
+                            <Z unit="mm">120</Z>
+                            <RX unit="deg">180</RX>
+                            <RY unit="deg">0</RY>
+                            <RZ unit="deg">0</RZ>
+                        </TCP>
+
+                        <Weight unit="kg">1.2</Weight>
+
+                        <COG>
+                            <X unit="mm">0</X>
+                            <Y unit="mm">0</Y>
+                            <Z unit="mm">60</Z>
+                        </COG>
+
+                    </Tool>
+
+                </Tools>
+
+            </Robot>
+
+        </Robots>
+
+
+        <CoordinateSystems>
+
+            <CoordSys id="3">
+
+                <Name>ETA_TestBench</Name>
+
+                <Pose>
+                    <X unit="mm">500</X>
+                    <Y unit="mm">200</Y>
+                    <Z unit="mm">0</Z>
+                    <RX unit="deg">0</RX>
+                    <RY unit="deg">0</RY>
+                    <RZ unit="deg">90</RZ>
+                </Pose>
+
+            </CoordSys>
+
+        </CoordinateSystems>
+
+    </Plant>
+
+</Plants>
+```
+
+</RobotSystem>
