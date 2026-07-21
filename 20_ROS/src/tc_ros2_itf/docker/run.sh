@@ -1,34 +1,6 @@
 #!/bin/bash
 
-# BSD 3-Clause License
-#
-# Copyright (c) 2024, Ekumen Inc.
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright notice, this
-#    list of conditions and the following disclaimer.
-#
-# 2. Redistributions in binary form must reproduce the above copyright notice,
-#    this list of conditions and the following disclaimer in the documentation
-#    and/or other materials provided with the distribution.
-#
-# 3. Neither the name of the copyright holder nor the names of its
-#    contributors may be used to endorse or promote products derived from
-#    this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 
 set +e
 
@@ -59,7 +31,7 @@ echo "Running the container..."
 
 # Location of the repository
 REPOSITORY_FOLDER_PATH="$(cd "$(dirname "$0")"; cd ..; pwd)"
-REPOSITORY_FOLDER_NAME=$( basename $REPOSITORY_FOLDER_PATH )
+REPOSITORY_FOLDER_NAME="$(basename "$REPOSITORY_FOLDER_PATH")"
 
 DSIM_REPOS_PARENT_FOLDER_PATH="$(cd "$(dirname "$0")"; cd ..; pwd)"
 # Location from where the script was executed.
@@ -79,21 +51,22 @@ done
 
 # Update the arguments to default values if needed.
 
-IMAGE_NAME=${IMAGE_NAME:-eta_tc_ros2_itf}
+IMAGE_NAME=${IMAGE_NAME:-orka375/eta_tc_ros2_itf}
 CONTAINER_NAME=${CONTAINER_NAME:-eta_tc_ros2_itf_container}
 
-SSH_PATH=/home/$USER/.ssh
+SSH_PATH="/home/$USER/.ssh"
 WORKSPACE_SRC_CONTAINER=/home/$(whoami)/ws/src/$REPOSITORY_FOLDER_NAME
 WORKSPACE_ROOT_CONTAINER=/home/$(whoami)/ws
 SSH_AUTH_SOCK_USER=$SSH_AUTH_SOCK
+CONTAINER_STARTED=0
 
 # Create cache folders to store colcon build files
-mkdir -p ${REPOSITORY_FOLDER_PATH}/.build
-mkdir -p ${REPOSITORY_FOLDER_PATH}/.install
+mkdir -p "${REPOSITORY_FOLDER_PATH}/.build"
+mkdir -p "${REPOSITORY_FOLDER_PATH}/.install"
 
 # Transfer the ownership to the user
-chown -R "$USER" ${REPOSITORY_FOLDER_PATH}/.build
-chown -R "$USER" ${REPOSITORY_FOLDER_PATH}/.install
+chown -R "$USER" "${REPOSITORY_FOLDER_PATH}/.build"
+chown -R "$USER" "${REPOSITORY_FOLDER_PATH}/.install"
 
 # Check if name container is already taken.
 if sudo -g docker docker container ls -a | grep "${CONTAINER_NAME}$" -c &> /dev/null; then
@@ -103,33 +76,100 @@ if sudo -g docker docker container ls -a | grep "${CONTAINER_NAME}$" -c &> /dev/
    exit 1
 fi
 
-xhost +
-sudo docker run -it --privileged --net=host --ipc=host --pid=host -it \
-        $NVIDIA_FLAGS \
-       -e DISPLAY=$DISPLAY \
-       -e SSH_AUTH_SOCK=$SSH_AUTH_SOCK_USER \
-       -v $(dirname $SSH_AUTH_SOCK_USER):$(dirname $SSH_AUTH_SOCK_USER) \
-       -v /tmp/.X11-unix:/tmp/.X11-unix \
-       -v ${REPOSITORY_FOLDER_PATH}:$WORKSPACE_SRC_CONTAINER \
-       -v ${REPOSITORY_FOLDER_PATH}/.build:$WORKSPACE_ROOT_CONTAINER/build:rw \
-       -v ${REPOSITORY_FOLDER_PATH}/.install:$WORKSPACE_ROOT_CONTAINER/install:rw \
-       -v $SSH_PATH:$SSH_PATH \
-       --name $CONTAINER_NAME $IMAGE_NAME
-xhost -
+USE_X11=0
+USE_WSLG=0
+
+if [[ -n "$DISPLAY" ]]; then
+  USE_X11=1
+fi
+
+if [[ -n "$WAYLAND_DISPLAY" && -d /mnt/wslg ]]; then
+  USE_WSLG=1
+fi
+
+if [[ "$USE_X11" -eq 1 && "$USE_WSLG" -ne 1 ]] && command -v xhost >/dev/null 2>&1; then
+  xhost +local:root >/dev/null 2>&1 || true
+fi
+
+DOCKER_RUN_ARGS=(run --privileged --net=host --ipc=host --pid=host -it)
+
+if [[ -n "$NVIDIA_FLAGS" ]]; then
+  # NVIDIA flags are provided as a space-separated option string.
+  read -r -a NVIDIA_ARGS <<< "$NVIDIA_FLAGS"
+  DOCKER_RUN_ARGS+=("${NVIDIA_ARGS[@]}")
+fi
+
+if [[ "$USE_X11" -eq 1 ]]; then
+  DOCKER_RUN_ARGS+=(-e "DISPLAY=$DISPLAY" -e QT_X11_NO_MITSHM=1 -v /tmp/.X11-unix:/tmp/.X11-unix)
+fi
+
+if [[ "$USE_WSLG" -eq 1 ]]; then
+  DOCKER_RUN_ARGS+=(-e "WAYLAND_DISPLAY=$WAYLAND_DISPLAY" -v /mnt/wslg:/mnt/wslg)
+  if [[ -n "$XDG_RUNTIME_DIR" ]]; then
+    DOCKER_RUN_ARGS+=(-e "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR")
+  fi
+  if [[ -n "$PULSE_SERVER" ]]; then
+    DOCKER_RUN_ARGS+=(-e "PULSE_SERVER=$PULSE_SERVER")
+  fi
+fi
+
+if [[ "$USE_X11" -ne 1 && "$USE_WSLG" -ne 1 ]]; then
+  echo "Warning: No GUI display variables detected. rviz2/rqt will not work."
+  echo "Hint: start this script from a WSL distro with WSLg (Ubuntu), not from docker-desktop."
+fi
+
+if [[ -n "$SSH_AUTH_SOCK_USER" && "$SSH_AUTH_SOCK_USER" == /* ]]; then
+  SSH_AUTH_SOCK_DIR="$(dirname "$SSH_AUTH_SOCK_USER")"
+  DOCKER_RUN_ARGS+=(-e "SSH_AUTH_SOCK=$SSH_AUTH_SOCK_USER" -v "$SSH_AUTH_SOCK_DIR:$SSH_AUTH_SOCK_DIR")
+else
+  echo "Warning: SSH_AUTH_SOCK is not set to an absolute path. Skipping SSH agent forwarding."
+fi
+
+DOCKER_RUN_ARGS+=(
+  -v "${REPOSITORY_FOLDER_PATH}:$WORKSPACE_SRC_CONTAINER"
+  -v "${REPOSITORY_FOLDER_PATH}/.build:$WORKSPACE_ROOT_CONTAINER/build:rw"
+  -v "${REPOSITORY_FOLDER_PATH}/.install:$WORKSPACE_ROOT_CONTAINER/install:rw"
+  -v "$SSH_PATH:$SSH_PATH"
+  --name "$CONTAINER_NAME"
+  "$IMAGE_NAME"
+)
+
+sudo docker "${DOCKER_RUN_ARGS[@]}"
+RUN_EXIT=$?
+
+if [[ "$USE_X11" -eq 1 && "$USE_WSLG" -ne 1 ]] && command -v xhost >/dev/null 2>&1; then
+  xhost -local:root >/dev/null 2>&1 || true
+fi
+
+if [[ "$RUN_EXIT" -ne 0 ]]; then
+  echo "Container start failed with exit code $RUN_EXIT."
+  exit "$RUN_EXIT"
+fi
+
+CONTAINER_STARTED=1
+
+# Returns true when the container exists, false otherwise.
+function container_exists() {
+  sudo docker container inspect "$1" >/dev/null 2>&1
+}
 
 # Trap workspace exits and give the user the choice to save changes.
 function onexit() {
+  if [[ "$CONTAINER_STARTED" -ne 1 ]] || ! container_exists "$CONTAINER_NAME"; then
+    return
+  fi
+
   while true; do
     read -p "Do you want to overwrite the image called '$IMAGE_NAME' with the current changes? [y/n]: " answer
     if [[ "${answer:0:1}" =~ y|Y ]]; then
       echo "Overwriting docker image..."
-      sudo docker commit $CONTAINER_NAME $IMAGE_NAME
+      sudo docker commit "$CONTAINER_NAME" "$IMAGE_NAME"
       break
     elif [[ "${answer:0:1}" =~ n|N ]]; then
       break
     fi
   done
-  docker stop $CONTAINER_NAME > /dev/null
+  sudo docker stop "$CONTAINER_NAME" > /dev/null || true
 
 }
 

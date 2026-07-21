@@ -15,10 +15,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y $(cat requireme
 RUN rm requirements.txt
 
 # Install Gazebo Ionic
-RUN sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
-RUN wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
-RUN sudo apt-get update
-RUN sudo apt-get install gz-ionic -y
+# RUN sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+# RUN wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+# RUN sudo apt-get update
+# RUN sudo apt-get install gz-ionic -y
 
 # Create a user with passwordless sudo
 RUN adduser --gecos "admin" --disabled-password $USER
@@ -33,17 +33,22 @@ USER $USER
 ####################### GITS
 RUN mkdir -p /home/$USER/ros_ws/src
 WORKDIR /home/$USER/ros_ws/src
-# Clone rmf-demos-tasks
+
 RUN git clone https://github.com/b-robotized/beckhoff_ads_driver.git
+
 RUN git clone https://github.com/orka375/Masterproject2.git
-# Rosdep install
+
+
+RUN rosdep update
+RUN git clone https://github.com/b-robotized/ros2_opc_ua.git
+
 WORKDIR /home/$USER/ros_ws/
 RUN . /opt/ros/kilted/setup.sh && rosdep install -y -i --from-paths src
 
 
 
 ####################### Update
-RUN sudo apt upgrade -y && sudo apt update && rosdep update
+RUN sudo apt upgrade -y && sudo apt update
 
 
 

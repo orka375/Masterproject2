@@ -1,21 +1,27 @@
+
 # VS Code + WSL + Docker + PostgreSQL Workflow
 
-This guide explains how to create and manage Docker containers from WSL, mount a Windows workspace into containers, connect VS Code to running containers, rebuild Docker images, and use PostgreSQL with Docker.
+This guide explains the complete workflow for:
 
----
+- Using Docker from WSL
+- Building Docker images
+- Running and joining containers
+- Mounting Windows workspaces
+- Connecting VS Code to containers
+- Publishing Docker images to Docker Hub
+- Running PostgreSQL with Docker
+- Managing databases with pgAdmin and SQL
+
 
 # 1. Start WSL and Docker
 
 ## Open WSL Ubuntu 24.04
 
-Start Ubuntu from Windows:
-
-- Windows Start Menu → **Ubuntu 24.04**
-- Or from PowerShell:
+Start Ubuntu:
 
 ```bash
 wsl
-```
+````
 
 Check Docker:
 
@@ -23,29 +29,7 @@ Check Docker:
 docker --version
 ```
 
----
-
-# 2. Manage Existing Containers
-
-## List running containers
-
-```bash
-docker ps
-```
-
-## List all containers
-
-```bash
-docker ps -a
-```
-
-## Start a stopped container
-
-```bash
-docker start mycontainer
-```
-
-Check:
+Check running Docker containers:
 
 ```bash
 docker ps
@@ -53,92 +37,222 @@ docker ps
 
 ---
 
-# 3. Create a Docker Container with Windows Workspace Mounted
+# 2. Docker Workflow
 
-Example Windows workspace:
+## 2.1 Docker Concepts
 
-```
-C:\Users\Fabian\OneDrive - Berner Fachhochschule\Desktop\Masterproject\20_ROS
-```
-
-Inside WSL:
+Docker uses three main objects:
 
 ```
-/mnt/c/Users/Fabian/OneDrive - Berner Fachhochschule/Desktop/Masterproject/20_ROS
-```
-
-Create container:
-
-```bash
-docker run -d \
-  --name mycontainer \
-  -e DISPLAY=$DISPLAY \
-  -v /tmp/.X11-unix:/tmp/.X11-unix \
-  -v "/mnt/c/Users/Fabian/OneDrive - Berner Fachhochschule/Desktop/Masterproject/20_ROS:/ros2_ws" \
-  starrynight:latest \
-  tail -f /dev/null
+Dockerfile
+     |
+     v
+Docker Image
+     |
+     v
+Docker Container
 ```
 
 Explanation:
 
-| Option | Purpose |
-|-|-|
-| `--name` | Container name |
-| `-v host:path` | Mount Windows folder |
-| `-e DISPLAY` | GUI forwarding |
-| `tail -f /dev/null` | Keep container running |
+| Object     | Description                     |
+| ---------- | ------------------------------- |
+| Dockerfile | Instructions to create an image |
+| Image      | Packaged environment            |
+| Container  | Running instance of an image    |
 
 ---
 
-# 4. Enter a Running Container
+# 3. Create a Docker Image
 
-```bash
-docker exec -it mycontainer bash
+## 3.1 Create Dockerfile
+
+Example:
+
+```dockerfile
+FROM ubuntu:24.04
+
+RUN apt update && apt install -y \
+    python3 \
+    python3-pip \
+    sqlite3 \
+    bash
+
+WORKDIR /ros2_ws
+
+CMD ["bash"]
 ```
 
-Check location:
+Folder:
 
-```bash
-pwd
+```
+project/
+|
++-- Dockerfile
 ```
 
 ---
 
-# 5. Verify Workspace Mount
+## 3.2 Build Image
 
-Inside container:
+Navigate to Dockerfile folder:
 
 ```bash
-ls -la /ros2_ws
+cd project
 ```
 
-Check mounts:
+Build:
 
 ```bash
-docker inspect mycontainer
+docker build -t starrynight:new .
 ```
 
-or:
+Check images:
 
 ```bash
-docker inspect mycontainer \
--f '{{range .Mounts}}{{.Source}} -> {{.Destination}}{{println}}{{end}}'
+docker images
 ```
 
 Example:
 
 ```
-/mnt/c/Users/Fabian/.../20_ROS -> /ros2_ws
+REPOSITORY      TAG
+starrynight     new
 ```
 
 ---
 
-# 6. Connect VS Code to Container
+# 4. Run a Docker Container
 
-Install extensions:
+## 4.1 Start Container from Image
 
-- Remote - WSL
-- Dev Containers
+Basic:
+
+```bash
+docker run -d \
+  --name mycontainer \
+  starrynight:new \
+  tail -f /dev/null
+```
+
+Explanation:
+
+| Command             | Purpose              |
+| ------------------- | -------------------- |
+| `-d`                | Run in background    |
+| `--name`            | Container name       |
+| `tail -f /dev/null` | Keep container alive |
+
+---
+
+## 4.2 Run Container with Workspace Mount
+
+Windows folder:
+
+```
+C:\Users\Fabian\Desktop\Masterproject\20_ROS
+```
+
+WSL path:
+
+```
+/mnt/c/Users/Fabian/Desktop/Masterproject/20_ROS
+```
+
+Run:
+
+```bash
+docker run -d \
+  --name mycontainer \
+  -v "/mnt/c/Users/Fabian/Desktop/Masterproject/20_ROS:/ros2_ws" \
+  starrynight:new \
+  tail -f /dev/null
+```
+
+Inside container:
+
+```
+/ros2_ws
+```
+
+contains the Windows files.
+
+---
+
+# 5. Join a Running Container
+
+## 5.1 Enter Container
+
+```bash
+docker exec -it mycontainer bash
+```
+
+Now you are inside Docker.
+
+Check:
+
+```bash
+pwd
+```
+
+Example:
+
+```
+/ros2_ws
+```
+
+---
+
+## 5.2 Leave Container
+
+```bash
+exit
+```
+
+The container keeps running.
+
+---
+
+# 6. Check Containers
+
+## Running Containers
+
+```bash
+docker ps
+```
+
+## All Containers
+
+```bash
+docker ps -a
+```
+
+## Start Existing Container
+
+```bash
+docker start mycontainer
+```
+
+## Stop Container
+
+```bash
+docker stop mycontainer
+```
+
+## Remove Container
+
+```bash
+docker rm mycontainer
+```
+
+---
+
+# 7. Connect VS Code to Docker Container
+
+Install:
+
+* Remote - WSL
+* Dev Containers
 
 Open VS Code:
 
@@ -166,53 +280,20 @@ Open:
 
 ---
 
-# 7. Modify Dockerfile
+# 8. Rebuild Docker Image After Changes
 
-Example:
-
-```dockerfile
-FROM ubuntu:24.04
-
-RUN apt update && apt install -y \
-    python3 \
-    python3-pip \
-    bash
-
-WORKDIR /ros2_ws
-
-CMD ["bash"]
-```
-
----
-
-# 8. Build a New Image
-
-From the Dockerfile folder:
+After modifying Dockerfile:
 
 ```bash
-docker build -t starrynight:new .
-```
-
-List images:
-
-```bash
-docker images
-```
-
----
-
-# 9. Rebuild After Changes
-
-Force rebuild:
-
-```bash
-docker build --no-cache -t starrynight:new .
+docker build --no-cache \
+-t starrynight:new .
 ```
 
 Remove old container:
 
 ```bash
 docker stop mycontainer
+
 docker rm mycontainer
 ```
 
@@ -227,43 +308,102 @@ docker run -d \
 
 ---
 
-# 10. PostgreSQL with Docker
+# 9. Docker Image Versioning and Docker Hub
 
-## PostgreSQL Container Concept
+## 9.1 Login
 
-A PostgreSQL setup usually contains:
-
-```
-PostgreSQL Container
-        |
-        |
-        +---- Database files (volume)
-        |
-        +---- Port 5432
-        |
-        +---- pgAdmin Web Interface
-```
-
-Typical setup:
-
-```
-postgres_db_container
-        |
-        | port 5432
-        |
-        PostgreSQL Database
-
-
-postgres_db_gui_container
-        |
-        | port 8080
-        |
-        pgAdmin Web Interface
+```bash
+docker login
 ```
 
 ---
 
-# 11. PostgreSQL Docker Compose Example
+## 9.2 Tag Image
+
+Example Docker Hub username:
+
+```
+fabian
+```
+
+Tag:
+
+```bash
+docker tag starrynight:new \
+fabian/starrynight:v1.0
+```
+
+Check:
+
+```bash
+docker images
+```
+
+---
+
+## 9.3 Push Image to Docker Hub
+
+```bash
+docker push fabian/starrynight:v1.0
+```
+
+Image is now available:
+
+```
+docker.io/fabian/starrynight:v1.0
+```
+
+---
+
+## 9.4 Download Image on Another Computer
+
+Login:
+
+```bash
+docker login
+```
+
+Pull:
+
+```bash
+docker pull fabian/starrynight:v1.0
+```
+
+Run:
+
+```bash
+docker run -d \
+--name mycontainer \
+fabian/starrynight:v1.0 \
+tail -f /dev/null
+```
+
+---
+
+# 10. PostgreSQL Workflow
+
+PostgreSQL consists of:
+
+```
+postgres_db_container
+          |
+          |
+          +---- Database files
+          |
+          +---- Port 5432
+
+
+postgres_db_gui_container
+          |
+          |
+          +---- pgAdmin
+          |
+          +---- Port 8080
+```
+
+---
+
+# 11. PostgreSQL Docker Compose
 
 Create:
 
@@ -279,6 +419,7 @@ services:
   db:
     image: postgres:18.4
     container_name: postgres_db_container
+
     restart: unless-stopped
 
     environment:
@@ -296,16 +437,27 @@ services:
 
   db_gui:
     image: dpage/pgadmin4
-    container_name: postgres_db_gui_container
-    restart: unless-stopped
+
+    container_name:
+      postgres_db_gui_container
+
+    restart:
+      unless-stopped
 
     environment:
-      PGADMIN_DEFAULT_EMAIL: user@example.com
-      PGADMIN_DEFAULT_PASSWORD: 1
+      PGADMIN_DEFAULT_EMAIL:
+        user@example.com
+
+      PGADMIN_DEFAULT_PASSWORD:
+        1
 
     ports:
       - "8080:80"
 ```
+
+---
+
+# 12. Start PostgreSQL
 
 Start:
 
@@ -319,83 +471,44 @@ Check:
 docker ps
 ```
 
----
-
-# 12. Access PostgreSQL
-
-## From terminal inside container
-
-Enter database container:
+Logs:
 
 ```bash
-docker exec -it postgres_db_container bash
-```
-
-Open PostgreSQL:
-
-```bash
-psql -U admin -d robotdata
+docker logs postgres_db_container
 ```
 
 ---
 
-# 13. Important PostgreSQL Commands
+# 13. PostgreSQL Connection
 
-## List databases
+## Local Connection
 
-Inside psql:
+```
+Host:
+localhost
 
-```sql
-\l
+Port:
+5432
+
+Database:
+robotdata
+
+Username:
+admin
+
+Password:
+1
 ```
 
-## Connect to database
+Connection string:
 
-```sql
-\c robotdata
 ```
-
-## List tables
-
-```sql
-\dt
-```
-
-## Describe table
-
-```sql
-\d table_name
-```
-
-Example:
-
-```sql
-\d robot
-```
-
-## Show data
-
-```sql
-SELECT * FROM table_name;
-```
-
-Example:
-
-```sql
-SELECT * FROM robots;
-```
-
-## Exit PostgreSQL
-
-```sql
-\q
+postgresql://admin:1@localhost:5432/robotdata
 ```
 
 ---
 
-# 14. PostgreSQL URLs
-
-## pgAdmin Web Interface
+# 14. pgAdmin
 
 Open browser:
 
@@ -413,15 +526,21 @@ Password:
 1
 ```
 
----
+Add server:
 
-## PostgreSQL Connection
+```
+Servers
+ |
+ +-- Register
+       |
+       +-- Server
+```
 
-From local computer:
+Connection:
 
 ```
 Host:
-localhost
+db
 
 Port:
 5432
@@ -436,63 +555,9 @@ Password:
 1
 ```
 
-Example connection URL:
-
-```
-postgresql://admin:1@localhost:5432/robotdata
-```
-
----
-
-# 15. Add PostgreSQL Server in pgAdmin
-
-Open:
-
-```
-http://localhost:8080
-```
-
-Login.
-
-Create:
-
-```
-Servers
-  |
-  +-- Register
-          |
-          +-- Server
-```
-
-General:
-
-```
-Name:
-robot_database
-```
-
-Connection:
-
-```
-Host name/address:
-db
-
-Port:
-5432
-
-Maintenance database:
-robotdata
-
-Username:
-admin
-
-Password:
-1
-```
-
 Important:
 
-Inside Docker, use:
+Inside Docker:
 
 ```
 db
@@ -504,65 +569,78 @@ not:
 localhost
 ```
 
-because containers communicate using service names.
+---
+
+# 15. PostgreSQL Command Line
+
+Enter container:
+
+```bash
+docker exec -it postgres_db_container bash
+```
+
+Open database:
+
+```bash
+psql -U admin -d robotdata
+```
 
 ---
 
-# 16. Find PostgreSQL Data Location
+# 16. Important SQL Commands
 
-## Check Docker volumes
+List databases:
 
-```bash
-docker volume ls
+```sql
+\l
 ```
 
-## Inspect container mounts
+Connect database:
 
-```bash
-docker inspect postgres_db_container
+```sql
+\c robotdata
 ```
 
-Example:
+List tables:
 
-```
-./postgres_data
-        |
-        |
-        /var/lib/postgresql
+```sql
+\dt
 ```
 
-The database files are stored in:
+Describe table:
 
-```
-./postgres_data
+```sql
+\d robots
 ```
 
-relative to your docker-compose.yml file.
+Show data:
+
+```sql
+SELECT * FROM robots;
+```
+
+Exit:
+
+```sql
+\q
+```
 
 ---
 
-# 17. Initialize Database with SQL File
+# 17. Database Initialization
 
-Example:
-
-Folder:
+Structure:
 
 ```
-project/
+project
 |
 +-- docker-compose.yml
 |
-+-- 40_DB/
++-- 40_DB
 |     |
 |     +-- init.sql
 |
-+-- postgres_data/
-```
-
-The SQL file is executed only on the first database initialization:
-
-```yaml
-- ./40_DB/init.sql:/docker-entrypoint-initdb.d/init.sql
++-- postgres_data
 ```
 
 Example:
@@ -576,21 +654,44 @@ CREATE TABLE robots
 );
 ```
 
+The file:
+
+```
+init.sql
+```
+
+runs only during first initialization.
+
 ---
 
-# 18. PostgreSQL Troubleshooting
+# 18. Find PostgreSQL Data
 
-## Container restarting
-
-Check logs:
+Check mounts:
 
 ```bash
-docker logs postgres_db_container
+docker inspect postgres_db_container
+```
+
+Example:
+
+```
+./postgres_data
+        |
+        v
+/var/lib/postgresql
+```
+
+Database files are stored in:
+
+```
+postgres_data/
 ```
 
 ---
 
-## Database was already initialized
+# 19. PostgreSQL Troubleshooting
+
+## Database already initialized
 
 Message:
 
@@ -598,68 +699,36 @@ Message:
 PostgreSQL Database directory appears to contain a database; Skipping initialization
 ```
 
-Means:
+Meaning:
 
-- init.sql will NOT run again
-- Existing database is reused
+* Existing database is reused
+* init.sql will not execute again
 
-Solution:
-
-Remove database volume:
+Reset:
 
 ```bash
 docker compose down
 
 rm -rf postgres_data
-```
 
-Then restart:
-
-```bash
 docker compose up -d
 ```
 
-WARNING:
+Warning:
 
 This deletes the database.
 
 ---
 
-## PostgreSQL 18 volume error
-
-Error:
-
-```
-/var/lib/postgresql/data contains data
-```
-
-For PostgreSQL 18 use:
-
-```yaml
-volumes:
-  - ./postgres_data:/var/lib/postgresql
-```
-
-not:
-
-```yaml
-- ./postgres_data:/var/lib/postgresql/data
-```
-
----
-
-## Permission error
+## Permission Error
 
 Example:
 
 ```
-could not change permissions
 Operation not permitted
 ```
 
-Fix permissions:
-
-Linux/WSL:
+Fix:
 
 ```bash
 sudo chown -R 999:999 postgres_data
@@ -677,81 +746,9 @@ docker compose up -d
 
 ---
 
-# 19. Daily PostgreSQL Workflow
+# 20. Daily Workflow
 
-Start:
-
-```bash
-docker compose up -d
-```
-
-Check:
-
-```bash
-docker ps
-```
-
-Open pgAdmin:
-
-```
-http://localhost:8080
-```
-
-Enter database:
-
-```bash
-docker exec -it postgres_db_container bash
-```
-
-Connect:
-
-```bash
-psql -U admin -d robotdata
-```
-
-Check tables:
-
-```sql
-\dt
-```
-
-Query:
-
-```sql
-SELECT * FROM robots;
-```
-
----
-
-# 20. Stop Everything
-
-Stop containers:
-
-```bash
-docker compose down
-```
-
-Keep database data:
-
-```
-postgres_data/
-```
-
-Delete everything:
-
-```bash
-docker compose down -v
-```
-
-WARNING:
-
-This removes database volumes.
-
----
-
-# Typical Daily Workflow
-
-## Start working
+## Start Development
 
 ```bash
 wsl
@@ -761,10 +758,12 @@ docker start mycontainer
 docker compose up -d
 ```
 
-Open VS Code:
+Connect VS Code:
 
 ```
-Dev Containers → Attach to Running Container
+Dev Containers
+        |
+        +-- Attach to Running Container
 ```
 
 Open:
@@ -773,7 +772,7 @@ Open:
 /ros2_ws
 ```
 
-Open database:
+Database:
 
 ```
 http://localhost:8080
@@ -781,37 +780,29 @@ http://localhost:8080
 
 ---
 
-## After Dockerfile changes
+# 21. Stop Everything
 
-```bash
-docker build --no-cache -t starrynight:new .
-
-docker stop mycontainer
-
-docker rm mycontainer
-
-docker run -d \
-  --name mycontainer \
-  starrynight:new \
-  tail -f /dev/null
-```
-
----
-
-## After database changes
-
-Restart:
-
-```bash
-docker compose restart
-```
-
-Reset database:
+Stop containers:
 
 ```bash
 docker compose down
+```
 
-rm -rf postgres_data
+Keep database:
 
-docker compose up -d
+```
+postgres_data/
+```
+
+Remove everything:
+
+```bash
+docker compose down -v
+```
+
+Warning:
+
+Deletes database volumes.
+
+```
 ```

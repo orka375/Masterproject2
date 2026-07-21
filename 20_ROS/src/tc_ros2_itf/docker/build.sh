@@ -58,14 +58,14 @@ done
 
 # Update the arguments to default values if needed.
 OS_VERSION="focal"
-IMAGE_NAME=${IMAGE_NAME:-eta_tc_ros2_itf}
-DOCKERFILE_PATH=$SCRIPT_FOLDER_PATH/Dockerfile
+IMAGE_NAME="${IMAGE_NAME:-eta_tc_ros2_itf}"
+DOCKERFILE_PATH="$SCRIPT_FOLDER_PATH/Dockerfile"
 
 USERID=$(id -u)
 USER=$(whoami)
 
-sudo docker build -t $IMAGE_NAME \
-     --file $DOCKERFILE_PATH \
-     --build-arg USERID=$USERID \
-     --build-arg USER=$USER \
-     $CONTEXT_FOLDER_PATH
+sudo docker build -t "$IMAGE_NAME" \
+  --file "$DOCKERFILE_PATH" \
+  --build-arg "USERID=$USERID" \
+  --build-arg "USER=$USER" \
+  "$CONTEXT_FOLDER_PATH"

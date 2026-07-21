@@ -1,36 +1,45 @@
 services:
-  # eta:
-  #   image: orka375/ros2_kilted_eta:latest
-  #   container_name: eta_container
-  #   network_mode: host
-  #   ipc: host
-  #   privileged: true
-  #   stdin_open: true
-  #   tty: true
 
-  # fleet:
-  #   image: orka375/ros2_kilted_eta_fleet:latest
-  #   container_name: eta_fleet_container
-  #   network_mode: host
-  #   ipc: host
-  #   privileged: true
-  #   stdin_open: true
-  #   tty: true
+  interface:
+    image: orka375/eta_tc_ros2_itf_container:latest
+    container_name: interface_container
+    network_mode: host
+    ipc: host
+    privileged: true
+    stdin_open: true
+    tty: true
+  eta:
+    image: orka375/ros2_kilted_eta:latest
+    container_name: eta_container
+    network_mode: host
+    ipc: host
+    privileged: true
+    stdin_open: true
+    tty: true
 
-  # gazebo:
-  #   image: orka375/ros2_kilted_eta_gz:latest
-  #   container_name: eta_gz_container
-  #   network_mode: host
-  #   ipc: host
-  #   privileged: true
-  #   environment:
-  #     - DISPLAY=${DISPLAY}
-  #   volumes:
-  #     - /tmp/.X11-unix:/tmp/.X11-unix
-  #   devices:
-  #     - /dev/dri:/dev/dri
-  #   stdin_open: true
-  #   tty: true
+  fleet:
+    image: orka375/ros2_kilted_eta_fleet:latest
+    container_name: eta_fleet_container
+    network_mode: host
+    ipc: host
+    privileged: true
+    stdin_open: true
+    tty: true
+
+  gazebo:
+    image: orka375/ros2_kilted_eta_gz:latest
+    container_name: eta_gz_container
+    network_mode: host
+    ipc: host
+    privileged: true
+    environment:
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    devices:
+      - /dev/dri:/dev/dri
+    stdin_open: true
+    tty: true
 
   db: 
     image: postgres:18.4
@@ -44,14 +53,9 @@ services:
     volumes:
       - ./postgres_data:/var/lib/postgresql
       - ./40_DB/init.sql:/docker-entrypoint-initdb.d/init.sql
-
-    # networks:
-    #   - robot_network
     ports:
       - "5432:5432"
    
-    # stdin_open: true
-    # tty: true
   db_gui:
     image: dpage/pgadmin4:latest
 

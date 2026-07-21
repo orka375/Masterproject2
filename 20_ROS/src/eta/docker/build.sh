@@ -39,7 +39,7 @@ function show_help() {
   \t-i --image_name\t\t Name of the image to be built (default ros2_eta).\n
   \t-d --ros_distro\t\t ROS 2 distro to use: kilted or jazzy (default kilted).\n
   Example:\n
-  \tbuild.sh --ros_distro jazzy --image_name custom_image_name\n'
+  \tbuild.sh --ros_distro kilted --image_name custom_image_name\n'
 }
 
 echo "Building the docker image for ros2 eta development."
