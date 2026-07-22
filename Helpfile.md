@@ -12,48 +12,103 @@ This guide explains the complete workflow for:
 - Running PostgreSQL with Docker
 - Managing databases with pgAdmin and SQL
 
+# 2. Git
 
-# 1. Start WSL and Docker
+## 2.1 Git submodules
 
-## Open WSL Ubuntu 24.04
-
-Start Ubuntu:
-
-```bash
-wsl
-````
-
-Check Docker:
-
-```bash
-docker --version
+Repo clone with submodules
+```
+git clone --recurse-submodules https://github.com/orka375/Masterproject2.git
 ```
 
-Check running Docker containers:
+
+Initialize submodules
+```
+git submodule init
+```
+
+Clone / update all submodules
+```
+git submodule update --init --recursive
+```
+
+Clone repository with all submodules
+```
+git clone --recursive <repo_url>
+```
+
+Add a submodule
+```
+git submodule add <repo_url> <path>
+```
+
+Add a submodule with a specific branch
+```
+git submodule add -b <branch> <repo_url> <path>
+```
+
+Force add/reuse existing submodule directory
+```
+git submodule add --force <repo_url> <path>
+```
+
+List submodules
+```
+git submodule
+```
+
+Enter every submodule and pull latest changes
+```
+git submodule foreach git pull
+```
+
+Remove a submodule
+```
+git submodule deinit <path>
+git rm <path>
+rm -rf .git/modules/<path>
+```
+
+Change submodule URL
+```
+git submodule set-url <path> <new_url>
+```
+
+Change submodule branch
+```
+git config -f .gitmodules submodule.<name>.branch <branch>
+```
+Pull repository and update submodules
+```
+git pull --recurse-submodules
+git submodule update --init --recursive
+```
+
+Check submodule differences
+```
+git diff --submodule
+```
+
+Push repository including submodule commits
+```
+git push --recurse-submodules=on-demand
+```
+
+
+# 3. Docker
+
+Check (running) Docker containers:
 
 ```bash
 docker ps
+docker ps -a
 ```
-
+```bash
+docker start mycontainer
+```
 ---
+Docker Concepts
 
-# 2. Docker Workflow
-
-## 2.1 Docker Concepts
-
-Docker uses three main objects:
-
-```
-Dockerfile
-     |
-     v
-Docker Image
-     |
-     v
-Docker Container
-```
-
-Explanation:
 
 | Object     | Description                     |
 | ---------- | ------------------------------- |
@@ -63,43 +118,7 @@ Explanation:
 
 ---
 
-# 3. Create a Docker Image
-
-## 3.1 Create Dockerfile
-
-Example:
-
-```dockerfile
-FROM ubuntu:24.04
-
-RUN apt update && apt install -y \
-    python3 \
-    python3-pip \
-    sqlite3 \
-    bash
-
-WORKDIR /ros2_ws
-
-CMD ["bash"]
-```
-
-Folder:
-
-```
-project/
-|
-+-- Dockerfile
-```
-
----
-
-## 3.2 Build Image
-
-Navigate to Dockerfile folder:
-
-```bash
-cd project
-```
+## 3.1 Create/Join a Docker Image/Container
 
 Build:
 
@@ -112,21 +131,8 @@ Check images:
 ```bash
 docker images
 ```
-
-Example:
-
-```
-REPOSITORY      TAG
-starrynight     new
-```
-
 ---
-
-# 4. Run a Docker Container
-
-## 4.1 Start Container from Image
-
-Basic:
+Run:
 
 ```bash
 docker run -d \
@@ -135,31 +141,10 @@ docker run -d \
   tail -f /dev/null
 ```
 
-Explanation:
-
-| Command             | Purpose              |
-| ------------------- | -------------------- |
-| `-d`                | Run in background    |
-| `--name`            | Container name       |
-| `tail -f /dev/null` | Keep container alive |
-
 ---
 
-## 4.2 Run Container with Workspace Mount
+Run Container with Workspace Mount
 
-Windows folder:
-
-```
-C:\Users\Fabian\Desktop\Masterproject\20_ROS
-```
-
-WSL path:
-
-```
-/mnt/c/Users/Fabian/Desktop/Masterproject/20_ROS
-```
-
-Run:
 
 ```bash
 docker run -d \
@@ -169,118 +154,29 @@ docker run -d \
   tail -f /dev/null
 ```
 
-Inside container:
-
-```
-/ros2_ws
-```
-
-contains the Windows files.
-
 ---
 
-# 5. Join a Running Container
 
-## 5.1 Enter Container
+
+Join a Running Container
 
 ```bash
 docker exec -it mycontainer bash
 ```
 
-Now you are inside Docker.
-
-Check:
-
-```bash
-pwd
-```
-
-Example:
-
-```
-/ros2_ws
-```
-
 ---
 
-## 5.2 Leave Container
-
-```bash
-exit
-```
-
-The container keeps running.
-
 ---
+Tag and Publish Image
+```
+docker tag myImage:V1 orka375/myImage:V1
+docker push orka375/myImage:V1
 
-# 6. Check Containers
-
-## Running Containers
-
-```bash
-docker ps
+docker login
+docker pull orka375/myImage:V1
 ```
 
-## All Containers
-
-```bash
-docker ps -a
-```
-
-## Start Existing Container
-
-```bash
-docker start mycontainer
-```
-
-## Stop Container
-
-```bash
-docker stop mycontainer
-```
-
-## Remove Container
-
-```bash
-docker rm mycontainer
-```
-
----
-
-# 7. Connect VS Code to Docker Container
-
-Install:
-
-* Remote - WSL
-* Dev Containers
-
-Open VS Code:
-
-```
-Ctrl + Shift + P
-```
-
-Select:
-
-```
-Dev Containers: Attach to Running Container
-```
-
-Choose:
-
-```
-mycontainer
-```
-
-Open:
-
-```
-/ros2_ws
-```
-
----
-
-# 8. Rebuild Docker Image After Changes
+## 3.2. Rebuild Docker Image After Changes
 
 After modifying Dockerfile:
 
@@ -306,169 +202,16 @@ docker run -d \
   tail -f /dev/null
 ```
 
----
-
-# 9. Docker Image Versioning and Docker Hub
-
-## 9.1 Login
-
-```bash
-docker login
-```
-
----
-
-## 9.2 Tag Image
-
-Example Docker Hub username:
-
-```
-fabian
-```
-
-Tag:
-
-```bash
-docker tag starrynight:new \
-fabian/starrynight:v1.0
-```
-
-Check:
-
-```bash
-docker images
-```
-
----
-
-## 9.3 Push Image to Docker Hub
-
-```bash
-docker push fabian/starrynight:v1.0
-```
-
-Image is now available:
-
-```
-docker.io/fabian/starrynight:v1.0
-```
-
----
-
-## 9.4 Download Image on Another Computer
-
-Login:
-
-```bash
-docker login
-```
-
-Pull:
-
-```bash
-docker pull fabian/starrynight:v1.0
-```
-
-Run:
-
-```bash
-docker run -d \
---name mycontainer \
-fabian/starrynight:v1.0 \
-tail -f /dev/null
-```
-
----
-
-# 10. PostgreSQL Workflow
-
-PostgreSQL consists of:
-
-```
-postgres_db_container
-          |
-          |
-          +---- Database files
-          |
-          +---- Port 5432
 
 
-postgres_db_gui_container
-          |
-          |
-          +---- pgAdmin
-          |
-          +---- Port 8080
-```
+# 4. PostgreSQL
 
----
-
-# 11. PostgreSQL Docker Compose
-
-Create:
-
-```
-docker-compose.yml
-```
-
-Example:
-
-```yaml
-services:
-
-  db:
-    image: postgres:18.4
-    container_name: postgres_db_container
-
-    restart: unless-stopped
-
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 1
-      POSTGRES_DB: robotdata
-
-    volumes:
-      - ./postgres_data:/var/lib/postgresql
-      - ./40_DB/init.sql:/docker-entrypoint-initdb.d/init.sql
-
-    ports:
-      - "5432:5432"
-
-
-  db_gui:
-    image: dpage/pgadmin4
-
-    container_name:
-      postgres_db_gui_container
-
-    restart:
-      unless-stopped
-
-    environment:
-      PGADMIN_DEFAULT_EMAIL:
-        user@example.com
-
-      PGADMIN_DEFAULT_PASSWORD:
-        1
-
-    ports:
-      - "8080:80"
-```
-
----
-
-# 12. Start PostgreSQL
+Add postgres to compose.yaml
 
 Start:
 
 ```bash
 docker compose up -d
-```
-
-Check:
-
-```bash
-docker ps
 ```
 
 Logs:
@@ -478,10 +221,7 @@ docker logs postgres_db_container
 ```
 
 ---
-
-# 13. PostgreSQL Connection
-
-## Local Connection
+Local Connection
 
 ```
 Host:
@@ -508,9 +248,7 @@ postgresql://admin:1@localhost:5432/robotdata
 
 ---
 
-# 14. pgAdmin
-
-Open browser:
+## 4.1 pgAdmin GUI
 
 ```
 http://localhost:8080
@@ -519,24 +257,11 @@ http://localhost:8080
 Login:
 
 ```
-Email:
-user@example.com
-
-Password:
+fabian.nachbur@eta.ch
 1
 ```
 
 Add server:
-
-```
-Servers
- |
- +-- Register
-       |
-       +-- Server
-```
-
-Connection:
 
 ```
 Host:
@@ -549,37 +274,22 @@ Database:
 robotdata
 
 User:
-admin
+admin (oder progres)
 
 Password:
 1
 ```
 
-Important:
+Important: Inside Docker: db not localhost
 
-Inside Docker:
-
-```
-db
-```
-
-not:
-
-```
-localhost
-```
 
 ---
 
-# 15. PostgreSQL Command Line
-
-Enter container:
+## 4.2 Workflow
 
 ```bash
 docker exec -it postgres_db_container bash
 ```
-
-Open database:
 
 ```bash
 psql -U admin -d robotdata
