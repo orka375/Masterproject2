@@ -1,7 +1,7 @@
 services:
 
   interface:
-    image: orka375/eta_tc_ros2_itf_container:latest
+    image: orka375/eta_tc_ros2_itf:latest
     container_name: interface_container
     network_mode: host
     ipc: host
