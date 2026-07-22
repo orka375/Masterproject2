@@ -6,6 +6,12 @@ services:
     network_mode: host
     ipc: host
     privileged: true
+    environment:
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    devices:
+      - /dev/dri:/dev/dri
     stdin_open: true
     tty: true
   eta:
@@ -23,6 +29,12 @@ services:
     network_mode: host
     ipc: host
     privileged: true
+    environment:
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    devices:
+      - /dev/dri:/dev/dri
     stdin_open: true
     tty: true
 
