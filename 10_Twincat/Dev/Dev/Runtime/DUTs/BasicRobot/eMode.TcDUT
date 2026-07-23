@@ -6,8 +6,7 @@
 TYPE eMode :
 (
 	Manual := 0,
-	Automatic := 1,
-	Free := 2,
+	Automatic := 1
 );
 END_TYPE
 ]]></Declaration>

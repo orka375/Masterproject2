@@ -11,3 +11,7 @@
 # Do not modify binary files
 *.library binary
 *.compiled-library binary
+
+# Keep these folders exactly as committed; disable text normalization and EOL forcing
+00_Documentation/** -text !eol
+10_Twincat/** -text !eol

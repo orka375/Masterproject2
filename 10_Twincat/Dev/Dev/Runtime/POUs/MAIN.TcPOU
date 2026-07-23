@@ -3,15 +3,15 @@
   <POU Name="MAIN" Id="{b53b2225-9371-4250-8b82-1e79beeb5814}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
-// 	TestBot: FB_ROB;
-// 	H: FB_HELPER;
+	TestBot: FB_ROB;
+	H: FB_HELPER;
 END_VAR
 VAR
-    fbDBAdd : FB_DBConnectionAdd;
-
-    fbDBOdbcAdd : FB_DBOdbcConnectionAdd;
-
-    fbReload : FB_DBReloadConfig;
+//     fbDBAdd : FB_DBConnectionAdd;
+// 
+//     fbDBOdbcAdd : FB_DBOdbcConnectionAdd;
+// 
+//     fbReload : FB_DBReloadConfig;
 
     hDBID : UDINT;
 
@@ -19,31 +19,32 @@ VAR
 
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF bInit THEN
-
-    fbDBOdbcAdd(
-        sDBDatabase := 'robotdata',
-		sDBDriver := 'PostgreSQL Unicode(x64)',
-		sDBServer := 'localhost',
-		nDBPort:= 5432,
-        sDBUserId := 'postgres',
-        sDBPassword := '1',
-        hDBID => hDBID,
-        bExecute := TRUE
-    );
-
-
-    IF NOT fbDBOdbcAdd.bBusy THEN
-
-        IF fbDBOdbcAdd.bError THEN
-            // error
-        ELSE
-            bInit := FALSE;
-        END_IF
-
-    END_IF
-
-END_IF]]></ST>
+      <ST><![CDATA[TestBot();
+// IF bInit THEN
+// 
+//     fbDBOdbcAdd(
+//         sDBDatabase := 'robotdata',
+// 		sDBDriver := 'PostgreSQL Unicode(x64)',
+// 		sDBServer := 'localhost',
+// 		nDBPort:= 5432,
+//         sDBUserId := 'postgres',
+//         sDBPassword := '1',
+//         hDBID => hDBID,
+//         bExecute := TRUE
+//     );
+// 
+// 
+//     IF NOT fbDBOdbcAdd.bBusy THEN
+// 
+//         IF fbDBOdbcAdd.bError THEN
+//             // error
+//         ELSE
+//             bInit := FALSE;
+//         END_IF
+// 
+//     END_IF
+// 
+// END_IF]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

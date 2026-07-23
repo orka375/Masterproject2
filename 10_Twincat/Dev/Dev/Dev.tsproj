@@ -15,7 +15,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{187F3032-6C4D-40B6-94EC-54A2A70656D7}" Name="Runtime" PrjFilePath="Runtime\Runtime.plcproj" TmcFilePath="Runtime\Runtime.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{2BBD97B3-3D64-2CD2-60EF-07150A7268F0}" TmcPath="Runtime\Runtime.tmc">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{FE76C83E-D48A-6887-5D3E-075EA5289956}" TmcPath="Runtime\Runtime.tmc">
 					<Name>Runtime Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Contexts>

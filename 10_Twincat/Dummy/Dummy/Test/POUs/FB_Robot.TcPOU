@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_Robot" Id="{d67508e2-0ef8-408d-a316-43ebc0a423f1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Robot
+
+
+VAR_INPUT
+
+END_VAR
+VAR_OUTPUT
+	bDone: BOOL;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="AddMission" Id="{2710e6d5-8861-49be-b3e5-ece1c90a6c11}">
+      <Declaration><![CDATA[METHOD AddMission : BOOL
+VAR_INPUT
+	m: WSTRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CallSkill" Id="{fe5baacd-3adb-45ec-ab40-505efef2d269}">
+      <Declaration><![CDATA[METHOD CallSkill : BOOL
+VAR_INPUT
+	name: WSTRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

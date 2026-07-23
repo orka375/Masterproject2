@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_Axis" Id="{9e4ffeba-a891-443c-b3e5-b3f139fd35fe}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Axis IMPLEMENTS ITF_BaseComponent
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Activities" Id="{06120b37-9249-40c4-9170-129c2634ed82}" />
+    <Folder Name="Transitions" Id="{017e141b-1342-4c67-8ad7-1808f1bdbc4f}" />
+    <Method Name="activate" Id="{54e6b466-4a12-4074-b465-d0b8e8c3558c}" FolderPath="Transitions\">
+      <Declaration><![CDATA[METHOD activate : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="cleanup" Id="{e91931c4-06bd-469c-a7d8-79ded78b6d98}" FolderPath="Transitions\">
+      <Declaration><![CDATA[METHOD cleanup : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="configure" Id="{d9630fbb-4cd2-47d1-8fc5-a5a6051e6304}" FolderPath="Transitions\">
+      <Declaration><![CDATA[METHOD configure : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="deactivate" Id="{699be2d0-36cb-4504-ae20-389e3df7cff6}" FolderPath="Transitions\">
+      <Declaration><![CDATA[METHOD deactivate : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="destroy" Id="{cc3501d8-1c5a-47c1-b5f3-768d8d9ccf3f}" FolderPath="Transitions\">
+      <Declaration><![CDATA[METHOD destroy : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ID" Id="{64850be6-4d1e-47ed-bf29-aaed00838e9f}">
+      <Declaration><![CDATA[PROPERTY ID : UINT]]></Declaration>
+      <Get Name="Get" Id="{01aa5cf0-2fe2-448d-a4b0-3fd79cc979f8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{af160821-6079-4445-9de3-8861626924b5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="name" Id="{93487327-35e4-4087-bb5d-98718c2d7005}">
+      <Declaration><![CDATA[PROPERTY name : String]]></Declaration>
+      <Get Name="Get" Id="{a9078179-15d7-4493-94d2-86a0cd11f892}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="onActivate" Id="{dff9d669-6f40-4f00-90d9-3787e79ba4a4}" FolderPath="Activities\">
+      <Declaration><![CDATA[METHOD onActivate : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onCleanup" Id="{80fa50ea-abbc-41d9-a37b-59c86da9d595}" FolderPath="Activities\">
+      <Declaration><![CDATA[METHOD onCleanup : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onConfigure" Id="{9c8ee034-539b-4679-a220-e9e172d34c39}" FolderPath="Activities\">
+      <Declaration><![CDATA[METHOD onConfigure : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onDeactivate" Id="{7b5bbaf4-d2cc-4310-8122-de7176198651}" FolderPath="Activities\">
+      <Declaration><![CDATA[METHOD onDeactivate : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onError" Id="{9a005bfb-be70-4cfa-9cc0-3bf4840f8b47}" FolderPath="Activities\">
+      <Declaration><![CDATA[METHOD onError : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onShutdown" Id="{a3cf4dc0-c49b-489c-8e1e-811c54f2901e}" FolderPath="Activities\">
+      <Declaration><![CDATA[METHOD onShutdown : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="path" Id="{e999ff4c-5501-4405-953a-f17558d3540c}">
+      <Declaration><![CDATA[PROPERTY path : String]]></Declaration>
+      <Get Name="Get" Id="{6f2ac6a8-bc2f-4f24-b31e-d4e086fc26f3}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="shutdown" Id="{da7031a9-84a2-438c-b578-d0c80904a5d5}" FolderPath="Transitions\">
+      <Declaration><![CDATA[METHOD shutdown : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="state" Id="{ccc67b2c-b422-47eb-90b2-34d846e9d8c2}">
+      <Declaration><![CDATA[PROPERTY state : eState]]></Declaration>
+      <Get Name="Get" Id="{fa198063-5954-4506-853c-5eeee5c0e776}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

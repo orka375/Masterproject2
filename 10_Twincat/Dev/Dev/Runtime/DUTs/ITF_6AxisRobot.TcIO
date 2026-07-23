@@ -19,7 +19,7 @@
       </Get>
     </Property>
     <Property Name="currentTool" Id="{a924a41c-da33-494b-a68c-a36e519d8e2b}">
-      <Declaration><![CDATA[PROPERTY currentTool : stTool]]></Declaration>
+      <Declaration><![CDATA[PROPERTY currentTool : FB_Tool]]></Declaration>
       <Get Name="Get" Id="{f1108b85-0eba-49a3-9a34-bb0dc96e56ae}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
@@ -60,7 +60,7 @@ END_VAR
     <Method Name="SwitchTool" Id="{4419060a-b81d-49ba-98b5-0e9531683def}">
       <Declaration><![CDATA[METHOD SwitchTool : UINT
 VAR_INPUT
-	tool: stTool;
+	tool: FB_Tool;
 END_VAR
 ]]></Declaration>
     </Method>

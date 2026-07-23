@@ -2,18 +2,17 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_ROB" Id="{7ce28b50-28f8-4d4c-bb25-1006bf064637}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_ROB IMPLEMENTS ITF_6AxisRobot
-VAR_INPUT
-END_VAR
+
 VAR_OUTPUT
 	_inCollision: BOOL;
 	_inHomePosition: BOOL;
 END_VAR
 VAR
-	id: UINT;
+	_id: UINT;
 	{attribute 'instance-path'}
-	spath: STRING;
+	_spath: STRING;
 	{attribute 'instance-name'}
-	sname: STRING;
+	_sname: STRING;
 	
 	_state: eState := eState.Unconfigured;
 	_enabled: BOOL;
@@ -22,7 +21,7 @@ VAR
 	
 	tcppos, tcpvel : stPose3D;
 	jointpos, jointvel: stJointPosition6;
-	currFrame: stTarget3D;
+	currFrame: stFrame;
 	currTool: FB_Tool;
 	velovr: BOOL;
 	velfact: REAL;
@@ -83,7 +82,7 @@ END_IF]]></ST>
     </Method>
     <Property Name="currentFrame" Id="{3defce60-7e49-4e7e-bf87-270fbfdc4916}" FolderPath="Done\">
       <Declaration><![CDATA[{warning 'Add property implementation'}
-PROPERTY currentFrame : stTarget3D
+PROPERTY currentFrame : stFrame
 ]]></Declaration>
       <Get Name="Get" Id="{a56e3f12-806b-469f-85ba-bdee874448be}">
         <Declaration><![CDATA[VAR
@@ -117,7 +116,7 @@ END_VAR
     </Property>
     <Property Name="currentTool" Id="{320630e8-a077-4c75-9162-7e203f456dd6}" FolderPath="Done\">
       <Declaration><![CDATA[{warning 'Add property implementation'}
-PROPERTY currentTool : stTool
+PROPERTY currentTool : FB_Tool
 ]]></Declaration>
       <Get Name="Get" Id="{55a159c1-4d4a-409e-a4c4-7d4981bc697e}">
         <Declaration><![CDATA[VAR
@@ -321,7 +320,7 @@ END_VAR
       <Declaration><![CDATA[{warning 'Add method implementation '}
 METHOD MC_MoveAxesAbsolute : BOOL
 VAR_INPUT
-	target	: Target;
+	target	: stTarget3D;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -332,7 +331,7 @@ END_VAR
       <Declaration><![CDATA[{warning 'Add method implementation '}
 METHOD MC_MoveAxesRelative : BOOL
 VAR_INPUT
-	axes	: ARRAY [1..6] OF Axis;
+	axes	: ARRAY [1..6] OF FB_Axis;
 	offsets	: ARRAY [1..6] OF REAL;
 END_VAR
 ]]></Declaration>
@@ -344,7 +343,7 @@ END_VAR
       <Declaration><![CDATA[{warning 'Add method implementation '}
 METHOD MC_MoveLinearAbsolute : BOOL
 VAR_INPUT
-	target	: Target;
+	target	: stTarget3D;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -412,7 +411,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[name:=sname;]]></ST>
+          <ST><![CDATA[name:=_sname;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -460,7 +459,7 @@ transitionresult:=eResult.None;
 
 // ---- Change ----
 
-_mode:= eMode.Free;
+_mode:= eMode.Manual;
 
 
 
@@ -492,7 +491,7 @@ transitionresult:=eResult.None;
 
 // ---- Change ----
 
-_mode:= eMode.Free;
+_mode:= eMode.Manual;
 
 
 
@@ -524,7 +523,7 @@ transitionresult:=eResult.None;
 
 // ---- Change ----
 
-_mode:= eMode.Free;
+_mode:= eMode.Manual;
 
 
 
@@ -556,7 +555,7 @@ transitionresult:=eResult.None;
 
 // ---- Change ----
 
-_mode:= eMode.Free;
+_mode:= eMode.Manual;
 
 
 
@@ -588,7 +587,7 @@ transitionresult:=eResult.None;
 
 // ---- Change ----
 
-_mode:= eMode.Free;
+_mode:= eMode.Manual;
 
 
 
@@ -627,7 +626,7 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF state=eState.Active OR state=eState.Inactive OR state=eState.Unconfigured THEN
-	state:=eState.ShuttingDown;
+	_state:=eState.ShuttingDown;
 END_IF]]></ST>
       </Implementation>
     </Method>
@@ -656,7 +655,7 @@ METHOD stop : BOOL
       <Declaration><![CDATA[{warning 'Add method implementation '}
 METHOD SwitchTool : UINT
 VAR_INPUT
-	tool	: stTool;
+	tool	: FB_Tool;
 END_VAR
 ]]></Declaration>
       <Implementation>

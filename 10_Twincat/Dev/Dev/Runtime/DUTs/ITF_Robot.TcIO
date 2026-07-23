@@ -55,14 +55,14 @@ END_VAR
     <Method Name="MC_MoveAxesAbsolute" Id="{3f8dd969-4475-4859-99c9-640266c99491}">
       <Declaration><![CDATA[METHOD MC_MoveAxesAbsolute : BOOL
 VAR_INPUT
-	target: Target;
+	target: stTarget3D;
 END_VAR
 ]]></Declaration>
     </Method>
     <Method Name="MC_MoveAxesRelative" Id="{622605cf-64f8-437c-8219-d922cc2e68c1}">
       <Declaration><![CDATA[METHOD MC_MoveAxesRelative : BOOL
 VAR_INPUT
-	axes: ARRAY[1..6] OF Axis;
+	axes: ARRAY[1..6] OF FB_Axis;
 	offsets: ARRAY[1..6] OF REAL;
 END_VAR
 ]]></Declaration>
@@ -70,7 +70,7 @@ END_VAR
     <Method Name="MC_MoveLinearAbsolute" Id="{e8bb4eaf-5055-49b0-a341-8aba2f3636ff}">
       <Declaration><![CDATA[METHOD MC_MoveLinearAbsolute : BOOL
 VAR_INPUT
-	target: Target;
+	target: stTarget3D;
 END_VAR
 ]]></Declaration>
     </Method>
@@ -79,7 +79,7 @@ END_VAR
 VAR_INPUT
 END_VAR
 VAR
-	result : stPose;
+
 END_VAR
 ]]></Declaration>
     </Method>
