@@ -1,7 +1,3 @@
-[submodule "20_ROS/src/Robots"]
-	path = 20_ROS/src/Robots
-	url = https://github.com/orka375/eta_robots.git
-	branch = main
 [submodule "20_ROS/src/RMF"]
 	path = 20_ROS/src/RMF
 	url = https://github.com/orka375/eta_rmf.git
