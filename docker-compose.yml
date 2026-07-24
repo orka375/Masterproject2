@@ -1,9 +1,10 @@
 services:
 
   interface:
-    image: orka375/eta_tc_ros2_itf:latest
-    container_name: interface_container
-    network_mode: host
+    image: ros2_kilted_eta_interface:latest
+    container_name: eta_interface_container
+    networks:
+      - eta_network
     ipc: host
     privileged: true
     environment:
@@ -14,19 +15,22 @@ services:
       - /dev/dri:/dev/dri
     stdin_open: true
     tty: true
+
   eta:
-    image: orka375/ros2_kilted_eta:latest
-    container_name: eta_container
-    network_mode: host
+    image: ros2_kilted_eta_base:latest
+    container_name: eta_base_container
+    networks:
+      - eta_network
     ipc: host
     privileged: true
     stdin_open: true
     tty: true
 
-  fleet:
-    image: orka375/ros2_kilted_eta_fleet:latest
+  rmf:
+    image: ros2_kilted_eta_rmf:latest
     container_name: eta_fleet_container
-    network_mode: host
+    networks:
+      - eta_network
     ipc: host
     privileged: true
     environment:
@@ -38,10 +42,11 @@ services:
     stdin_open: true
     tty: true
 
-  gazebo:
-    image: orka375/ros2_kilted_eta_gz:latest
+  gz:
+    image: ros2_kilted_eta_gz:latest
     container_name: eta_gz_container
-    network_mode: host
+    networks:
+      - eta_network
     ipc: host
     privileged: true
     environment:
@@ -53,36 +58,35 @@ services:
     stdin_open: true
     tty: true
 
-  db: 
+  db:
     image: postgres:18.4
     container_name: postgres_db_container
     restart: unless-stopped
-    # network_mode: host
+    networks:
+      - eta_network
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: 1
       POSTGRES_DB: robotdata
     volumes:
-      - ./postgres_data:/var/lib/postgresql
+      - ./postgres_data:/var/lib/postgresql/data
       - ./40_DB/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
-   
+
   db_gui:
     image: dpage/pgadmin4:latest
-
     container_name: postgres_db_gui_container
-
     restart: unless-stopped
-
+    networks:
+      - eta_network
     environment:
       PGADMIN_DEFAULT_EMAIL: fabian.nachbur@eta.ch
       PGADMIN_DEFAULT_PASSWORD: 1
-
     ports:
       - "8080:80"
 
 
-volumes:
-
-  postgres_data:
+networks:
+  eta_network:
+    driver: bridge

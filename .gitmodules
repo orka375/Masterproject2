@@ -1,15 +1,20 @@
 [submodule "20_ROS/src/Robots"]
 	path = 20_ROS/src/Robots
 	url = https://github.com/orka375/eta_robots.git
+	branch = main
 [submodule "20_ROS/src/RMF"]
 	path = 20_ROS/src/RMF
 	url = https://github.com/orka375/eta_rmf.git
+	branch = main
 [submodule "20_ROS/src/Base"]
 	path = 20_ROS/src/Base
 	url = https://github.com/orka375/eta_base.git
+	branch = main
 [submodule "20_ROS/src/Gz"]
 	path = 20_ROS/src/Gz
 	url = https://github.com/orka375/eta_gz.git
+	branch = main
 [submodule "20_ROS/src/Interface"]
 	path = 20_ROS/src/Interface
 	url = https://github.com/orka375/tc_ros2_itf.git
+	branch = main
