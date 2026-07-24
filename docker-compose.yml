@@ -28,7 +28,7 @@ services:
 
   rmf:
     image: ros2_kilted_eta_rmf:latest
-    container_name: eta_fleet_container
+    container_name: eta_rmf_container
     networks:
       - eta_network
     ipc: host
