@@ -14,3 +14,7 @@
 	path = 20_ROS/src/Interface
 	url = https://github.com/orka375/tc_ros2_itf.git
 	branch = main
+[submodule "20_ROS/src/Robots"]
+	path = 20_ROS/src/Robots
+	url = https://github.com/orka375/eta_robots.git
+	branch = restore
