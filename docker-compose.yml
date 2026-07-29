@@ -2,7 +2,8 @@ services:
 
   interface:
     image: ros2_kilted_eta_interface:latest
-    container_name: eta_interface_container
+    container_name: ros2_kilted_eta_interface_container
+    restart: unless-stopped
     networks:
       - eta_network
     ipc: host
@@ -11,24 +12,31 @@ services:
       - DISPLAY=${DISPLAY}
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./20_ROS/src:/home/admin/ros_ws/mount
     devices:
       - /dev/dri:/dev/dri
+    command: ["tail", "-f", "/dev/null"]
     stdin_open: true
     tty: true
 
   eta:
     image: ros2_kilted_eta_base:latest
-    container_name: eta_base_container
+    container_name: ros2_kilted_eta_base_container
+    restart: unless-stopped
     networks:
       - eta_network
     ipc: host
     privileged: true
+    volumes:
+      - ./20_ROS/src:/home/admin/ros_ws/mount
+    command: ["tail", "-f", "/dev/null"]
     stdin_open: true
     tty: true
 
   rmf:
     image: ros2_kilted_eta_rmf:latest
-    container_name: eta_rmf_container
+    container_name: ros2_kilted_eta_rmf_container
+    restart: unless-stopped
     networks:
       - eta_network
     ipc: host
@@ -37,14 +45,17 @@ services:
       - DISPLAY=${DISPLAY}
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./20_ROS/src:/home/admin/ros_ws/mount
     devices:
       - /dev/dri:/dev/dri
+    command: ["tail", "-f", "/dev/null"]
     stdin_open: true
     tty: true
 
   gz:
     image: ros2_kilted_eta_gz:latest
-    container_name: eta_gz_container
+    container_name: ros2_kilted_eta_gz_container
+    restart: unless-stopped
     networks:
       - eta_network
     ipc: host
@@ -53,8 +64,10 @@ services:
       - DISPLAY=${DISPLAY}
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./20_ROS/src:/home/admin/ros_ws/mount
     devices:
       - /dev/dri:/dev/dri
+    command: ["tail", "-f", "/dev/null"]
     stdin_open: true
     tty: true
 
@@ -69,7 +82,7 @@ services:
       POSTGRES_PASSWORD: 1
       POSTGRES_DB: robotdata
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - ./postgres_data:/var/lib/postgresql
       - ./40_DB/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
