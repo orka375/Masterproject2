@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_PostgreSQLClient" Id="{828ffdc2-5178-4d10-b175-c668b30ecf21}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_PostgreSQLClient
+VAR_INPUT
+    bConnect : BOOL;
+END_VAR
+
+VAR_OUTPUT
+    bConnected : BOOL;
+    bError : BOOL;
+    nErrorID : UDINT;
+END_VAR
+
+VAR
+	sDBDatabase : STRING  := 'robotdata';
+	sDBDriver : STRING  := 'PostgreSQL Unicode(x64)';
+	sDBServer : STRING  := '192.168.250.102';
+	nDBPort: UINT := 5432;
+	sDBUserId : STRING := 'admin';
+	sDBPassword : STRING  := '1';	
+
+
+	bExecute: BOOL;
+    fbDBOdbcAdd : FB_DBOdbcConnectionAdd;
+    fbDBRecordSelect : FB_DBRecordSelect;
+
+    hDBID : UDINT;
+
+    bConnectExecute : BOOL;
+    bQueryExecute : BOOL;
+
+    sSQL : STRING(255);
+
+    bInit : BOOL := TRUE;
+	aa: BOOL;
+END_VAR
+
+VAR
+	robot: ST_Robot;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+IF NOT bConnected THEN
+	Connect();
+END_IF
+
+IF aa THEN
+	ReadRobots();
+	aa:=False;
+END_IF]]></ST>
+    </Implementation>
+    <Method Name="Connect" Id="{0851c9d5-3042-41a6-839b-959253cb4e39}">
+      <Declaration><![CDATA[METHOD Connect
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT bConnected THEN
+
+    bConnectExecute := TRUE;
+
+    fbDBOdbcAdd(
+        sDBDatabase := 'robotdata',
+        sDBDriver := 'PostgreSQL Unicode(x64)',
+        sDBServer := '192.168.250.102',
+        nDBPort := 5432,
+        sDBUserId := 'admin',
+        sDBPassword := '1',
+        hDBID => hDBID,
+        bExecute := bConnectExecute
+    );
+
+
+    IF NOT fbDBOdbcAdd.bBusy THEN
+        
+        bConnectExecute := FALSE;
+
+        IF fbDBOdbcAdd.bError THEN
+            bError := TRUE;
+            nErrorID := fbDBOdbcAdd.nErrID;
+        ELSE
+            bConnected := TRUE;
+        END_IF
+
+    END_IF
+
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteSQL" Id="{a1c20a63-5da4-4365-8820-bb7e730329f1}">
+      <Declaration><![CDATA[METHOD PUBLIC ExecuteSQL
+VAR_INPUT
+    sCommand : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+IF bConnected THEN
+
+    sSQL := sCommand;
+
+    bQueryExecute := TRUE;
+
+
+    fbDBRecordSelect(
+			hDBID := hDBID,
+			sSelectCmd := sCommand,
+			pDestAddr := ADR(robot),
+			cbRecordSize := SIZEOF(robot),
+			nRecordIndex:=0,
+			bExecute := bQueryExecute
+		);
+
+
+    IF NOT fbDBRecordSelect.bBusy THEN
+
+        bQueryExecute := FALSE;
+
+        IF fbDBRecordSelect.bError THEN
+            bError := TRUE;
+            nErrorID := fbDBRecordSelect.nErrID;
+        END_IF
+
+    END_IF
+
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReadRobots" Id="{9911fbc1-c07b-4155-94e0-d17bb3f57b1c}">
+      <Declaration><![CDATA[METHOD ReadRobots
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ExecuteSQL(
+    sCommand := 'SELECT * FROM robots'
+);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Test" Id="{afa0652a-0b0e-439a-895a-1524d428d0d9}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Test
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Wait1S" Id="{e566fc96-555b-4d49-9612-f8e0c62b01f1}">
+      <Declaration><![CDATA[METHOD Wait1S : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

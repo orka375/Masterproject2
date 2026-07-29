@@ -18,13 +18,22 @@
     <LibraryReferences>{bab26953-4e0a-472d-8676-dddb17ed5abd}</LibraryReferences>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DUTs\AMR\stJointPosition2.TcDUT">
+    <Compile Include="DUTs\AMR\stJoint2.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\AMR\stPose2D.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\AMR\stTarget2D.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\BaseActions\ITF_BA_6Axis.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\BaseActions\ITF_BA_Scara.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\BaseActions\ITF_BA_AMR.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\BasicRobot\eMode.TcDUT">
@@ -39,22 +48,40 @@
     <Compile Include="DUTs\BasicRobot\stTarget.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\DB\ST_Robot.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DB\ST_SQLValue.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\Error\eSeverity.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Error\stError.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\ITF_6AxisRobot.TcIO">
+    <Compile Include="DUTs\ITF_2_6AxisRobot.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\ITF_BaseComponent.TcIO">
+    <Compile Include="DUTs\ITF_2_AMR.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\ITF_Robot.TcIO">
+    <Compile Include="DUTs\ITF_0_BaseComponent.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Manipulator\stJointPosition6.TcDUT">
+    <Compile Include="DUTs\ITF_1_Robot.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ITF_1_Skill.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ITF_CommunicationModul.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ITF_Tool.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Manipulator\stJoint6.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Manipulator\stPose3D.TcDUT">
@@ -75,26 +102,60 @@
     <Compile Include="DUTs\StateMachine\eSupervisoryTransitions.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\ST_CommunicationConfig.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="GVLs\OPCUA.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="GVLs\SKILLS.TcGVL">
       <SubType>Code</SubType>
       <LinkAlways>true</LinkAlways>
     </Compile>
     <Compile Include="PlcTask.TcTTO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\FB_Axis.TcPOU">
+    <Compile Include="POUs\Archiv\FB_Axis.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\FB_Helper.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\FB_PostgreSQLClient.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\FB_ROB.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\FB_ROB_AMR.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\FB_ROB_MANIP.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\FB_Skill.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\FB_Base.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\FB_PickPlaceSkill.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\FB_SkillHandler.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\FB_Tool.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\FB_UR5.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\MAIN.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Test.TcPOU">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -104,8 +165,11 @@
     <Folder Include="DUTs\BasicRobot" />
     <Folder Include="DUTs\Error" />
     <Folder Include="DUTs\Manipulator" />
+    <Folder Include="DUTs\BaseActions" />
+    <Folder Include="DUTs\DB" />
     <Folder Include="DUTs\StateMachine" />
     <Folder Include="GVLs" />
+    <Folder Include="POUs\Archiv" />
     <Folder Include="VISUs" />
     <Folder Include="POUs" />
   </ItemGroup>
@@ -147,6 +211,12 @@
         <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
         <o>
           <v n="Name">"{192FAD59-8248-4824-A8DE-9177C94C195A}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{246001F4-279D-43AC-B241-948EB31120E1}</v>
+        <o>
+          <v n="Name">"{246001F4-279D-43AC-B241-948EB31120E1}"</v>
           <d n="SubKeys" t="Hashtable" />
           <d n="Values" t="Hashtable" />
         </o>

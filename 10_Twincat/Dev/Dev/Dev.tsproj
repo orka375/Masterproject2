@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.24">
-	<Project ProjectGUID="{269DA3E6-0343-4C83-B738-0F5DA5218F9A}" Target64Bit="true" ShowHideConfigurations="#x6">
+	<Project ProjectGUID="{269DA3E6-0343-4C83-B738-0F5DA5218F9A}" TargetNetId="10.201.96.121.1.1" Target64Bit="true" ShowHideConfigurations="#x6">
 		<System>
 			<Licenses>
 				<Target>
@@ -11,11 +11,14 @@
 				<Task Id="3" Priority="20" CycleTime="100000" AmsPort="350" AdtTasks="true">
 					<Name>PlcTask</Name>
 				</Task>
+				<Task Id="4" Priority="21" CycleTime="100000" AmsPort="351" AdtTasks="true">
+					<Name>PlcTask1</Name>
+				</Task>
 			</Tasks>
 		</System>
 		<Plc>
 			<Project GUID="{187F3032-6C4D-40B6-94EC-54A2A70656D7}" Name="Runtime" PrjFilePath="Runtime\Runtime.plcproj" TmcFilePath="Runtime\Runtime.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{FE76C83E-D48A-6887-5D3E-075EA5289956}" TmcPath="Runtime\Runtime.tmc">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{16E7565D-AD23-A6BB-DFED-69F6027AC8C2}" TmcPath="Runtime\Runtime.tmc">
 					<Name>Runtime Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Contexts>
