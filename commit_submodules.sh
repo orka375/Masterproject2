@@ -16,10 +16,10 @@ SUBMODULES=$(git submodule foreach --quiet 'echo $path')
 for SUBMODULE in $SUBMODULES; do
 
     # Skip Robots submodule
-    if [ "$SUBMODULE" = "20_ROS/src/Robots" ]; then
-        echo "Skipping $SUBMODULE"
-        continue
-    fi
+    # if [ "$SUBMODULE" = "20_ROS/src/Robots" ]; then
+    #     echo "Skipping $SUBMODULE"
+    #     continue
+    # fi
 
     echo "===================================="
     echo "Processing submodule: $SUBMODULE"
