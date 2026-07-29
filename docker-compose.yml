@@ -1,63 +1,82 @@
 services:
 
   interface:
-    image: orka375/eta_tc_ros2_itf:latest
-    container_name: interface_container
-    network_mode: host
+    image: ros2_kilted_eta_interface:latest
+    container_name: ros2_kilted_eta_interface_container
+    restart: unless-stopped
+    networks:
+      - eta_network
     ipc: host
     privileged: true
     environment:
       - DISPLAY=${DISPLAY}
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./20_ROS/src:/home/admin/ros_ws/mount
     devices:
       - /dev/dri:/dev/dri
+    command: ["tail", "-f", "/dev/null"]
     stdin_open: true
     tty: true
+
   eta:
-    image: orka375/ros2_kilted_eta:latest
-    container_name: eta_container
-    network_mode: host
+    image: ros2_kilted_eta_base:latest
+    container_name: ros2_kilted_eta_base_container
+    restart: unless-stopped
+    networks:
+      - eta_network
     ipc: host
     privileged: true
+    volumes:
+      - ./20_ROS/src:/home/admin/ros_ws/mount
+    command: ["tail", "-f", "/dev/null"]
     stdin_open: true
     tty: true
 
-  fleet:
-    image: orka375/ros2_kilted_eta_fleet:latest
-    container_name: eta_fleet_container
-    network_mode: host
+  rmf:
+    image: ros2_kilted_eta_rmf:latest
+    container_name: ros2_kilted_eta_rmf_container
+    restart: unless-stopped
+    networks:
+      - eta_network
     ipc: host
     privileged: true
     environment:
       - DISPLAY=${DISPLAY}
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./20_ROS/src:/home/admin/ros_ws/mount
     devices:
       - /dev/dri:/dev/dri
+    command: ["tail", "-f", "/dev/null"]
     stdin_open: true
     tty: true
 
-  gazebo:
-    image: orka375/ros2_kilted_eta_gz:latest
-    container_name: eta_gz_container
-    network_mode: host
+  gz:
+    image: ros2_kilted_eta_gz:latest
+    container_name: ros2_kilted_eta_gz_container
+    restart: unless-stopped
+    networks:
+      - eta_network
     ipc: host
     privileged: true
     environment:
       - DISPLAY=${DISPLAY}
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./20_ROS/src:/home/admin/ros_ws/mount
     devices:
       - /dev/dri:/dev/dri
+    command: ["tail", "-f", "/dev/null"]
     stdin_open: true
     tty: true
 
-  db: 
+  db:
     image: postgres:18.4
     container_name: postgres_db_container
     restart: unless-stopped
-    # network_mode: host
+    networks:
+      - eta_network
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: 1
@@ -67,22 +86,20 @@ services:
       - ./40_DB/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
-   
+
   db_gui:
     image: dpage/pgadmin4:latest
-
     container_name: postgres_db_gui_container
-
     restart: unless-stopped
-
+    networks:
+      - eta_network
     environment:
       PGADMIN_DEFAULT_EMAIL: fabian.nachbur@eta.ch
       PGADMIN_DEFAULT_PASSWORD: 1
-
     ports:
       - "8080:80"
 
 
-volumes:
-
-  postgres_data:
+networks:
+  eta_network:
+    driver: bridge
