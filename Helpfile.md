@@ -12,6 +12,10 @@ This guide explains the complete workflow for:
 - Running PostgreSQL with Docker
 - Managing databases with pgAdmin and SQL
 
+# 1. Bullshit
+```
+rosdep install --from-paths src --ignore-src -r -y
+```
 # 2. Git
 
 ## 2.1 Git submodules
