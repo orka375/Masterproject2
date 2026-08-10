@@ -11,7 +11,7 @@ if [[ ! -f "$COMPOSE_FILE" ]]; then
 fi
 
 # Keep service and container mapping in one place.
-SERVICES=(interface eta rmf gz db db_gui)
+SERVICES=(interface base rmf gz db db_gui)
 CONTAINERS=(
   ros2_kilted_eta_interface_container
   ros2_kilted_eta_base_container

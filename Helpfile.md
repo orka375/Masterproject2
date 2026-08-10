@@ -11,7 +11,7 @@ This guide explains the complete workflow for:
 - Publishing Docker images to Docker Hub
 - Running PostgreSQL with Docker
 - Managing databases with pgAdmin and SQL
-
+d
 # 1. Bullshit
 ```
 rosdep install --from-paths src --ignore-src -r -y
@@ -20,6 +20,17 @@ rosdep install --from-paths src --ignore-src -r -y
 # 1. Shit to know
 
 On PLC install https://www.postgresql.org/ftp/odbc/releases/REL-18_00_0002/
+
+Connect SSH with Display:
+´´´
+sudo apt install ssh
+ssh -Y administrator@192.168.250.102
+´´´
+in POWERSHELL with
+´´´
+$env:DISPLAY="localhost:0.0"
+echo $env:DISPLAY
+´´´
 # 2. Git
 
 ## 2.1 Git submodules
