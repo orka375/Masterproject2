@@ -1,13 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1">
-  <POU Name="MAIN" Id="{a14a2ab4-edb2-49a5-964d-cb4016ab600e}">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="MAIN" Id="{a14a2ab4-edb2-49a5-964d-cb4016ab600e}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
+	robotMode: UDINT;
+	jointCommands: ARRAY[1..6] OF LREAL;
+	robotEnabled: BOOL;
+	
+	jointStates: ARRAY[1..6] OF LREAL;
+	robotStatus: UDINT;
+	robotError: BOOL;
 END_VAR
-]]>
-    </Declaration>
+]]></Declaration>
     <Implementation>
-      <ST><![CDATA[]]></ST>
+      <ST><![CDATA[
+
+]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>
