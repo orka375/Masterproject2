@@ -1,0 +1,20 @@
+<Node>
+  <Title>Empty TwinCAT Connectivity Project1</Title>
+  <Expanded>False</Expanded>
+  <FileName></FileName>
+  <Children>
+    <Node>
+      <Title>TcDatabaseServer1</Title>
+      <Expanded>True</Expanded>
+      <FileName>C:\Users\Fabian\OneDrive - Berner Fachhochschule\Desktop\Masterproject2\10_Twincat\Dev\Empty TwinCAT Connectivity Project1\TcDatabaseServer1.tcdbsrv</FileName>
+      <Children>
+        <Node>
+          <Title>DB</Title>
+          <Expanded>False</Expanded>
+          <FileName>C:\Users\Fabian\OneDrive - Berner Fachhochschule\Desktop\Masterproject2\10_Twincat\Dev\Empty TwinCAT Connectivity Project1\TcDatabaseServer1\DB\DB.tcdbsrvdb</FileName>
+          <Children />
+        </Node>
+      </Children>
+    </Node>
+  </Children>
+</Node>

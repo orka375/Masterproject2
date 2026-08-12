@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_UR5" Id="{7138b06d-6984-4953-8124-68042278758b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_UR5 EXTENDS FB_ROB_MANIP IMPLEMENTS ITF_BA_6Axis, ITF_CommunicationModul
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	PiNPl: FB_PickPlaceSkill;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[StateMachine();
+
+
+//Reference to Skills
+PiNPl(Rob:=ADR(THIS^));
+
+//ComConfig
+ComConfig.sIPAdress:='127.0.0.1';
+ComConfig.Port:= 5432;]]></ST>
+    </Implementation>
+    <Folder Name="Communication" Id="{962090cd-82cb-4129-9347-c8ac07fb90f4}" />
+    <Folder Name="MotionControl" Id="{9ed28985-c54d-42fa-8d69-76777d28de96}" />
+    <Method Name="M_Connect" Id="{ea0b7a54-6a8f-44d8-8b6a-a3c96ae90503}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD M_Connect : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Disconnect" Id="{81d53a8c-a37e-4c7e-ab45-5d8abfba1924}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD M_Disconnect : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_ResetConnection" Id="{ab760c43-0912-46a9-8200-3ef0d14f05e9}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD M_ResetConnection : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_MoveAxesAbsolute" Id="{e4cbbe25-0003-4a3a-941f-ba8ea400b2d6}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_MoveAxesAbsolute : BOOL
+VAR_INPUT
+	target	: stTarget3D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _state=eState.Active THEN
+// 	P_TargetReached:=FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_MoveAxesRelative" Id="{dc6eaf0b-bda4-4a71-9f22-4f43caa591cf}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_MoveAxesRelative : BOOL
+VAR_INPUT
+	axes	: ARRAY [1..6] OF FB_Axis;
+	offsets	: ARRAY [1..6] OF REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_MoveLinearAbsolute" Id="{fac605cc-f9e9-41e9-8d84-7a37c1c2f07e}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_MoveLinearAbsolute : BOOL
+VAR_INPUT
+	target	: stTarget3D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_ReadActualVelocity" Id="{8fcd44ac-c416-4fa2-be4a-a96c08398ed8}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_ReadActualVelocity : stPose
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_ReadAnalogInput" Id="{f3e9cd2c-1bdb-4b96-8862-1b49b481f6f5}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_ReadAnalogInput : LREAL
+VAR_INPUT
+	input	: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_ReadDigitalInput" Id="{fa482187-c1ce-433f-9f9a-2cc320aaca90}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_ReadDigitalInput : BOOL
+VAR_INPUT
+	input	: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_SetDigitalOutput" Id="{9228931f-d00e-488b-96fa-facc797720c5}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_SetDigitalOutput : BOOL
+VAR_INPUT
+	output	: INT;
+	value	: BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_SetOperationMode" Id="{b77d92d3-2c73-432f-b915-482766ea505a}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_SetOperationMode : BOOL
+VAR_INPUT
+	mode	: eMode;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_mode:=mode;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="P_bConnected" Id="{37ba7a67-b4ee-42b5-aea8-1f3fba5d5175}" FolderPath="Communication\">
+      <Declaration><![CDATA[PROPERTY P_bConnected : BOOL]]></Declaration>
+      <Get Name="Get" Id="{d4b74009-4a4c-4abb-b825-78ae2fd94b8a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

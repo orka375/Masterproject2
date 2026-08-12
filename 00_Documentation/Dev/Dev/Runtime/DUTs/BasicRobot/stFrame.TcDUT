@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stFrame" Id="{29c010b8-628c-4280-b317-dd01751f0622}">
+    <Declaration><![CDATA[TYPE stFrame :
+STRUCT
+	frameId: UINT;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

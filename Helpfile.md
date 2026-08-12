@@ -16,6 +16,13 @@ d
 ```
 rosdep install --from-paths src --ignore-src -r -y
 ```
+```
+git clone https://github.com/orka375/mir_robot.git -b kilted
+git clone https://github.com/orka375/mecademic-ros.git
+git clone https://github.com/orka375/Omron_AMR_ROS2.git
+git clone https://github.com/orka375/tc_ros2_itf.git
+git clone https://github.com/orka375/beckhoff_ads_driver.git
+```
 
 # 1. Shit to know
 
