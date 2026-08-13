@@ -22,6 +22,10 @@ git clone https://github.com/orka375/mecademic-ros.git
 git clone https://github.com/orka375/Omron_AMR_ROS2.git
 git clone https://github.com/orka375/tc_ros2_itf.git
 git clone https://github.com/orka375/beckhoff_ads_driver.git
+git clone https://github.com/orka375/eta_rmf.git
+git clone https://github.com/orka375/rosmaster_x3_rpi5.git
+
+
 ```
 
 # 1. Shit to know
