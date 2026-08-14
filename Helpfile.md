@@ -24,7 +24,9 @@ git clone https://github.com/orka375/tc_ros2_itf.git
 git clone https://github.com/orka375/beckhoff_ads_driver.git
 git clone https://github.com/orka375/eta_rmf.git
 git clone https://github.com/orka375/rosmaster_x3_rpi5.git
-
+git clone https://github.com/joshnewans/twist_stamper.git
+git clone https://github.com/joshnewans/articubot_one.git -b new_gazebo
+git clone https://github.com/orka375/ros2_skill_ws.git
 
 ```
 
