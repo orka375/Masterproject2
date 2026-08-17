@@ -3,6 +3,7 @@
   <DUT Name="eState" Id="{a1b2c3d4-1111-1111-1111-111111111111}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 {attribute 'strict'}
+{attribute 'to_string'}
 TYPE eState :
 (
 	None 			:= 0,

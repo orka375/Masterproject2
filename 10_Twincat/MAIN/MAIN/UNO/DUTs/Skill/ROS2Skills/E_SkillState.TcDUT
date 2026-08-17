@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="E_SkillState" Id="{71b71d02-a7ea-484d-9ffa-332e33107417}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE E_SkillState :
+(
+    Idle        := 0,
+    Starting    := 1,
+    Running     := 2,
+    Paused      := 3,
+    Completed   := 4,
+    Canceled    := 5,
+    Error       := 6,
+    NotReady    := 7
+);
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

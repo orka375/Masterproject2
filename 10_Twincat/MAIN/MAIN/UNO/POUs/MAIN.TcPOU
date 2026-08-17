@@ -5,13 +5,11 @@
 VAR
 	
 	H: FB_HELPER;
-	UR5: FB_UR5;
-	PnP : Skill_PickPlace;
+// 	PnP : Skill_PickPlace;
 	P: Process;
-	LD90: FB_OmronLD90;
-	Meca500: FB_Meca500;
 	_state_LD90: eState;
 	_state_LD90_sLDR: eState;
+	_state_LD90_sEyes: eState;
 END_VAR
 
 
@@ -28,15 +26,16 @@ END_VAR]]></Declaration>
       <ST><![CDATA[// fbDB();
 
 // PnP(Rob:=ADR(UR5));
-UR5();
+OPCUA.UR5();
 
 // UR5.CallSkill(pSkill:=ADR(UR5.PiNPl));
-LD90();
-Meca500();
-P(ROB:=ADR(Meca500));
+OPCUA.LD90();
+OPCUA.Meca500();
+P(ROB:=ADR(OPCUA.LD90));
 
-_state_LD90:=MAIN.LD90.State;
-_state_LD90_sLDR:=Main.LD90.sLoadDeliverReturn.State;
+_state_LD90:=OPCUA.LD90.State;
+_state_LD90_sLDR:=OPCUA.LD90.sLoadDeliverReturn.State;
+_state_LD90_sEyes:=OPCUA.LD90.sEyes.State;
 ]]></ST>
     </Implementation>
   </POU>

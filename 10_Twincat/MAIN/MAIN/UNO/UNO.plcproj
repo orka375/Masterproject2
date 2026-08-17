@@ -51,10 +51,10 @@
     <Compile Include="DUTs\Communication\eCommunicationState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Communication\ITF_CommunicationModul_1.TcIO">
+    <Compile Include="DUTs\Communication\ITF_CommunicationModul.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Communication\ST_CommunicationConfig_1.TcDUT">
+    <Compile Include="DUTs\Communication\ST_CommunicationConfig.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\DB\ST_Robot.TcDUT">
@@ -84,9 +84,6 @@
     <Compile Include="DUTs\ITF_2_AMR.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\ITF_CommunicationModul.TcIO">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="DUTs\ITF_Tool.TcIO">
       <SubType>Code</SubType>
     </Compile>
@@ -102,7 +99,34 @@
     <Compile Include="DUTs\Manipulator\stTarget3D.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\Skill\ROS2Skills\E_SkillState.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Skill\ROS2Skills\ST_GripperSkill.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Skill\ROS2Skills\ST_GripperSpecific.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Skill\ROS2Skills\ST_QrSkill.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Skill\ROS2Skills\ST_QrSkillSpecific.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Skill\ROS2Skills\sT_RobotMoveSkill.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Skill\ROS2Skills\ST_RobotMoveSpecific.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Skill\ROS2Skills\ST_SkillControl.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\Skill\stSkillArray.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Skill\ST_SkillStatus.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\StateMachine\eInternalTransitions.TcDUT">
@@ -117,13 +141,7 @@
     <Compile Include="DUTs\StateMachine\eSupervisoryTransitions.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\ST_CommunicationConfig.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="GVLs\OPCUA.TcGVL">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="GVLs\SKILLS.TcGVL">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PlcTask.TcTTO">
@@ -165,6 +183,9 @@
     <Compile Include="POUs\Robots\FB_UR5.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Skills\FB_ROS2Skill.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Skills\FB_SkillHandler.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -175,6 +196,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Skills\Skill_PickPlace.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Skills\Skill_ROS2_Eyes.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\_TODO.TcPOU">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -188,6 +215,7 @@
     <Folder Include="DUTs\Error" />
     <Folder Include="DUTs\Manipulator" />
     <Folder Include="DUTs\Skill" />
+    <Folder Include="DUTs\Skill\ROS2Skills" />
     <Folder Include="DUTs\StateMachine" />
     <Folder Include="GVLs" />
     <Folder Include="POUs\Archiv" />
@@ -231,8 +259,8 @@
   <ProjectExtensions>
     <PlcProjectOptions>
       <XmlArchive>
-  <Data>
-    <o xml:space="preserve" t="OptionKey">
+        <Data>
+          <o xml:space="preserve" t="OptionKey">
       <v n="Name">"&lt;ProjectRoot&gt;"</v>
       <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
         <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
@@ -302,14 +330,14 @@
       </d>
       <d n="Values" t="Hashtable" />
     </o>
-  </Data>
-  <TypeList>
-    <Type n="Boolean">System.Boolean</Type>
-    <Type n="Hashtable">System.Collections.Hashtable</Type>
-    <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
-    <Type n="String">System.String</Type>
-  </TypeList>
-</XmlArchive>
+        </Data>
+        <TypeList>
+          <Type n="Boolean">System.Boolean</Type>
+          <Type n="Hashtable">System.Collections.Hashtable</Type>
+          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+          <Type n="String">System.String</Type>
+        </TypeList>
+      </XmlArchive>
     </PlcProjectOptions>
   </ProjectExtensions>
 </Project>

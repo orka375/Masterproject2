@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_SkillControl" Id="{6018475f-4644-491c-b33c-e7a8616413c5}">
+    <Declaration><![CDATA[{attribute 'OPC.UA.DA.StructuredType' := '1'}
+{attribute 'OPC.UA.DA' := '1'}
+TYPE ST_SkillControl :
+STRUCT
+    Configure   : BOOL := FALSE;
+    Activate    : BOOL := FALSE;
+    Deactivate  : BOOL := FALSE;
+    Cleanup     : BOOL := FALSE;
+    Shutdown    : BOOL := FALSE;
+
+    Start       : BOOL := FALSE;
+    Cancel      : BOOL := FALSE;
+    Stop        : BOOL := FALSE;
+    Reset       : BOOL := FALSE;
+    Pause       : BOOL := FALSE;
+    Resume      : BOOL := FALSE;
+
+    RequestId   : UDINT := 0;
+    Timeout     : REAL := 10.0;
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

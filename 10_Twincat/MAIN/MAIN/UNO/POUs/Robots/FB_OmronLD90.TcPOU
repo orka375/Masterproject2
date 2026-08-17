@@ -3,8 +3,8 @@
   <POU Name="FB_OmronLD90" Id="{fac74160-c2b3-4f77-bd69-eddf1970c653}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_OmronLD90 EXTENDS FB_ROB_AMR 
 VAR_INPUT
-	
 	sLoadDeliverReturn: Skill_LoadDeliverReturn;
+	sEyes: Skill_ROS2_Eyes;
 END_VAR
 VAR_OUTPUT
 END_VAR
@@ -19,18 +19,19 @@ END_VAR
     <Implementation>
       <ST><![CDATA[StateMachine(); // Method in FB_ROB
 ComMachine();	//Method in FB_ROB
+
+//-------- SKILL SETUP ---------
+
 RunSkillStateMachines(); //Method in FB_ROB
 
-
-// DBClient();	//Datenbank Client in FB_ROB
-
-
-
 pSkillPointer[1]:=ADR(sLoadDeliverReturn);
+pSkillPointer[2]:=ADR(sEyes);
 
+sEyes();
 sLoadDeliverReturn(Rob:=ADR(THIS^));
 
-// PiNPl(Rob:=ADR(THIS^));
+
+//------------------------------------
 
 IF MissionIndex<>oldMissionIndex THEN
 	waitTimer(IN:=TRUE, PT:=T#4S);
