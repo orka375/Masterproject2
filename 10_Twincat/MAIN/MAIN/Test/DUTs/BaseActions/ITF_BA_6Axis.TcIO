@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="ITF_BA_6Axis" Id="{1c00acb5-3385-4ebc-bf93-fcf981389320}">
+    <Declaration><![CDATA[INTERFACE ITF_BA_6Axis
+]]></Declaration>
+    <Method Name="MC_ChangeSpeedOverride" Id="{ac1cae84-05b7-40d5-aece-97a9d8275d35}">
+      <Declaration><![CDATA[METHOD MC_ChangeSpeedOverride : INT
+VAR_INPUT
+	factor: REAL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="MC_MoveAxesAbsolute" Id="{d7a13520-dd4d-4a6e-871f-97fa01c7b0cd}">
+      <Declaration><![CDATA[METHOD MC_MoveAxesAbsolute : BOOL
+VAR_INPUT
+	target: stTarget3D;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="MC_MoveAxesRelative" Id="{0da33709-5ced-43bd-a81a-2dc663befe6a}">
+      <Declaration><![CDATA[METHOD MC_MoveAxesRelative : BOOL
+VAR_INPUT
+	axes: ARRAY[1..6] OF FB_Axis;
+	offsets: ARRAY[1..6] OF REAL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="MC_MoveLinearAbsolute" Id="{2e5e5835-32e6-49a7-b20c-922a33165d14}">
+      <Declaration><![CDATA[METHOD MC_MoveLinearAbsolute : BOOL
+VAR_INPUT
+	target: stTarget3D;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="MC_ReadAnalogInput" Id="{b91b1794-a182-43f4-83a1-bd9f23ff8541}">
+      <Declaration><![CDATA[METHOD PUBLIC MC_ReadAnalogInput : LREAL
+VAR_INPUT
+	input : INT;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="MC_ReadDigitalInput" Id="{32a68224-fd53-4777-9ea7-e3bb5c08e46f}">
+      <Declaration><![CDATA[METHOD PUBLIC MC_ReadDigitalInput : BOOL
+VAR_INPUT
+	input : INT;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="MC_SetDigitalOutput" Id="{5303fb18-915e-4050-866f-f19dd182db6d}">
+      <Declaration><![CDATA[METHOD PUBLIC MC_SetDigitalOutput : BOOL
+VAR_INPUT
+	output : INT;
+	value : BOOL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="MC_SetOperationMode" Id="{52ab51f9-c5dc-486f-83e4-b9fd0e8f1fe9}">
+      <Declaration><![CDATA[METHOD PUBLIC MC_SetOperationMode : BOOL
+VAR_INPUT
+	mode: eMode;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

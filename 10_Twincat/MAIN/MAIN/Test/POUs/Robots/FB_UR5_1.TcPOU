@@ -1,0 +1,359 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_UR5_1" Id="{6c1f172f-d16a-4c3e-a8db-273738fc1f8d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_UR5 EXTENDS FB_ROB_MANIP IMPLEMENTS ITF_BA_6Axis, ITF_CommunicationModul
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	PiNPl: Skill_PickPlace;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[StateMachine();
+
+
+//Reference to Skills
+PiNPl(Rob:=ADR(THIS^));
+
+//ComConfig
+
+ComConfig.sIPAddress:='127.0.0.1';
+ComConfig.nPort:= 5432;]]></ST>
+    </Implementation>
+    <Folder Name="Communication" Id="{22a56d81-27e2-4395-b2f7-3e1a23b915f4}" />
+    <Folder Name="MotionControl" Id="{c17d4ca9-f217-4679-b005-153c8c7dd010}" />
+    <Folder Name="StateControl" Id="{da6218f9-6bd6-462f-bf56-7f509f8b869c}" />
+    <Method Name="Connect" Id="{5c04ef2f-b992-4645-893a-20d07ced4a42}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD Connect : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Connected" Id="{150bdc00-e693-4fd5-af46-a62aa875b252}" FolderPath="Communication\">
+      <Declaration><![CDATA[PROPERTY Connected : BOOL]]></Declaration>
+      <Get Name="Get" Id="{36b86f7a-9f16-47e5-96b0-ffdf072f7c90}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Disconnect" Id="{999eef5c-a19b-488c-98d7-9204cc28c798}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD Disconnect : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_MoveAxesRelative" Id="{d138ac85-48f9-4169-a367-434483a90fc9}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_MoveAxesRelative : BOOL
+VAR_INPUT
+	axes	: ARRAY [1..6] OF FB_Axis;
+	offsets	: ARRAY [1..6] OF REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_MoveJ" Id="{36860e21-9aad-4934-b228-afe86feaa6e4}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_MoveJ : BOOL
+VAR_INPUT
+	target	: stTarget3D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _state=eState.Active THEN
+// 	P_TargetReached:=FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_MoveL" Id="{ddb8c64e-202e-457f-b179-c12f66d07b04}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_MoveL : BOOL
+VAR_INPUT
+	target	: stTarget3D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_ReadActualVelocity" Id="{259559e7-3262-4cca-b2ff-c8d5bedcb81b}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_ReadActualVelocity : stPose
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_ReadAnalogInput" Id="{79f19d10-c292-4520-a5f0-572aa20ec22f}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_ReadAnalogInput : LREAL
+VAR_INPUT
+	input	: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_ReadDigitalInput" Id="{ebf07b95-1688-406d-9800-73794c7dda51}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_ReadDigitalInput : BOOL
+VAR_INPUT
+	input	: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_SetDigitalOutput" Id="{21343b18-49b3-4971-b81a-60d068384cd8}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_SetDigitalOutput : BOOL
+VAR_INPUT
+	output	: INT;
+	value	: BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_SetOperationMode" Id="{7396b5c5-9dbb-4c73-bba3-062ad741253b}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MC_SetOperationMode : BOOL
+VAR_INPUT
+	mode	: eMode;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_mode:=mode;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_SpeedOverride" Id="{b4de7407-a668-4de0-9ba6-a503ff62da73}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD MC_SpeedOverride : INT
+VAR_INPUT
+	factor: REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onActivate" Id="{dc70c063-7d50-424b-ae24-a3b2e8b82a59}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onActivate : BOOL
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+// _mode:= eMode.Automatic;
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Active;
+ELSIF transitionresult= eResult.FAILURE THEN
+	State:=eState.Inactive;
+ELSIF transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onActivate is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onCleanup" Id="{c5444503-9fdd-4b71-a65c-fd5cddb6bb43}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onCleanup : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+_mode:= eMode.Manual;
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Unconfigured;
+ELSIF transitionresult= eResult.FAILURE THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is FAILURE ','');
+ELSIF transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is NONE','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onConfigure" Id="{89188265-a853-4cc7-b2e5-efc6c3414bec}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onConfigure : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+_mode:= eMode.Manual;
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Inactive;
+ELSIF transitionresult= eResult.FAILURE THEN
+	State:=eState.Unconfigured;
+ELSIF transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onConfigure is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onDeactivate" Id="{b48ff0b4-7768-470e-ba5f-bd75733f4dc6}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onDeactivate : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+_mode:= eMode.Manual;
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Inactive;
+ELSIF transitionresult= eResult.FAILURE THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is FAILURE','');
+ELSIF transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onError" Id="{40b32895-142b-4a04-aa6c-109bbaa0fa6c}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onError : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+_mode:= eMode.Manual;
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Unconfigured;
+ELSIF transitionresult= eResult.FAILURE THEN
+	State:=eState.Finalized;
+ELSIF transitionresult= eResult.ERROR THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is Error','');
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onShutdown" Id="{5ad9cf95-ea02-430b-a003-aed2972e9fe8}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onShutdown : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+_mode:= eMode.Manual;
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Finalized;
+ELSIF transitionresult= eResult.FAILURE THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is FAILURE','');
+ELSIF transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetConnection" Id="{51f2f14b-7dc4-4a04-bd75-497387450c6a}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD ResetConnection : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

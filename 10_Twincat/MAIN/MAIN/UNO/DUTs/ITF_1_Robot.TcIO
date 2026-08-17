@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="ITF_1_Robot" Id="{a6d29cf6-e144-4e1d-bf83-e7b2be10a693}">
+    <Declaration><![CDATA[INTERFACE ITF_1_Robot EXTENDS ITF_0_BaseComponent
+]]></Declaration>
+    <Method Name="AutoMode" Id="{4a5f6fe2-c0ac-4a0a-ac11-a7823ebd0b5f}">
+      <Declaration><![CDATA[METHOD AutoMode : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="Disable" Id="{1f5c5c05-2dcb-40b6-85b7-e14de76733ca}">
+      <Declaration><![CDATA[METHOD Disable : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="DisableVelocityOverride" Id="{1643e2ed-a195-4fb9-bcc2-d0e7b52e61fb}">
+      <Declaration><![CDATA[METHOD DisableVelocityOverride : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="Enable" Id="{0f3f76ce-0c24-431f-b0cb-d24dc0415a91}">
+      <Declaration><![CDATA[METHOD Enable : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="EnableVelocityOverride" Id="{a219643f-8e25-47f8-b4f4-e2335d3e6ead}">
+      <Declaration><![CDATA[METHOD EnableVelocityOverride : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="EStop" Id="{6bd7f640-7106-49dd-a5cd-96054e8ed6ff}">
+      <Declaration><![CDATA[METHOD EStop : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="IsInCollision" Id="{95536b20-47f3-4d85-8846-0f4cc34c4b04}">
+      <Declaration><![CDATA[PROPERTY IsInCollision : BOOL]]></Declaration>
+      <Get Name="Get" Id="{3c40598d-bbaa-48a0-aee9-84c6b65300d9}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="JogSpeed" Id="{884c7276-7307-49dc-816b-0ffea2c4cba8}">
+      <Declaration><![CDATA[{warning 'Eigenschaftenimplementierung hinzufügen'}
+PROPERTY JogSpeed : LREAL
+]]></Declaration>
+      <Get Name="Get" Id="{b3dfabc4-c456-4561-bf20-1871e1ecd3cb}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{d0624bcc-9094-492f-8b17-2c7b6b805814}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Method Name="ManMode" Id="{bd189bc6-367b-4937-84f7-9d3aaa9bc52d}">
+      <Declaration><![CDATA[METHOD ManMode : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="RobotIsMoving" Id="{3ed4e89d-1bdc-4ba3-aaab-47d06e86a2de}">
+      <Declaration><![CDATA[{warning 'Eigenschaftenimplementierung hinzufügen'}
+PROPERTY RobotIsMoving : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{1fbb8003-a640-4c09-a91d-be28a7a884bd}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="RobotIsReady" Id="{32f7ce06-a917-40aa-a63a-9d645daf1000}">
+      <Declaration><![CDATA[{warning 'Eigenschaftenimplementierung hinzufügen'}
+PROPERTY RobotIsReady : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{78af0e9a-e888-424b-9875-3b938dfeb7c8}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

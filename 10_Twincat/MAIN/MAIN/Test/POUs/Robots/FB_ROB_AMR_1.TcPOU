@@ -1,0 +1,215 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_ROB_AMR_1" Id="{00f05eb7-95bd-4cd3-aa92-5a48af98d4e8}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ROB_AMR EXTENDS FB_ROB IMPLEMENTS ITF_2_AMR, ITF_BA_AMR
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	tcppos, tcpvel : stPose2D;
+	jointpos, jointvel: stJoint2;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="MotionControl - Override" Id="{67b3627f-d3d9-4d23-986a-0e1d03e05b51}" />
+    <Property Name="ActualAxisPos" Id="{b1dcca5c-bce7-426f-998d-cb8ab82a1584}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY ActualAxisPos : stJoint2
+]]></Declaration>
+      <Get Name="Get" Id="{ab06e298-daf7-4f8b-858b-33c866718a3c}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualAxisPos:= jointpos;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ActualJointVelocity" Id="{c7673800-db29-485b-b2ce-60740ffadc80}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY ActualJointVelocity : stJoint2
+]]></Declaration>
+      <Get Name="Get" Id="{a332b17b-101b-41be-a670-23ff460edd0b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualJointVelocity:= jointvel;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ActualTCPPos" Id="{54f363e2-13c7-4168-b78c-638ca9a72694}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY ActualTCPPos : stPose2D
+]]></Declaration>
+      <Get Name="Get" Id="{8c2d21cb-ce67-4940-9b73-2872ecf58e7f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualTCPPos:=tcppos;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ActualTCPVelocity" Id="{e2d7ef56-018f-4384-aed5-547bcdd0fddd}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY ActualTCPVelocity : stPose2D
+]]></Declaration>
+      <Get Name="Get" Id="{0b75cf06-80fd-4f1d-9cd5-5d92de067c56}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualTCPVelocity:=tcpvel;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Dock" Id="{7a2cbcfa-840f-4b61-9db6-42db4be3c502}" FolderPath="MotionControl - Override\">
+      <Declaration><![CDATA[METHOD Dock : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GoToGoal" Id="{b2e2ff45-ccbe-41b1-afea-be4075ff97b2}" FolderPath="MotionControl - Override\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD GoToGoal : BOOL
+VAR_INPUT
+	Goal: STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GoToPoint" Id="{db604ec5-755f-4155-9189-348ed79b26a7}" FolderPath="MotionControl - Override\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD GoToPoint : BOOL
+
+VAR_INPUT
+	rX, rY, rTheta: REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsDocked" Id="{7a9ed1b9-45ae-4f5d-b169-8938a2198ffb}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY IsDocked : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{98e1f238-e206-4e50-9839-b592fb786df0}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="MC_ChangeSpeedOverride" Id="{b4fe74cd-ca7b-4c17-9988-29294c7f56d2}" FolderPath="MotionControl - Override\">
+      <Declaration><![CDATA[METHOD MC_ChangeSpeedOverride : INT
+VAR_INPUT
+	factor	: REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_MoveAxesAbsolute" Id="{e54acd52-e726-4022-b11d-68038bc85adc}" FolderPath="MotionControl - Override\">
+      <Declaration><![CDATA[METHOD MC_MoveAxesAbsolute : BOOL
+VAR_INPUT
+	target	: stTarget3D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_MoveAxesRelative" Id="{5596bb9d-6eb9-42cd-8a42-773aec96e2fa}" FolderPath="MotionControl - Override\">
+      <Declaration><![CDATA[METHOD MC_MoveAxesRelative : BOOL
+VAR_INPUT
+	axes	: ARRAY [1..6] OF FB_Axis;
+	offsets	: ARRAY [1..6] OF REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_MoveLinearAbsolute" Id="{6f9542c6-578b-43dc-97ff-3cd3251a8607}" FolderPath="MotionControl - Override\">
+      <Declaration><![CDATA[METHOD MC_MoveLinearAbsolute : BOOL
+VAR_INPUT
+	target	: stTarget3D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_ReadAnalogInput" Id="{1d4ee037-8922-492c-8a24-fe1dcbe0daf0}" FolderPath="MotionControl - Override\">
+      <Declaration><![CDATA[METHOD MC_ReadAnalogInput : LREAL
+VAR_INPUT
+	input	: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_ReadDigitalInput" Id="{04249d3d-b16e-440f-b96b-1cd039f1abf0}" FolderPath="MotionControl - Override\">
+      <Declaration><![CDATA[METHOD MC_ReadDigitalInput : BOOL
+VAR_INPUT
+	input	: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_SetDigitalOutput" Id="{1083e7b8-bb6b-4829-9e48-946648bcced0}" FolderPath="MotionControl - Override\">
+      <Declaration><![CDATA[METHOD MC_SetDigitalOutput : BOOL
+VAR_INPUT
+	output	: INT;
+	value	: BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MC_SetOperationMode" Id="{60c63f9e-ca78-430c-a367-c0b575c1d47a}" FolderPath="MotionControl - Override\">
+      <Declaration><![CDATA[METHOD MC_SetOperationMode : BOOL
+VAR_INPUT
+	mode	: eMode;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="TargetReached" Id="{60f6ca6d-9c25-4d2b-b621-6f0d8c128cd4}">
+      <Declaration><![CDATA[PROPERTY TargetReached : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{d0cae4ab-b335-4717-abae-c4da624aa8a1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Undock" Id="{48bf8294-f925-49bc-ab99-66f296a72a9c}" FolderPath="MotionControl - Override\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD Undock : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

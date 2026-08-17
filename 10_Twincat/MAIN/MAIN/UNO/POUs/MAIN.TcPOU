@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="MAIN" Id="{fa0cd0cc-fa85-4110-875c-96f4e2282186}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	
+	H: FB_HELPER;
+	UR5: FB_UR5;
+	PnP : Skill_PickPlace;
+	P: Process;
+	LD90: FB_OmronLD90;
+	Meca500: FB_Meca500;
+	_state_LD90: eState;
+	_state_LD90_sLDR: eState;
+END_VAR
+
+
+VAR
+
+//     fbDB : FB_PostgreSQLClient;
+
+
+    sRobotName : STRING;
+
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// fbDB();
+
+// PnP(Rob:=ADR(UR5));
+UR5();
+
+// UR5.CallSkill(pSkill:=ADR(UR5.PiNPl));
+LD90();
+Meca500();
+P(ROB:=ADR(Meca500));
+
+_state_LD90:=MAIN.LD90.State;
+_state_LD90_sLDR:=Main.LD90.sLoadDeliverReturn.State;
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

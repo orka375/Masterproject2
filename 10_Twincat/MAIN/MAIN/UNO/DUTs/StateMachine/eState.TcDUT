@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="eState" Id="{a1b2c3d4-1111-1111-1111-111111111111}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE eState :
+(
+	None 			:= 0,
+	Unconfigured 	:= 1,
+	Inactive 		:= 2,
+	Active 			:= 3,
+	Finalized 		:= 4,
+	Configuring		:= 5,
+	CleaningUp 		:= 6,
+	Activating 		:= 7,
+	Deactivating 	:= 8,
+	ShuttingDown 	:= 9,
+	ErrorProcessing := 10
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

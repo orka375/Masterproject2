@@ -1,0 +1,466 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_Base" Id="{ccfcc891-ed7a-48a9-bb43-020f08aa1f30}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'reflection'} 
+FUNCTION_BLOCK ABSTRACT FB_Base EXTENDS  FB_SkillHandler  IMPLEMENTS ITF_0_BaseComponent
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	{attribute 'instance-path'} 
+    {attribute 'noinit'} 
+    sPath : STRING(255); 
+	{attribute 'instance-name'}
+	{attribute 'noinit'} 
+	sInstanceName: STRING;
+	_autoconfigure: BOOL:=TRUE;		//If True, StateMachine trys automatic to reach State "ACTIV" otherwise each transition must be called manually
+	
+	transitionresult: eResult;
+	_state: eState :=eState.Unconfigured;
+	Error: BOOL;
+	ErrorId: UDINT;
+
+	dummy: INT;
+	_initialized: BOOL;
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[StateMachine();]]></ST>
+    </Implementation>
+    <Folder Name="StateControl" Id="{bcaabc90-8311-4d61-b63c-66c13d25292f}" />
+    <Method Name="Activate" Id="{8d29e9eb-3e7c-4311-8303-d07f52bcf283}" FolderPath="StateControl\">
+      <Declaration><![CDATA[// {warning 'Add method implementation '}
+METHOD Activate : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+IF State=eState.Inactive THEN
+	State:=eState.Activating;
+ELSE
+	ADSLOGSTR(
+    msgCtrlMask := ADSLOG_MSGTYPE_WARN,
+    msgFmtStr   := 'Activate failed in: %s',
+    strArg      := sPath
+);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="AutoBoot" Id="{44f3c7f4-dba0-4e5c-9aec-1d95215b519e}">
+      <Declaration><![CDATA[PROPERTY AutoBoot : BOOL]]></Declaration>
+      <Get Name="Get" Id="{ee124298-bcc7-439c-9105-d90c42f3e44b}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AutoBoot:=_autoconfigure;
+]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{6e39cfd8-2d79-4d05-8c85-3f94875be35d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_autoconfigure:=AutoBoot;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Cleanup" Id="{c4819076-2442-41bd-8aa1-fe9bd8639fb5}" FolderPath="StateControl\">
+      <Declaration><![CDATA[// {warning 'Add method implementation '}
+METHOD Cleanup : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF State=eState.Inactive THEN
+	State:=eState.CleaningUp;
+ELSE
+	ADSLOGSTR(
+    msgCtrlMask := ADSLOG_MSGTYPE_WARN,
+    msgFmtStr   := 'Cleanup failed in: %s',
+    strArg      := Path
+);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Configure" Id="{e049feb0-d020-4b0d-9355-74a020722637}" FolderPath="StateControl\">
+      <Declaration><![CDATA[// {warning 'Add method implementation '}
+METHOD Configure : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF State=eState.Unconfigured THEN
+	State:=eState.Configuring;
+ELSE
+	ADSLOGSTR(
+    msgCtrlMask := ADSLOG_MSGTYPE_WARN,
+    msgFmtStr   := 'Configure failed in: %s',
+    strArg      := Path
+);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Deactivate" Id="{4dfdb93c-87ba-4697-9eee-0c2811499a1b}" FolderPath="StateControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD Deactivate : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF State=eState.Active THEN
+	State:=eState.Deactivating;
+ELSE
+	ADSLOGSTR(
+    msgCtrlMask := ADSLOG_MSGTYPE_WARN,
+    msgFmtStr   := 'Deactivate failed in: %s',
+    strArg      := Path
+);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Destroy" Id="{84232af5-24cf-43e3-b44a-0f85cd0c58bf}" FolderPath="StateControl\">
+      <Declaration><![CDATA[// {warning 'Add method implementation '}
+METHOD Destroy : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF State=eState.Finalized THEN
+	State:=eState.Unconfigured;
+ELSE
+	ADSLOGSTR(
+    msgCtrlMask := ADSLOG_MSGTYPE_WARN,
+    msgFmtStr   := 'Destroy failed in: %s',
+    strArg      := Path
+);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="fb_init" Id="{801c5f4d-df9d-442d-bf30-707b6ac04ac7}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+//The return value is not evaluated. For a specific influence, you can also declare the
+//methods explicitly and provide additional code there with the standard initialization
+//code. You can evaluate the return value.
+METHOD FB_Init: BOOL
+VAR_INPUT
+    bInitRetains: BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+    bInCopyCode: BOOL;  // TRUE: the instance will be copied to the copy code afterward (online change)   
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetInstanceName" Id="{c1f8f8ea-ec47-4367-ae51-64fda65ac886}">
+      <Declaration><![CDATA[METHOD GetInstanceName : STRING
+VAR
+    i    : DINT;
+    nLen : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nLen := LEN(sPath);
+GetInstanceName := sPath;
+
+FOR i := nLen TO 1 BY -1 DO
+    IF sPath[i] = 46 THEN //46 = '.' in ASCII
+        GetInstanceName := RIGHT(sPath, TO_INT(nLen - i-1));
+        RETURN;
+    END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ID" Id="{56e403f3-8552-4f82-8f86-af916d784dec}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY ID : UINT
+]]></Declaration>
+      <Get Name="Get" Id="{01362321-941b-405e-a5c3-370fadd50709}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{53535a56-c051-4863-b3cf-33275af6d47b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Name" Id="{548614ea-6498-4c1d-a5ce-7f6dbb849726}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY Name : STRING
+]]></Declaration>
+      <Get Name="Get" Id="{9abd0c45-0dec-4466-a4b2-9f1564c8ba2e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[
+
+Name:=sInstanceName;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="onActivate" Id="{9da44456-9079-48c4-a422-180073049c7f}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onActivate : BOOL
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Active;
+ELSIF transitionresult= eResult.FAILURE THEN
+	State:=eState.Inactive;
+ELSIF transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onActivate is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onCleanup" Id="{1cbf57cd-f144-4499-ac40-e58b878ddcfc}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onCleanup : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Unconfigured;
+ELSIF transitionresult= eResult.FAILURE THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is FAILURE ','');
+ELSIF transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is NONE','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onConfigure" Id="{c7df3a26-6fc2-40b8-b279-df837148749a}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onConfigure : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Inactive;
+ELSIF transitionresult= eResult.FAILURE THEN
+	State:=eState.Unconfigured;
+ELSIF transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onConfigure is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onDeactivate" Id="{46dc1863-bc20-4aa6-822e-d746ed6280bd}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onDeactivate : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Inactive;
+ELSIF transitionresult= eResult.FAILURE THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is FAILURE','');
+ELSIF transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onError" Id="{c4fcde18-52a6-416e-9375-25c35d4fb566}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onError : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Unconfigured;
+ELSIF transitionresult= eResult.FAILURE THEN
+	State:=eState.Finalized;
+ELSIF transitionresult= eResult.ERROR THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is Error','');
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onShutdown" Id="{05a5db8e-a9c0-4764-9498-22b8037c7c75}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onShutdown : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Finalized;
+ELSIF transitionresult= eResult.FAILURE THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is FAILURE','');
+ELSIF transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Path" Id="{459f7f21-cbfe-4701-91b3-a410fc19512e}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY Path : STRING
+]]></Declaration>
+      <Get Name="Get" Id="{2daa2808-fefd-47e5-b0e8-8c13e9ff4c08}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Path:=sPath;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Shutdown" Id="{a12b67df-13c4-4acd-81a2-259afa6359fe}" FolderPath="StateControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD Shutdown : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF State=eState.Inactive OR State=eState.Unconfigured OR State=eState.Active THEN
+	State:=eState.ShuttingDown;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="State" Id="{186f624f-e691-4cfe-9392-dd87366cedc2}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY State : eState
+]]></Declaration>
+      <Get Name="Get" Id="{8c20bc39-5e17-48de-81e9-f86cdcf5978c}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[State:=_state;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f2b0cb44-bade-4a8a-80d6-a1f37ebc07e9}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_state:=State;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="StateMachine" Id="{2f358a4c-c272-4679-b042-e935cc28a3dc}">
+      <Declaration><![CDATA[METHOD StateMachine : eState
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _initialized THEN
+    sInstanceName := GetInstanceName();
+    _initialized := TRUE;
+END_IF
+
+
+CASE _state OF
+	eState.Unconfigured:
+		IF _autoconfigure THEN
+			Configure();
+		END_IF
+	eState.Inactive:		//IDLE
+// 		IF _autoboot THEN
+// 			M_activate();
+// 		END_IF
+	eState.Active:
+		dummy:=1;
+	eState.Finalized:
+		Destroy();
+	
+	
+	//Transitions States
+	eState.Configuring:
+		onConfigure();
+	eState.Activating:
+		onActivate();
+	eState.Deactivating:
+		onDeactivate();
+	eState.ErrorProcessing:
+		onError();
+	eState.CleaningUp:
+		onCleanup();
+	eState.ShuttingDown:
+		onShutdown();
+		
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

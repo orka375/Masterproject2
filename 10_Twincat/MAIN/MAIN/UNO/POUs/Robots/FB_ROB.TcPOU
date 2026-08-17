@@ -1,0 +1,874 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_ROB" Id="{7ce28b50-28f8-4d4c-bb25-1006bf064637}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ROB EXTENDS FB_Base IMPLEMENTS ITF_1_Robot, ITF_CommunicationModul
+
+VAR_INPUT
+	pSkillPointer : ARRAY[1..4] OF POINTER TO FB_Skill;
+	pTool: POINTER TO FB_TOOL; //only of Manipulator
+	
+END_VAR
+
+VAR_INPUT
+	ComConfig: ST_CommunicationConfig;
+
+END_VAR
+
+
+VAR_OUTPUT
+	_inCollision: BOOL;
+	 eConnectionState : eCommunicationState :=
+        eCommunicationState.DISCONNECTED;
+END_VAR
+VAR
+	    // ============================================================
+    // Internal state
+    // ============================================================
+
+    _Connected : BOOL;
+    _Busy : BOOL;
+
+
+    _Command : STRING(1023);
+    _CommandPending : BOOL;
+
+    _ReconnectTimer : TON;
+    _TimeoutTimer : TON;
+
+
+    // Rising-edge detection
+	
+    _ExecuteConnect : BOOL;
+    _ExecuteDisconnect : BOOL;
+    _ExecuteCommand : BOOL;
+
+    _LastCommand : STRING(1023);
+	
+	
+	_enabled: BOOL;
+	_mode: eMode;
+	_locked: BOOL;
+	
+	velovr: BOOL;
+	velfact: REAL;
+	
+// 	DBClient: FB_PostgreSQLClient;
+	
+
+END_VAR
+
+
+VAR
+    // =========================================================
+    // Communication state
+    // =========================================================
+
+   
+
+    xConnectRequest : BOOL := FALSE;
+    xDisconnectRequest : BOOL := FALSE;
+
+    // One-shot execute signals
+    xSocketConnectExecute : BOOL := FALSE;
+    xSocketCloseExecute : BOOL := FALSE;
+
+
+    fbSocketConnect : FB_SocketConnect;
+    fbSocketClose : FB_SocketClose;
+
+    hSocket : T_HSOCKET;
+
+
+    SocketErrorId : UDINT := 0;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// --- CALL AGAIN IN FINAL INSTANCE ---
+StateMachine();
+ComMachine();
+RunSkillStateMachines();
+
+// DBClient();]]></ST>
+    </Implementation>
+    <Folder Name="Communication" Id="{482fc868-908c-498f-adb6-41c2da0d8c6c}" />
+    <Folder Name="StateControl" Id="{306f9b72-2cb2-4dec-88a3-0a1776eb8cb9}" />
+    <Method Name="AutoMode" Id="{a36cbff6-922e-4670-8cae-63446b6e1765}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD AutoMode : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_mode:=eMode.Automatic;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangeSpeedOverride" Id="{a5e39256-a687-447d-8a2a-a95ea9e40d2e}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD ChangeSpeedOverride : INT
+VAR_INPUT
+	factor	: REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[velfact:=factor;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ComMachine" Id="{f49a5e24-a4a9-4b80-8d0f-86db7d255ee2}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD ComMachine : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE eConnectionState OF
+
+
+    // =========================================================
+    // DISCONNECTED
+    // =========================================================
+
+    eCommunicationState.DISCONNECTED:
+
+       _connected := FALSE;
+
+
+        // Make sure socket handle is cleared
+//         hSocket
+
+
+        // -----------------------------------------------------
+        // Connect requested
+        // -----------------------------------------------------
+
+        IF xConnectRequest THEN
+
+            xConnectRequest := FALSE;
+
+            // Clear previous errors
+            Error := FALSE;
+            ErrorId := 0;
+            SocketErrorId := 0;
+
+            // Start FB_SocketConnect
+            xSocketConnectExecute := TRUE;
+
+            eConnectionState :=
+                eCommunicationState.CONNECTING;
+
+        END_IF;
+
+
+    // =========================================================
+    // CONNECTING
+    // =========================================================
+
+    eCommunicationState.CONNECTING:
+
+        _connected := FALSE;
+        
+
+
+        // -----------------------------------------------------
+        // Execute FB_SocketConnect
+        // -----------------------------------------------------
+
+        fbSocketConnect(
+            sSrvNetId := '',
+            sRemoteHost := ComConfig.sIpAddress,
+            nRemotePort := ComConfig.nPort,
+            bExecute := xSocketConnectExecute,
+            tTimeout := ComConfig.tTimeout
+        );
+
+
+        // Execute must only be TRUE for one cycle
+        xSocketConnectExecute := FALSE;
+
+
+        // -----------------------------------------------------
+        // Connection successful
+        // -----------------------------------------------------
+
+        IF NOT fbSocketConnect.bBusy
+            AND NOT fbSocketConnect.bError
+//             AND (fbSocketConnect.hSocket <> 0)
+        THEN
+
+            hSocket :=
+                fbSocketConnect.hSocket;
+
+            _connected := TRUE;
+    
+
+            Error := FALSE;
+            ErrorId := 0;
+            SocketErrorId := 0;
+
+            eConnectionState :=
+                eCommunicationState.CONNECTED;
+
+        END_IF;
+
+
+        // -----------------------------------------------------
+        // Connection failed
+        // -----------------------------------------------------
+
+        IF NOT fbSocketConnect.bBusy
+            AND fbSocketConnect.bError
+        THEN
+
+            _connected := FALSE;
+
+            Error := TRUE;
+
+            SocketErrorId :=
+                fbSocketConnect.nErrId;
+
+            ErrorId :=
+                fbSocketConnect.nErrId;
+
+//             hSocket := 0;
+
+            eConnectionState :=
+                eCommunicationState.ERROR;
+
+        END_IF;
+
+
+    // =========================================================
+    // CONNECTED
+    // =========================================================
+
+    eCommunicationState.CONNECTED:
+
+        _connected := TRUE;
+
+
+
+        // -----------------------------------------------------
+        // Disconnect requested
+        // -----------------------------------------------------
+
+        IF xDisconnectRequest THEN
+
+            xDisconnectRequest := FALSE;
+
+
+            // Start socket close
+            xSocketCloseExecute := TRUE;
+
+            eConnectionState :=
+                eCommunicationState.DISCONNECTING;
+
+        END_IF;
+
+
+    // =========================================================
+    // DISCONNECTING
+    // =========================================================
+
+    eCommunicationState.DISCONNECTING:
+
+        _connected := FALSE;
+
+
+        // -----------------------------------------------------
+        // Execute FB_SocketClose
+        // -----------------------------------------------------
+
+        fbSocketClose(
+            sSrvNetId := '',
+            hSocket := hSocket,
+            bExecute := xSocketCloseExecute,
+            tTimeout := ComConfig.tTimeout
+        );
+
+
+        // Execute only for one cycle
+        xSocketCloseExecute := FALSE;
+
+
+        // -----------------------------------------------------
+        // Socket closed successfully
+        // -----------------------------------------------------
+
+        IF NOT fbSocketClose.bBusy
+            AND NOT fbSocketClose.bError
+        THEN
+
+            _connected := FALSE;
+
+
+//             hSocket := 0;
+
+            eConnectionState :=
+                eCommunicationState.DISCONNECTED;
+
+        END_IF;
+
+
+        // -----------------------------------------------------
+        // Socket close failed
+        // -----------------------------------------------------
+
+        IF NOT fbSocketClose.bBusy
+            AND fbSocketClose.bError
+        THEN
+
+            _connected := FALSE;
+
+
+            Error := TRUE;
+
+            SocketErrorId :=
+                fbSocketClose.nErrId;
+
+            ErrorId :=
+                fbSocketClose.nErrId;
+
+            // The socket should no longer be used
+//             hSocket := 0;
+
+            eConnectionState :=
+                eCommunicationState.ERROR;
+
+        END_IF;
+
+
+    // =========================================================
+    // ERROR
+    // =========================================================
+
+    eCommunicationState.ERROR:
+
+        _connected := FALSE;
+        // -----------------------------------------------------
+        // Do not attempt to use the socket after an error
+        // -----------------------------------------------------
+
+//         hSocket := 0;
+
+
+        // -----------------------------------------------------
+        // A new connection request can recover from the error
+        // -----------------------------------------------------
+
+        IF xConnectRequest THEN
+
+            xConnectRequest := FALSE;
+
+            Error := FALSE;
+            ErrorId := 0;
+            SocketErrorId := 0;
+
+            xSocketConnectExecute := TRUE;
+
+            eConnectionState :=
+                eCommunicationState.CONNECTING;
+
+        END_IF;
+
+
+END_CASE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Connect" Id="{047fe0b6-5747-4791-80bd-12650d215bd4}" FolderPath="Communication\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD Connect : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+Connect := FALSE;
+
+// Already connected
+IF eConnectionState = eCommunicationState.CONNECTED THEN
+    Connect := TRUE;
+    RETURN;
+END_IF;
+
+// Already trying to connect
+IF eConnectionState = eCommunicationState.CONNECTING THEN
+    Connect := TRUE;
+    RETURN;
+END_IF;
+
+// Don't accept a new connection while disconnecting
+IF eConnectionState = eCommunicationState.DISCONNECTING THEN
+    RETURN;
+END_IF;
+
+// Validate address
+IF LEN(ComConfig.sIpAddress) = 0 THEN
+    Error := TRUE;
+//     ErrorId := 16#1001;
+    RETURN;
+END_IF;
+
+// Validate port
+IF ComConfig.nPort = 0 THEN
+    Error := TRUE;
+//     ErrorId := 16#1002;
+    RETURN;
+END_IF;
+
+// Clear previous error
+Error := FALSE;
+ErrorId := 0;
+
+// Request connection
+xConnectRequest := TRUE;
+
+Connect := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Connected" Id="{80fca5f5-8709-4982-a384-df957ec0f13e}" FolderPath="Communication\">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY Connected : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{99f48d79-5a32-4dfc-8ac6-28f7e421e088}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Connected:=_connected;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Disable" Id="{bbb8a1cb-19df-48a2-aa34-15efcd08818d}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD Disable : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_enabled:=FALSE;
+super^.Deactivate();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DisableVelocityOverride" Id="{ee13b86f-55fa-4515-ac1d-c418ff59ec19}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD DisableVelocityOverride : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[velovr:=False;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Disconnect" Id="{ee0b7b31-ec5f-4f91-978c-fcaa048156f8}" FolderPath="Communication\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD Disconnect : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Enable" Id="{3bb80d4c-ff29-49a1-abc5-c8b4d3120296}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD Enable : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_enabled:=TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EnableVelocityOverride" Id="{1ca0163b-6260-47a4-b242-d72534327ea7}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD EnableVelocityOverride : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[velovr:=True;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EStop" Id="{ff1c583d-626a-4142-b727-591a7a8cf9e6}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD EStop : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="fb_init" Id="{6ad263e9-de0f-45f7-ad84-eb9ef58516d7}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+//The return value is not evaluated. For a specific influence, you can also declare the
+//methods explicitly and provide additional code there with the standard initialization
+//code. You can evaluate the return value.
+METHOD FB_Init: BOOL
+VAR_INPUT
+    bInitRetains: BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+    bInCopyCode: BOOL;  // TRUE: the instance will be copied to the copy code afterward (online change)   
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_owner:=THIS;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsInCollision" Id="{8eea56b9-50ca-4510-b567-db19e3eca5c7}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY IsInCollision : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{885867df-c0d3-4443-aec9-8d2b982d76c4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsInCollision:=_inCollision;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="JogSpeed" Id="{b02ce28c-7dc7-4355-aadb-75f0e04880fa}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY JogSpeed : LREAL
+]]></Declaration>
+      <Get Name="Get" Id="{5422baec-3cfa-49de-a9e5-c204b5dc3b85}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{70edccef-4005-4ebc-8367-68039a4d1e15}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="ManMode" Id="{3ea33c07-baa7-444c-a0bc-e71071e519dd}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD ManMode : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_mode:=eMode.Manual;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onActivate" Id="{92a2cf27-c6ee-447f-b5b4-e372093c0834}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onActivate : BOOL
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+// _mode:= eMode.Automatic;
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Active;
+ELSIF transitionresult= eResult.FAILURE THEN
+	State:=eState.Inactive;
+ELSIF transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onActivate is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onCleanup" Id="{b8d25f1a-bd56-4d52-bf77-294e7c965601}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onCleanup : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+_mode:= eMode.Manual;
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Unconfigured;
+ELSIF transitionresult= eResult.FAILURE THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is FAILURE ','');
+ELSIF transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is NONE','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onConfigure" Id="{da5be059-6955-4a6d-bdaf-05a0e2dc60bb}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onConfigure : BOOL
+
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+// Connect();
+// _mode:= eMode.Manual;
+
+FOR i := TO_INT(LOWER_BOUND(pSkillPointer, 1)) TO TO_INT(UPPER_BOUND(pSkillPointer, 1)) DO
+	IF pSkillPointer[i] <> 0 THEN
+		IF pSkillPointer[i]^.State = eState.Unconfigured THEN
+			pSkillPointer[i]^.Configure();
+		END_IF
+	END_IF
+END_FOR
+
+// // ---- Check ----
+// IF Connected THEN
+// 	transitionresult := eResult.SUCCESS;
+// ELSE
+// 	transitionresult := eResult.FAILURE;
+// END_IF
+// 
+// IF Error THEN
+// 	transitionresult:= eResult.ERROR;
+// END_IF
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Inactive;
+ELSIF transitionresult= eResult.FAILURE THEN
+	State:=eState.Unconfigured;
+ELSIF transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onConfigure is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onDeactivate" Id="{9cfadd55-1f96-401b-82a9-c49bdb0b9d71}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onDeactivate : BOOL
+
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+_mode:= eMode.Manual;
+
+FOR i := TO_INT(LOWER_BOUND(pSkillPointer, 1)) TO TO_INT(UPPER_BOUND(pSkillPointer, 1)) DO
+	IF pSkillPointer[i] <> 0 THEN
+		IF pSkillPointer[i]^.State = eState.Active THEN
+			pSkillPointer[i]^.Deactivate();
+		END_IF
+	END_IF
+END_FOR
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+FOR i := TO_INT(LOWER_BOUND(pSkillPointer, 1)) TO TO_INT(UPPER_BOUND(pSkillPointer, 1)) DO
+	IF pSkillPointer[i] <> 0 THEN
+		IF pSkillPointer[i]^.State <= 2 THEN //< Inactive = None, Uuconfig, inactive
+			pSkillPointer[i]^.Deactivate();
+		END_IF
+	END_IF
+END_FOR
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Inactive;
+ELSIF transitionresult= eResult.FAILURE THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is FAILURE','');
+ELSIF transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onError" Id="{af5714ff-685b-4718-92d7-e4e00300345c}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onError : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+_mode:= eMode.Manual;
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Unconfigured;
+ELSIF transitionresult= eResult.FAILURE THEN
+	State:=eState.Finalized;
+ELSIF transitionresult= eResult.ERROR THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is Error','');
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onShutdown" Id="{54edc0cd-8c64-49fa-9d9a-b9e92650f21c}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD onShutdown : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ---- Init ----
+transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+_mode:= eMode.Manual;
+
+
+
+
+// ---- Check ----
+transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF transitionresult= eResult.SUCCESS THEN
+	State:=eState.Finalized;
+ELSIF transitionresult= eResult.FAILURE THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is FAILURE','');
+ELSIF transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetConnection" Id="{1825ac35-9b96-4ce0-86aa-50b35c933301}" FolderPath="Communication\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD ResetConnection : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="RobotIsMoving" Id="{d73761d6-28bd-445a-ae23-6297821e885b}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY RobotIsMoving : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{afd258f0-1b48-45c8-895f-cafec57170be}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="RobotIsReady" Id="{749d199f-9e7a-4d77-b560-89090e6f1785}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY RobotIsReady : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{69a643b8-e941-4372-aaf0-4d36068ddfee}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="RunSkillStateMachines" Id="{ab7481c6-37ce-4d03-b209-9a2671ab3d76}">
+      <Declaration><![CDATA[METHOD RunSkillStateMachines : BOOL
+VAR_INPUT
+END_VAR
+
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := TO_INT(LOWER_BOUND(pSkillPointer, 1))
+        TO TO_INT(UPPER_BOUND(pSkillPointer, 1)) DO
+
+    IF pSkillPointer[i] <> 0 THEN
+        pSkillPointer[i]^.StateMachine();
+    END_IF
+
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StateMachine" Id="{7c548c85-6556-4878-b6cb-3d316e797b43}">
+      <Declaration><![CDATA[METHOD StateMachine : eState
+VAR_INPUT
+END_VAR
+
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _initialized THEN
+    sInstanceName := GetInstanceName();
+    _initialized := TRUE;
+END_IF
+
+CASE _state OF
+	eState.Unconfigured:
+		IF _autoconfigure THEN
+			Configure();
+		END_IF
+	eState.Inactive:		//IDLE
+// 		IF _autoboot THEN
+// 			M_activate();
+// 		END_IF
+	eState.Active:
+		dummy:=1;
+		
+	eState.Finalized:
+		Destroy();
+	
+	
+	//Transitions States
+	eState.Configuring:
+		onConfigure();
+	eState.Activating:
+		onActivate();
+	eState.Deactivating:
+		onDeactivate();
+	eState.ErrorProcessing:
+		onError();
+	eState.CleaningUp:
+		onCleanup();
+	eState.ShuttingDown:
+		onShutdown();
+		
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

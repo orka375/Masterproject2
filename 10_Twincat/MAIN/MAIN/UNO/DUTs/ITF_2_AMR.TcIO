@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="ITF_2_AMR" Id="{46d1d572-82fe-4b3c-a5b8-9dc62cbaa12e}">
+    <Declaration><![CDATA[INTERFACE ITF_2_AMR EXTENDS ITF_1_Robot 
+]]></Declaration>
+    <Property Name="ActualAxisPos" Id="{2deb01a8-8603-4d6d-b3b6-5ead78a8c2da}">
+      <Declaration><![CDATA[PROPERTY ActualAxisPos :stJoint2
+
+]]></Declaration>
+      <Get Name="Get" Id="{0cb3773a-7d8b-456f-a7e6-88106e5b8f49}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="ActualJointVelocity" Id="{cf074f79-aa50-4fda-83f4-3c54291afca0}">
+      <Declaration><![CDATA[PROPERTY ActualJointVelocity : stJoint2]]></Declaration>
+      <Get Name="Get" Id="{a33539de-f56c-471f-9ace-e2e7de977622}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="ActualTCPPos" Id="{831ceed7-2617-41c1-8c18-8a215c121b7b}">
+      <Declaration><![CDATA[PROPERTY ActualTCPPos :stPose2D
+]]></Declaration>
+      <Get Name="Get" Id="{93f8d1ef-7924-4a2c-a53c-3c6b67f7af41}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="ActualTCPVelocity" Id="{978d98cf-314d-4a06-bce6-c7862b54f7da}">
+      <Declaration><![CDATA[PROPERTY ActualTCPVelocity : stPose2D]]></Declaration>
+      <Get Name="Get" Id="{118a71d0-5d0a-4d44-82d2-e1740559cd71}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="Dock" Id="{8a31a064-5d17-4519-bdc0-d55a86b86aa5}">
+      <Declaration><![CDATA[METHOD Dock : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="IsDocked" Id="{b9186b89-8c8b-46b6-bd1b-dc333afe5375}">
+      <Declaration><![CDATA[PROPERTY IsDocked : BOOL]]></Declaration>
+      <Get Name="Get" Id="{61d4cdf3-33b8-4275-891c-244548dc4960}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="TargetReached" Id="{884d6d0c-87d7-4a0b-bb70-b2a00f948294}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY TargetReached : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{4a3dd3c9-4383-4a54-8e9d-2410c9da3079}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{977c5a07-1875-42e2-b0a3-3e7cb7be0986}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>
