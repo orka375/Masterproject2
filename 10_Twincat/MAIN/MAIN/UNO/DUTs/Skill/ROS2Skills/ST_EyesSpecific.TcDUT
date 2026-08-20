@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_EyesSpecific" Id="{ccd32ea7-61fc-43f3-adf5-9241d9e87f01}">
+    <Declaration><![CDATA[	{attribute 'OPC.UA.DA.StructuredType' := '1'}
+	{attribute 'OPC.UA.DA' := '1'}
+TYPE ST_EyesSpecific :
+STRUCT
+    Result          : STRING(255) := '';
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

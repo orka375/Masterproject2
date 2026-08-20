@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Refactors>
+  <Renames>
+    <RenamedType>
+      <Type guid="de568c3b-e8e2-4fe8-b2d6-5e89933abc51">FB_SKILL</Type>
+      <From>FB_Skill</From>
+      <To>FB_Base_Skill</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="2e00d6a1-8d22-4bf8-a533-217a1a8bd953">FB_BASE_ROS2SKILL</Type>
+      <From>FB_ROS2Skill</From>
+      <To>FB_Template_ROS2Skill</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="2e00d6a1-8d22-4bf8-a533-217a1a8bd953">FB_ROS2SKILL</Type>
+      <From>FB_ROS2Skill</From>
+      <To>FB_Template_ROS2Skill_V2</To>
+    </RenamedType>
+  </Renames>
+</Refactors>

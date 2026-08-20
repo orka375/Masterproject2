@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_SkillHandler" Id="{d564b0b9-96bf-4626-9d61-904bd7d86173}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_SkillHandler
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_SkillHandler EXTENDS FB_SKILL
 VAR_INPUT
 	_owner: POINTER TO FB_ROB;
 END_VAR
@@ -18,7 +18,8 @@ END_VAR
 // END_IF]]></ST>
     </Implementation>
     <Method Name="AbortActifSkill" Id="{10338084-d473-478a-aa27-fc35b9873599}">
-      <Declaration><![CDATA[METHOD AbortActifSkill : BOOL
+      <Declaration><![CDATA[{attribute 'TcRpcEnable':='1'}
+METHOD AbortActifSkill : BOOL
 VAR_INPUT
 END_VAR
 ]]></Declaration>
@@ -38,16 +39,37 @@ END_VAR
       </Get>
     </Property>
     <Method Name="CallSkill" Id="{d8fc5668-9fa7-43c2-a944-aada2bd4cb8c}">
-      <Declaration><![CDATA[METHOD CallSkill
+      <Declaration><![CDATA[{attribute 'TcRpcEnable':='1'}
+METHOD CallSkill
 VAR_INPUT
 	pSkill : POINTER TO FB_SKILL;
+	name: STRING := '';
 END_VAR
 
 VAR
 	toolready: BOOL;
+	i: INT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF pSkill<>0 THEN
+        <ST><![CDATA[IF name<>'' THEN
+	FOR i := TO_INT(LOWER_BOUND(_owner^.pA_Skills, 1)) TO TO_INT(UPPER_BOUND(_owner^.pA_Skills, 1)) DO
+		IF _owner^.pA_Skills[i]<>0 THEN
+			IF FIND(STR1:=_owner^.pA_Skills[i]^.Name, STR2:=name)<>0 THEN
+				pSkill:=_owner^.pA_Skills[i];
+				ADSLOGSTR(
+					msgCtrlMask := ADSLOG_MSGTYPE_HINT,
+					msgFmtStr   := 'CallSkill: Found by name: %s',
+					strArg      := _owner^.pA_Skills[i]^.Name
+				);
+				EXIT;
+			END_IF
+		END_IF
+	END_FOR
+	
+END_IF
+
+
+IF pSkill<>0 THEN
 	activSkill:= pSkill;
 	
 // 	toolready:=TRUE;

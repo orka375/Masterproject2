@@ -114,6 +114,9 @@
     <Compile Include="DUTs\Skill\ROS2Skills\ST_QrSkillSpecific.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\Skill\ROS2Skills\ST_EyesSpecific.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\Skill\ROS2Skills\sT_RobotMoveSkill.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -183,13 +186,16 @@
     <Compile Include="POUs\Robots\FB_UR5.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Skills\FB_ROS2Skill.TcPOU">
+    <Compile Include="POUs\Skills\FB_Template_ROS2Skill_V2.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Skills\FB_SkillHandler.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Skills\FB_Skill.TcPOU">
+    <Compile Include="POUs\Skills\FB_Base_Skill.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Skills\FB_Template_Skill.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Skills\Skill_LoadDeliverReturn.TcPOU">
@@ -259,8 +265,8 @@
   <ProjectExtensions>
     <PlcProjectOptions>
       <XmlArchive>
-        <Data>
-          <o xml:space="preserve" t="OptionKey">
+  <Data>
+    <o xml:space="preserve" t="OptionKey">
       <v n="Name">"&lt;ProjectRoot&gt;"</v>
       <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
         <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
@@ -330,14 +336,14 @@
       </d>
       <d n="Values" t="Hashtable" />
     </o>
-        </Data>
-        <TypeList>
-          <Type n="Boolean">System.Boolean</Type>
-          <Type n="Hashtable">System.Collections.Hashtable</Type>
-          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
-          <Type n="String">System.String</Type>
-        </TypeList>
-      </XmlArchive>
+  </Data>
+  <TypeList>
+    <Type n="Boolean">System.Boolean</Type>
+    <Type n="Hashtable">System.Collections.Hashtable</Type>
+    <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+    <Type n="String">System.String</Type>
+  </TypeList>
+</XmlArchive>
     </PlcProjectOptions>
   </ProjectExtensions>
 </Project>

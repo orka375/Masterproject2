@@ -1479,7 +1479,7 @@ END_VAR
     </Action>
     <Action Name="Call_2nd_Skill_entry" Id="{71902e93-ed0b-4c27-91d3-25303768aa84}">
       <Implementation>
-        <ST><![CDATA[Rob^.CallSkill(pSkill:=ROB^.pSkillPointer[2]);
+        <ST><![CDATA[Rob^.CallSkill(pSkill:=ROB^.pA_Skills[2]);
 ]]></ST>
       </Implementation>
       <ObjectProperties>
@@ -1498,7 +1498,7 @@ END_VAR
     </Action>
     <Action Name="Call_Rob_Goto_entry" Id="{d0acbf1c-0b96-427e-82dd-7405bcf4bc3e}">
       <Implementation>
-        <ST><![CDATA[Rob^.CallSkill(pSkill:=ROB^.pSkillPointer[1]);
+        <ST><![CDATA[Rob^.CallSkill(pSkill:=ROB^.pA_Skills[1]);
 ]]></ST>
       </Implementation>
       <ObjectProperties>

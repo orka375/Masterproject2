@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="Skill_ROS2_Eyes" Id="{db69cf7f-5a07-4e35-bdc2-21f16fa8d83c}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK Skill_ROS2_Eyes EXTENDS FB_ROS2Skill
+    <Declaration><![CDATA[FUNCTION_BLOCK Skill_ROS2_Eyes EXTENDS FB_Template_ROS2Skill_V2
 VAR_INPUT
 	{attribute 'OPC.UA.DA.StructuredType':=1}
 	{attribute 'OPC.UA.DA' := '1'}
-// 	Specific    : ST_QrSkillSpecific;
+	Specific    : ST_EyesSpecific;
 END_VAR
 VAR_OUTPUT
 END_VAR

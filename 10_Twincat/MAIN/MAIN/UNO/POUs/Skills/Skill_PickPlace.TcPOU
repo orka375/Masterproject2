@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="Skill_PickPlace" Id="{0265789f-44be-4ed2-bfd3-e8ebd7334e24}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK Skill_PickPlace EXTENDS FB_Skill
+    <Declaration><![CDATA[FUNCTION_BLOCK Skill_PickPlace EXTENDS FB_Template_Skill
 VAR_INPUT
 	Rob: POINTER TO FB_ROB_MANIP;
 	sPickReference: STRING;

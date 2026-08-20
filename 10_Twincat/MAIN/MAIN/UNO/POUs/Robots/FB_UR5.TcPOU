@@ -25,6 +25,11 @@ ComConfig.nPort:= 5432;]]></ST>
     <Folder Name="Communication" Id="{962090cd-82cb-4129-9347-c8ac07fb90f4}" />
     <Folder Name="MotionControl" Id="{9ed28985-c54d-42fa-8d69-76777d28de96}" />
     <Folder Name="StateControl" Id="{da6218f9-6bd6-462f-bf56-7f509f8b869c}" />
+    <Action Name="CommCycle" Id="{3a8dcb0f-a76f-4c6d-997f-86e2fbdb852f}">
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Action>
     <Method Name="Connect" Id="{ea0b7a54-6a8f-44d8-8b6a-a3c96ae90503}" FolderPath="Communication\">
       <Declaration><![CDATA[METHOD Connect : BOOL
 VAR_INPUT

@@ -11,9 +11,9 @@ END_VAR
 VAR
 	//Reference to Skills
 
-	MissionIndex: INT;
-	oldMissionIndex: INT;
-	waitTimer: TON;
+	MissionIndex: INT; //Simulation
+	oldMissionIndex: INT; //Simulation
+	waitTimer: TON; //Simulation
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -24,8 +24,8 @@ ComMachine();	//Method in FB_ROB
 
 RunSkillStateMachines(); //Method in FB_ROB
 
-pSkillPointer[1]:=ADR(sLoadDeliverReturn);
-pSkillPointer[2]:=ADR(sEyes);
+pA_Skills[1]:=ADR(sLoadDeliverReturn);
+pA_Skills[2]:=ADR(sEyes);
 
 sEyes();
 sLoadDeliverReturn(Rob:=ADR(THIS^));

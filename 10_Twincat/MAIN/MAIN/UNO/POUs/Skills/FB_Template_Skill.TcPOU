@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_Template_Skill" Id="{8e2936ab-e9b4-4d5c-8f2e-090f512c9f3b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Template_Skill EXTENDS FB_SkillHandler
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

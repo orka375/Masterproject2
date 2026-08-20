@@ -4,7 +4,7 @@
     <Declaration><![CDATA[FUNCTION_BLOCK FB_ROB EXTENDS FB_Base IMPLEMENTS ITF_1_Robot, ITF_CommunicationModul
 
 VAR_INPUT
-	pSkillPointer : ARRAY[1..4] OF POINTER TO FB_Skill;
+	pA_Skills : ARRAY[1..4] OF POINTER TO FB_Base_Skill;
 	pTool: POINTER TO FB_TOOL; //only of Manipulator
 	
 END_VAR
@@ -621,10 +621,10 @@ transitionresult:=eResult.None;
 // Connect();
 // _mode:= eMode.Manual;
 
-FOR i := TO_INT(LOWER_BOUND(pSkillPointer, 1)) TO TO_INT(UPPER_BOUND(pSkillPointer, 1)) DO
-	IF pSkillPointer[i] <> 0 THEN
-		IF pSkillPointer[i]^.State = eState.Unconfigured THEN
-			pSkillPointer[i]^.Configure();
+FOR i := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
+	IF pA_Skills[i] <> 0 THEN
+		IF pA_Skills[i]^.State = eState.Unconfigured THEN
+			pA_Skills[i]^.Configure();
 		END_IF
 	END_IF
 END_FOR
@@ -673,10 +673,10 @@ transitionresult:=eResult.None;
 
 _mode:= eMode.Manual;
 
-FOR i := TO_INT(LOWER_BOUND(pSkillPointer, 1)) TO TO_INT(UPPER_BOUND(pSkillPointer, 1)) DO
-	IF pSkillPointer[i] <> 0 THEN
-		IF pSkillPointer[i]^.State = eState.Active THEN
-			pSkillPointer[i]^.Deactivate();
+FOR i := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
+	IF pA_Skills[i] <> 0 THEN
+		IF pA_Skills[i]^.State = eState.Active THEN
+			pA_Skills[i]^.Deactivate();
 		END_IF
 	END_IF
 END_FOR
@@ -686,10 +686,10 @@ END_FOR
 // ---- Check ----
 transitionresult := eResult.SUCCESS;
 
-FOR i := TO_INT(LOWER_BOUND(pSkillPointer, 1)) TO TO_INT(UPPER_BOUND(pSkillPointer, 1)) DO
-	IF pSkillPointer[i] <> 0 THEN
-		IF pSkillPointer[i]^.State <= 2 THEN //< Inactive = None, Uuconfig, inactive
-			pSkillPointer[i]^.Deactivate();
+FOR i := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
+	IF pA_Skills[i] <> 0 THEN
+		IF pA_Skills[i]^.State <= 2 THEN //< Inactive = None, Uuconfig, inactive
+			pA_Skills[i]^.Deactivate();
 		END_IF
 	END_IF
 END_FOR
@@ -813,11 +813,11 @@ VAR
 	i: INT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[FOR i := TO_INT(LOWER_BOUND(pSkillPointer, 1))
-        TO TO_INT(UPPER_BOUND(pSkillPointer, 1)) DO
+        <ST><![CDATA[FOR i := TO_INT(LOWER_BOUND(pA_Skills, 1))
+        TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
 
-    IF pSkillPointer[i] <> 0 THEN
-        pSkillPointer[i]^.StateMachine();
+    IF pA_Skills[i] <> 0 THEN
+        pA_Skills[i]^.StateMachine();
     END_IF
 
 END_FOR]]></ST>

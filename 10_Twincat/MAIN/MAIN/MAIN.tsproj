@@ -25,7 +25,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{716B9777-1FC1-491F-A0F1-C1283CD11C7D}" Name="UNO" PrjFilePath="UNO\UNO.plcproj" TmcFilePath="UNO\UNO.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{8060A21A-F28B-F7FD-2A6E-7476FD540161}" TmcPath="UNO\UNO.tmc">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{FFF1DB53-0A7D-EC42-F2E5-A15A625FF899}" TmcPath="UNO\UNO.tmc">
 					<Name>UNO Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Contexts>
