@@ -1,7 +1,7 @@
 
 services:
   base:
-    image: ros2_kilted_eta_base:latest
+    image: ros2_kilted_eta:latest
     container_name: ros2_kilted_eta_base_container
     restart: unless-stopped
 
@@ -42,8 +42,8 @@ services:
       POSTGRES_DB: robotdata
 
     volumes:
-      - ./postgres_data:/var/lib/postgresql
-      - ./40_DB/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../40_DB/postgres_data:/var/lib/postgresql
+      - ../40_DB/filebrowser_data/init.sql:/docker-entrypoint-initdb.d/init.sql
 
     ports:
       - "5432:5432"
@@ -79,7 +79,9 @@ services:
 
     volumes:
       # - ./filebrowser_data:/srv
-      - ./40_DB:/40_DB
+
+      - ../40_DB/filebrowser_data:/database
+      - ../40_DB/filebrowser_config:/config
 
     ports:
       - "8081:80"
