@@ -10,23 +10,29 @@ VAR
 	_state_LD90: eState;
 	_state_LD90_sLDR: eState;
 	_state_LD90_sEyes: eState;
+	currPos: stPose3D;
+	currJoints: stJoint6;
 END_VAR
 
 
 VAR
 
-//     fbDB : FB_PostgreSQLClient;
-
+    
 
     sRobotName : STRING;
 
 
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[// fbDB();
+      <ST><![CDATA[DATABASE();
 
 // PnP(Rob:=ADR(UR5));
 OPCUA.UR5();
+
+currPos := OPCUA.UR5.ActualTcpPose;
+currJoints := OPCUA.UR5.ActualJointPosition;
+
+
 
 // UR5.CallSkill(pSkill:=ADR(UR5.PiNPl));
 OPCUA.LD90();

@@ -1,0 +1,441 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_PointManager" Id="{b6db9b06-31bb-4ece-93a6-63e2ef2bfd14}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_PointManager
+VAR_OUTPUT
+    bBusy : BOOL;
+    bDone : BOOL;
+    bError : BOOL;
+    eResult : E_PointStoreResult := POINTSTORE_IDLE;
+    nErrorID : UDINT;
+    sLastOperation : STRING(80);
+    bFound : BOOL;
+    xPoint : ST_Point;
+END_VAR
+VAR
+    fbDB : FB_DBClient;
+    nState : UINT := 0;
+
+    sRobotPrefix : STRING(80);
+    sPointDatabase : STRING(255);
+    sSql : STRING(4095);
+
+    sPendingName : STRING(80);
+    sPendingNewName : STRING(80);
+    sPendingNameExpression : STRING(255);
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[bDone := FALSE;
+fbDB();
+
+CASE nState OF
+0:
+    bBusy := FALSE;
+
+10:
+    bBusy := TRUE;
+    eResult := POINTSTORE_BUSY;
+
+    IF fbDB.ConfigurePostgreSQL(
+        sDriver := 'PostgreSQL Unicode(x64)',
+        sServer := '192.168.250.37',
+        nPort := 5432,
+        sDatabase := sPointDatabase,
+        sUser := 'admin',
+        sPassword := '1',
+        sSchema := 'public'
+    ) THEN
+        nState := 20;
+    END_IF
+
+20:
+    IF fbDB.bError THEN
+        nErrorID := fbDB.nErrorID;
+        sLastOperation := fbDB.sLastOperation;
+        bError := TRUE;
+        bBusy := FALSE;
+        eResult := POINTSTORE_DATABASE_ERROR;
+        nState := 0;
+    ELSIF fbDB.bDone THEN
+        nState := 30;
+    END_IF
+
+30:
+    IF fbDB.Connect() THEN
+        nState := 40;
+    END_IF
+
+40:
+    IF fbDB.bError THEN
+        nErrorID := fbDB.nErrorID;
+        sLastOperation := fbDB.sLastOperation;
+        bError := TRUE;
+        bBusy := FALSE;
+        eResult := POINTSTORE_DATABASE_ERROR;
+        nState := 0;
+    ELSIF fbDB.bDone THEN
+        bBusy := FALSE;
+        eResult := POINTSTORE_DONE;
+        bDone := TRUE;
+        sLastOperation := 'Connected to point database';
+        nState := 0;
+    END_IF
+
+100:
+    IF fbDB.Execute(sSQL := sSql) THEN
+        nState := 110;
+    END_IF
+
+110:
+    IF fbDB.bError THEN
+        nErrorID := fbDB.nErrorID;
+        sLastOperation := fbDB.sLastOperation;
+        bError := TRUE;
+        bBusy := FALSE;
+        eResult := POINTSTORE_DATABASE_ERROR;
+        nState := 0;
+    ELSIF fbDB.bDone THEN
+        bBusy := FALSE;
+        eResult := POINTSTORE_DONE;
+        bDone := TRUE;
+        sLastOperation := 'Point operation completed';
+        nState := 0;
+    END_IF
+
+200:
+    IF fbDB.Query(
+        sSQL := sSql,
+        pData := ADR(xPoint),
+        cbData := SIZEOF(xPoint),
+        nStartIndex := 0,
+        nRecordCount := 1
+    ) THEN
+        nState := 210;
+    END_IF
+
+210:
+    IF fbDB.bError THEN
+        nErrorID := fbDB.nErrorID;
+        sLastOperation := fbDB.sLastOperation;
+        bError := TRUE;
+        bBusy := FALSE;
+        eResult := POINTSTORE_DATABASE_ERROR;
+        nState := 0;
+    ELSIF fbDB.bDone THEN
+        bFound := xPoint.id <> 0;
+        bBusy := FALSE;
+        eResult := POINTSTORE_DONE;
+        bDone := TRUE;
+        sLastOperation := 'Point loaded';
+        nState := 0;
+    END_IF
+END_CASE]]></ST>
+    </Implementation>
+    <Method Name="Configure" Id="{9afd4f79-abdf-4d6f-9468-3b2de7adc2e6}">
+      <Declaration><![CDATA[METHOD PUBLIC Configure : BOOL
+VAR_INPUT
+    sPrefix : STRING(80);
+    sDatabase : STRING(255);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Configure := FALSE;
+
+IF (nState = 0) AND NOT bBusy AND (sPrefix <> '') AND (sDatabase <> '') THEN
+    sRobotPrefix := sPrefix;
+    sPointDatabase := sDatabase;
+    bError := FALSE;
+    nErrorID := 0;
+    nState := 10;
+    Configure := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Create2D" Id="{4f3fb25a-3bd2-40cd-a02f-eafd7977a3bc}">
+      <Declaration><![CDATA[METHOD PUBLIC Create2D : BOOL
+VAR_INPUT
+    sName : STRING(80);
+    pose : stPose2D;
+    frameId : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Create2D := FALSE;
+
+IF (nState = 0) AND NOT bBusy AND fbDB.bConnected THEN
+    IF sName = '' THEN
+        sPendingNameExpression := ' ''Point_'' || to_char(CURRENT_TIMESTAMP, ''YYYYMMDD_HH24MISS'') ';
+    ELSE
+        sPendingNameExpression := CONCAT('''', SqlLiteral(sName), '''');
+    END_IF
+
+    sSql := CONCAT(
+        'INSERT INTO Point (robot_prefix, short_name, pose_kind, frame_id, x, y, z, rx, ry, rz, theta) VALUES (''',
+        SqlLiteral(sRobotPrefix), ''', ', sPendingNameExpression, ', ''POSE_2D'', ',
+        UINT_TO_STRING(frameId), ', ', LREAL_TO_STRING(pose.x), ', ', LREAL_TO_STRING(pose.y), ', NULL, NULL, NULL, NULL, ',
+        LREAL_TO_STRING(pose.theta), ')'
+    );
+    bError := FALSE;
+    bBusy := TRUE;
+    eResult := POINTSTORE_BUSY;
+    sLastOperation := 'Create 2D point';
+    nState := 100;
+    Create2D := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Create2DValues" Id="{6d0a5501-4711-4b6e-a9cc-b700a08ef80d}">
+      <Declaration><![CDATA[METHOD PUBLIC Create2DValues : BOOL
+VAR_INPUT
+        sName : STRING(80);
+        x : LREAL;
+        y : LREAL;
+        theta : LREAL;
+        frameId : UINT;
+END_VAR
+VAR
+        pose : stPose2D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[pose.x := x;
+pose.y := y;
+pose.theta := theta;
+
+Create2DValues := Create2D(
+        sName := sName,
+        pose := pose,
+        frameId := frameId
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Create3D" Id="{1d1332d7-a54a-4f18-a922-ea688237a6ba}">
+      <Declaration><![CDATA[METHOD PUBLIC Create3D : BOOL
+VAR_INPUT
+    sName : STRING(80);
+    pose : stPose3D;
+    frameId : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Create3D := FALSE;
+
+IF (nState = 0) AND NOT bBusy AND fbDB.bConnected THEN
+    IF sName = '' THEN
+        sPendingNameExpression := ' ''Point_'' || to_char(CURRENT_TIMESTAMP, ''YYYYMMDD_HH24MISS'') ';
+    ELSE
+        sPendingNameExpression := CONCAT('''', SqlLiteral(sName), '''');
+    END_IF
+
+    sSql := CONCAT(
+        'INSERT INTO Point (robot_prefix, short_name, pose_kind, frame_id, x, y, z, rx, ry, rz, theta) VALUES (''',
+        SqlLiteral(sRobotPrefix), ''', ', sPendingNameExpression, ', ''POSE_3D'', ',
+        UINT_TO_STRING(frameId), ', ', LREAL_TO_STRING(pose.x), ', ', LREAL_TO_STRING(pose.y), ', ',
+        LREAL_TO_STRING(pose.z), ', ', LREAL_TO_STRING(pose.rx), ', ', LREAL_TO_STRING(pose.ry), ', ',
+        LREAL_TO_STRING(pose.rz), ', NULL)'
+    );
+    bError := FALSE;
+    bBusy := TRUE;
+    eResult := POINTSTORE_BUSY;
+    sLastOperation := 'Create 3D point';
+    nState := 100;
+    Create3D := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Create3DValues" Id="{0876cf04-57a5-41cd-b61d-dd40d85d1c65}">
+      <Declaration><![CDATA[METHOD PUBLIC Create3DValues : BOOL
+VAR_INPUT
+        sName : STRING(80);
+        x : LREAL;
+        y : LREAL;
+        z : LREAL;
+        rx : LREAL;
+        ry : LREAL;
+        rz : LREAL;
+        frameId : UINT;
+END_VAR
+VAR
+        pose : stPose3D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[pose.x := x;
+pose.y := y;
+pose.z := z;
+pose.rx := rx;
+pose.ry := ry;
+pose.rz := rz;
+
+Create3DValues := Create3D(
+        sName := sName,
+        pose := pose,
+        frameId := frameId
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Delete" Id="{32755b89-1880-44f7-b7ce-099449a3858d}">
+      <Declaration><![CDATA[METHOD PUBLIC Delete : BOOL
+VAR_INPUT
+    sName : STRING(80);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Delete := FALSE;
+
+IF (nState = 0) AND NOT bBusy AND fbDB.bConnected AND (sName <> '') THEN
+    sPendingName := sName;
+    sSql := CONCAT('DELETE FROM Point WHERE robot_prefix = ''', SqlLiteral(sRobotPrefix), ''' AND short_name = ''', SqlLiteral(sPendingName), '''');
+    bError := FALSE;
+    bBusy := TRUE;
+    eResult := POINTSTORE_BUSY;
+    sLastOperation := 'Delete point';
+    nState := 100;
+    Delete := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Load" Id="{7c6bd9ca-3847-4f94-a291-3f5a9b1e9f65}">
+      <Declaration><![CDATA[METHOD PUBLIC Load : BOOL
+VAR_INPUT
+    sName : STRING(80);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Load := FALSE;
+
+IF (nState = 0) AND NOT bBusy AND fbDB.bConnected AND (sName <> '') THEN
+    xPoint.id := 0;
+    bFound := FALSE;
+    sSql := CONCAT(
+        'SELECT id, robot_prefix, short_name, pose_kind, frame_id, x, y, ',
+        'COALESCE(z, 0), COALESCE(rx, 0), COALESCE(ry, 0), COALESCE(rz, 0), COALESCE(theta, 0) ',
+        'FROM Point WHERE robot_prefix = ''', SqlLiteral(sRobotPrefix), ''' AND short_name = ''', SqlLiteral(sName), ''''
+    );
+    bError := FALSE;
+    bBusy := TRUE;
+    eResult := POINTSTORE_BUSY;
+    sLastOperation := 'Load point';
+    nState := 200;
+    Load := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Rename" Id="{dca2df38-9b43-4108-b7b3-e6dfb2a0b6ac}">
+      <Declaration><![CDATA[METHOD PUBLIC Rename : BOOL
+VAR_INPUT
+    sOldName : STRING(80);
+    sNewName : STRING(80);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Rename := FALSE;
+
+IF (nState = 0) AND NOT bBusy AND fbDB.bConnected AND (sOldName <> '') AND (sNewName <> '') THEN
+    sPendingName := sOldName;
+    sPendingNewName := sNewName;
+    sSql := CONCAT('UPDATE Point SET short_name = ''', SqlLiteral(sPendingNewName), ''' WHERE robot_prefix = ''', SqlLiteral(sRobotPrefix), ''' AND short_name = ''', SqlLiteral(sPendingName), '''');
+    bError := FALSE;
+    bBusy := TRUE;
+    eResult := POINTSTORE_BUSY;
+    sLastOperation := 'Rename point';
+    nState := 100;
+    Rename := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Retouch2D" Id="{023b645f-9053-469d-b8aa-e7a57d6e3e16}">
+      <Declaration><![CDATA[METHOD PUBLIC Retouch2D : BOOL
+VAR_INPUT
+    sCurrentName : STRING(80);
+    sNewName : STRING(80);
+    pose : stPose2D;
+    frameId : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Retouch2D := FALSE;
+
+IF (nState = 0) AND NOT bBusy AND fbDB.bConnected AND (sCurrentName <> '') THEN
+    IF sNewName = '' THEN
+        sPendingNewName := sCurrentName;
+    ELSE
+        sPendingNewName := sNewName;
+    END_IF
+
+    sSql := CONCAT(
+        'UPDATE Point SET short_name = ''', SqlLiteral(sPendingNewName), ''', pose_kind = ''POSE_2D'', frame_id = ',
+        UINT_TO_STRING(frameId), ', x = ', LREAL_TO_STRING(pose.x), ', y = ', LREAL_TO_STRING(pose.y),
+        ', z = NULL, rx = NULL, ry = NULL, rz = NULL, theta = ', LREAL_TO_STRING(pose.theta),
+        ' WHERE robot_prefix = ''', SqlLiteral(sRobotPrefix), ''' AND short_name = ''', SqlLiteral(sCurrentName), ''''
+    );
+    bError := FALSE;
+    bBusy := TRUE;
+    eResult := POINTSTORE_BUSY;
+    sLastOperation := 'Retouch 2D point';
+    nState := 100;
+    Retouch2D := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Retouch3D" Id="{1b756aff-0a9c-482d-bf16-03e8d39bfdc3}">
+      <Declaration><![CDATA[METHOD PUBLIC Retouch3D : BOOL
+VAR_INPUT
+    sCurrentName : STRING(80);
+    sNewName : STRING(80);
+    pose : stPose3D;
+    frameId : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Retouch3D := FALSE;
+
+IF (nState = 0) AND NOT bBusy AND fbDB.bConnected AND (sCurrentName <> '') THEN
+    IF sNewName = '' THEN
+        sPendingNewName := sCurrentName;
+    ELSE
+        sPendingNewName := sNewName;
+    END_IF
+
+    sSql := CONCAT(
+        'UPDATE Point SET short_name = ''', SqlLiteral(sPendingNewName), ''', pose_kind = ''POSE_3D'', frame_id = ',
+        UINT_TO_STRING(frameId), ', x = ', LREAL_TO_STRING(pose.x), ', y = ', LREAL_TO_STRING(pose.y), ', z = ',
+        LREAL_TO_STRING(pose.z), ', rx = ', LREAL_TO_STRING(pose.rx), ', ry = ', LREAL_TO_STRING(pose.ry), ', rz = ',
+        LREAL_TO_STRING(pose.rz), ', theta = NULL WHERE robot_prefix = ''', SqlLiteral(sRobotPrefix),
+        ''' AND short_name = ''', SqlLiteral(sCurrentName), ''''
+    );
+    bError := FALSE;
+    bBusy := TRUE;
+    eResult := POINTSTORE_BUSY;
+    sLastOperation := 'Retouch 3D point';
+    nState := 100;
+    Retouch3D := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SqlLiteral" Id="{4c12c60f-e04a-42c8-befa-6531ad96cd6f}">
+      <Declaration><![CDATA[METHOD PRIVATE SqlLiteral : STRING(255)
+VAR_INPUT
+    sValue : STRING(80);
+END_VAR
+VAR
+    nIndex : UINT;
+    sCharacter : STRING(1);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SqlLiteral := '';
+
+FOR nIndex := 1 TO LEN(sValue) DO
+    sCharacter := MID(sValue, 1, nIndex);
+    IF sCharacter = '''' THEN
+        SqlLiteral := CONCAT(SqlLiteral, '''''');
+    ELSE
+        SqlLiteral := CONCAT(SqlLiteral, sCharacter);
+    END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

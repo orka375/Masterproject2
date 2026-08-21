@@ -90,57 +90,57 @@ END_VAR
       </Get>
     </Property>
     <Method Name="onActivate" Id="{dff9d669-6f40-4f00-90d9-3787e79ba4a4}" FolderPath="Activities\">
-      <Declaration><![CDATA[METHOD onActivate : BOOL
+      <Declaration><![CDATA[METHOD PROTECTED onActivate : eResult
 VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[onActivate := eResult.SUCCESS;]]></ST>
       </Implementation>
     </Method>
     <Method Name="onCleanup" Id="{80fa50ea-abbc-41d9-a37b-59c86da9d595}" FolderPath="Activities\">
-      <Declaration><![CDATA[METHOD onCleanup : BOOL
+      <Declaration><![CDATA[METHOD PROTECTED onCleanup : eResult
 VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[onCleanup := eResult.SUCCESS;]]></ST>
       </Implementation>
     </Method>
     <Method Name="onConfigure" Id="{9c8ee034-539b-4679-a220-e9e172d34c39}" FolderPath="Activities\">
-      <Declaration><![CDATA[METHOD onConfigure : BOOL
+      <Declaration><![CDATA[METHOD PROTECTED onConfigure : eResult
 VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[onConfigure := eResult.SUCCESS;]]></ST>
       </Implementation>
     </Method>
     <Method Name="onDeactivate" Id="{7b5bbaf4-d2cc-4310-8122-de7176198651}" FolderPath="Activities\">
-      <Declaration><![CDATA[METHOD onDeactivate : BOOL
+      <Declaration><![CDATA[METHOD PROTECTED onDeactivate : eResult
 VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[onDeactivate := eResult.SUCCESS;]]></ST>
       </Implementation>
     </Method>
     <Method Name="onError" Id="{9a005bfb-be70-4cfa-9cc0-3bf4840f8b47}" FolderPath="Activities\">
-      <Declaration><![CDATA[METHOD onError : BOOL
+      <Declaration><![CDATA[METHOD PROTECTED onError : eResult
 VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[onError := eResult.SUCCESS;]]></ST>
       </Implementation>
     </Method>
     <Method Name="onShutdown" Id="{a3cf4dc0-c49b-489c-8e1e-811c54f2901e}" FolderPath="Activities\">
-      <Declaration><![CDATA[METHOD onShutdown : BOOL
+      <Declaration><![CDATA[METHOD PROTECTED onShutdown : eResult
 VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[onShutdown := eResult.SUCCESS;]]></ST>
       </Implementation>
     </Method>
     <Property Name="Path" Id="{e999ff4c-5501-4405-953a-f17558d3540c}">

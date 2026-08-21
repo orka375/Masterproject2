@@ -3,7 +3,7 @@
   <DUT Name="stSkillArray" Id="{e0542c25-710d-4bb5-a626-41c90624e86c}">
     <Declaration><![CDATA[TYPE stSkillArray :
 STRUCT
-	Skills: ARRAY[1..4] OF POINTER TO FB_Base_Skill;
+	Skills: ARRAY[1..4] OF POINTER TO FB_Skill;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

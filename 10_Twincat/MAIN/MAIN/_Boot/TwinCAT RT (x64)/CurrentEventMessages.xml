@@ -1,0 +1,2226 @@
+<?xml version="1.0"?>
+<TcEventSources Version="2">
+	<Translations>
+		<Text TxtId="A fragment timeout has occurred.">
+			<Text LcId="1031">Fragment Timeout aufgetreten.</Text>
+		</Text>
+		<Text TxtId="Access denied – secure ADS access denied.">
+			<Text LcId="1031">Zugriff Verweigert – Secure ADS Zugriff verweigert.</Text>
+		</Text>
+		<Text TxtId="Access denied.">
+			<Text LcId="1031">Zugriff verweigert.</Text>
+		</Text>
+		<Text TxtId="Accuracy option type out of range">
+			<Text LcId="1031">Der Genauigkeitoptionstyp außerhalb des gültigen Bereichs</Text>
+			<Text LcId="1033">Accuracy option type out of range</Text>
+		</Text>
+		<Text TxtId="ADSDevID is unknown">
+			<Text LcId="1031">Unbekannte ADSDevID</Text>
+			<Text LcId="1033">ADSDevID is unknown</Text>
+		</Text>
+		<Text TxtId="AdsTransMode is not supported.">
+			<Text LcId="1031">AdsTransMode wird nicht unterstützt.</Text>
+		</Text>
+		<Text TxtId="Allocation locked – memory error.">
+			<Text LcId="1031">Zuweisung gesperrt - Speicherfehler.</Text>
+		</Text>
+		<Text TxtId="AMS Sync error.">
+			<Text LcId="1031">AMS Sync Fehler.</Text>
+		</Text>
+		<Text TxtId="AMS Sync Timeout.">
+			<Text LcId="1031">AMS Sync Timeout.</Text>
+		</Text>
+		<Text TxtId="AMS Sync Win32 error.">
+			<Text LcId="1031">AMS Sync Win32 Fehler.</Text>
+		</Text>
+		<Text TxtId="Associated statement is not prepared">
+			<Text LcId="1031">Zugeordnete Anweisung ist nicht vorbereitet.</Text>
+			<Text LcId="1033">Associated statement is not prepared</Text>
+		</Text>
+		<Text TxtId="Attempt to concatenate a null value">
+			<Text LcId="1031">ES WURDE 	Versucht, einen null-Wert zu verketten.</Text>
+			<Text LcId="1033">Attempt to concatenate a null value</Text>
+		</Text>
+		<Text TxtId="Attempt to fetch before the result set returned the first rowset">
+			<Text LcId="1031">Versucht, Daten abzurufen, bevor das Resultset das erste Rowset zurückgegeben.</Text>
+			<Text LcId="1033">Attempt to fetch before the result set returned the first rowset</Text>
+		</Text>
+		<Text TxtId="Attribute cannot be set now">
+			<Text LcId="1031">Attribut kann jetzt nicht festgelegt werden</Text>
+			<Text LcId="1033">Attribute cannot be set now</Text>
+		</Text>
+		<Text TxtId="Authentication failed">
+			<Text LcId="1031">Authentifizierung fehlgeschlagen</Text>
+			<Text LcId="1033">Authentication failed</Text>
+		</Text>
+		<Text TxtId="AutoLog could NOT be started. TwinCAT Database Server has no valid device state.">
+			<Text LcId="1031">Autologging konnte nicht gestartet werden. Der TwinCAT Database Server ist in einem ungültigen Zustand.</Text>
+			<Text LcId="1033">AutoLog could NOT be started. TwinCAT Database Server has no valid device state.</Text>
+		</Text>
+		<Text TxtId="AutoLogGrpID is unknown">
+			<Text LcId="1031">AutoLogGrpID is unbekannt</Text>
+			<Text LcId="1033">AutoLogGrpID is unknown</Text>
+		</Text>
+		<Text TxtId="Base table or view already exists">
+			<Text LcId="1031">Basistabelle oder-Sicht ist bereits vorhanden.</Text>
+			<Text LcId="1033">Base table or view already exists</Text>
+		</Text>
+		<Text TxtId="Base table or view not found">
+			<Text LcId="1031">Die Basistabelle oder-Sicht wurde nicht gefunden</Text>
+			<Text LcId="1033">Base table or view not found</Text>
+		</Text>
+		<Text TxtId="Cannot modify an implementation row descriptor">
+			<Text LcId="1031">Ein Implementierungszeilendeskriptor kann nicht geändert werden.</Text>
+			<Text LcId="1033">Cannot modify an implementation row descriptor</Text>
+		</Text>
+		<Text TxtId="Cardinality violation">
+			<Text LcId="1031">Verletzung der Kardinalität</Text>
+			<Text LcId="1033">Cardinality violation</Text>
+		</Text>
+		<Text TxtId="Class ID is invalid.">
+			<Text LcId="1031">Class-ID ist ungültig.</Text>
+		</Text>
+		<Text TxtId="Client unable to establish connection">
+			<Text LcId="1031">Client kann keine Verbindung herstellen.</Text>
+			<Text LcId="1033">Client unable to establish connection</Text>
+		</Text>
+		<Text TxtId="Column already exists">
+			<Text LcId="1031">Spalte ist bereits vorhanden.</Text>
+			<Text LcId="1033">Column already exists</Text>
+		</Text>
+		<Text TxtId="Column not found">
+			<Text LcId="1031">Spalte wurde nicht gefunden</Text>
+			<Text LcId="1033">Column not found</Text>
+		</Text>
+		<Text TxtId="Column type out of range">
+			<Text LcId="1031">Spaltentyp außerhalb des gültigen Bereichs</Text>
+			<Text LcId="1033">Column type out of range</Text>
+		</Text>
+		<Text TxtId="Communication link failure">
+			<Text LcId="1031">Kommunikations-Verbindungsfehler</Text>
+			<Text LcId="1033">Communication link failure</Text>
+		</Text>
+		<Text TxtId="Connection error occured">
+			<Text LcId="1031">Verbindungsfehler aufgetreten</Text>
+			<Text LcId="1033">Connection error occured</Text>
+		</Text>
+		<Text TxtId="Connection exception">
+			<Text LcId="1031">Verbindungsfehler</Text>
+			<Text LcId="1033">Connection exception</Text>
+		</Text>
+		<Text TxtId="Connection failure during transaction">
+			<Text LcId="1031">Verbindungsfehler während der Transaktion</Text>
+			<Text LcId="1033">Connection failure during transaction</Text>
+		</Text>
+		<Text TxtId="Connection name in use">
+			<Text LcId="1031">Name der Verbindung bereits verwendet</Text>
+			<Text LcId="1033">Connection name in use</Text>
+		</Text>
+		<Text TxtId="Connection not open">
+			<Text LcId="1031">Verbindung nicht geöffnet</Text>
+			<Text LcId="1033">Connection not open</Text>
+		</Text>
+		<Text TxtId="Connection timeout expired">
+			<Text LcId="1031">Das Verbindungstimeout ist abgelaufen</Text>
+			<Text LcId="1033">Connection timeout expired</Text>
+		</Text>
+		<Text TxtId="Context – forward to dispatch level.">
+			<Text LcId="1031">Kontext – Weiterleitung zum Dispatch-Level.</Text>
+		</Text>
+		<Text TxtId="Context – forward to passive level.">
+			<Text LcId="1031">Kontext – Weiterleitung zum Passiv-Level.</Text>
+		</Text>
+		<Text TxtId="Context – forward to real-time.">
+			<Text LcId="1031">Kontext – Weiterleitung zur Echtzeit.</Text>
+		</Text>
+		<Text TxtId="Corrupt file data source">
+			<Text LcId="1031">Beschädigte Datei als Datenquelle</Text>
+			<Text LcId="1033">Corrupt file data source</Text>
+		</Text>
+		<Text TxtId="Could not find PLCDBWrite Value in list">
+			<Text LcId="1031">PLCDBWrite Wert konnte nicht in der Liste gefunden werden</Text>
+			<Text LcId="1033">Could not find PLCDBWrite Value in list</Text>
+		</Text>
+		<Text TxtId="Could not find routine information (procedure, function) in database">
+			<Text LcId="1031">Es können keine Routinen Informationen (Prozedur, Funktion) in der Datenbank gefunden werden.</Text>
+			<Text LcId="1033">Could not find routine information (procedure, function) in database</Text>
+		</Text>
+		<Text TxtId="Couldn't find PLCDBCommand Parameter in list.">
+			<Text LcId="1031">Es können keine PLCDBCmd Parameter in der Liste gefunden werden.</Text>
+			<Text LcId="1033"><![CDATA[Couldn't find PLCDBCommand Parameter in list.]]></Text>
+		</Text>
+		<Text TxtId="Couldn't find PLCDBCommand Value in list.">
+			<Text LcId="1031">Es können keine PLCDBCmd Werte in der Liste gefunden werden.</Text>
+			<Text LcId="1033"><![CDATA[Couldn't find PLCDBCommand Value in list.]]></Text>
+		</Text>
+		<Text TxtId="COUNT field incorrect">
+			<Text LcId="1031">Falsches COUNT-Feld</Text>
+			<Text LcId="1033">COUNT field incorrect</Text>
+		</Text>
+		<Text TxtId="Cursor operation conflict">
+			<Text LcId="1031">Konflikt beim Cursorvorgang</Text>
+			<Text LcId="1033">Cursor operation conflict</Text>
+		</Text>
+		<Text TxtId="Data exception">
+			<Text LcId="1031">Daten Fehler</Text>
+			<Text LcId="1033">Data exception</Text>
+		</Text>
+		<Text TxtId="Data source name not found and no default driver specified">
+			<Text LcId="1031">Datenquellenname, die nicht gefunden und kein Standardtreiber angegeben</Text>
+			<Text LcId="1033">Data source name not found and no default driver specified</Text>
+		</Text>
+		<Text TxtId="Data source name too long">
+			<Text LcId="1031">Der Datenquellenname ist zu lang.</Text>
+			<Text LcId="1033">Data source name too long</Text>
+		</Text>
+		<Text TxtId="Database connection already open">
+			<Text LcId="1031">Datenbankverbindung ist bereits geöffnet</Text>
+			<Text LcId="1033">Database connection already open</Text>
+		</Text>
+		<Text TxtId="Database connection not initialized">
+			<Text LcId="1031">Datenbankverbindung ist nicht initialisiert</Text>
+			<Text LcId="1033">Database connection not initialized</Text>
+		</Text>
+		<Text TxtId="Database Errors of TwinCAT Database Server">
+			<Text LcId="1031">Datenbank Fehler  vom TwinCAT Database Server</Text>
+			<Text LcId="1033">Database Errors of TwinCAT Database Server</Text>
+		</Text>
+		<Text TxtId="Database side error. Please check the information log for more details.">
+			<Text LcId="1031">Datenbankseitiger Fehler. Prüfen Sie das Informationsprotokoll für weitere Details.</Text>
+			<Text LcId="1033">Database side error. Please check the information log for more details.</Text>
+		</Text>
+		<Text TxtId="Datetime field overflow">
+			<Text LcId="1031">Überlauf im DateTime-Feld</Text>
+			<Text LcId="1033">Datetime field overflow</Text>
+		</Text>
+		<Text TxtId="DBID is unknown">
+			<Text LcId="1031">Unbekannte DBID</Text>
+			<Text LcId="1033">DBID is unknown</Text>
+		</Text>
+		<Text TxtId="Degree of derived table does not match column list">
+			<Text LcId="1031">Spaltenzahl der abgeleiteten Tabelle stimmt nicht mit der Spaltenliste überein</Text>
+			<Text LcId="1033">Degree of derived table does not match column list</Text>
+		</Text>
+		<Text TxtId="Demo license prohibited.">
+			<Text LcId="1031">Demo-Lizenz untersagt.</Text>
+		</Text>
+		<Text TxtId="Device (server) is in invalid state.">
+			<Text LcId="1031">Gerät (Server) ist im ungültigen Zustand.</Text>
+		</Text>
+		<Text TxtId="Device has a timeout.">
+			<Text LcId="1031">Gerät hat einen Timeout.</Text>
+		</Text>
+		<Text TxtId="Device is busy.">
+			<Text LcId="1031">Gerät ist beschäftigt.</Text>
+		</Text>
+		<Text TxtId="Device is not initialized.">
+			<Text LcId="1031">Gerät ist nicht initialisiert.</Text>
+		</Text>
+		<Text TxtId="Device is not ready to operate.">
+			<Text LcId="1031">Gerät ist nicht betriebsbereit.</Text>
+		</Text>
+		<Text TxtId="Dialog failed">
+			<Text LcId="1031">Dialogfehler</Text>
+			<Text LcId="1033">Dialog failed</Text>
+		</Text>
+		<Text TxtId="Disconnect error">
+			<Text LcId="1031">Fehler beim Trennen</Text>
+			<Text LcId="1033">Disconnect error</Text>
+		</Text>
+		<Text TxtId="Division by zero">
+			<Text LcId="1031">Division durch 0 (null)</Text>
+			<Text LcId="1033">Division by zero</Text>
+		</Text>
+		<Text TxtId="Driver does not support this function">
+			<Text LcId="1031">Diese Funktion wird vom Treiber nicht unterstützt werden.</Text>
+			<Text LcId="1033">Driver does not support this function</Text>
+		</Text>
+		<Text TxtId="DRIVER keyword syntax error">
+			<Text LcId="1031">Syntaxfehler für DRIVER-Schlüsselwort</Text>
+			<Text LcId="1033">DRIVER keyword syntax error</Text>
+		</Text>
+		<Text TxtId="Driver name too long">
+			<Text LcId="1031">Der Treibername ist zu lang.</Text>
+			<Text LcId="1033">Driver name too long</Text>
+		</Text>
+		<Text TxtId="Driver$'s SQLAllocHandle on SQL_HANDLE_DBC failed">
+			<Text LcId="1031">Der Treiber SQLAllocHandle auf SQL_HANDLE_DBC auf Fehler</Text>
+			<Text LcId="1033"><![CDATA[Driver$'s SQLAllocHandle on SQL_HANDLE_DBC failed]]></Text>
+		</Text>
+		<Text TxtId="Driver$'s SQLAllocHandle on SQL_HANDLE_ENV failed">
+			<Text LcId="1031">Der Treiber SQLAllocHandle auf SQL_HANDLE_ENV auf Fehler</Text>
+			<Text LcId="1033"><![CDATA[Driver$'s SQLAllocHandle on SQL_HANDLE_ENV failed]]></Text>
+		</Text>
+		<Text TxtId="Driver$'s SQLSetConnectAttr failed">
+			<Text LcId="1031">Der Treiber SQLSetConnectAttr Fehler</Text>
+			<Text LcId="1033"><![CDATA[Driver$'s SQLSetConnectAttr failed]]></Text>
+		</Text>
+		<Text TxtId="Duplicate cursor name">
+			<Text LcId="1031">Doppelter Cursorname</Text>
+			<Text LcId="1033">Duplicate cursor name</Text>
+		</Text>
+		<Text TxtId="Dynamic SQL error">
+			<Text LcId="1031">Dynamischer SQL Fehler</Text>
+			<Text LcId="1033">Dynamic SQL error</Text>
+		</Text>
+		<Text TxtId="Error in row">
+			<Text LcId="1031">Fehler in Zeile</Text>
+			<Text LcId="1033">Error in row</Text>
+		</Text>
+		<Text TxtId="Error in Win32 subsystem">
+			<Text LcId="1031">Fehler im Win32 Subsystem.</Text>
+		</Text>
+		<Text TxtId="Error occured during write operation">
+			<Text LcId="1031">Ein Fehler ist während eines Schreibzugriffs aufgetreten</Text>
+			<Text LcId="1033">Error occured during write operation</Text>
+		</Text>
+		<Text TxtId="Error saving File DSN">
+			<Text LcId="1031">Fehler beim Speichern der Datei-DSN</Text>
+			<Text LcId="1033">Error saving File DSN</Text>
+		</Text>
+		<Text TxtId="ErrorLog file has wrong format">
+			<Text LcId="1031">InformationLog Datei hat ein falsches Format</Text>
+			<Text LcId="1033">InformationLog file has wrong format</Text>
+		</Text>
+		<Text TxtId="Exception at system startup.">
+			<Text LcId="1031">Exception beim Systemstart.</Text>
+		</Text>
+		<Text TxtId="Execution Timeout">
+			<Text LcId="1031">erlaubte Ausführungszeit überschritten</Text>
+			<Text LcId="1033">Execution Timeout</Text>
+		</Text>
+		<Text TxtId="FB_DBRead selected value is NULL">
+			<Text LcId="1031">FB_DBRead gewählter Wert ist NULL</Text>
+			<Text LcId="1033">FB_DBRead selected value is NULL</Text>
+		</Text>
+		<Text TxtId="Fetch type out of range">
+			<Text LcId="1031">Fetchtyp außerhalb des gültigen Bereichs</Text>
+			<Text LcId="1033">Fetch type out of range</Text>
+		</Text>
+		<Text TxtId="Format error occurred on command execution. Please check the command or document syntax.">
+			<Text LcId="1031">Formatierungsfehler ist bei der Befehlsausführung aufgetreten. Überprüfen Sie die Befehls oder Documenten Syntax.</Text>
+			<Text LcId="1033">Format error occurred on command execution. Please check the command or document syntax.</Text>
+		</Text>
+		<Text TxtId="Fractional truncation">
+			<Text LcId="1031">Teilbereiche wurden abgeschnitten</Text>
+			<Text LcId="1033">Fractional truncation</Text>
+		</Text>
+		<Text TxtId="Function not implemented">
+			<Text LcId="1031">Funktion nicht implementiert.</Text>
+			<Text LcId="1033">Function not implemented</Text>
+		</Text>
+		<Text TxtId="Function sequence error">
+			<Text LcId="1031">Fehler in der Funktionsreihenfolge</Text>
+			<Text LcId="1033">Function sequence error</Text>
+		</Text>
+		<Text TxtId="Function type out of range">
+			<Text LcId="1031">Typ der Funktion außerhalb des gültigen Bereichs</Text>
+			<Text LcId="1033">Function type out of range</Text>
+		</Text>
+		<Text TxtId="Functionality is not supported by the TwinCAT Database Server">
+			<Text LcId="1031">Funktionalität wird vom TwinCAT Database Server nicht unterstützt</Text>
+			<Text LcId="1033">Functionality is not supported by the TwinCAT Database Server</Text>
+		</Text>
+		<Text TxtId="General device error.">
+			<Text LcId="1031">Allgemeiner Gerätefehler.</Text>
+		</Text>
+		<Text TxtId="General error">
+			<Text LcId="1031">Allgemeiner Fehler.</Text>
+			<Text LcId="1033">General error</Text>
+		</Text>
+		<Text TxtId="General warning">
+			<Text LcId="1031">Allgemeine Warnung</Text>
+			<Text LcId="1033">General warning</Text>
+		</Text>
+		<Text TxtId="Hash table overflow.">
+			<Text LcId="1031">Überlauf der Hash-Tabelle.</Text>
+		</Text>
+		<Text TxtId="Host unreachable.">
+			<Text LcId="1031">Host nicht erreichbar.</Text>
+		</Text>
+		<Text TxtId="Http communication error">
+			<Text LcId="1031">Http Kommunikations Fehler</Text>
+			<Text LcId="1033">Http communication error</Text>
+		</Text>
+		<Text TxtId="Inconsistent descriptor information">
+			<Text LcId="1031">Inkonsistente deskriptorinformation</Text>
+			<Text LcId="1033">Inconsistent descriptor information</Text>
+		</Text>
+		<Text TxtId="Index already exists">
+			<Text LcId="1031">Index ist bereits vorhanden.</Text>
+			<Text LcId="1033">Index already exists</Text>
+		</Text>
+		<Text TxtId="Index not found">
+			<Text LcId="1031">Der Index wurde nicht gefunden.</Text>
+			<Text LcId="1033">Index not found</Text>
+		</Text>
+		<Text TxtId="Indicator variable required but not supplied">
+			<Text LcId="1031">Anzeigevariable erforderlich, aber nicht angegeben</Text>
+			<Text LcId="1033">Indicator variable required but not supplied</Text>
+		</Text>
+		<Text TxtId="Init of AutoLog Groups failed">
+			<Text LcId="1031">Initialisierung der Autologgruppen ist fehlgeschlagen</Text>
+			<Text LcId="1033">Init of AutoLog Groups failed</Text>
+		</Text>
+		<Text TxtId="Insert value list does not match column list">
+			<Text LcId="1031">Die Liste einzufügender Werte entspricht nicht der Spaltenliste.</Text>
+			<Text LcId="1033">Insert value list does not match column list</Text>
+		</Text>
+		<Text TxtId="Insufficient memory.">
+			<Text LcId="1031">Nicht genügend Speicher.</Text>
+		</Text>
+		<Text TxtId="Integrity constraint violation">
+			<Text LcId="1031">Verletzung der integritätseinschränkung</Text>
+			<Text LcId="1033">Integrity constraint violation</Text>
+		</Text>
+		<Text TxtId="Interface query failed.">
+			<Text LcId="1031">Interface Abfrage fehlgeschlagen.</Text>
+		</Text>
+		<Text TxtId="Internal error in Ads sync.">
+			<Text LcId="1031">Interner Fehler in Ads-Sync.</Text>
+		</Text>
+		<Text TxtId="Internal error.">
+			<Text LcId="1031">Interner Fehler.</Text>
+		</Text>
+		<Text TxtId="Internal MongoDB exception. Please check the information log for more details.">
+			<Text LcId="1031">Interner MongoDB Fehler. Prüfen Sie das Informationsprotokoll für weitere Details.</Text>
+			<Text LcId="1033">Internal MongoDB exception. Please check the information log for more details.</Text>
+		</Text>
+		<Text TxtId="Internal TwinCAT 3 Database Server Error">
+			<Text LcId="1031">Interner TwinCAT 3 Database Server Fehler</Text>
+			<Text LcId="1033">Internal TwinCAT 3 Database Server Error</Text>
+		</Text>
+		<Text TxtId="Interval field overflow">
+			<Text LcId="1031">Überlauf bei Intervallfeld</Text>
+			<Text LcId="1033">Interval field overflow</Text>
+		</Text>
+		<Text TxtId="Invalid alignment.">
+			<Text LcId="1031">Ungültiges Alignment.</Text>
+		</Text>
+		<Text TxtId="Invalid AMS fragment.">
+			<Text LcId="1031">Ungültiges AMS Fragment.</Text>
+		</Text>
+		<Text TxtId="Invalid AMS length.">
+			<Text LcId="1031">Ungültige AMS-Länge.</Text>
+		</Text>
+		<Text TxtId="Invalid AMS Net ID.">
+			<Text LcId="1031">Ungültige AMS Net ID.</Text>
+		</Text>
+		<Text TxtId="Invalid AMS port.">
+			<Text LcId="1031">Ungültiger AMS-Port.</Text>
+		</Text>
+		<Text TxtId="Invalid application buffer type">
+			<Text LcId="1031">Ungültiger Anwendungspuffertyp</Text>
+			<Text LcId="1033">Invalid application buffer type</Text>
+		</Text>
+		<Text TxtId="Invalid array index.">
+			<Text LcId="1031">Ungültiger Array-Index.</Text>
+		</Text>
+		<Text TxtId="Invalid attribute value">
+			<Text LcId="1031">Ungültiger Attributwert</Text>
+			<Text LcId="1033">Invalid attribute value</Text>
+		</Text>
+		<Text TxtId="Invalid attribute/option identifier">
+			<Text LcId="1031">Ungültiger Attribut-/Optionsbezeichner</Text>
+			<Text LcId="1033">Invalid attribute/option identifier</Text>
+		</Text>
+		<Text TxtId="Invalid authorization specification">
+			<Text LcId="1031">Ungültige Autorisierungsangabe</Text>
+			<Text LcId="1033">Invalid authorization specification</Text>
+		</Text>
+		<Text TxtId="Invalid bookmark value">
+			<Text LcId="1031">Ungültiger Wert für Lesezeichen</Text>
+			<Text LcId="1033">Invalid bookmark value</Text>
+		</Text>
+		<Text TxtId="Invalid catalog name">
+			<Text LcId="1031">Ungültiger Katalogname</Text>
+			<Text LcId="1033">Invalid catalog name</Text>
+		</Text>
+		<Text TxtId="Invalid certificate.">
+			<Text LcId="1031">Zertifikat ungültig.</Text>
+		</Text>
+		<Text TxtId="Invalid character value for cast specification">
+			<Text LcId="1031">Ungültiger Zeichenwert für Konvertierungsangabe</Text>
+			<Text LcId="1033">Invalid character value for cast specification</Text>
+		</Text>
+		<Text TxtId="Invalid client timeout value.">
+			<Text LcId="1031">Ungültiger Client Timeout-Wert.</Text>
+		</Text>
+		<Text TxtId="Invalid connection string attribute">
+			<Text LcId="1031">Ungültiges Attribut der Verbindungszeichenfolge</Text>
+			<Text LcId="1033">Invalid connection string attribute</Text>
+		</Text>
+		<Text TxtId="Invalid cursor name">
+			<Text LcId="1031">Ungültiger Cursorname</Text>
+			<Text LcId="1033">Invalid cursor name</Text>
+		</Text>
+		<Text TxtId="Invalid cursor position">
+			<Text LcId="1031">Ungültige Cursorposition</Text>
+			<Text LcId="1033">Invalid cursor position</Text>
+		</Text>
+		<Text TxtId="Invalid cursor state">
+			<Text LcId="1031">Ungültiger Cursorstatus</Text>
+			<Text LcId="1033">Invalid cursor state</Text>
+		</Text>
+		<Text TxtId="Invalid data value(s).">
+			<Text LcId="1031">Ungültige Daten-Werte.</Text>
+		</Text>
+		<Text TxtId="Invalid datetime format">
+			<Text LcId="1031">Ungültiges Datetime-format</Text>
+			<Text LcId="1033">Invalid datetime format</Text>
+		</Text>
+		<Text TxtId="Invalid descriptor field identifier">
+			<Text LcId="1031">Ungültiger Deskriptorfeldbezeichner</Text>
+			<Text LcId="1033">Invalid descriptor field identifier</Text>
+		</Text>
+		<Text TxtId="Invalid descriptor index">
+			<Text LcId="1031">Ungültiger Deskriptorindex</Text>
+			<Text LcId="1033">Invalid descriptor index</Text>
+		</Text>
+		<Text TxtId="Invalid driver completion">
+			<Text LcId="1031">Ungültiger Treiberabschluss.</Text>
+			<Text LcId="1033">Invalid driver completion</Text>
+		</Text>
+		<Text TxtId="Invalid escape character">
+			<Text LcId="1031">Ungültiges Escapezeichen</Text>
+			<Text LcId="1033">Invalid escape character</Text>
+		</Text>
+		<Text TxtId="Invalid escape sequence">
+			<Text LcId="1031">Ungültige Escapesequenz</Text>
+			<Text LcId="1033">Invalid escape sequence</Text>
+		</Text>
+		<Text TxtId="Invalid function ID.">
+			<Text LcId="1031">Funktions-ID ungültig.</Text>
+		</Text>
+		<Text TxtId="Invalid index group.">
+			<Text LcId="1031">Ungültige Index-Gruppe.</Text>
+		</Text>
+		<Text TxtId="Invalid index offset.">
+			<Text LcId="1031">Ungültiger Index-Offset.</Text>
+		</Text>
+		<Text TxtId="Invalid information type">
+			<Text LcId="1031">Ungültiger Informationstyp</Text>
+			<Text LcId="1033">Invalid information type</Text>
+		</Text>
+		<Text TxtId="Invalid keyword">
+			<Text LcId="1031">Ungültiges Schlüsselwort</Text>
+			<Text LcId="1033">Invalid keyword</Text>
+		</Text>
+		<Text TxtId="Invalid name of File DSN">
+			<Text LcId="1031">Ungültiger Name der Datei-DSN</Text>
+			<Text LcId="1033">Invalid name of File DSN</Text>
+		</Text>
+		<Text TxtId="Invalid operating system context. This can result from use of ADS function blocks in different tasks.">
+			<Text LcId="1031">Ungültiger Kontext vom Betriebssystem. Kann durch Verwendung von ADS Bausteinen in unterschiedlichen Tasks auftreten.</Text>
+		</Text>
+		<Text TxtId="Invalid Parameter">
+			<Text LcId="1031">Ungültiger Parameter</Text>
+			<Text LcId="1033">Invalid Parameter</Text>
+		</Text>
+		<Text TxtId="Invalid parameter size">
+			<Text LcId="1031">Ungültige Parametergröße</Text>
+			<Text LcId="1033">Invalid parameter size</Text>
+		</Text>
+		<Text TxtId="Invalid parameter type">
+			<Text LcId="1031">Ungültiger Parametertyp</Text>
+			<Text LcId="1033">Invalid parameter type</Text>
+		</Text>
+		<Text TxtId="Invalid parameter value(s).">
+			<Text LcId="1031">Ungültige Parameter-Werte.</Text>
+		</Text>
+		<Text TxtId="Invalid platform level.">
+			<Text LcId="1031">Ungültiger Plattform Level.</Text>
+		</Text>
+		<Text TxtId="Invalid precision or scale value">
+			<Text LcId="1031">Ungültiger Wert für Genauigkeit oder Dezimalstellenanzahl</Text>
+			<Text LcId="1033">Invalid precision or scale value</Text>
+		</Text>
+		<Text TxtId="Invalid response received">
+			<Text LcId="1031">Ungültige Antwort erhalten.</Text>
+		</Text>
+		<Text TxtId="Invalid retrieval code">
+			<Text LcId="1031">Ungültiger Abrufcode</Text>
+			<Text LcId="1033">Invalid retrieval code</Text>
+		</Text>
+		<Text TxtId="Invalid schema name">
+			<Text LcId="1031">Ungültiger Schemaname</Text>
+			<Text LcId="1033">Invalid schema name</Text>
+		</Text>
+		<Text TxtId="Invalid signature.">
+			<Text LcId="1031">Ungültige Signatur.</Text>
+		</Text>
+		<Text TxtId="Invalid SQL data type">
+			<Text LcId="1031">Ungültiger SQL-Datentyp</Text>
+			<Text LcId="1033">Invalid SQL data type</Text>
+		</Text>
+		<Text TxtId="Invalid string or buffer length">
+			<Text LcId="1031">Ungültige Zeichenfolgen- oder Pufferlänge.</Text>
+			<Text LcId="1033">Invalid string or buffer length</Text>
+		</Text>
+		<Text TxtId="Invalid symbol version. This can occur due to an online change. Create a new handle.">
+			<Text LcId="1031">Symbol-Version ist ungültig. Kann durch einen Online-Change auftreten. Erzeuge einen neuen Handle.</Text>
+		</Text>
+		<Text TxtId="Invalid task ID.">
+			<Text LcId="1031">Ungültige Task-ID.</Text>
+		</Text>
+		<Text TxtId="Invalid transaction operation code">
+			<Text LcId="1031">Ungültiger Transaktionsvorgangscode</Text>
+			<Text LcId="1033">Invalid transaction operation code</Text>
+		</Text>
+		<Text TxtId="Invalid transaction state">
+			<Text LcId="1031">Ungültiger Transaktionsstatus</Text>
+			<Text LcId="1033">Invalid transaction state</Text>
+		</Text>
+		<Text TxtId="Invalid use of an automatically allocated descriptor handle">
+			<Text LcId="1031">Ungültige Verwendung von einer automatisch zugeordneten Deskriptorhandles</Text>
+			<Text LcId="1033">Invalid use of an automatically allocated descriptor handle</Text>
+		</Text>
+		<Text TxtId="Invalid use of default parameter">
+			<Text LcId="1031">Ungültige Verwendung des Standardparameters</Text>
+			<Text LcId="1033">Invalid use of default parameter</Text>
+		</Text>
+		<Text TxtId="Invalid use of null pointer">
+			<Text LcId="1031">Ungültige Verwendung eines null-Zeiger</Text>
+			<Text LcId="1033">Invalid use of null pointer</Text>
+		</Text>
+		<Text TxtId="Invoke ID is already in use.">
+			<Text LcId="1031">Die Invoke-ID ist bereits in Benutzung.</Text>
+		</Text>
+		<Text TxtId="Key not found in hash table.">
+			<Text LcId="1031">Schlüssel in der Hash-Tabelle nicht gefunden.</Text>
+		</Text>
+		<Text TxtId="License file is read twice.">
+			<Text LcId="1031">Lizenz-Datei zweimal gelesen.</Text>
+		</Text>
+		<Text TxtId="License is exceeded.">
+			<Text LcId="1031">Lizenz überschritten.</Text>
+		</Text>
+		<Text TxtId="License is expired.">
+			<Text LcId="1031">Lizenz abgelaufen.</Text>
+		</Text>
+		<Text TxtId="License is invalid.">
+			<Text LcId="1031">Lizenz ungültig.</Text>
+		</Text>
+		<Text TxtId="License not limited in time.">
+			<Text LcId="1031">Lizenz nicht zeitlich begrenzt.</Text>
+		</Text>
+		<Text TxtId="License not valid for this system ID.">
+			<Text LcId="1031">Lizenz nicht gültig für diese System-ID.</Text>
+		</Text>
+		<Text TxtId="License problem: System ID is invalid.">
+			<Text LcId="1031">Lizenzproblem: System-ID ist ungültig.</Text>
+		</Text>
+		<Text TxtId="License problem: Time in the future.">
+			<Text LcId="1031">Lizenzproblem: Zeitpunkt in der Zukunft.</Text>
+		</Text>
+		<Text TxtId="License time period is too long.">
+			<Text LcId="1031">Lizenz-Zeitraum ist zu lang.</Text>
+		</Text>
+		<Text TxtId="Limit on the number of handles exceeded">
+			<Text LcId="1031">Grenzwert für die Anzahl von Handles wurde überschritten</Text>
+			<Text LcId="1033">Limit on the number of handles exceeded</Text>
+		</Text>
+		<Text TxtId="Locked memory cannot be allocated.">
+			<Text LcId="1031">Lockierter Speicher kann nicht zugewiesen werden.</Text>
+		</Text>
+		<Text TxtId="Low installation level – TwinCAT 2 license error.">
+			<Text LcId="1031">Installations-Level ist zu niedrig – TwinCAT 2 Lizenzfehler.</Text>
+		</Text>
+		<Text TxtId="Mailbox full – the ADS message could not be sent. Reducing the number of ADS messages per cycle will help.">
+			<Text LcId="1031">Postfach voll – Es konnte die ADS Nachricht nicht versendet werden. Reduzieren der Anzahl der ADS Nachrichten pro Zyklus bringt Abhilfe.</Text>
+		</Text>
+		<Text TxtId="Memory allocation error">
+			<Text LcId="1031">Fehler bei der Speicherbelegung</Text>
+			<Text LcId="1033">Memory allocation error</Text>
+		</Text>
+		<Text TxtId="Memory management error">
+			<Text LcId="1031">Fehler bei arbeitsspeicherverwaltung</Text>
+			<Text LcId="1033">Memory management error</Text>
+		</Text>
+		<Text TxtId="Missing license.">
+			<Text LcId="1031">Fehlende Lizenz.</Text>
+		</Text>
+		<Text TxtId="Namespace / Collectionname already exist">
+			<Text LcId="1031">Namespace / CollectionName existieren bereits</Text>
+			<Text LcId="1033">Namespace / CollectionName already exist</Text>
+		</Text>
+		<Text TxtId="Namespace / Collectionname does not exist">
+			<Text LcId="1031">Namespace / CollectionName existieren nicht</Text>
+			<Text LcId="1033">Namespace / CollectionName does not exist</Text>
+		</Text>
+		<Text TxtId="No AMS address.">
+			<Text LcId="1031">Keine AMS Adresse.</Text>
+		</Text>
+		<Text TxtId="No cursor name available">
+			<Text LcId="1031">Es ist kein Cursorname verfügbar</Text>
+			<Text LcId="1033">No cursor name available</Text>
+		</Text>
+		<Text TxtId="No data source or driver specified; dialog prohibited">
+			<Text LcId="1031">Keine Datenquelle oder Treiber angegeben; Dialogfeld nicht zulässig</Text>
+			<Text LcId="1033">No data source or driver specified; dialog prohibited</Text>
+		</Text>
+		<Text TxtId="No debugging available.">
+			<Text LcId="1031">Kein Debugging verfügbar.</Text>
+		</Text>
+		<Text TxtId="No Error">
+			<Text LcId="1031">Kein Fehler</Text>
+			<Text LcId="1033">No Error</Text>
+		</Text>
+		<Text TxtId="No further notification handles.">
+			<Text LcId="1031">Keine weiteren Notification Handles.</Text>
+		</Text>
+		<Text TxtId="No index map for AMS Sync available.">
+			<Text LcId="1031">Keine Index-Map für AMS Sync vorhanden.</Text>
+		</Text>
+		<Text TxtId="No IO.">
+			<Text LcId="1031">Kein IO.</Text>
+		</Text>
+		<Text TxtId="No memory.">
+			<Text LcId="1031">Kein Speicher.</Text>
+		</Text>
+		<Text TxtId="No open ADS Device connection found for ADSDevID: xy">
+			<Text LcId="1031">Keine offene Verbindung zum ADS-Gerät mit der ADSDevID: xy</Text>
+			<Text LcId="1033">No open ADS Device connection found for ADSDevID: xy</Text>
+		</Text>
+		<Text TxtId="No open database connection found FOR DBID: xy">
+			<Text LcId="1031">Keine offene Datenbankverbindung für DBID: xy</Text>
+			<Text LcId="1033">No open database connection found FOR DBID: xy</Text>
+		</Text>
+		<Text TxtId="No real-time.">
+			<Text LcId="1031">Keine Echtzeit.</Text>
+		</Text>
+		<Text TxtId="No symbols in the cache.">
+			<Text LcId="1031">Keine Symbole im Cache.</Text>
+		</Text>
+		<Text TxtId="No valid symbol TYPE">
+			<Text LcId="1031">Kein gültiger Symboldatentyp</Text>
+			<Text LcId="1033">No valid symbol TYPE</Text>
+		</Text>
+		<Text TxtId="Non-character and non-binary data sent in pieces">
+			<Text LcId="1031">Nicht-Zeichendaten und nicht binäre Daten wurden in Einzelteilen versandt</Text>
+			<Text LcId="1033">Non-character and non-binary data sent in pieces</Text>
+		</Text>
+		<Text TxtId="NoSql Database Errors of TwinCAT Database Server">
+			<Text LcId="1031">NoSql Datenbank Fehler von TwinCAT Database Server</Text>
+			<Text LcId="1033">NoSql Database Errors of TwinCAT Database Server</Text>
+		</Text>
+		<Text TxtId="NoSql_Specific_53_DisplayText">
+			<Text LcId="1031">Die Erstellung der Abfrage über den Query Builder ist fehlgeschlagen. Möglicherweise gibt es falsche Eingabeparameter.</Text>
+			<Text LcId="1033">The build of the query via the Query Builder has failed. There may be incorrect input parameters.</Text>
+		</Text>
+		<Text TxtId="Not found (files, ...).">
+			<Text LcId="1031">Nicht gefunden (Dateien,...).</Text>
+		</Text>
+		<Text TxtId="Notification client is not registered.">
+			<Text LcId="1031">Notification-Client nicht registriert. </Text>
+		</Text>
+		<Text TxtId="Notification handle is invalid.">
+			<Text LcId="1031">Notification Handle ist ungültig.</Text>
+		</Text>
+		<Text TxtId="Notification size too large.">
+			<Text LcId="1031">Größe der Notification zu groß.</Text>
+		</Text>
+		<Text TxtId="NULL value eliminated in set function">
+			<Text LcId="1031">NULL-Wert in der Set-Funktion entfernt</Text>
+			<Text LcId="1033">NULL value eliminated in set function</Text>
+		</Text>
+		<Text TxtId="NULL Values not allowed">
+			<Text LcId="1031">NULL Werte sind nicht erlaubt</Text>
+			<Text LcId="1033">NULL Values not allowed</Text>
+		</Text>
+		<Text TxtId="Nullable type out of range">
+			<Text LcId="1031">Nullable-Typs außerhalb des gültigen Bereichs</Text>
+			<Text LcId="1033">Nullable type out of range</Text>
+		</Text>
+		<Text TxtId="Numeric value out of range">
+			<Text LcId="1031">Numerischer Wert außerhalb des gültigen Bereichs</Text>
+			<Text LcId="1033">Numeric value out of range</Text>
+		</Text>
+		<Text TxtId="Object already exists.">
+			<Text LcId="1031">Objekt ist bereits vorhanden.</Text>
+		</Text>
+		<Text TxtId="Object ID is invalid.">
+			<Text LcId="1031">Object-ID ist ungültig.</Text>
+		</Text>
+		<Text TxtId="Objects do not match.">
+			<Text LcId="1031">Objekte stimmen nicht überein.</Text>
+		</Text>
+		<Text TxtId="Operation canceled">
+			<Text LcId="1031">Der Vorgang wurde abgebrochen</Text>
+			<Text LcId="1033">Operation canceled</Text>
+		</Text>
+		<Text TxtId="Option value changed">
+			<Text LcId="1031">Optionswert geändert</Text>
+			<Text LcId="1033">Option value changed</Text>
+		</Text>
+		<Text TxtId="Optional feature not implemented">
+			<Text LcId="1031">Optionales Feature nicht implementiert.</Text>
+			<Text LcId="1033">Optional feature not implemented</Text>
+		</Text>
+		<Text TxtId="Outside the valid range.">
+			<Text LcId="1031">Außerhalb des gültigen Bereiches.</Text>
+		</Text>
+		<Text TxtId="Parameter size is not correct.">
+			<Text LcId="1031">Parametergröße ist nicht korrekt.</Text>
+		</Text>
+		<Text TxtId="Polling list is empty.">
+			<Text LcId="1031">Polling-Liste ist leer.</Text>
+		</Text>
+		<Text TxtId="Port already connected.">
+			<Text LcId="1031">Port bereits verbunden.</Text>
+		</Text>
+		<Text TxtId="Port disabled – TwinCAT system service not started.">
+			<Text LcId="1031">Port deaktiviert – TwinCAT System Service nicht gestartet.</Text>
+		</Text>
+		<Text TxtId="Port is not open.">
+			<Text LcId="1031">Port nicht geöffnet.</Text>
+		</Text>
+		<Text TxtId="Port not connected.">
+			<Text LcId="1031">Port nicht verbunden.</Text>
+		</Text>
+		<Text TxtId="Prepared statement not a cursor-specification">
+			<Text LcId="1031">Keine vorbereitete Anweisung eine Cursor-Spezifikation</Text>
+			<Text LcId="1033">Prepared statement not a cursor-specification</Text>
+		</Text>
+		<Text TxtId="Privilege not granted">
+			<Text LcId="1031">Berechtigung wurde nicht erteilt</Text>
+			<Text LcId="1033">Privilege not granted</Text>
+		</Text>
+		<Text TxtId="Privilege not revoked">
+			<Text LcId="1031">Berechtigung nicht aufgehoben.</Text>
+			<Text LcId="1033">Privilege not revoked</Text>
+		</Text>
+		<Text TxtId="Public key not known from OEM.">
+			<Text LcId="1031">Public Key vom OEM nicht bekannt.</Text>
+		</Text>
+		<Text TxtId="Reading or writing is not permitted.">
+			<Text LcId="1031">Lesen oder Schreiben ist nicht gestattet.</Text>
+		</Text>
+		<Text TxtId="Record select value return=&gt; Wrong Parametersize from ADS-Device">
+			<Text LcId="1031"><![CDATA[Rückgabewert bei Lesezugriff auf Datensatz => Falsche Parametergröße vom ADS-Gerät]]></Text>
+			<Text LcId="1033"><![CDATA[Record select value return=> Wrong Parametersize from ADS-Device]]></Text>
+		</Text>
+		<Text TxtId="Request is aborted.">
+			<Text LcId="1031">Anforderung wird abgebrochen.</Text>
+		</Text>
+		<Text TxtId="Request pending.">
+			<Text LcId="1031">Anforderung steht aus.</Text>
+		</Text>
+		<Text TxtId="Restricted data type attribute violation">
+			<Text LcId="1031">Attributverletzung eingeschränkter Daten</Text>
+			<Text LcId="1033">Restricted data type attribute violation</Text>
+		</Text>
+		<Text TxtId="Return code of TwinCAT Database Server"/>
+		<Text TxtId="Row value out of range">
+			<Text LcId="1031">Zeilenwert außerhalb des gültigen Bereichs</Text>
+			<Text LcId="1033">Row value out of range</Text>
+		</Text>
+		<Text TxtId="RunCommand execution failed. Please check the event log for more information">
+			<Text LcId="1031">RunCommand Ausführung ist fehlgeschlagen. Prüfen Sie das Informationsprotokoll für weitere Details.</Text>
+			<Text LcId="1033">RunCommand execution failed. Please check the event log for more information</Text>
+		</Text>
+		<Text TxtId="Scope type out of range">
+			<Text LcId="1031">Bereichstyp außerhalb des gültigen Bereichs</Text>
+			<Text LcId="1033">Scope type out of range</Text>
+		</Text>
+		<Text TxtId="Serialization failure">
+			<Text LcId="1031">Serialisierungsfehler</Text>
+			<Text LcId="1033">Serialization failure</Text>
+		</Text>
+		<Text TxtId="Server declined cancel request">
+			<Text LcId="1031">Cancel-Anforderung wurde vom Server abgelehnt</Text>
+			<Text LcId="1033">Server declined cancel request</Text>
+		</Text>
+		<Text TxtId="Server rejected the connection">
+			<Text LcId="1031">Der Server wies die Verbindung ab</Text>
+			<Text LcId="1033">Server rejected the connection</Text>
+		</Text>
+		<Text TxtId="Service contains an invalid parameter.">
+			<Text LcId="1031">Dienst enthält einen ungültigen Parameter. </Text>
+		</Text>
+		<Text TxtId="Service is not supported by the server.">
+			<Text LcId="1031">Service wird vom Server nicht unterstützt.</Text>
+		</Text>
+		<Text TxtId="Signal warning.">
+			<Text LcId="1031">Signal-Warnung.</Text>
+		</Text>
+		<Text TxtId="Specified driver could not be loaded">
+			<Text LcId="1031">Angegebene Treiber konnte nicht geladen werden</Text>
+			<Text LcId="1033">Specified driver could not be loaded</Text>
+		</Text>
+		<Text TxtId="Statement completion unknown">
+			<Text LcId="1031">Unbekannter Anweisungsabschluss</Text>
+			<Text LcId="1033">Statement completion unknown</Text>
+		</Text>
+		<Text TxtId="String data, length mismatch">
+			<Text LcId="1031">Zeichenfolgendaten, nicht übereinstimmende Länge</Text>
+			<Text LcId="1033">String data, length mismatch</Text>
+		</Text>
+		<Text TxtId="String data, right-truncated">
+			<Text LcId="1031">Zeichenfolgendaten Sie, rechts abgeschnitten</Text>
+			<Text LcId="1033">String data, right-truncated</Text>
+		</Text>
+		<Text TxtId="Symbol is not active.">
+			<Text LcId="1031">Symbol ist nicht aktiv.</Text>
+		</Text>
+		<Text TxtId="Symbol was not found.">
+			<Text LcId="1031">Symbol nicht gefunden.</Text>
+		</Text>
+		<Text TxtId="SymbolListID is unknown">
+			<Text LcId="1031">SymbolListID ist unbekannt</Text>
+			<Text LcId="1033">SymbolListID is unknown</Text>
+		</Text>
+		<Text TxtId="Sync port is locked.">
+			<Text LcId="1031">Sync Port ist verriegelt.</Text>
+		</Text>
+		<Text TxtId="Syntax error in command / filter">
+			<Text LcId="1031">Syntax-Fehler im Befehl oder Filter</Text>
+			<Text LcId="1033">Syntax error in command / filter</Text>
+		</Text>
+		<Text TxtId="Syntax error in file or command.">
+			<Text LcId="1031">Syntax-Fehler in Datei oder Befehl.</Text>
+		</Text>
+		<Text TxtId="Syntax error or access violation">
+			<Text LcId="1031">Syntaxfehler oder Zugriffsverletzung</Text>
+			<Text LcId="1033">Syntax error or access violation</Text>
+		</Text>
+		<Text TxtId="TableID is unknown">
+			<Text LcId="1031">TableID ist unbekannt</Text>
+			<Text LcId="1033">TableID is unknown</Text>
+		</Text>
+		<Text TxtId="Target computer not found – AMS route was not found. "/>
+		<Text TxtId="Target port not found – ADS server is not started or is not reachable.">
+			<Text LcId="1031">Ziel-Port nicht gefunden – ADS Server ist nicht gestartet oder erreichbar.</Text>
+		</Text>
+		<Text TxtId="TcGeneralAdsEventClass"/>
+		<Text TxtId="TCP send error.">
+			<Text LcId="1031">TCP Sendefehler.</Text>
+		</Text>
+		<Text TxtId="TcRouterEventClass"/>
+		<Text TxtId="TcSystemEventClass"/>
+		<Text TxtId="The debug mailbox has reached the maximum number of possible messages.">
+			<Text LcId="1031">Das Debug Postfach hat die maximale Anzahl der möglichen Meldungen erreicht.</Text>
+		</Text>
+		<Text TxtId="The feature is not supported">
+			<Text LcId="1031">Das Feature wird nicht unterstützt</Text>
+			<Text LcId="1033">The feature is not supported</Text>
+		</Text>
+		<Text TxtId="The mailbox has reached the maximum number for fragmented messages.">
+			<Text LcId="1031">Das Postfach hat die maximale Anzahl für fragmentierte Nachrichten erreicht.</Text>
+		</Text>
+		<Text TxtId="The mailbox has reached the maximum number of possible messages.">
+			<Text LcId="1031">Das Postfach hat die maximale Anzahl der möglichen Meldungen erreicht.</Text>
+		</Text>
+		<Text TxtId="The maximum number of ports has been reached.">
+			<Text LcId="1031">Die maximale Portanzahl ist erreicht.</Text>
+		</Text>
+		<Text TxtId="The port is invalid.">
+			<Text LcId="1031">Der Port ist ungültig.</Text>
+		</Text>
+		<Text TxtId="The port is not registered.">
+			<Text LcId="1031">Der Port ist nicht registriert.</Text>
+		</Text>
+		<Text TxtId="The port is removed.">
+			<Text LcId="1031">Port wird entfernt.</Text>
+		</Text>
+		<Text TxtId="The port number is already assigned.">
+			<Text LcId="1031">Die Portnummer ist bereits vergeben.</Text>
+		</Text>
+		<Text TxtId="The port type is unknown.">
+			<Text LcId="1031">Der Porttyp ist unbekannt.</Text>
+		</Text>
+		<Text TxtId="The queried data is empty">
+			<Text LcId="1031">Die zurückgelieferten Daten sind leer.</Text>
+			<Text LcId="1033">The queried data is empty</Text>
+		</Text>
+		<Text TxtId="The queried data is in wrong format">
+			<Text LcId="1031">Die zurückgelieferten Daten sind im falschen Format.</Text>
+			<Text LcId="1033">The queried data is in wrong format</Text>
+		</Text>
+		<Text TxtId="The requested symbol is not determinable. Please check the name and datatype">
+			<Text LcId="1031">Das angefragte Symbol ist nicht bestimmbar. Bitte Name und Datentyp überprüfen.</Text>
+			<Text LcId="1033">The requested symbol is not determinable. Please check the name and datatype</Text>
+		</Text>
+		<Text TxtId="The router memory size could not be changed.">
+			<Text LcId="1031">Die Größe des Routerspeichers konnte nicht geändert werden.</Text>
+		</Text>
+		<Text TxtId="There are no explicit metadata information for the table available. Please check the configured entries.">
+			<Text LcId="1031">Es sind keine expliziten Metainformationen für diese Tabelle verfügbar. Bitte die konfigurierten Eingaben überprüfen</Text>
+			<Text LcId="1033">There are no explicit metadata information for the table available. Please check the configured entries.</Text>
+		</Text>
+		<Text TxtId="There is no metadata including the tableschema for this table">
+			<Text LcId="1031">Es sind keine Metadaten mit dem Tabellenschema für diese Tabelle vorhanden</Text>
+			<Text LcId="1033">There is no metadata including the tableschema for this table</Text>
+		</Text>
+		<Text TxtId="Timeout error occurred on command execution">
+			<Text LcId="1031">Zeitüberschreitung bei Kommandoausführung</Text>
+			<Text LcId="1033">Timeout error occurred on command execution</Text>
+		</Text>
+		<Text TxtId="Timeout expired">
+			<Text LcId="1031">Timeout abgelaufen</Text>
+			<Text LcId="1033">Timeout expired</Text>
+		</Text>
+		<Text TxtId="Timeout has occurred – the remote terminal is not responding in the specified ADS timeout.">
+			<Text LcId="1031">Timeout ist aufgetreten – Die Gegenstelle antwortet nicht im vorgegebenen ADS Timeout.</Text>
+		</Text>
+		<Text TxtId="TLS send error – secure ADS connection failed.">
+			<Text LcId="1031">TLS Sendefehler – Secure ADS Verbindung fehlgeschlagen.</Text>
+		</Text>
+		<Text TxtId="Trace file error">
+			<Text LcId="1031">Fehler in der Ablaufverfolgungsdatei</Text>
+			<Text LcId="1033">Trace file error</Text>
+		</Text>
+		<Text TxtId="Transaction is rolled back">
+			<Text LcId="1031">Transaktion wird ein Rollback ausgeführt.</Text>
+			<Text LcId="1033">Transaction is rolled back</Text>
+		</Text>
+		<Text TxtId="Transaction is still active">
+			<Text LcId="1031">Transaktion ist noch aktiv</Text>
+			<Text LcId="1033">Transaction is still active</Text>
+		</Text>
+		<Text TxtId="Transaction rollback">
+			<Text LcId="1031">Transaktions Rollback</Text>
+			<Text LcId="1033">Transaction rollback</Text>
+		</Text>
+		<Text TxtId="Transaction state">
+			<Text LcId="1031">Transaktionsstatus</Text>
+			<Text LcId="1033">Transaction state</Text>
+		</Text>
+		<Text TxtId="TwinCAT Router is not active.">
+			<Text LcId="1031">Der TwinCAT Router ist nicht aktiv.</Text>
+		</Text>
+		<Text TxtId="TwinCAT Router is not initialised.">
+			<Text LcId="1031">Der TwinCAT Router ist nicht initialisiert.</Text>
+		</Text>
+		<Text TxtId="Unable to load translation DLL">
+			<Text LcId="1031">Konvertierungs-DLL kann nicht geladen werden</Text>
+			<Text LcId="1033">Unable to load translation DLL</Text>
+		</Text>
+		<Text TxtId="Uniqueness option type out of range">
+			<Text LcId="1031">Der Eindeutigkeitsoptionstyp außerhalb des gültigen Bereichs</Text>
+			<Text LcId="1033">Uniqueness option type out of range</Text>
+		</Text>
+		<Text TxtId="Unknown AMS command.">
+			<Text LcId="1031">Unbekannter AMS-Befehl.</Text>
+		</Text>
+		<Text TxtId="Unknown command ID.">
+			<Text LcId="1031">Unbekannte Befehl-ID.</Text>
+		</Text>
+		<Text TxtId="Unknown internal Error">
+			<Text LcId="1031">Unbekannter interner Fehler</Text>
+			<Text LcId="1033">Unknown internal Error</Text>
+		</Text>
+		<Text TxtId="Unspecified Error">
+			<Text LcId="1031">Unspezifizierter Fehler</Text>
+			<Text LcId="1033">Unspecified Error</Text>
+		</Text>
+		<Text TxtId="Variable connection is already in use.">
+			<Text LcId="1031">Variablen-Verbindung bereits im Einsatz.</Text>
+		</Text>
+		<Text TxtId="Win32 error.">
+			<Text LcId="1031">Win32 Fehler.</Text>
+		</Text>
+		<Text TxtId="WITH CHECK OPTION violation">
+			<Text LcId="1031">WITH CHECK OPTION-Verstoß</Text>
+			<Text LcId="1033">WITH CHECK OPTION violation</Text>
+		</Text>
+		<Text TxtId="Wrong HMSG.">
+			<Text LcId="1031">Falsches HMSG.</Text>
+		</Text>
+		<Text TxtId="Wrong interface is requested.">
+			<Text LcId="1031">Falsches Interface angefordert. </Text>
+		</Text>
+		<Text TxtId="Wrong number of parameters">
+			<Text LcId="1031">Falsche Anzahl von Parametern</Text>
+			<Text LcId="1033">Wrong number of parameters</Text>
+		</Text>
+		<Text TxtId="XML Database =&gt; No XML Table available">
+			<Text LcId="1031">XML Datenbank, Kein XML Tabelle verfügbar.</Text>
+			<Text LcId="1033">XML Database, No XML Table available</Text>
+		</Text>
+	</Translations>
+	<Source>
+		<GUID>{5C3A9116-5A05-460E-9854-BFA1B5B5AC22}</GUID>
+		<Name>Return code of TwinCAT Database Server</Name>
+		<Event>
+			<Id>0</Id>
+			<Message>No Error</Message>
+		</Event>
+		<Event>
+			<Id>1</Id>
+			<Message>NULL Values not allowed</Message>
+		</Event>
+		<Event>
+			<Id>2</Id>
+			<Message>FB_DBRead selected value is NULL</Message>
+		</Event>
+		<Event>
+			<Id>3</Id>
+			<Message>DBID is unknown</Message>
+		</Event>
+		<Event>
+			<Id>4</Id>
+			<Message>ADSDevID is unknown</Message>
+		</Event>
+		<Event>
+			<Id>5</Id>
+			<Message>No open database connection found FOR DBID: xy</Message>
+		</Event>
+		<Event>
+			<Id>6</Id>
+			<Message>No open ADS Device connection found for ADSDevID: xy</Message>
+		</Event>
+		<Event>
+			<Id>7</Id>
+			<Message>Init of AutoLog Groups failed</Message>
+		</Event>
+		<Event>
+			<Id>8</Id>
+			<Message>AutoLog could NOT be started. TwinCAT Database Server has no valid device state.</Message>
+		</Event>
+		<Event>
+			<Id>9</Id>
+			<Message><![CDATA[Record select value return=> Wrong Parametersize from ADS-Device]]></Message>
+		</Event>
+		<Event>
+			<Id>10</Id>
+			<Message>Invalid Parameter</Message>
+		</Event>
+		<Event>
+			<Id>11</Id>
+			<Message>Could not find PLCDBWrite Value in list</Message>
+		</Event>
+		<Event>
+			<Id>12</Id>
+			<Message>No valid symbol TYPE</Message>
+		</Event>
+		<Event>
+			<Id>13</Id>
+			<Message>Invalid parameter size</Message>
+		</Event>
+		<Event>
+			<Id>14</Id>
+			<Message>Execution Timeout</Message>
+		</Event>
+		<Event>
+			<Id>15</Id>
+			<Message>Database connection already open</Message>
+		</Event>
+		<Event>
+			<Id>16</Id>
+			<Message>Database connection not initialized</Message>
+		</Event>
+		<Event>
+			<Id>17</Id>
+			<Message>The feature is not supported</Message>
+		</Event>
+		<Event>
+			<Id>18</Id>
+			<Message>AutoLogGrpID is unknown</Message>
+		</Event>
+		<Event>
+			<Id>19</Id>
+			<Message>TableID is unknown</Message>
+		</Event>
+		<Event>
+			<Id>20</Id>
+			<Message>SymbolListID is unknown</Message>
+		</Event>
+		<Event>
+			<Id>21</Id>
+			<Message>There are no explicit metadata information for the table available. Please check the configured entries.</Message>
+		</Event>
+		<Event>
+			<Id>22</Id>
+			<Message><![CDATA[Couldn't find PLCDBCommand Value in list.]]></Message>
+		</Event>
+		<Event>
+			<Id>23</Id>
+			<Message><![CDATA[Couldn't find PLCDBCommand Parameter in list.]]></Message>
+		</Event>
+		<Event>
+			<Id>24</Id>
+			<Message><![CDATA[XML Database => No XML Table available]]></Message>
+		</Event>
+		<Event>
+			<Id>25</Id>
+			<Message>Could not find routine information (procedure, function) in database</Message>
+		</Event>
+		<Event>
+			<Id>26</Id>
+			<Message>The requested symbol is not determinable. Please check the name and datatype</Message>
+		</Event>
+		<Event>
+			<Id>30</Id>
+			<Message>ErrorLog file has wrong format</Message>
+		</Event>
+		<Event>
+			<Id>1000</Id>
+			<Message>Unknown internal Error</Message>
+		</Event>
+	</Source>
+	<Source>
+		<GUID>{22BA3A64-2F4E-4628-B9F5-19CFDF3A2FF5}</GUID>
+		<Name>Database Errors of TwinCAT Database Server</Name>
+		<Event>
+			<Id>1</Id>
+			<Message>General warning</Message>
+		</Event>
+		<Event>
+			<Id>2</Id>
+			<Message>Cursor operation conflict</Message>
+		</Event>
+		<Event>
+			<Id>3</Id>
+			<Message>Disconnect error</Message>
+		</Event>
+		<Event>
+			<Id>4</Id>
+			<Message>NULL value eliminated in set function</Message>
+		</Event>
+		<Event>
+			<Id>5</Id>
+			<Message>String data, right-truncated</Message>
+		</Event>
+		<Event>
+			<Id>6</Id>
+			<Message>Privilege not revoked</Message>
+		</Event>
+		<Event>
+			<Id>7</Id>
+			<Message>Privilege not granted</Message>
+		</Event>
+		<Event>
+			<Id>8</Id>
+			<Message>Invalid connection string attribute</Message>
+		</Event>
+		<Event>
+			<Id>9</Id>
+			<Message>Error in row</Message>
+		</Event>
+		<Event>
+			<Id>10</Id>
+			<Message>Option value changed</Message>
+		</Event>
+		<Event>
+			<Id>11</Id>
+			<Message>Attempt to fetch before the result set returned the first rowset</Message>
+		</Event>
+		<Event>
+			<Id>12</Id>
+			<Message>Fractional truncation</Message>
+		</Event>
+		<Event>
+			<Id>13</Id>
+			<Message>Error saving File DSN</Message>
+		</Event>
+		<Event>
+			<Id>14</Id>
+			<Message>Invalid keyword</Message>
+		</Event>
+		<Event>
+			<Id>15</Id>
+			<Message>Dynamic SQL error</Message>
+		</Event>
+		<Event>
+			<Id>16</Id>
+			<Message>Wrong number of parameters</Message>
+		</Event>
+		<Event>
+			<Id>17</Id>
+			<Message>COUNT field incorrect</Message>
+		</Event>
+		<Event>
+			<Id>18</Id>
+			<Message>Prepared statement not a cursor-specification</Message>
+		</Event>
+		<Event>
+			<Id>19</Id>
+			<Message>Restricted data type attribute violation</Message>
+		</Event>
+		<Event>
+			<Id>20</Id>
+			<Message>Invalid descriptor index</Message>
+		</Event>
+		<Event>
+			<Id>21</Id>
+			<Message>Invalid use of default parameter</Message>
+		</Event>
+		<Event>
+			<Id>22</Id>
+			<Message>Connection exception</Message>
+		</Event>
+		<Event>
+			<Id>23</Id>
+			<Message>Client unable to establish connection</Message>
+		</Event>
+		<Event>
+			<Id>24</Id>
+			<Message>Connection name in use</Message>
+		</Event>
+		<Event>
+			<Id>25</Id>
+			<Message>Connection not open</Message>
+		</Event>
+		<Event>
+			<Id>26</Id>
+			<Message>Server rejected the connection</Message>
+		</Event>
+		<Event>
+			<Id>27</Id>
+			<Message>Connection failure during transaction</Message>
+		</Event>
+		<Event>
+			<Id>28</Id>
+			<Message>Communication link failure</Message>
+		</Event>
+		<Event>
+			<Id>29</Id>
+			<Message>Cardinality violation</Message>
+		</Event>
+		<Event>
+			<Id>30</Id>
+			<Message>Insert value list does not match column list</Message>
+		</Event>
+		<Event>
+			<Id>31</Id>
+			<Message>Degree of derived table does not match column list</Message>
+		</Event>
+		<Event>
+			<Id>32</Id>
+			<Message>Data exception</Message>
+		</Event>
+		<Event>
+			<Id>33</Id>
+			<Message>String data, right-truncated</Message>
+		</Event>
+		<Event>
+			<Id>34</Id>
+			<Message>Indicator variable required but not supplied</Message>
+		</Event>
+		<Event>
+			<Id>35</Id>
+			<Message>Numeric value out of range</Message>
+		</Event>
+		<Event>
+			<Id>36</Id>
+			<Message>Invalid datetime format</Message>
+		</Event>
+		<Event>
+			<Id>37</Id>
+			<Message>Datetime field overflow</Message>
+		</Event>
+		<Event>
+			<Id>38</Id>
+			<Message>Division by zero</Message>
+		</Event>
+		<Event>
+			<Id>39</Id>
+			<Message>Interval field overflow</Message>
+		</Event>
+		<Event>
+			<Id>40</Id>
+			<Message>Invalid character value for cast specification</Message>
+		</Event>
+		<Event>
+			<Id>41</Id>
+			<Message>Invalid escape character</Message>
+		</Event>
+		<Event>
+			<Id>42</Id>
+			<Message>Invalid escape sequence</Message>
+		</Event>
+		<Event>
+			<Id>43</Id>
+			<Message>String data, length mismatch</Message>
+		</Event>
+		<Event>
+			<Id>44</Id>
+			<Message>Integrity constraint violation</Message>
+		</Event>
+		<Event>
+			<Id>45</Id>
+			<Message>Invalid cursor state</Message>
+		</Event>
+		<Event>
+			<Id>46</Id>
+			<Message>Invalid transaction state</Message>
+		</Event>
+		<Event>
+			<Id>47</Id>
+			<Message>Transaction state</Message>
+		</Event>
+		<Event>
+			<Id>48</Id>
+			<Message>Transaction is still active</Message>
+		</Event>
+		<Event>
+			<Id>49</Id>
+			<Message>Transaction is rolled back</Message>
+		</Event>
+		<Event>
+			<Id>50</Id>
+			<Message>Invalid authorization specification</Message>
+		</Event>
+		<Event>
+			<Id>51</Id>
+			<Message>Invalid cursor name</Message>
+		</Event>
+		<Event>
+			<Id>52</Id>
+			<Message>Duplicate cursor name</Message>
+		</Event>
+		<Event>
+			<Id>53</Id>
+			<Message>Invalid catalog name</Message>
+		</Event>
+		<Event>
+			<Id>54</Id>
+			<Message>Invalid schema name</Message>
+		</Event>
+		<Event>
+			<Id>55</Id>
+			<Message>Transaction rollback</Message>
+		</Event>
+		<Event>
+			<Id>56</Id>
+			<Message>Serialization failure</Message>
+		</Event>
+		<Event>
+			<Id>57</Id>
+			<Message>Integrity constraint violation</Message>
+		</Event>
+		<Event>
+			<Id>58</Id>
+			<Message>Statement completion unknown</Message>
+		</Event>
+		<Event>
+			<Id>59</Id>
+			<Message>Syntax error or access violation</Message>
+		</Event>
+		<Event>
+			<Id>60</Id>
+			<Message>Base table or view already exists</Message>
+		</Event>
+		<Event>
+			<Id>61</Id>
+			<Message>Base table or view not found</Message>
+		</Event>
+		<Event>
+			<Id>62</Id>
+			<Message>Index already exists</Message>
+		</Event>
+		<Event>
+			<Id>63</Id>
+			<Message>Index not found</Message>
+		</Event>
+		<Event>
+			<Id>64</Id>
+			<Message>Column already exists</Message>
+		</Event>
+		<Event>
+			<Id>65</Id>
+			<Message>Column not found</Message>
+		</Event>
+		<Event>
+			<Id>66</Id>
+			<Message>WITH CHECK OPTION violation</Message>
+		</Event>
+		<Event>
+			<Id>67</Id>
+			<Message>General error</Message>
+		</Event>
+		<Event>
+			<Id>68</Id>
+			<Message>Memory allocation error</Message>
+		</Event>
+		<Event>
+			<Id>69</Id>
+			<Message>Invalid application buffer type</Message>
+		</Event>
+		<Event>
+			<Id>70</Id>
+			<Message>Invalid SQL data type</Message>
+		</Event>
+		<Event>
+			<Id>71</Id>
+			<Message>Associated statement is not prepared</Message>
+		</Event>
+		<Event>
+			<Id>72</Id>
+			<Message>Operation canceled</Message>
+		</Event>
+		<Event>
+			<Id>73</Id>
+			<Message>Invalid use of null pointer</Message>
+		</Event>
+		<Event>
+			<Id>74</Id>
+			<Message>Function sequence error</Message>
+		</Event>
+		<Event>
+			<Id>75</Id>
+			<Message>Attribute cannot be set now</Message>
+		</Event>
+		<Event>
+			<Id>76</Id>
+			<Message>Invalid transaction operation code</Message>
+		</Event>
+		<Event>
+			<Id>77</Id>
+			<Message>Memory management error</Message>
+		</Event>
+		<Event>
+			<Id>78</Id>
+			<Message>Limit on the number of handles exceeded</Message>
+		</Event>
+		<Event>
+			<Id>79</Id>
+			<Message>No cursor name available</Message>
+		</Event>
+		<Event>
+			<Id>80</Id>
+			<Message>Cannot modify an implementation row descriptor</Message>
+		</Event>
+		<Event>
+			<Id>81</Id>
+			<Message>Invalid use of an automatically allocated descriptor handle</Message>
+		</Event>
+		<Event>
+			<Id>82</Id>
+			<Message>Server declined cancel request</Message>
+		</Event>
+		<Event>
+			<Id>83</Id>
+			<Message>Non-character and non-binary data sent in pieces</Message>
+		</Event>
+		<Event>
+			<Id>84</Id>
+			<Message>Attempt to concatenate a null value</Message>
+		</Event>
+		<Event>
+			<Id>85</Id>
+			<Message>Inconsistent descriptor information</Message>
+		</Event>
+		<Event>
+			<Id>86</Id>
+			<Message>Invalid attribute value</Message>
+		</Event>
+		<Event>
+			<Id>87</Id>
+			<Message>Invalid string or buffer length</Message>
+		</Event>
+		<Event>
+			<Id>88</Id>
+			<Message>Invalid descriptor field identifier</Message>
+		</Event>
+		<Event>
+			<Id>89</Id>
+			<Message>Invalid attribute/option identifier</Message>
+		</Event>
+		<Event>
+			<Id>90</Id>
+			<Message>Function type out of range</Message>
+		</Event>
+		<Event>
+			<Id>91</Id>
+			<Message>Invalid information type</Message>
+		</Event>
+		<Event>
+			<Id>92</Id>
+			<Message>Column type out of range</Message>
+		</Event>
+		<Event>
+			<Id>93</Id>
+			<Message>Scope type out of range</Message>
+		</Event>
+		<Event>
+			<Id>94</Id>
+			<Message>Nullable type out of range</Message>
+		</Event>
+		<Event>
+			<Id>95</Id>
+			<Message>Uniqueness option type out of range</Message>
+		</Event>
+		<Event>
+			<Id>96</Id>
+			<Message>Accuracy option type out of range</Message>
+		</Event>
+		<Event>
+			<Id>97</Id>
+			<Message>Invalid retrieval code</Message>
+		</Event>
+		<Event>
+			<Id>98</Id>
+			<Message>Invalid precision or scale value</Message>
+		</Event>
+		<Event>
+			<Id>99</Id>
+			<Message>Invalid parameter type</Message>
+		</Event>
+		<Event>
+			<Id>100</Id>
+			<Message>Fetch type out of range</Message>
+		</Event>
+		<Event>
+			<Id>101</Id>
+			<Message>Row value out of range</Message>
+		</Event>
+		<Event>
+			<Id>102</Id>
+			<Message>Invalid cursor position</Message>
+		</Event>
+		<Event>
+			<Id>103</Id>
+			<Message>Invalid driver completion</Message>
+		</Event>
+		<Event>
+			<Id>104</Id>
+			<Message>Invalid bookmark value</Message>
+		</Event>
+		<Event>
+			<Id>105</Id>
+			<Message>Optional feature not implemented</Message>
+		</Event>
+		<Event>
+			<Id>106</Id>
+			<Message>Timeout expired</Message>
+		</Event>
+		<Event>
+			<Id>107</Id>
+			<Message>Connection timeout expired</Message>
+		</Event>
+		<Event>
+			<Id>108</Id>
+			<Message>Driver does not support this function</Message>
+		</Event>
+		<Event>
+			<Id>109</Id>
+			<Message>Data source name not found and no default driver specified</Message>
+		</Event>
+		<Event>
+			<Id>110</Id>
+			<Message>Specified driver could not be loaded</Message>
+		</Event>
+		<Event>
+			<Id>111</Id>
+			<Message><![CDATA[Driver$'s SQLAllocHandle on SQL_HANDLE_ENV failed]]></Message>
+		</Event>
+		<Event>
+			<Id>112</Id>
+			<Message><![CDATA[Driver$'s SQLAllocHandle on SQL_HANDLE_DBC failed]]></Message>
+		</Event>
+		<Event>
+			<Id>113</Id>
+			<Message><![CDATA[Driver$'s SQLSetConnectAttr failed]]></Message>
+		</Event>
+		<Event>
+			<Id>114</Id>
+			<Message>No data source or driver specified; dialog prohibited</Message>
+		</Event>
+		<Event>
+			<Id>115</Id>
+			<Message>Dialog failed</Message>
+		</Event>
+		<Event>
+			<Id>116</Id>
+			<Message>Unable to load translation DLL</Message>
+		</Event>
+		<Event>
+			<Id>117</Id>
+			<Message>Data source name too long</Message>
+		</Event>
+		<Event>
+			<Id>118</Id>
+			<Message>Driver name too long</Message>
+		</Event>
+		<Event>
+			<Id>119</Id>
+			<Message>DRIVER keyword syntax error</Message>
+		</Event>
+		<Event>
+			<Id>120</Id>
+			<Message>Trace file error</Message>
+		</Event>
+		<Event>
+			<Id>121</Id>
+			<Message>Invalid name of File DSN</Message>
+		</Event>
+		<Event>
+			<Id>122</Id>
+			<Message>Corrupt file data source</Message>
+		</Event>
+		<Event>
+			<Id>200</Id>
+			<Message>Function not implemented</Message>
+		</Event>
+		<Event>
+			<Id>255</Id>
+			<Message>Unspecified Error</Message>
+		</Event>
+	</Source>
+	<Source>
+		<GUID>{0C3DF4BF-9F2E-4EA0-ABF5-C307B982241C}</GUID>
+		<Name>NoSql Database Errors of TwinCAT Database Server</Name>
+		<Event>
+			<Id>0</Id>
+			<Message>No Error</Message>
+		</Event>
+		<Event>
+			<Id>1</Id>
+			<Message>Internal MongoDB exception. Please check the information log for more details.</Message>
+		</Event>
+		<Event>
+			<Id>2</Id>
+			<Message>Database side error. Please check the information log for more details.</Message>
+		</Event>
+		<Event>
+			<Id>8</Id>
+			<Message>Timeout error occurred on command execution</Message>
+		</Event>
+		<Event>
+			<Id>9</Id>
+			<Message>Format error occurred on command execution. Please check the command or document syntax.</Message>
+		</Event>
+		<Event>
+			<Id>10</Id>
+			<Message>Format error occurred on command execution. Please check the command or document syntax.</Message>
+		</Event>
+		<Event>
+			<Id>11</Id>
+			<Message>RunCommand execution failed. Please check the event log for more information</Message>
+		</Event>
+		<Event>
+			<Id>12</Id>
+			<Message>There is no metadata including the tableschema for this table</Message>
+		</Event>
+		<Event>
+			<Id>13</Id>
+			<Message>Syntax error in command / filter</Message>
+		</Event>
+		<Event>
+			<Id>14</Id>
+			<Message>Connection error occured</Message>
+		</Event>
+		<Event>
+			<Id>15</Id>
+			<Message>Authentication failed</Message>
+		</Event>
+		<Event>
+			<Id>16</Id>
+			<Message>Error occured during write operation</Message>
+		</Event>
+		<Event>
+			<Id>20</Id>
+			<Message>Functionality is not supported by the TwinCAT Database Server</Message>
+		</Event>
+		<Event>
+			<Id>47</Id>
+			<Message>Namespace / Collectionname does not exist</Message>
+		</Event>
+		<Event>
+			<Id>48</Id>
+			<Message>Namespace / Collectionname already exist</Message>
+		</Event>
+		<Event>
+			<Id>51</Id>
+			<Message>The queried data is empty</Message>
+		</Event>
+		<Event>
+			<Id>52</Id>
+			<Message>The queried data is in wrong format</Message>
+		</Event>
+		<Event>
+			<Id>53</Id>
+			<Message>NoSql_Specific_53_DisplayText</Message>
+		</Event>
+		<Event>
+			<Id>140</Id>
+			<Message>Http communication error</Message>
+		</Event>
+		<Event>
+			<Id>141</Id>
+			<Message>Internal TwinCAT 3 Database Server Error</Message>
+		</Event>
+	</Source>
+	<Source>
+		<GUID>{7D760066-D373-4A0C-B0F1-328B1620B0F0}</GUID>
+		<Name>TcGeneralAdsEventClass</Name>
+		<Event>
+			<Id>1792</Id>
+			<Message>General device error.</Message>
+		</Event>
+		<Event>
+			<Id>1793</Id>
+			<Message>Service is not supported by the server.</Message>
+		</Event>
+		<Event>
+			<Id>1794</Id>
+			<Message>Invalid index group.</Message>
+		</Event>
+		<Event>
+			<Id>1795</Id>
+			<Message>Invalid index offset.</Message>
+		</Event>
+		<Event>
+			<Id>1796</Id>
+			<Message>Reading or writing is not permitted.</Message>
+		</Event>
+		<Event>
+			<Id>1797</Id>
+			<Message>Parameter size is not correct.</Message>
+		</Event>
+		<Event>
+			<Id>1798</Id>
+			<Message>Invalid data value(s).</Message>
+		</Event>
+		<Event>
+			<Id>1799</Id>
+			<Message>Device is not ready to operate.</Message>
+		</Event>
+		<Event>
+			<Id>1800</Id>
+			<Message>Device is busy.</Message>
+		</Event>
+		<Event>
+			<Id>1801</Id>
+			<Message>Invalid operating system context. This can result from use of ADS function blocks in different tasks.</Message>
+		</Event>
+		<Event>
+			<Id>1802</Id>
+			<Message>Insufficient memory.</Message>
+		</Event>
+		<Event>
+			<Id>1803</Id>
+			<Message>Invalid parameter value(s).</Message>
+		</Event>
+		<Event>
+			<Id>1804</Id>
+			<Message>Not found (files, ...).</Message>
+		</Event>
+		<Event>
+			<Id>1805</Id>
+			<Message>Syntax error in file or command.</Message>
+		</Event>
+		<Event>
+			<Id>1806</Id>
+			<Message>Objects do not match.</Message>
+		</Event>
+		<Event>
+			<Id>1807</Id>
+			<Message>Object already exists.</Message>
+		</Event>
+		<Event>
+			<Id>1808</Id>
+			<Message>Symbol was not found.</Message>
+		</Event>
+		<Event>
+			<Id>1809</Id>
+			<Message>Invalid symbol version. This can occur due to an online change. Create a new handle.</Message>
+		</Event>
+		<Event>
+			<Id>1810</Id>
+			<Message>Device (server) is in invalid state.</Message>
+		</Event>
+		<Event>
+			<Id>1811</Id>
+			<Message>AdsTransMode is not supported.</Message>
+		</Event>
+		<Event>
+			<Id>1812</Id>
+			<Message>Notification handle is invalid.</Message>
+		</Event>
+		<Event>
+			<Id>1813</Id>
+			<Message>Notification client is not registered.</Message>
+		</Event>
+		<Event>
+			<Id>1814</Id>
+			<Message>No further notification handles.</Message>
+		</Event>
+		<Event>
+			<Id>1815</Id>
+			<Message>Notification size too large.</Message>
+		</Event>
+		<Event>
+			<Id>1816</Id>
+			<Message>Device is not initialized.</Message>
+		</Event>
+		<Event>
+			<Id>1817</Id>
+			<Message>Device has a timeout.</Message>
+		</Event>
+		<Event>
+			<Id>1818</Id>
+			<Message>Interface query failed.</Message>
+		</Event>
+		<Event>
+			<Id>1819</Id>
+			<Message>Wrong interface is requested.</Message>
+		</Event>
+		<Event>
+			<Id>1820</Id>
+			<Message>Class ID is invalid.</Message>
+		</Event>
+		<Event>
+			<Id>1821</Id>
+			<Message>Object ID is invalid.</Message>
+		</Event>
+		<Event>
+			<Id>1822</Id>
+			<Message>Request pending.</Message>
+		</Event>
+		<Event>
+			<Id>1823</Id>
+			<Message>Request is aborted.</Message>
+		</Event>
+		<Event>
+			<Id>1824</Id>
+			<Message>Signal warning.</Message>
+		</Event>
+		<Event>
+			<Id>1825</Id>
+			<Message>Invalid array index.</Message>
+		</Event>
+		<Event>
+			<Id>1826</Id>
+			<Message>Symbol is not active.</Message>
+		</Event>
+		<Event>
+			<Id>1827</Id>
+			<Message>Access denied.</Message>
+		</Event>
+		<Event>
+			<Id>1828</Id>
+			<Message>Missing license.</Message>
+		</Event>
+		<Event>
+			<Id>1829</Id>
+			<Message>License is expired.</Message>
+		</Event>
+		<Event>
+			<Id>1830</Id>
+			<Message>License is exceeded.</Message>
+		</Event>
+		<Event>
+			<Id>1831</Id>
+			<Message>License is invalid.</Message>
+		</Event>
+		<Event>
+			<Id>1832</Id>
+			<Message>License problem: System ID is invalid.</Message>
+		</Event>
+		<Event>
+			<Id>1833</Id>
+			<Message>License not limited in time.</Message>
+		</Event>
+		<Event>
+			<Id>1834</Id>
+			<Message>License problem: Time in the future.</Message>
+		</Event>
+		<Event>
+			<Id>1835</Id>
+			<Message>License time period is too long.</Message>
+		</Event>
+		<Event>
+			<Id>1836</Id>
+			<Message>Exception at system startup.</Message>
+		</Event>
+		<Event>
+			<Id>1837</Id>
+			<Message>License file is read twice.</Message>
+		</Event>
+		<Event>
+			<Id>1838</Id>
+			<Message>Invalid signature.</Message>
+		</Event>
+		<Event>
+			<Id>1839</Id>
+			<Message>Invalid certificate.</Message>
+		</Event>
+		<Event>
+			<Id>1840</Id>
+			<Message>Public key not known from OEM.</Message>
+		</Event>
+		<Event>
+			<Id>1841</Id>
+			<Message>License not valid for this system ID.</Message>
+		</Event>
+		<Event>
+			<Id>1842</Id>
+			<Message>Demo license prohibited.</Message>
+		</Event>
+		<Event>
+			<Id>1843</Id>
+			<Message>Invalid function ID.</Message>
+		</Event>
+		<Event>
+			<Id>1844</Id>
+			<Message>Outside the valid range.</Message>
+		</Event>
+		<Event>
+			<Id>1845</Id>
+			<Message>Invalid alignment.</Message>
+		</Event>
+		<Event>
+			<Id>1846</Id>
+			<Message>Invalid platform level.</Message>
+		</Event>
+		<Event>
+			<Id>1847</Id>
+			<Message>Context – forward to passive level.</Message>
+		</Event>
+		<Event>
+			<Id>1848</Id>
+			<Message>Context – forward to dispatch level.</Message>
+		</Event>
+		<Event>
+			<Id>1849</Id>
+			<Message>Context – forward to real-time.</Message>
+		</Event>
+		<Event>
+			<Id>1857</Id>
+			<Message>Service contains an invalid parameter.</Message>
+		</Event>
+		<Event>
+			<Id>1858</Id>
+			<Message>Polling list is empty.</Message>
+		</Event>
+		<Event>
+			<Id>1859</Id>
+			<Message>Variable connection is already in use.</Message>
+		</Event>
+		<Event>
+			<Id>1860</Id>
+			<Message>Invoke ID is already in use.</Message>
+		</Event>
+		<Event>
+			<Id>1861</Id>
+			<Message>Timeout has occurred – the remote terminal is not responding in the specified ADS timeout.</Message>
+		</Event>
+		<Event>
+			<Id>1862</Id>
+			<Message>Error in Win32 subsystem</Message>
+		</Event>
+		<Event>
+			<Id>1863</Id>
+			<Message>Invalid client timeout value.</Message>
+		</Event>
+		<Event>
+			<Id>1864</Id>
+			<Message>Port is not open.</Message>
+		</Event>
+		<Event>
+			<Id>1865</Id>
+			<Message>No AMS address.</Message>
+		</Event>
+		<Event>
+			<Id>1872</Id>
+			<Message>Internal error in Ads sync.</Message>
+		</Event>
+		<Event>
+			<Id>1873</Id>
+			<Message>Hash table overflow.</Message>
+		</Event>
+		<Event>
+			<Id>1874</Id>
+			<Message>Key not found in hash table.</Message>
+		</Event>
+		<Event>
+			<Id>1875</Id>
+			<Message>No symbols in the cache.</Message>
+		</Event>
+		<Event>
+			<Id>1876</Id>
+			<Message>Invalid response received</Message>
+		</Event>
+		<Event>
+			<Id>1877</Id>
+			<Message>Sync port is locked.</Message>
+		</Event>
+	</Source>
+	<Source>
+		<GUID>{E759605A-2341-48FC-9F3F-C8FA405C4B24}</GUID>
+		<Name>TcRouterEventClass</Name>
+		<Event>
+			<Id>1280</Id>
+			<Message>Locked memory cannot be allocated.</Message>
+		</Event>
+		<Event>
+			<Id>1281</Id>
+			<Message>The router memory size could not be changed.</Message>
+		</Event>
+		<Event>
+			<Id>1282</Id>
+			<Message>The mailbox has reached the maximum number of possible messages.</Message>
+		</Event>
+		<Event>
+			<Id>1283</Id>
+			<Message>The debug mailbox has reached the maximum number of possible messages.</Message>
+		</Event>
+		<Event>
+			<Id>1284</Id>
+			<Message>The port type is unknown.</Message>
+		</Event>
+		<Event>
+			<Id>1285</Id>
+			<Message>TwinCAT Router is not initialised.</Message>
+		</Event>
+		<Event>
+			<Id>1286</Id>
+			<Message>The port number is already assigned.</Message>
+		</Event>
+		<Event>
+			<Id>1287</Id>
+			<Message>The port is not registered.</Message>
+		</Event>
+		<Event>
+			<Id>1288</Id>
+			<Message>The maximum number of ports has been reached.</Message>
+		</Event>
+		<Event>
+			<Id>1289</Id>
+			<Message>The port is invalid.</Message>
+		</Event>
+		<Event>
+			<Id>1290</Id>
+			<Message>TwinCAT Router is not active.</Message>
+		</Event>
+		<Event>
+			<Id>1291</Id>
+			<Message>The mailbox has reached the maximum number for fragmented messages.</Message>
+		</Event>
+		<Event>
+			<Id>1292</Id>
+			<Message>A fragment timeout has occurred.</Message>
+		</Event>
+		<Event>
+			<Id>1293</Id>
+			<Message>The port is removed.</Message>
+		</Event>
+	</Source>
+	<Source>
+		<GUID>{BB2A9999-102E-421A-8D3D-B0660E07B1FE}</GUID>
+		<Name>TcSystemEventClass</Name>
+		<Event>
+			<Id>1</Id>
+			<Message>Internal error.</Message>
+		</Event>
+		<Event>
+			<Id>2</Id>
+			<Message>No real-time.</Message>
+		</Event>
+		<Event>
+			<Id>3</Id>
+			<Message>Allocation locked – memory error.</Message>
+		</Event>
+		<Event>
+			<Id>4</Id>
+			<Message>Mailbox full – the ADS message could not be sent. Reducing the number of ADS messages per cycle will help.</Message>
+		</Event>
+		<Event>
+			<Id>5</Id>
+			<Message>Wrong HMSG.</Message>
+		</Event>
+		<Event>
+			<Id>6</Id>
+			<Message>Target port not found – ADS server is not started or is not reachable.</Message>
+		</Event>
+		<Event>
+			<Id>7</Id>
+			<Message>Target computer not found – AMS route was not found. </Message>
+		</Event>
+		<Event>
+			<Id>8</Id>
+			<Message>Unknown command ID.</Message>
+		</Event>
+		<Event>
+			<Id>9</Id>
+			<Message>Invalid task ID.</Message>
+		</Event>
+		<Event>
+			<Id>10</Id>
+			<Message>No IO.</Message>
+		</Event>
+		<Event>
+			<Id>11</Id>
+			<Message>Unknown AMS command.</Message>
+		</Event>
+		<Event>
+			<Id>12</Id>
+			<Message>Win32 error.</Message>
+		</Event>
+		<Event>
+			<Id>13</Id>
+			<Message>Port not connected.</Message>
+		</Event>
+		<Event>
+			<Id>14</Id>
+			<Message>Invalid AMS length.</Message>
+		</Event>
+		<Event>
+			<Id>15</Id>
+			<Message>Invalid AMS Net ID.</Message>
+		</Event>
+		<Event>
+			<Id>16</Id>
+			<Message>Low installation level – TwinCAT 2 license error.</Message>
+		</Event>
+		<Event>
+			<Id>17</Id>
+			<Message>No debugging available.</Message>
+		</Event>
+		<Event>
+			<Id>18</Id>
+			<Message>Port disabled – TwinCAT system service not started.</Message>
+		</Event>
+		<Event>
+			<Id>19</Id>
+			<Message>Port already connected.</Message>
+		</Event>
+		<Event>
+			<Id>20</Id>
+			<Message>AMS Sync Win32 error.</Message>
+		</Event>
+		<Event>
+			<Id>21</Id>
+			<Message>AMS Sync Timeout.</Message>
+		</Event>
+		<Event>
+			<Id>22</Id>
+			<Message>AMS Sync error.</Message>
+		</Event>
+		<Event>
+			<Id>23</Id>
+			<Message>No index map for AMS Sync available.</Message>
+		</Event>
+		<Event>
+			<Id>24</Id>
+			<Message>Invalid AMS port.</Message>
+		</Event>
+		<Event>
+			<Id>25</Id>
+			<Message>No memory.</Message>
+		</Event>
+		<Event>
+			<Id>26</Id>
+			<Message>TCP send error.</Message>
+		</Event>
+		<Event>
+			<Id>27</Id>
+			<Message>Host unreachable.</Message>
+		</Event>
+		<Event>
+			<Id>28</Id>
+			<Message>Invalid AMS fragment.</Message>
+		</Event>
+		<Event>
+			<Id>29</Id>
+			<Message>TLS send error – secure ADS connection failed.</Message>
+		</Event>
+		<Event>
+			<Id>30</Id>
+			<Message>Access denied – secure ADS access denied.</Message>
+		</Event>
+	</Source>
+</TcEventSources>

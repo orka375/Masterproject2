@@ -4,15 +4,21 @@
     <Declaration><![CDATA[TYPE ST_Robot :
 STRUCT
     id           : DINT;
-    name         : STRING(80);
-    manufacturer : STRING(80);
-    model        : STRING(80);
-    robot_type   : STRING(80);
+
+    name         : STRING(255);
+    manufacturer : STRING(255);
+    model        : STRING(255);
+    robot_type   : STRING(255);
+
     axes         : DINT;
+
     payload      : LREAL;
     reach        : LREAL;
-    controller   : STRING(80);
-    ip_address   : STRING(40);
+
+    controller   : STRING(255);
+
+    // Query PostgreSQL INET as ::text
+    ip_address   : STRING(63);
 END_STRUCT
 END_TYPE]]></Declaration>
   </DUT>

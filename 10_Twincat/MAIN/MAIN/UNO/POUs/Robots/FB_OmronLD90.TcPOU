@@ -1,24 +1,35 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_OmronLD90" Id="{fac74160-c2b3-4f77-bd69-eddf1970c653}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_OmronLD90 EXTENDS FB_ROB_AMR 
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_OmronLD90 EXTENDS FB_ROB_AMR IMPLEMENTS ITF_CommunicationModul
 VAR_INPUT
 	sLoadDeliverReturn: Skill_LoadDeliverReturn;
 	sEyes: Skill_ROS2_Eyes;
+	ComConfig: ST_CommunicationConfig;
 END_VAR
 VAR_OUTPUT
+  SocketErrorId: UDINT;
 END_VAR
 VAR
-	//Reference to Skills
-
-	MissionIndex: INT; //Simulation
-	oldMissionIndex: INT; //Simulation
-	waitTimer: TON; //Simulation
+	MissionIndex: INT;
+	oldMissionIndex: INT;
+	waitTimer: TON;
+  fbSocketConnect: FB_SocketConnect;
+  fbSocketClose: FB_SocketClose;
+  hSocket: T_HSOCKET;
+  eConnectionState: eCommunicationState := eCommunicationState.DISCONNECTED;
+  _connected: BOOL;
+  xConnectRequest: BOOL;
+  xDisconnectRequest: BOOL;
+  xSocketConnectExecute: BOOL;
+  xSocketCloseExecute: BOOL;
+  xSocketConnectStarted: BOOL;
+  xSocketCloseStarted: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[StateMachine(); // Method in FB_ROB
-ComMachine();	//Method in FB_ROB
+      <ST><![CDATA[ComMachine();
+    StateMachine();
 
 //-------- SKILL SETUP ---------
 
@@ -83,12 +94,13 @@ END_VAR
             xConnectRequest := FALSE;
 
             // Clear previous errors
-            Error := FALSE;
-            ErrorId := 0;
+            bError := FALSE;
+            nErrorId := 0;
             SocketErrorId := 0;
 
             // Start FB_SocketConnect
             xSocketConnectExecute := TRUE;
+            xSocketConnectStarted := TRUE;
 
             eConnectionState :=
                 eCommunicationState.CONNECTING;
@@ -127,7 +139,8 @@ END_VAR
         // Connection successful
         // -----------------------------------------------------
 
-        IF NOT fbSocketConnect.bBusy
+        IF xSocketConnectStarted
+          AND NOT fbSocketConnect.bBusy
             AND NOT fbSocketConnect.bError
 //             AND (fbSocketConnect.hSocket <> 0)
         THEN
@@ -136,10 +149,11 @@ END_VAR
                 fbSocketConnect.hSocket;
 
             _connected := TRUE;
+            xSocketConnectStarted := FALSE;
     
 
-            Error := FALSE;
-            ErrorId := 0;
+            bError := FALSE;
+            nErrorId := 0;
             SocketErrorId := 0;
 
             eConnectionState :=
@@ -157,13 +171,14 @@ END_VAR
         THEN
 
             _connected := FALSE;
+          xSocketConnectStarted := FALSE;
 
-            Error := TRUE;
+            bError := TRUE;
 
             SocketErrorId :=
                 fbSocketConnect.nErrId;
 
-            ErrorId :=
+            nErrorId :=
                 fbSocketConnect.nErrId;
 
 //             hSocket := 0;
@@ -195,6 +210,7 @@ END_VAR
 
             // Start socket close
             xSocketCloseExecute := TRUE;
+            xSocketCloseStarted := TRUE;
 
             eConnectionState :=
                 eCommunicationState.DISCONNECTING;
@@ -231,14 +247,15 @@ END_VAR
         // Socket closed successfully
         // -----------------------------------------------------
 
-        IF NOT fbSocketClose.bBusy
+        IF xSocketCloseStarted
+          AND NOT fbSocketClose.bBusy
             AND NOT fbSocketClose.bError
         THEN
 
             _connected := FALSE;
 
 
-//             hSocket := 0;
+            xSocketCloseStarted := FALSE;
 
             eConnectionState :=
                 eCommunicationState.DISCONNECTED;
@@ -255,14 +272,15 @@ END_VAR
         THEN
 
             _connected := FALSE;
+          xSocketCloseStarted := FALSE;
 
 
-            Error := TRUE;
+            bError := TRUE;
 
             SocketErrorId :=
                 fbSocketClose.nErrId;
 
-            ErrorId :=
+            nErrorId :=
                 fbSocketClose.nErrId;
 
             // The socket should no longer be used
@@ -296,11 +314,12 @@ END_VAR
 
             xConnectRequest := FALSE;
 
-            Error := FALSE;
-            ErrorId := 0;
+            bError := FALSE;
+            nErrorId := 0;
             SocketErrorId := 0;
 
             xSocketConnectExecute := TRUE;
+            xSocketConnectStarted := TRUE;
 
             eConnectionState :=
                 eCommunicationState.CONNECTING;
@@ -308,7 +327,10 @@ END_VAR
         END_IF;
 
 
-END_CASE;]]></ST>
+END_CASE;
+
+CommunicationReady := _connected;
+ComMachine := NOT bError;]]></ST>
       </Implementation>
     </Method>
     <Method Name="Connect" Id="{70fa978a-67c6-43be-99fb-d03c8689cf07}" FolderPath="Communication\">
@@ -338,21 +360,21 @@ END_IF;
 
 // Validate address
 IF LEN(ComConfig.sIpAddress) = 0 THEN
-    Error := TRUE;
+    bError := TRUE;
 //     ErrorId := 16#1001;
     RETURN;
 END_IF;
 
 // Validate port
 IF ComConfig.nPort = 0 THEN
-    Error := TRUE;
+    bError := TRUE;
 //     ErrorId := 16#1002;
     RETURN;
 END_IF;
 
 // Clear previous error
-Error := FALSE;
-ErrorId := 0;
+bError := FALSE;
+nErrorId := 0;
 
 // Request connection
 xConnectRequest := TRUE;
@@ -378,321 +400,127 @@ END_VAR
 METHOD Disconnect : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[IF eConnectionState = eCommunicationState.DISCONNECTED THEN
+      Disconnect := TRUE;
+      RETURN;
+    END_IF
+
+    xConnectRequest := FALSE;
+    xDisconnectRequest := TRUE;
+    Disconnect := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="Dock" Id="{ed889dfa-89d4-4c82-aa20-11f1706e94ee}" FolderPath="MotionControl\">
       <Declaration><![CDATA[METHOD Dock : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[Dock := FALSE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="GoToGoal" Id="{bbbc983d-cf30-4dcf-8a44-55f25ea52986}" FolderPath="MotionControl\">
+    <Method Name="NavigateToGoal" Id="{bbbc983d-cf30-4dcf-8a44-55f25ea52986}" FolderPath="MotionControl\">
       <Declaration><![CDATA[
-METHOD FINAL GoToGoal : BOOL
+  METHOD NavigateToGoal : BOOL
 VAR_INPUT
-	Goal: STRING :='UNDEFINED';
+    goal : STRING;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[ADSLOGSTR(
+        <ST><![CDATA[NavigateToGoal := FALSE;
+
+  ADSLOGSTR(
     msgCtrlMask := ADSLOG_MSGTYPE_HINT,
     msgFmtStr   := 'Goes to goal %s',
-    strArg      := Goal
+    strArg      := goal
 );
 
 TargetReached:=FALSE;
 MissionIndex:=MissionIndex+1;
+  NavigateToGoal := TRUE;
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="GoToPoint" Id="{dc0441f1-6bc0-484a-9b38-d363d0c2594e}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD GoToPoint : BOOL
-
-VAR_INPUT
-	rX, rY, rTheta: REAL;
-END_VAR
-]]></Declaration>
+    <Method Name="NavigateToPoint" Id="{d734b238-2cc5-407d-bb20-af9fe27df7a9}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD NavigateToPoint : BOOL
+  VAR_INPUT
+    point : stPose2D;
+  END_VAR
+  ]]></Declaration>
       <Implementation>
         <ST><![CDATA[]]></ST>
       </Implementation>
     </Method>
-    <Method Name="MC_MoveAxesAbsolute" Id="{0cd522ad-3196-4d60-88fa-579c31568d4a}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD MC_MoveAxesAbsolute : BOOL
-VAR_INPUT
-	target	: stTarget3D;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="MC_MoveAxesRelative" Id="{f73d189b-ff87-4fed-aa85-efb29eda32d4}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD MC_MoveAxesRelative : BOOL
-VAR_INPUT
-	axes	: ARRAY [1..6] OF FB_Axis;
-	offsets	: ARRAY [1..6] OF REAL;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="MC_MoveLinearAbsolute" Id="{ca83c178-9848-4cc0-b00b-256b7c7dfbf1}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD MC_MoveLinearAbsolute : BOOL
-VAR_INPUT
-	target	: stTarget3D;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="MC_ReadAnalogInput" Id="{f0ca8b75-c40b-4e48-971c-e8720e2a2c9d}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD MC_ReadAnalogInput : LREAL
-VAR_INPUT
-	input	: INT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="MC_ReadDigitalInput" Id="{c7317b25-d839-47d8-b4be-44cfbee742a7}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD MC_ReadDigitalInput : BOOL
-VAR_INPUT
-	input	: INT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="MC_SetDigitalOutput" Id="{91ad8e1f-9be7-4585-b174-cb9248903477}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD MC_SetDigitalOutput : BOOL
-VAR_INPUT
-	output	: INT;
-	value	: BOOL;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="MC_SetOperationMode" Id="{41d82623-631b-48fe-bc0b-275e5972c6a7}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD MC_SetOperationMode : BOOL
-VAR_INPUT
-	mode	: eMode;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="onActivate" Id="{7fa92802-2ede-4193-9973-ad7754d17239}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onActivate : BOOL
+    <Method Name="OnActivate" Id="{7fa92802-2ede-4193-9973-ad7754d17239}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
 
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
-
-
-
-// ---- Change ----
-
-// _mode:= eMode.Automatic;
-
-
-
-
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
-
-IF Error THEN
-	transitionresult:= eResult.ERROR;
-END_IF
-
-
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Active;
-ELSIF transitionresult= eResult.FAILURE THEN
-	State:=eState.Inactive;
-ELSIF transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
+        <ST><![CDATA[IF bError THEN
+    OnActivate := eResult.ERROR;
+    ELSIF Connected THEN
+      OnActivate := eResult.SUCCESS;
 ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onActivate is None','');
+      OnActivate := eResult.None;
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="onCleanup" Id="{7747948a-f8e1-4cdb-8a20-610ab536a0ef}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onCleanup : BOOL
+    <Method Name="OnCleanup" Id="{7747948a-f8e1-4cdb-8a20-610ab536a0ef}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
+        <ST><![CDATA[Disconnect();
 
+    IF eConnectionState <> eCommunicationState.DISCONNECTED THEN
+      OnCleanup := eResult.None;
+    ELSE
+      OnCleanup := eResult.SUCCESS;
+    END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnConfigure" Id="{c568c508-6321-435c-b7c4-683ad73a8f42}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Connect();
 
-
-// ---- Change ----
-
-IF Connected THEN
-	Disconnect();
-END_IF
-
-
-
-
-
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Unconfigured;
-ELSIF transitionresult= eResult.FAILURE THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is FAILURE ','');
-ELSIF transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
+    IF bError THEN
+      OnConfigure := eResult.ERROR;
+    ELSIF Connected THEN
+      OnConfigure := eResult.SUCCESS;
+    ELSE
+      OnConfigure := eResult.None;
+    END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{57ce1156-6b80-40b7-8fff-100660e6e779}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bError THEN
+    OnDeactivate := eResult.ERROR;
 ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is NONE','');
+    OnDeactivate := eResult.SUCCESS;
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="onConfigure" Id="{c568c508-6321-435c-b7c4-683ad73a8f42}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onConfigure : BOOL
+    <Method Name="OnError" Id="{74c0a508-94ea-4785-a0ea-1af2639ff5e5}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
-
-
-
-// ---- Change ----
-
-
-
-transitionresult:=eResult.SUCCESS;
-
-
-
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Inactive;
-ELSIF transitionresult= eResult.FAILURE THEN
-	State:=eState.Unconfigured;
-ELSIF transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onConfigure is None','');
-END_IF]]></ST>
+        <ST><![CDATA[OnError := eResult.SUCCESS;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="onDeactivate" Id="{57ce1156-6b80-40b7-8fff-100660e6e779}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onDeactivate : BOOL
+    <Method Name="OnShutdown" Id="{f496723a-9c1c-413c-b4ed-4d78c56c0863}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
+        <ST><![CDATA[Disconnect();
 
-
-
-// ---- Change ----
-
-// _mode:= eMode.Manual;
-
-
-
-
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
-
-IF Error THEN
-	transitionresult:= eResult.ERROR;
-END_IF
-
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Inactive;
-ELSIF transitionresult= eResult.FAILURE THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is FAILURE','');
-ELSIF transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is None','');
-END_IF]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="onError" Id="{74c0a508-94ea-4785-a0ea-1af2639ff5e5}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onError : BOOL
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
-
-
-
-// ---- Change ----
-
-// _mode:= eMode.Manual;
-
-
-
-
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Unconfigured;
-ELSIF transitionresult= eResult.FAILURE THEN
-	State:=eState.Finalized;
-ELSIF transitionresult= eResult.ERROR THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is Error','');
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is None','');
-END_IF]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="onShutdown" Id="{f496723a-9c1c-413c-b4ed-4d78c56c0863}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onShutdown : BOOL
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
-
-
-
-// ---- Change ----
-
-// _mode:= eMode.Manual;
-
-IF Connected THEN
-	Disconnect();
-END_IF
-
-
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
-
-IF Error THEN
-	transitionresult:= eResult.ERROR;
-END_IF
-
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Finalized;
-ELSIF transitionresult= eResult.FAILURE THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is FAILURE','');
-ELSIF transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is None','');
-END_IF]]></ST>
+    IF eConnectionState <> eCommunicationState.DISCONNECTED THEN
+      OnShutdown := eResult.None;
+    ELSIF bError THEN
+      OnShutdown := eResult.ERROR;
+    ELSE
+      OnShutdown := eResult.SUCCESS;
+    END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="ResetConnection" Id="{1a6fc39d-923f-4cb8-bc55-cd413f8ec29d}" FolderPath="Communication\">
@@ -703,10 +531,11 @@ METHOD ResetConnection : BOOL
         <ST><![CDATA[]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Undock" Id="{ad3375f8-7552-4141-bde9-a85c6d9963c4}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD Undock : BOOL
-]]></Declaration>
+    <Method Name="Undock" Id="{c887c4e0-0c83-4491-ac2c-d3b9fd05bfa5}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD Undock : BOOL
+  VAR_INPUT
+  END_VAR
+  ]]></Declaration>
       <Implementation>
         <ST><![CDATA[]]></ST>
       </Implementation>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="E_PointStoreResult" Id="{9b897752-f667-4f27-aa2d-4fa8252b4912}">
+    <Declaration><![CDATA[TYPE E_PointStoreResult :
+(
+    POINTSTORE_IDLE := 0,
+    POINTSTORE_BUSY := 1,
+    POINTSTORE_DONE := 2,
+    POINTSTORE_CONFIGURATION_ERROR := 3,
+    POINTSTORE_DATABASE_ERROR := 4
+);
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

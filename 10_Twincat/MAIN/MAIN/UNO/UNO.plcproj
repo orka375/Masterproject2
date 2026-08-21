@@ -57,7 +57,28 @@
     <Compile Include="DUTs\Communication\ST_CommunicationConfig.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\DB\E_DBClientState.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DB\E_PointPoseKind.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DB\E_PointStoreResult.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DB\ST_CoordSys.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DB\ST_Point.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DB\ST_Plant.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\DB\ST_Robot.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\DB\ST_RobotTool.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\DB\ST_SQLValue.TcDUT">
@@ -87,13 +108,22 @@
     <Compile Include="DUTs\ITF_Tool.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Manipulator\ITF_Tool_1.TcIO">
+    <Compile Include="DUTs\Manipulator\E_RobotCommand.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Manipulator\E_RobotCommandState.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Manipulator\ST_RobotCommand.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Manipulator\stJoint6.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Manipulator\stPose3D.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Manipulator\stRelativePose3D.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Manipulator\stTarget3D.TcDUT">
@@ -153,13 +183,25 @@
     <Compile Include="POUs\Archiv\FB_Axis.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Archiv\FB_Tool.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\DB\DATABASE.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\DB\FB_DBClient.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\DB\FB_PointManager.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\FB_Base.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\FB_Helper.TcPOU">
+    <Compile Include="POUs\Helpers\FB_Helper.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\FB_Tool.TcPOU">
+    <Compile Include="POUs\Helpers\FB_TcpIpClient.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\MAIN.TcPOU">
@@ -189,13 +231,13 @@
     <Compile Include="POUs\Skills\FB_Template_ROS2Skill_V2.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Skills\FB_SkillHandler.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Skills\FB_Base_Skill.TcPOU">
+    <Compile Include="POUs\Skills\FB_Skill.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Skills\FB_Template_Skill.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Skills\Skill_Greifer_open.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Skills\Skill_LoadDeliverReturn.TcPOU">
@@ -225,12 +267,19 @@
     <Folder Include="DUTs\StateMachine" />
     <Folder Include="GVLs" />
     <Folder Include="POUs\Archiv" />
+    <Folder Include="POUs\DB" />
+    <Folder Include="POUs\Helpers" />
     <Folder Include="POUs\Robots" />
     <Folder Include="POUs\Skills" />
+    <Folder Include="POUs\Skills\Skill_Greifer_open" />
     <Folder Include="VISUs" />
     <Folder Include="POUs" />
   </ItemGroup>
   <ItemGroup>
+    <PlaceholderReference Include="Tc2_Database">
+      <DefaultResolution>Tc2_Database, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Database</Namespace>
+    </PlaceholderReference>
     <PlaceholderReference Include="Tc2_Standard">
       <DefaultResolution>Tc2_Standard, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_Standard</Namespace>
@@ -246,6 +295,14 @@
     <PlaceholderReference Include="Tc2_Utilities">
       <DefaultResolution>Tc2_Utilities, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_Utilities</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_Database">
+      <DefaultResolution>Tc3_Database, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_Database</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_EventLogger">
+      <DefaultResolution>Tc3_EventLogger, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_EventLogger</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="Tc3_JsonXml">
       <DefaultResolution>Tc3_JsonXml, * (Beckhoff Automation GmbH)</DefaultResolution>

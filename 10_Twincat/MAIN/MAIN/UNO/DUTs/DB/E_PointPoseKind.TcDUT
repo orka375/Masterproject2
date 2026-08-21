@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="E_PointPoseKind" Id="{68de64dc-4a3e-4a55-95d3-1e4ff00d0411}">
+    <Declaration><![CDATA[TYPE E_PointPoseKind :
+(
+    POINT_POSE_3D := 0,
+    POINT_POSE_2D := 1
+);
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

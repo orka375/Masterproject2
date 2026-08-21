@@ -1,33 +1,92 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_UR5" Id="{7138b06d-6984-4953-8124-68042278758b}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_UR5 EXTENDS FB_ROB_MANIP IMPLEMENTS ITF_BA_6Axis, ITF_CommunicationModul
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_UR5 EXTENDS FB_ROB_MANIP
+
+VAR_INPUT //SKILLS
+	sPiNPl: Skill_PickPlace;
+END_VAR
+  
+
 VAR_INPUT
-END_VAR
+    sRemoteHost          : T_IPv4Addr := '192.168.250.7';
+    nRemotePort          : UDINT := 30001;
+  END_VAR
+  
+  
 VAR_OUTPUT
+	fbTcp               : FB_TcpIpClient;
 END_VAR
+
 VAR
-	PiNPl: Skill_PickPlace;
+	_communicationRequested : BOOL;
+	_resetCommunication : BOOL;
+
+END_VAR
+
+// -------- RTDE --------------------
+VAR		//RTDE		
+	aRtdeTx : ARRAY[0..255] OF BYTE;
+	nRtdeTxSize : UDINT;
+	bRtdeSend : BOOL;
+	
+	aRtdeRx : ARRAY[0..4095] OF BYTE;
+	nRtdeRxBytes : UINT;
+	nRtdeState : USINT := 0;
+	bRtdeProtocolAccepted : BOOL;
+	bRtdeOutputConfigured : BOOL;
+	bRtdeStarted : BOOL;
+	bRtdeError : BOOL;
+	nRtdeErrorId : UDINT;
+	sRtdeError : STRING(80);
+	
+	aPrimaryRx : ARRAY[0..4095] OF BYTE;
+	nPrimaryRxBytes : UINT;
+	bPrimaryStateSeen : BOOL;
+	xPrimaryRobotConnected : BOOL;
+	xPrimaryRobotEnabled : BOOL;
+	xPrimaryRobotPowerOn : BOOL;
+	xPrimaryEmergencyStopped : BOOL;
+	xPrimaryProtectiveStopped : BOOL;
+	xPrimaryProgramRunning : BOOL;
+	bPrimaryError : BOOL;
+	nPrimaryErrorId : UDINT;
+	sPrimaryError : STRING(80);
+END_VAR
+
+VAR CONSTANT
+  C_RTDE_WAIT_TCP : USINT := 0;
+  C_RTDE_WAIT_PROTOCOL : USINT := 10;
+  C_RTDE_WAIT_OUTPUTS : USINT := 20;
+  C_RTDE_WAIT_START : USINT := 30;
+  C_RTDE_STREAMING : USINT := 100;
+
+  C_RTDE_REQUEST_PROTOCOL_VERSION : BYTE := 16#56;
+  C_RTDE_SETUP_OUTPUTS : BYTE := 16#4F;
+  C_RTDE_START : BYTE := 16#53;
+  C_RTDE_DATA_PACKAGE : BYTE := 16#55;
+
+  C_PRIMARY_ROBOT_STATE : BYTE := 16;
+  C_PRIMARY_ROBOT_MODE_DATA : BYTE := 0;
+  C_PRIMARY_CARTESIAN_INFO : BYTE := 4;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[StateMachine();
+      <ST><![CDATA[UpdateCommunication();
+StateMachine();
+ProcessCommand();
+RunSkillStateMachines();
 
+sPiNPl(Rob:=ADR(THIS^));
 
-//Reference to Skills
-PiNPl(Rob:=ADR(THIS^));
-
-//ComConfig
-
-ComConfig.sIPAddress:='127.0.0.1';
-ComConfig.nPort:= 5432;]]></ST>
+]]></ST>
     </Implementation>
     <Folder Name="Communication" Id="{962090cd-82cb-4129-9347-c8ac07fb90f4}" />
     <Folder Name="MotionControl" Id="{9ed28985-c54d-42fa-8d69-76777d28de96}" />
     <Folder Name="StateControl" Id="{da6218f9-6bd6-462f-bf56-7f509f8b869c}" />
     <Action Name="CommCycle" Id="{3a8dcb0f-a76f-4c6d-997f-86e2fbdb852f}">
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[UpdateCommunication();]]></ST>
       </Implementation>
     </Action>
     <Method Name="Connect" Id="{ea0b7a54-6a8f-44d8-8b6a-a3c96ae90503}" FolderPath="Communication\">
@@ -36,7 +95,8 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[_communicationRequested := TRUE;
+    Connect := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="Connected" Id="{37ba7a67-b4ee-42b5-aea8-1f3fba5d5175}" FolderPath="Communication\">
@@ -46,7 +106,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[]]></ST>
+          <ST><![CDATA[Connected := fbTcp.bConnected;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -56,299 +116,443 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[_communicationRequested := FALSE;
+    Disconnect := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="MC_ChangeSpeedOverride" Id="{b4de7407-a668-4de0-9ba6-a503ff62da73}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD MC_ChangeSpeedOverride : INT
-VAR_INPUT
-	factor: REAL;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="MC_MoveAxesRelative" Id="{dc6eaf0b-bda4-4a71-9f22-4f43caa591cf}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD MC_MoveAxesRelative : BOOL
-VAR_INPUT
-	axes	: ARRAY [1..6] OF FB_Axis;
-	offsets	: ARRAY [1..6] OF REAL;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="MC_MoveJ" Id="{e4cbbe25-0003-4a3a-941f-ba8ea400b2d6}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD MC_MoveJ : BOOL
-VAR_INPUT
-	target	: stTarget3D;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[IF _state=eState.Active THEN
-// 	P_TargetReached:=FALSE;
-END_IF]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="MC_MoveL" Id="{fac605cc-f9e9-41e9-8d84-7a37c1c2f07e}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD MC_MoveL : BOOL
-VAR_INPUT
-	target	: stTarget3D;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="MC_ReadActualVelocity" Id="{8fcd44ac-c416-4fa2-be4a-a96c08398ed8}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD MC_ReadActualVelocity : stPose
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="MC_ReadAnalogInput" Id="{f3e9cd2c-1bdb-4b96-8862-1b49b481f6f5}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD MC_ReadAnalogInput : LREAL
-VAR_INPUT
-	input	: INT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="MC_ReadDigitalInput" Id="{fa482187-c1ce-433f-9f9a-2cc320aaca90}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD MC_ReadDigitalInput : BOOL
-VAR_INPUT
-	input	: INT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="MC_SetDigitalOutput" Id="{9228931f-d00e-488b-96fa-facc797720c5}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD MC_SetDigitalOutput : BOOL
-VAR_INPUT
-	output	: INT;
-	value	: BOOL;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="MC_SetOperationMode" Id="{b77d92d3-2c73-432f-b915-482766ea505a}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD MC_SetOperationMode : BOOL
-VAR_INPUT
-	mode	: eMode;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[_mode:=mode;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="onActivate" Id="{dc70c063-7d50-424b-ae24-a3b2e8b82a59}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onActivate : BOOL
+    <Method Name="OnActivate" Id="{dc70c063-7d50-424b-ae24-a3b2e8b82a59}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
 
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
+        <ST><![CDATA[eModus := eMode.Automatic;
+    IF bError THEN
+      OnActivate := eResult.ERROR;
+    ELSIF RobotReady THEN
+      OnActivate := eResult.SUCCESS;
+    ELSE
+      OnActivate := eResult.None;
+    END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCleanup" Id="{c5444503-9fdd-4b71-a65c-fd5cddb6bb43}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eModus := eMode.Manual;
+    _communicationRequested := FALSE;
+    IF NOT fbTcp.bConnected THEN
+      OnCleanup := eResult.SUCCESS;
+    ELSE
+      OnCleanup := eResult.None;
+    END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnConfigure" Id="{89188265-a853-4cc7-b2e5-efc6c3414bec}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eModus := eMode.Manual;
+_communicationRequested := bEnableCommunication;
+
+fbPM.Configure(sPrefix:=Name,sDatabase:=CONCAT('db_',Name));
 
 
-
-// ---- Change ----
-
-// _mode:= eMode.Automatic;
-
-
-
-
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Active;
-ELSIF transitionresult= eResult.FAILURE THEN
-	State:=eState.Inactive;
-ELSIF transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
+IF fbTcp.bError THEN
+  OnConfigure := eResult.ERROR;
+ELSIF CommunicationReady THEN
+  OnConfigure := eResult.SUCCESS;
 ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onActivate is None','');
+  OnConfigure := eResult.None;
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="onCleanup" Id="{c5444503-9fdd-4b71-a65c-fd5cddb6bb43}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onCleanup : BOOL
+    <Method Name="OnDeactivate" Id="{b48ff0b4-7768-470e-ba5f-bd75733f4dc6}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
+        <ST><![CDATA[eModus := eMode.Manual;
+    _communicationRequested := FALSE;
+    IF _commandState = E_RobotCommandState.Executing THEN
+      _commandState := E_RobotCommandState.Aborted;
+    END_IF
+    IF NOT fbTcp.bConnected THEN
+      OnDeactivate := eResult.SUCCESS;
+    ELSE
+      OnDeactivate := eResult.None;
+    END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{40b32895-142b-4a04-aa6c-109bbaa0fa6c}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eModus := eMode.Manual;
+_resetCommunication := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnShutdown" Id="{5ad9cf95-ea02-430b-a003-aed2972e9fe8}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eModus := eMode.Manual;
+    _communicationRequested := FALSE;
+    IF NOT fbTcp.bConnected THEN
+      OnShutdown := eResult.SUCCESS;
+    ELSE
+      OnShutdown := eResult.None;
+    END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PrepareOutputRequest" Id="{2c8514a0-fdf5-42b6-a0a1-5a20654eb416}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE PrepareOutputRequest
+VAR
+  sOutputNames : STRING(80) := 'actual_TCP_pose';
+  nOutputNameLength : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nOutputNameLength := LEN(sOutputNames);
 
+aRtdeTx[0] := 0;
+aRtdeTx[1] := UINT_TO_BYTE(nOutputNameLength + 3);
+aRtdeTx[2] := C_RTDE_SETUP_OUTPUTS;
+MEMCPY(
+  destAddr := ADR(aRtdeTx[3]),
+  srcAddr := ADR(sOutputNames),
+  n := nOutputNameLength
+);
+nRtdeTxSize := nOutputNameLength + 3;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PrepareProtocolRequest" Id="{26ca3ba7-1940-4c76-a828-54092b2e4811}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE PrepareProtocolRequest
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[aRtdeTx[0] := 0;
+aRtdeTx[1] := 5;
+aRtdeTx[2] := C_RTDE_REQUEST_PROTOCOL_VERSION;
+aRtdeTx[3] := 0;
+aRtdeTx[4] := 1;
+nRtdeTxSize := 5;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PrepareStartRequest" Id="{062e85eb-4b11-4249-bfdd-40cfb3f0dabb}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE PrepareStartRequest
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[aRtdeTx[0] := 0;
+aRtdeTx[1] := 3;
+aRtdeTx[2] := C_RTDE_START;
+nRtdeTxSize := 3;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ProcessCommand" Id="{6a7b8c9d-0e1f-4a2b-8c3d-4e5f6a7b8c9d}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD PRIVATE ProcessCommand : BOOL
+    ]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ProcessCommand := TRUE;
 
+    IF bError THEN
+      IF (_commandState <> E_RobotCommandState.Idle)
+         AND (_commandState <> E_RobotCommandState.Done)
+         AND (_commandState <> E_RobotCommandState.Aborted) THEN
+        _commandState := E_RobotCommandState.Error;
+        _commandErrorId := nErrorId;
+      END_IF
+      RETURN;
+    END_IF
 
-// ---- Change ----
+    IF _commandState = E_RobotCommandState.Requested THEN
+      IF NOT CommunicationReady THEN
+        _commandState := E_RobotCommandState.Error;
+        _commandErrorId := 16#E610;
+      ELSE
+        // No verified UR RTDE/URScript command protocol is available yet.
+        // Do not claim that a command was sent.
+        _commandState := E_RobotCommandState.Error;
+        _commandErrorId := 16#E611;
+      END_IF
+    END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ProcessPrimaryReceive" Id="{9dc75a93-105d-4c39-b2e5-f5b4f3e21583}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE ProcessPrimaryReceive
+VAR
+  nOffset : UINT;
+  nFrameLength : UDINT;
+  nIndex : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF fbTcp.bRxNewData THEN
+  IF (UINT_TO_UDINT(nPrimaryRxBytes) + fbTcp.nRxBytes) > UINT_TO_UDINT(SIZEOF(aPrimaryRx)) THEN
+    bPrimaryError := TRUE;
+    nPrimaryErrorId := 16#E632;
+    sPrimaryError := 'Primary receive buffer overflow';
+    nPrimaryRxBytes := 0;
+    RETURN;
+  END_IF
 
-_mode:= eMode.Manual;
+  MEMCPY(
+    destAddr := ADR(aPrimaryRx[nPrimaryRxBytes]),
+    srcAddr := ADR(fbTcp.aRxData),
+    n := fbTcp.nRxBytes
+  );
+  nPrimaryRxBytes := UDINT_TO_UINT(UINT_TO_UDINT(nPrimaryRxBytes) + fbTcp.nRxBytes);
+END_IF
 
+nOffset := 0;
+WHILE (nPrimaryRxBytes - nOffset) >= 5 DO
+  nFrameLength := ReadBigEndianUDInt(nStartIndex := nOffset);
 
+  IF nFrameLength < 5 THEN
+    bPrimaryError := TRUE;
+    nPrimaryErrorId := 16#E633;
+    sPrimaryError := 'Invalid Primary frame length';
+    nPrimaryRxBytes := 0;
+    RETURN;
+  END_IF
 
+  IF nFrameLength > SIZEOF(aPrimaryRx) THEN
+    bPrimaryError := TRUE;
+    nPrimaryErrorId := 16#E634;
+    sPrimaryError := 'Primary frame exceeds buffer';
+    nPrimaryRxBytes := 0;
+    RETURN;
+  END_IF
 
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
+  IF UINT_TO_UDINT(nPrimaryRxBytes - nOffset) < nFrameLength THEN
+    EXIT;
+  END_IF
 
+  IF aPrimaryRx[nOffset + 4] = C_PRIMARY_ROBOT_STATE THEN
+    ProcessPrimaryRobotState(
+      nStartIndex := nOffset,
+      nFrameLength := nFrameLength
+    );
+  END_IF
 
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Unconfigured;
-ELSIF transitionresult= eResult.FAILURE THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is FAILURE ','');
-ELSIF transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is NONE','');
+  nOffset := nOffset + UDINT_TO_UINT(nFrameLength);
+END_WHILE
+
+IF nOffset = nPrimaryRxBytes THEN
+  nPrimaryRxBytes := 0;
+ELSIF nOffset > 0 THEN
+  FOR nIndex := nOffset TO nPrimaryRxBytes - 1 DO
+    aPrimaryRx[nIndex - nOffset] := aPrimaryRx[nIndex];
+  END_FOR
+  nPrimaryRxBytes := nPrimaryRxBytes - nOffset;
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="onConfigure" Id="{89188265-a853-4cc7-b2e5-efc6c3414bec}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onConfigure : BOOL
+    <Method Name="ProcessPrimaryRobotState" Id="{713b9e12-d68e-46a5-94fe-4a0d30a4bc5f}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE ProcessPrimaryRobotState
+VAR_INPUT
+  nStartIndex : UINT;
+  nFrameLength : UDINT;
+END_VAR
+VAR
+  nSubOffset : UINT;
+  nSubLength : UDINT;
+  nFrameEnd : UDINT;
+END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
+        <ST><![CDATA[nSubOffset := nStartIndex + 5;
+nFrameEnd := UINT_TO_UDINT(nStartIndex) + nFrameLength;
 
+WHILE (nSubOffset + 5) <= nFrameEnd DO
+  nSubLength := ReadBigEndianUDInt(nStartIndex := nSubOffset);
 
+  IF (nSubLength < 5) OR ((nSubOffset + nSubLength) > nFrameEnd) THEN
+    bPrimaryError := TRUE;
+    nPrimaryErrorId := 16#E635;
+    sPrimaryError := 'Invalid Primary sub-package';
+    RETURN;
+  END_IF
 
-// ---- Change ----
+  CASE aPrimaryRx[nSubOffset + 4] OF
+    C_PRIMARY_ROBOT_MODE_DATA:
+      IF nSubLength >= 26 THEN
+        xPrimaryRobotConnected := aPrimaryRx[nSubOffset + 13] <> 0;
+        xPrimaryRobotEnabled := aPrimaryRx[nSubOffset + 14] <> 0;
+        xPrimaryRobotPowerOn := aPrimaryRx[nSubOffset + 15] <> 0;
+        xPrimaryEmergencyStopped := aPrimaryRx[nSubOffset + 16] <> 0;
+        xPrimaryProtectiveStopped := aPrimaryRx[nSubOffset + 17] <> 0;
+        xPrimaryProgramRunning := aPrimaryRx[nSubOffset + 18] <> 0;
+      END_IF
 
-_mode:= eMode.Manual;
+    C_PRIMARY_CARTESIAN_INFO:
+      IF nSubLength >= 53 THEN
+        _tcppos.x := ReadBigEndianLReal(nStartIndex := nSubOffset + 5)*1000;
+        _tcppos.y := ReadBigEndianLReal(nStartIndex := nSubOffset + 13)*1000;
+        _tcppos.z := ReadBigEndianLReal(nStartIndex := nSubOffset + 21)*1000;
+        _tcppos.rx := ReadBigEndianLReal(nStartIndex := nSubOffset + 29);
+        _tcppos.ry := ReadBigEndianLReal(nStartIndex := nSubOffset + 37);
+        _tcppos.rz := ReadBigEndianLReal(nStartIndex := nSubOffset + 45);
+      END_IF
+  END_CASE
 
+  nSubOffset := nSubOffset + UDINT_TO_UINT(nSubLength);
+END_WHILE
 
+bPrimaryStateSeen := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ProcessRtdeReceive" Id="{afe956db-ec85-4884-b83f-95345a80b4ae}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE ProcessRtdeReceive
+VAR
+  nOffset : UINT;
+  nFrameLength : UINT;
+  nIndex : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF fbTcp.bRxNewData THEN
+  IF (UINT_TO_UDINT(nRtdeRxBytes) + fbTcp.nRxBytes) > UINT_TO_UDINT(SIZEOF(aRtdeRx)) THEN
+    bRtdeError := TRUE;
+    nRtdeErrorId := 16#E620;
+    sRtdeError := 'RTDE receive buffer overflow';
+    nRtdeRxBytes := 0;
+    RETURN;
+  END_IF
 
+  MEMCPY(
+    destAddr := ADR(aRtdeRx[nRtdeRxBytes]),
+    srcAddr := ADR(fbTcp.aRxData),
+    n := fbTcp.nRxBytes
+  );
+  nRtdeRxBytes := UDINT_TO_UINT(UINT_TO_UDINT(nRtdeRxBytes) + fbTcp.nRxBytes);
+END_IF
 
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
+nOffset := 0;
+WHILE (nRtdeRxBytes - nOffset) >= 3 DO
+  nFrameLength := SHL(BYTE_TO_UINT(aRtdeRx[nOffset]), 8) + BYTE_TO_UINT(aRtdeRx[nOffset + 1]);
 
+  IF nFrameLength < 3 THEN
+    bRtdeError := TRUE;
+    nRtdeErrorId := 16#E621;
+    sRtdeError := 'Invalid RTDE frame length';
+    nRtdeRxBytes := 0;
+    RETURN;
+  END_IF
 
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Inactive;
-ELSIF transitionresult= eResult.FAILURE THEN
-	State:=eState.Unconfigured;
-ELSIF transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onConfigure is None','');
+  IF (nRtdeRxBytes - nOffset) < nFrameLength THEN
+    EXIT;
+  END_IF
+
+  CASE aRtdeRx[nOffset + 2] OF
+    C_RTDE_REQUEST_PROTOCOL_VERSION:
+      IF (nFrameLength = 4) AND (aRtdeRx[nOffset + 3] = 1) THEN
+        bRtdeProtocolAccepted := TRUE;
+      ELSE
+        bRtdeError := TRUE;
+        nRtdeErrorId := 16#E622;
+        sRtdeError := 'RTDE protocol version rejected';
+      END_IF
+
+    C_RTDE_SETUP_OUTPUTS:
+      IF nFrameLength > 3 THEN
+        bRtdeOutputConfigured := TRUE;
+      ELSE
+        bRtdeError := TRUE;
+        nRtdeErrorId := 16#E623;
+        sRtdeError := 'RTDE output recipe rejected';
+      END_IF
+
+    C_RTDE_START:
+      IF (nFrameLength = 4) AND (aRtdeRx[nOffset + 3] = 1) THEN
+        bRtdeStarted := TRUE;
+      ELSE
+        bRtdeError := TRUE;
+        nRtdeErrorId := 16#E624;
+        sRtdeError := 'RTDE start rejected';
+      END_IF
+
+    C_RTDE_DATA_PACKAGE:
+      IF nFrameLength >= 52 THEN
+        _tcppos.x := ReadNetworkLReal(nStartIndex := nOffset + 4)*1000;
+        _tcppos.y := ReadNetworkLReal(nStartIndex := nOffset + 12)*1000;
+        _tcppos.z := ReadNetworkLReal(nStartIndex := nOffset + 20)*1000;
+        _tcppos.rx := ReadNetworkLReal(nStartIndex := nOffset + 28);
+        _tcppos.ry := ReadNetworkLReal(nStartIndex := nOffset + 36);
+        _tcppos.rz := ReadNetworkLReal(nStartIndex := nOffset + 44);
+      END_IF
+  END_CASE
+
+  nOffset := nOffset + nFrameLength;
+END_WHILE
+
+IF nOffset = nRtdeRxBytes THEN
+  nRtdeRxBytes := 0;
+ELSIF nOffset > 0 THEN
+  FOR nIndex := nOffset TO nRtdeRxBytes - 1 DO
+    aRtdeRx[nIndex - nOffset] := aRtdeRx[nIndex];
+  END_FOR
+  nRtdeRxBytes := nRtdeRxBytes - nOffset;
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="onDeactivate" Id="{b48ff0b4-7768-470e-ba5f-bd75733f4dc6}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onDeactivate : BOOL
+    <Method Name="ReadBigEndianLReal" Id="{22c3c9b1-e163-4ebd-9f5c-901f5fcbfeaf}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE ReadBigEndianLReal : LREAL
+VAR_INPUT
+  nStartIndex : UINT;
+END_VAR
+VAR
+  aValueBytes : ARRAY[0..7] OF BYTE;
+  nIndex : UINT;
+END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
+        <ST><![CDATA[// UR doubles arrive MSB first; TwinCAT LREAL memory is little-endian.
+FOR nIndex := 0 TO 7 DO
+  aValueBytes[nIndex] := aPrimaryRx[nStartIndex + 7 - nIndex];
+END_FOR
 
-
-
-// ---- Change ----
-
-_mode:= eMode.Manual;
-
-
-
-
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Inactive;
-ELSIF transitionresult= eResult.FAILURE THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is FAILURE','');
-ELSIF transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is None','');
-END_IF]]></ST>
+MEMCPY(
+  destAddr := ADR(ReadBigEndianLReal),
+  srcAddr := ADR(aValueBytes),
+  n := SIZEOF(ReadBigEndianLReal)
+);]]></ST>
       </Implementation>
     </Method>
-    <Method Name="onError" Id="{40b32895-142b-4a04-aa6c-109bbaa0fa6c}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onError : BOOL
+    <Method Name="ReadBigEndianUDInt" Id="{769a3c7c-c5a6-4577-b797-81545908b483}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE ReadBigEndianUDInt : UDINT
+VAR_INPUT
+  nStartIndex : UINT;
+END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
-
-
-
-// ---- Change ----
-
-_mode:= eMode.Manual;
-
-
-
-
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Unconfigured;
-ELSIF transitionresult= eResult.FAILURE THEN
-	State:=eState.Finalized;
-ELSIF transitionresult= eResult.ERROR THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is Error','');
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is None','');
-END_IF]]></ST>
+        <ST><![CDATA[// UR length fields are network byte order: MSB first.
+ReadBigEndianUDInt :=
+  SHL(BYTE_TO_UDINT(aPrimaryRx[nStartIndex]), 24) +
+  SHL(BYTE_TO_UDINT(aPrimaryRx[nStartIndex + 1]), 16) +
+  SHL(BYTE_TO_UDINT(aPrimaryRx[nStartIndex + 2]), 8) +
+  BYTE_TO_UDINT(aPrimaryRx[nStartIndex + 3]);]]></ST>
       </Implementation>
     </Method>
-    <Method Name="onShutdown" Id="{5ad9cf95-ea02-430b-a003-aed2972e9fe8}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onShutdown : BOOL
+    <Method Name="ReadNetworkLReal" Id="{137a1ad2-5cd1-4438-bb34-efc5870942ca}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE ReadNetworkLReal : LREAL
+VAR_INPUT
+  nStartIndex : UINT;
+END_VAR
+VAR
+  aValueBytes : ARRAY[0..7] OF BYTE;
+  nIndex : UINT;
+END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
+        <ST><![CDATA[FOR nIndex := 0 TO 7 DO
+  aValueBytes[nIndex] := aRtdeRx[nStartIndex + 7 - nIndex];
+END_FOR
 
-
-
-// ---- Change ----
-
-_mode:= eMode.Manual;
-
-
-
-
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Finalized;
-ELSIF transitionresult= eResult.FAILURE THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is FAILURE','');
-ELSIF transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is None','');
-END_IF]]></ST>
+MEMCPY(
+  destAddr := ADR(ReadNetworkLReal),
+  srcAddr := ADR(aValueBytes),
+  n := SIZEOF(ReadNetworkLReal)
+);]]></ST>
       </Implementation>
     </Method>
     <Method Name="ResetConnection" Id="{ab760c43-0912-46a9-8200-3ef0d14f05e9}" FolderPath="Communication\">
@@ -357,7 +561,84 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[_resetCommunication := TRUE;
+    ResetConnection := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetPrimarySession" Id="{899aef5b-5b2f-4853-97d0-cbc527440a1e}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE ResetPrimarySession
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nPrimaryRxBytes := 0;
+bPrimaryStateSeen := FALSE;
+xPrimaryRobotConnected := FALSE;
+xPrimaryRobotEnabled := FALSE;
+xPrimaryRobotPowerOn := FALSE;
+xPrimaryEmergencyStopped := FALSE;
+xPrimaryProtectiveStopped := FALSE;
+xPrimaryProgramRunning := FALSE;
+bPrimaryError := FALSE;
+nPrimaryErrorId := 0;
+sPrimaryError := '';]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetRtdeSession" Id="{b6b8e1e9-eb93-46c9-bec0-437629bc0a43}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE ResetRtdeSession
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nRtdeState := C_RTDE_WAIT_TCP;
+nRtdeTxSize := 0;
+nRtdeRxBytes := 0;
+bRtdeProtocolAccepted := FALSE;
+bRtdeOutputConfigured := FALSE;
+bRtdeStarted := FALSE;
+bRtdeError := FALSE;
+nRtdeErrorId := 0;
+sRtdeError := '';]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="UpdateCommunication" Id="{5f6a7b8c-9d0e-4f1a-8b2c-3d4e5f6a7b8c}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE UpdateCommunication : BOOL
+    ]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fbTcp(
+      bEnable := _communicationRequested,
+      bReset := _resetCommunication,
+      sRemoteHost := sRemoteHost,
+      nRemotePort := nRemotePort,
+      bReceiveEnable := TRUE,
+      bSend := FALSE,
+      pSendData := 0,
+      nSendSize := 0
+    );
+    _resetCommunication := FALSE;
+
+    ProcessPrimaryReceive();
+
+    IF NOT fbTcp.bConnected THEN
+      ResetPrimarySession();
+    END_IF
+
+    CommunicationReady := fbTcp.bConnected AND bPrimaryStateSeen AND NOT bPrimaryError;
+    RobotEnabled := CommunicationReady AND xPrimaryRobotConnected AND xPrimaryRobotEnabled AND xPrimaryRobotPowerOn;
+    RobotReady := RobotEnabled AND NOT xPrimaryEmergencyStopped AND NOT xPrimaryProtectiveStopped;
+    RobotMoving := FALSE;
+    Busy := CommunicationReady AND xPrimaryProgramRunning;
+    bError := fbTcp.bError OR bPrimaryError OR xPrimaryEmergencyStopped OR xPrimaryProtectiveStopped;
+
+    IF fbTcp.bError THEN
+      nErrorId := fbTcp.nErrorId;
+    ELSIF bPrimaryError THEN
+      nErrorId := nPrimaryErrorId;
+    ELSIF xPrimaryEmergencyStopped THEN
+      nErrorId := 16#E630;
+    ELSIF xPrimaryProtectiveStopped THEN
+      nErrorId := 16#E631;
+    ELSE
+      nErrorId := 0;
+    END_IF
+
+    UpdateCommunication := TRUE;]]></ST>
       </Implementation>
     </Method>
   </POU>

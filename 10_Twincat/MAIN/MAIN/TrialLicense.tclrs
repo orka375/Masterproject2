@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <TcLicenseInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2011/11/TcLicenseInfo">
 	<LicenseInfo>
-		<SystemId>{882A43FD-EAE0-E2C0-3553-72FC071C3FA9}</SystemId>
-		<IssueTime>2026-08-17T09:21:00</IssueTime>
-		<ExpireTime>2026-08-25T00:00:00</ExpireTime>
-		<LicenseKey>6f2d817851468cb0cef34dc032da6e75f3f338d3ad4f452983875a10972d6c2f449a34955287210286ac8db6bff2b839f2da53dc3b53b026a2b0308248fa4649cf973ba4c12bdc6fe9e94e8817b121b7ccef07ff1c0abe7eeaae1aa579e7301dbee1b80923e91db54427a653e60a23ff7069113fc925f282630c01ac89f7b2440a1d37df28126410344ce9e51c362bf719bc8523cbd05e886e95c53c78451b86249f68d5afddeda6a54e54b343e6e99a4a7e58c3020adab43618dec3887365c48ac81b3f8ed4d2b45587d792a4db529c2d345c315ca3e77adcfab617531e266588bbe792e403fad0099cb8135a1f764b41db1aebd7e24047364f633e9b86104a</LicenseKey>
+		<SystemId>{BE1216B2-86AA-878A-8A29-78AFF996BF4E}</SystemId>
+		<IssueTime>2026-08-21T11:49:00</IssueTime>
+		<ExpireTime>2026-08-29T00:00:00</ExpireTime>
+		<LicenseKey>50173da8859ebe6e0fa223e91ccc8f5e3b4a5d107bfcd84875543130c467636b034aa3568d98d8cc9f65db1da86b2d425300f8b2b1a5d08f9412ac2badec7465e199bd83015d33fa95a46213e488fd9dfcb72941661fec5262e204eadfcbfa1b95f9e2dcc72e58c8e818465beb31c71872855e73cfccd6cf3a1be58f59d0f492a5309b9beceaba637b87aadfa76a4966d0a2e64be5734b1066af2434aee777a753f89846de32e3f9797bfca519accaceb42c3a36b6d9b2e18af451efb622cf0638f7b5cc518dbf81d431be04c10181bb789dc007e3a9735c17195f29df619db652d97f38e3aca2da28b5ea3787426cfa748e6a1fabf6274731d7b82550523761</LicenseKey>
 		<License>
 			<LicenseId>{4C256767-E6E6-4AF5-BD68-9F7ABAD0C200}</LicenseId>
 			<Name>TC3 ADS</Name>
@@ -28,6 +28,11 @@
 			<LicenseId>{67B4BA05-C1F2-4184-AE5F-4BAB0FFB09E1}</LicenseId>
 			<Name>TC3 OPC UA Pub/Sub</Name>
 			<OrderNo>TF6105</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{3EBB9639-5FF3-42B6-8847-35C70DC013C8}</LicenseId>
+			<Name>TC3 TCP/IP</Name>
+			<OrderNo>TF6310</OrderNo>
 		</License>
 		<License>
 			<LicenseId>{CC0BCBD5-3EA7-D7D4-4C71-A8B125F0DB72}</LicenseId>

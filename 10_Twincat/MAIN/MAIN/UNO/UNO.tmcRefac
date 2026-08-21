@@ -1,20 +1,55 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Refactors>
   <Renames>
-    <RenamedType>
-      <Type guid="de568c3b-e8e2-4fe8-b2d6-5e89933abc51">FB_SKILL</Type>
-      <From>FB_Skill</From>
-      <To>FB_Base_Skill</To>
-    </RenamedType>
-    <RenamedType>
-      <Type guid="2e00d6a1-8d22-4bf8-a533-217a1a8bd953">FB_BASE_ROS2SKILL</Type>
-      <From>FB_ROS2Skill</From>
-      <To>FB_Template_ROS2Skill</To>
-    </RenamedType>
-    <RenamedType>
-      <Type guid="2e00d6a1-8d22-4bf8-a533-217a1a8bd953">FB_ROS2SKILL</Type>
-      <From>FB_ROS2Skill</From>
-      <To>FB_Template_ROS2Skill_V2</To>
-    </RenamedType>
+    <RenamedSymbol>
+      <Type guid="7ce28b50-28f8-4d4c-bb25-1006bf064637">FB_ROB</Type>
+      <From>_communicationReady</From>
+      <To>bCommunicationReady</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="7ce28b50-28f8-4d4c-bb25-1006bf064637">FB_ROB</Type>
+      <From>_ready</From>
+      <To>bReady</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="7ce28b50-28f8-4d4c-bb25-1006bf064637">FB_ROB</Type>
+      <From>_enabled</From>
+      <To>Renabled</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="7ce28b50-28f8-4d4c-bb25-1006bf064637">FB_ROB</Type>
+      <From>_moving</From>
+      <To>bMoving</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="7ce28b50-28f8-4d4c-bb25-1006bf064637">FB_ROB</Type>
+      <From>_busy</From>
+      <To>bBusy</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="7ce28b50-28f8-4d4c-bb25-1006bf064637">FB_ROB</Type>
+      <From>_collision</From>
+      <To>bInCollision</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="7ce28b50-28f8-4d4c-bb25-1006bf064637">FB_ROB</Type>
+      <From>_mode</From>
+      <To>eModus</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="7ce28b50-28f8-4d4c-bb25-1006bf064637">FB_ROB</Type>
+      <From>_speredOverride</From>
+      <To>_speedOverride</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="cf71feff-3eb8-4d62-9de2-ec89e7c3ba43">FB_ROB_AMR</Type>
+      <From>_targetreached</From>
+      <To>bTargetreached</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="21b924b4-0fb6-46ff-9fb7-f679235d19bb">FB_ROB_MANIP</Type>
+      <From>tcpvel</From>
+      <To>_tcpvel</To>
+    </RenamedSymbol>
   </Renames>
 </Refactors>

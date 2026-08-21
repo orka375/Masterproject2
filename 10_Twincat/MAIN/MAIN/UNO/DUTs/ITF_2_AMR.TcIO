@@ -3,8 +3,8 @@
   <Itf Name="ITF_2_AMR" Id="{46d1d572-82fe-4b3c-a5b8-9dc62cbaa12e}">
     <Declaration><![CDATA[INTERFACE ITF_2_AMR EXTENDS ITF_1_Robot 
 ]]></Declaration>
-    <Property Name="ActualAxisPos" Id="{2deb01a8-8603-4d6d-b3b6-5ead78a8c2da}">
-      <Declaration><![CDATA[PROPERTY ActualAxisPos :stJoint2
+    <Property Name="ActualJointPosition" Id="{2deb01a8-8603-4d6d-b3b6-5ead78a8c2da}">
+      <Declaration><![CDATA[PROPERTY ActualJointPosition : stJoint2
 
 ]]></Declaration>
       <Get Name="Get" Id="{0cb3773a-7d8b-456f-a7e6-88106e5b8f49}">
@@ -17,15 +17,15 @@
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
-    <Property Name="ActualTCPPos" Id="{831ceed7-2617-41c1-8c18-8a215c121b7b}">
-      <Declaration><![CDATA[PROPERTY ActualTCPPos :stPose2D
+    <Property Name="ActualTcpPose" Id="{831ceed7-2617-41c1-8c18-8a215c121b7b}">
+      <Declaration><![CDATA[PROPERTY ActualTcpPose : stPose2D
 ]]></Declaration>
       <Get Name="Get" Id="{93f8d1ef-7924-4a2c-a53c-3c6b67f7af41}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
-    <Property Name="ActualTCPVelocity" Id="{978d98cf-314d-4a06-bce6-c7862b54f7da}">
-      <Declaration><![CDATA[PROPERTY ActualTCPVelocity : stPose2D]]></Declaration>
+    <Property Name="ActualTcpVelocity" Id="{978d98cf-314d-4a06-bce6-c7862b54f7da}">
+      <Declaration><![CDATA[PROPERTY ActualTcpVelocity : stPose2D]]></Declaration>
       <Get Name="Get" Id="{118a71d0-5d0a-4d44-82d2-e1740559cd71}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
@@ -42,6 +42,20 @@ END_VAR
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
+    <Method Name="NavigateToGoal" Id="{c2a8df64-60ad-4b7a-9b3f-5b0b6cd5e031}">
+      <Declaration><![CDATA[METHOD NavigateToGoal : BOOL
+  VAR_INPUT
+    goal : STRING;
+  END_VAR
+  ]]></Declaration>
+    </Method>
+    <Method Name="NavigateToPoint" Id="{48f91d39-0773-4800-994b-b41b1d05a064}">
+      <Declaration><![CDATA[METHOD NavigateToPoint : BOOL
+  VAR_INPUT
+    point : stPose2D;
+  END_VAR
+  ]]></Declaration>
+    </Method>
     <Property Name="TargetReached" Id="{884d6d0c-87d7-4a0b-bb70-b2a00f948294}">
       <Declaration><![CDATA[{warning 'Add property implementation'}
 PROPERTY TargetReached : BOOL
@@ -55,5 +69,11 @@ END_VAR
 ]]></Declaration>
       </Set>
     </Property>
+    <Method Name="Undock" Id="{b7f04aa5-1c68-4dc8-b065-6c8dd279892e}">
+      <Declaration><![CDATA[METHOD Undock : BOOL
+  VAR_INPUT
+  END_VAR
+  ]]></Declaration>
+    </Method>
   </Itf>
 </TcPlcObject>

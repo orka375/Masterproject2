@@ -3,7 +3,6 @@
   <Itf Name="ITF_0_BaseComponent" Id="{65885d39-4024-4344-a8ab-374a6ccc4c59}">
     <Declaration><![CDATA[INTERFACE ITF_0_BaseComponent
 ]]></Declaration>
-    <Folder Name="Activities" Id="{5e3aa71c-ec0e-47b3-8f33-f08f0fb99381}" />
     <Folder Name="Transitions" Id="{6560e606-0171-480a-9918-20910c0e5bdf}" />
     <Method Name="Activate" Id="{421c2108-8179-4a12-ba41-35989c996212}" FolderPath="Transitions\">
       <Declaration><![CDATA[METHOD Activate : BOOL
@@ -52,42 +51,6 @@ END_VAR
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
-    <Method Name="onActivate" Id="{db5ccdf9-dda4-4656-8a40-44601294dbda}" FolderPath="Activities\">
-      <Declaration><![CDATA[METHOD onActivate : BOOL
-VAR_INPUT
-END_VAR
-]]></Declaration>
-    </Method>
-    <Method Name="onCleanup" Id="{aeb6ee92-c260-499d-8c85-ecf0511ec7d2}" FolderPath="Activities\">
-      <Declaration><![CDATA[METHOD onCleanup : BOOL
-VAR_INPUT
-END_VAR
-]]></Declaration>
-    </Method>
-    <Method Name="onConfigure" Id="{5400f4d2-21c5-44f4-af11-064140524d3d}" FolderPath="Activities\">
-      <Declaration><![CDATA[METHOD onConfigure : BOOL
-VAR_INPUT
-END_VAR
-]]></Declaration>
-    </Method>
-    <Method Name="onDeactivate" Id="{f1a21cdc-6225-4962-9570-04e28e96710c}" FolderPath="Activities\">
-      <Declaration><![CDATA[METHOD onDeactivate : BOOL
-VAR_INPUT
-END_VAR
-]]></Declaration>
-    </Method>
-    <Method Name="onError" Id="{6370aa46-a510-420e-b2b1-4a92b9216869}" FolderPath="Activities\">
-      <Declaration><![CDATA[METHOD onError : BOOL
-VAR_INPUT
-END_VAR
-]]></Declaration>
-    </Method>
-    <Method Name="onShutdown" Id="{6b29e55c-0bb5-4ed2-8d4c-29a2f4547848}" FolderPath="Activities\">
-      <Declaration><![CDATA[METHOD onShutdown : BOOL
-VAR_INPUT
-END_VAR
-]]></Declaration>
-    </Method>
     <Property Name="Path" Id="{755b1bdf-ea5e-45d8-b845-25d127de2ac2}">
       <Declaration><![CDATA[PROPERTY Path : String]]></Declaration>
       <Get Name="Get" Id="{bdac12b3-22bb-41f6-8039-bf0761521d8e}">

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <Itf Name="ITF_1_Skill" Id="{f4c05153-2d3e-4022-88ce-5221103f1d43}">
-    <Declaration><![CDATA[INTERFACE ITF_1_Skill EXTENDS ITF_0_BaseComponent
+    <Declaration><![CDATA[INTERFACE INTERNAL ITF_1_Skill EXTENDS ITF_0_BaseComponent
 ]]></Declaration>
     <Property Name="Busy" Id="{51aed81e-bfa5-49ca-a544-38e4c63eea80}">
       <Declaration><![CDATA[PROPERTY Busy : BOOL]]></Declaration>
@@ -16,31 +16,31 @@
       </Get>
     </Property>
     <Method Name="Pause" Id="{c803a7d8-124f-43ed-8711-bf61a5121e40}">
-      <Declaration><![CDATA[METHOD Pause : BOOL
+      <Declaration><![CDATA[METHOD INTERNAL Pause : BOOL
 VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
     <Method Name="Restart" Id="{d8486a93-cc8f-4854-a88f-32d43fe5817e}">
-      <Declaration><![CDATA[METHOD Restart : BOOL
+      <Declaration><![CDATA[METHOD INTERNAL Restart : BOOL
 VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
     <Method Name="Resume" Id="{3004afec-1d0b-4787-b759-23c588507fa4}">
-      <Declaration><![CDATA[METHOD Resume : BOOL
+      <Declaration><![CDATA[METHOD INTERNAL Resume : BOOL
 VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
     <Method Name="Start" Id="{a5bff2ad-fde8-4853-845d-6c29ed141111}">
-      <Declaration><![CDATA[METHOD Start : BOOL
+      <Declaration><![CDATA[METHOD INTERNAL Start : BOOL
 VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
     <Method Name="Stop" Id="{747ee5b7-7cb0-4f9d-a367-37335edac648}">
-      <Declaration><![CDATA[METHOD Stop : BOOL
+      <Declaration><![CDATA[METHOD INTERNAL Stop : BOOL
 VAR_INPUT
 END_VAR
 ]]></Declaration>

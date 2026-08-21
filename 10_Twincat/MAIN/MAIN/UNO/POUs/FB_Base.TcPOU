@@ -2,33 +2,38 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_Base" Id="{ccfcc891-ed7a-48a9-bb43-020f08aa1f30}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'reflection'} 
-FUNCTION_BLOCK ABSTRACT FB_Base EXTENDS  FB_SkillHandler  IMPLEMENTS ITF_0_BaseComponent
+FUNCTION_BLOCK ABSTRACT FB_Base  IMPLEMENTS ITF_0_BaseComponent
+
 VAR_INPUT
+	pA_Skills : ARRAY[1..4] OF POINTER TO FB_Skill;
+	bAutoConfigure: BOOL:=TRUE;		//If True, StateMachine trys automatic to reach State "ACTIV" otherwise each transition must be called manually
+	
 END_VAR
+
 VAR_OUTPUT
-END_VAR
-VAR
 	{attribute 'instance-path'} 
     {attribute 'noinit'} 
     sPath : STRING(255); 
 	{attribute 'instance-name'}
 	{attribute 'noinit'} 
 	sInstanceName: STRING;
-	_autoconfigure: BOOL:=TRUE;		//If True, StateMachine trys automatic to reach State "ACTIV" otherwise each transition must be called manually
+	bError: BOOL;
+	nErrorId: UDINT;
+	eStatus: eState :=eState.Unconfigured;
+END_VAR
 	
-	transitionresult: eResult;
-	_state: eState :=eState.Unconfigured;
-	Error: BOOL;
-	ErrorId: UDINT;
-
-	dummy: INT;
+VAR
+	_transitionresult: eResult;
 	_initialized: BOOL;
+	_activSkill: POINTER TO FB_Skill;
+	_finished: BOOL;
 
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[StateMachine();]]></ST>
     </Implementation>
+    <Folder Name="Skill" Id="{850d4606-90d8-4980-b7f3-1269c79d7d36}" />
     <Folder Name="StateControl" Id="{bcaabc90-8311-4d61-b63c-66c13d25292f}" />
     <Method Name="Activate" Id="{8d29e9eb-3e7c-4311-8303-d07f52bcf283}" FolderPath="StateControl\">
       <Declaration><![CDATA[// {warning 'Add method implementation '}
@@ -47,12 +52,43 @@ ELSE
 END_IF]]></ST>
       </Implementation>
     </Method>
+    <Property Name="ActiveSkillFinished" Id="{ef7884ee-b95f-4e2b-99d5-6eec8ef530b0}" FolderPath="Skill\">
+      <Declaration><![CDATA[PROPERTY ActiveSkillFinished : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7a058996-3f7d-427f-b8ca-a105f674216e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActiveSkillFinished := _finished;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ActivSkill" Id="{dfe033c7-9592-4013-80d5-146698809287}" FolderPath="Skill\">
+      <Declaration><![CDATA[PROPERTY ActivSkill : POINTER TO FB_Skill]]></Declaration>
+      <Get Name="Get" Id="{e109dadb-aebc-46d7-8503-83cedc7d4d97}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_activSkill := ActivSkill;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{d2c17d86-3fac-4ba0-9bd8-8387d8b93250}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActivSkill := _activSkill;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Property Name="AutoBoot" Id="{44f3c7f4-dba0-4e5c-9aec-1d95215b519e}">
       <Declaration><![CDATA[PROPERTY AutoBoot : BOOL]]></Declaration>
       <Get Name="Get" Id="{ee124298-bcc7-439c-9105-d90c42f3e44b}">
         <Declaration><![CDATA[]]></Declaration>
         <Implementation>
-          <ST><![CDATA[AutoBoot:=_autoconfigure;
+          <ST><![CDATA[AutoBoot:=bAutoConfigure;
 ]]></ST>
         </Implementation>
       </Get>
@@ -61,7 +97,7 @@ END_IF]]></ST>
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_autoconfigure:=AutoBoot;]]></ST>
+          <ST><![CDATA[bAutoConfigure:=AutoBoot;]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -197,181 +233,58 @@ Name:=sInstanceName;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Method Name="onActivate" Id="{9da44456-9079-48c4-a422-180073049c7f}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onActivate : BOOL
-
+    <Method Name="OnActivate" Id="{24d6886a-9f1d-4c0e-8d8e-f6dd1ec5f0d5}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+VAR_INPUT
+END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
-
-
-
-// ---- Change ----
-
-
-
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Active;
-ELSIF transitionresult= eResult.FAILURE THEN
-	State:=eState.Inactive;
-ELSIF transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onActivate is None','');
-END_IF]]></ST>
+        <ST><![CDATA[OnActivate := eResult.SUCCESS;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="onCleanup" Id="{1cbf57cd-f144-4499-ac40-e58b878ddcfc}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onCleanup : BOOL
+    <Method Name="OnCleanup" Id="{c53ec4e7-ff8a-4f5b-9f71-a4f6d4368c1b}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
+VAR_INPUT
+END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
-
-
-
-// ---- Change ----
-
-
-
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Unconfigured;
-ELSIF transitionresult= eResult.FAILURE THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is FAILURE ','');
-ELSIF transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is NONE','');
-END_IF]]></ST>
+        <ST><![CDATA[OnCleanup := eResult.SUCCESS;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="onConfigure" Id="{c7df3a26-6fc2-40b8-b279-df837148749a}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onConfigure : BOOL
+    <Method Name="OnConfigure" Id="{3309e05d-b0f8-4780-a3c5-9d432f8faea3}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
+VAR_INPUT
+END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
-
-
-
-// ---- Change ----
-
-
-
-
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Inactive;
-ELSIF transitionresult= eResult.FAILURE THEN
-	State:=eState.Unconfigured;
-ELSIF transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onConfigure is None','');
-END_IF]]></ST>
+        <ST><![CDATA[OnConfigure := eResult.SUCCESS;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="onDeactivate" Id="{46dc1863-bc20-4aa6-822e-d746ed6280bd}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onDeactivate : BOOL
+    <Method Name="OnDeactivate" Id="{d4f5f9b3-96c4-4d53-92d3-200d86bcd1c0}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+VAR_INPUT
+END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
-
-
-
-// ---- Change ----
-
-
-
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Inactive;
-ELSIF transitionresult= eResult.FAILURE THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is FAILURE','');
-ELSIF transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is None','');
-END_IF]]></ST>
+        <ST><![CDATA[OnDeactivate := eResult.SUCCESS;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="onError" Id="{c4fcde18-52a6-416e-9375-25c35d4fb566}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onError : BOOL
+    <Method Name="OnError" Id="{9d8c13be-0b23-41d4-93f7-5ea06689f4d4}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+VAR_INPUT
+END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
-
-
-
-// ---- Change ----
-
-
-
-
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Unconfigured;
-ELSIF transitionresult= eResult.FAILURE THEN
-	State:=eState.Finalized;
-ELSIF transitionresult= eResult.ERROR THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is Error','');
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is None','');
-END_IF]]></ST>
+        <ST><![CDATA[OnError := eResult.SUCCESS;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="onShutdown" Id="{05a5db8e-a9c0-4764-9498-22b8037c7c75}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD onShutdown : BOOL
+    <Method Name="OnShutdown" Id="{baf0cda2-305c-4fe2-9dcb-4d0d08ee6a48}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+VAR_INPUT
+END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ---- Init ----
-transitionresult:=eResult.None;
-
-
-
-// ---- Change ----
-
-
-
-// ---- Check ----
-transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF transitionresult= eResult.SUCCESS THEN
-	State:=eState.Finalized;
-ELSIF transitionresult= eResult.FAILURE THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is FAILURE','');
-ELSIF transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is None','');
-END_IF]]></ST>
+        <ST><![CDATA[OnShutdown := eResult.SUCCESS;]]></ST>
       </Implementation>
     </Method>
     <Property Name="Path" Id="{459f7f21-cbfe-4701-91b3-a410fc19512e}">
@@ -406,7 +319,7 @@ PROPERTY State : eState
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[State:=_state;]]></ST>
+          <ST><![CDATA[State:=eStatus;]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{f2b0cb44-bade-4a8a-80d6-a1f37ebc07e9}">
@@ -414,7 +327,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_state:=State;]]></ST>
+          <ST><![CDATA[eStatus:=State;]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -429,36 +342,85 @@ END_VAR
     _initialized := TRUE;
 END_IF
 
+CASE eStatus OF
+    eState.Unconfigured:
+        IF bAutoConfigure THEN
+            Configure();
+        END_IF
 
-CASE _state OF
-	eState.Unconfigured:
-		IF _autoconfigure THEN
-			Configure();
-		END_IF
-	eState.Inactive:		//IDLE
-// 		IF _autoboot THEN
-// 			M_activate();
-// 		END_IF
-	eState.Active:
-		dummy:=1;
-	eState.Finalized:
-		Destroy();
-	
-	
-	//Transitions States
-	eState.Configuring:
-		onConfigure();
-	eState.Activating:
-		onActivate();
-	eState.Deactivating:
-		onDeactivate();
-	eState.ErrorProcessing:
-		onError();
-	eState.CleaningUp:
-		onCleanup();
-	eState.ShuttingDown:
-		onShutdown();
-		
+    eState.Inactive:
+        ;
+
+    eState.Active:
+        ;
+    eState.Finalized:
+        Destroy();
+
+    eState.Configuring:
+        _transitionresult := OnConfigure();
+        CASE _transitionresult OF
+            eResult.SUCCESS:
+                eStatus := eState.Inactive;
+            eResult.FAILURE:
+                eStatus := eState.Unconfigured;
+            eResult.ERROR:
+                eStatus := eState.ErrorProcessing;
+        END_CASE;
+
+    eState.Activating:
+        _transitionresult := OnActivate();
+        CASE _transitionresult OF
+            eResult.SUCCESS:
+                eStatus := eState.Active;
+            eResult.FAILURE:
+                eStatus := eState.Inactive;
+            eResult.ERROR:
+                eStatus := eState.ErrorProcessing;
+        END_CASE;
+
+    eState.Deactivating:
+        _transitionresult := OnDeactivate();
+        CASE _transitionresult OF
+            eResult.SUCCESS:
+                eStatus := eState.Inactive;
+            eResult.FAILURE:
+                eStatus := eState.Inactive;
+            eResult.ERROR:
+                eStatus := eState.ErrorProcessing;
+        END_CASE;
+
+    eState.ErrorProcessing:
+        _transitionresult := OnError();
+        CASE _transitionresult OF
+            eResult.SUCCESS:
+                eStatus := eState.Unconfigured;
+            eResult.FAILURE:
+                eStatus := eState.Finalized;
+            eResult.ERROR:
+                eStatus := eState.ErrorProcessing;
+        END_CASE;
+
+    eState.CleaningUp:
+        _transitionresult := OnCleanup();
+        CASE _transitionresult OF
+            eResult.SUCCESS:
+                eStatus := eState.Unconfigured;
+            eResult.FAILURE:
+                eStatus := eState.Unconfigured;
+            eResult.ERROR:
+                eStatus := eState.ErrorProcessing;
+        END_CASE;
+
+    eState.ShuttingDown:
+        _transitionresult := OnShutdown();
+        CASE _transitionresult OF
+            eResult.SUCCESS:
+                eStatus := eState.Finalized;
+            eResult.FAILURE:
+                eStatus := eState.Finalized;
+            eResult.ERROR:
+                eStatus := eState.ErrorProcessing;
+        END_CASE;
 END_CASE]]></ST>
       </Implementation>
     </Method>

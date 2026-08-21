@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_RobotTool" Id="{8919ae11-395b-4a7e-9180-da647b0d5528}">
+    <Declaration><![CDATA[TYPE ST_RobotTool :
+STRUCT
+    id       : DINT;
+    robot_id : DINT;
+
+    name : STRING(255);
+
+    tcp_x  : LREAL;
+    tcp_y  : LREAL;
+    tcp_z  : LREAL;
+
+    tcp_rx : LREAL;
+    tcp_ry : LREAL;
+    tcp_rz : LREAL;
+
+    weight : LREAL;
+
+    cog_x : LREAL;
+    cog_y : LREAL;
+    cog_z : LREAL;
+END_STRUCT
+END_TYPE
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>
