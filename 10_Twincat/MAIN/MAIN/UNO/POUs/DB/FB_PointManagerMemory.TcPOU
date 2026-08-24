@@ -1,0 +1,411 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_PointManager" Id="{0f9a1081-e1ca-4c00-a682-4db28fb9ed2a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_PointManager
+VAR_OUTPUT
+    bBusy : BOOL;
+    bDone : BOOL;
+    bError : BOOL;
+    eResult : E_PointStoreResult := POINTSTORE_IDLE;
+    nErrorID : UDINT;
+    sLastOperation : STRING(80);
+    bFound : BOOL;
+    xPoint : ST_Point;
+    pPoint : POINTER TO ST_Point;
+END_VAR
+VAR
+    aPoints : ARRAY[1..100] OF ST_Point;
+    nPointCount : UINT;
+    nNextId : DINT := 1;
+    sRobotPrefix : STRING(80);
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[bDone := FALSE;
+bBusy := FALSE;
+
+IF NOT bError THEN
+    eResult := POINTSTORE_IDLE;
+END_IF]]></ST>
+    </Implementation>
+    <Method Name="Configure" Id="{4b1f7eb1-6aef-4d80-a0ba-dd1b9f426f56}">
+      <Declaration><![CDATA[METHOD PUBLIC Configure : BOOL
+VAR_INPUT
+    sPrefix : STRING(80);
+    sDatabase : STRING(255);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Configure := FALSE;
+
+IF sPrefix <> '' THEN
+    sRobotPrefix := sPrefix;
+    bError := FALSE;
+    nErrorID := 0;
+    eResult := POINTSTORE_DONE;
+    bDone := TRUE;
+    sLastOperation := 'Memory point store configured';
+    Configure := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Create2D" Id="{52d904e0-250d-4ef4-a0fa-4ea46da302f8}">
+      <Declaration><![CDATA[METHOD PUBLIC Create2D : BOOL
+VAR_INPUT
+    sName : STRING(80);
+    pose : stPose2D;
+    frameId : UINT;
+END_VAR
+VAR
+    nIndex : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Create2D := FALSE;
+
+IF nPointCount >= 100 THEN
+    bError := TRUE;
+    nErrorID := 16#E801;
+    eResult := POINTSTORE_DATABASE_ERROR;
+    sLastOperation := 'Memory point store full';
+    RETURN;
+END_IF
+
+nPointCount := nPointCount + 1;
+nIndex := nPointCount;
+aPoints[nIndex].id := nNextId;
+nNextId := nNextId + 1;
+aPoints[nIndex].robot_prefix := sRobotPrefix;
+aPoints[nIndex].short_name := PointName(sName := sName, nId := aPoints[nIndex].id);
+aPoints[nIndex].pose_kind := 'POSE_2D';
+aPoints[nIndex].frame_id := UINT_TO_DINT(frameId);
+aPoints[nIndex].x := pose.x;
+aPoints[nIndex].y := pose.y;
+aPoints[nIndex].theta := pose.theta;
+xPoint := aPoints[nIndex];
+pPoint := ADR(xPoint);
+bFound := TRUE;
+bError := FALSE;
+eResult := POINTSTORE_DONE;
+bDone := TRUE;
+sLastOperation := 'Created 2D point';
+Create2D := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Create2DValues" Id="{ddc1e09c-5338-4ca4-96a0-1b670e990315}">
+      <Declaration><![CDATA[METHOD PUBLIC Create2DValues : BOOL
+VAR_INPUT
+    sName : STRING(80);
+    x : LREAL;
+    y : LREAL;
+    theta : LREAL;
+    frameId : UINT;
+END_VAR
+VAR
+    pose : stPose2D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[pose.x := x;
+pose.y := y;
+pose.theta := theta;
+Create2DValues := Create2D(sName := sName, pose := pose, frameId := frameId);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Create3D" Id="{25e6fd63-94ca-40b8-a933-89e5e73a3cc4}">
+      <Declaration><![CDATA[METHOD PUBLIC Create3D : BOOL
+VAR_INPUT
+    sName : STRING(80);
+    pose : stPose3D;
+    frameId : UINT;
+END_VAR
+VAR
+    nIndex : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Create3D := FALSE;
+
+IF nPointCount >= 100 THEN
+    bError := TRUE;
+    nErrorID := 16#E801;
+    eResult := POINTSTORE_DATABASE_ERROR;
+    sLastOperation := 'Memory point store full';
+    RETURN;
+END_IF
+
+nPointCount := nPointCount + 1;
+nIndex := nPointCount;
+aPoints[nIndex].id := nNextId;
+nNextId := nNextId + 1;
+aPoints[nIndex].robot_prefix := sRobotPrefix;
+aPoints[nIndex].short_name := PointName(sName := sName, nId := aPoints[nIndex].id);
+aPoints[nIndex].pose_kind := 'POSE_3D';
+aPoints[nIndex].frame_id := UINT_TO_DINT(frameId);
+aPoints[nIndex].x := pose.x;
+aPoints[nIndex].y := pose.y;
+aPoints[nIndex].z := pose.z;
+aPoints[nIndex].rx := pose.rx;
+aPoints[nIndex].ry := pose.ry;
+aPoints[nIndex].rz := pose.rz;
+xPoint := aPoints[nIndex];
+pPoint := ADR(xPoint);
+bFound := TRUE;
+bError := FALSE;
+eResult := POINTSTORE_DONE;
+bDone := TRUE;
+sLastOperation := 'Created 3D point';
+Create3D := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Create3DValues" Id="{548e1623-b640-4f76-a8e4-d31563f1bb19}">
+      <Declaration><![CDATA[METHOD PUBLIC Create3DValues : BOOL
+VAR_INPUT
+    sName : STRING(80);
+    x : LREAL;
+    y : LREAL;
+    z : LREAL;
+    rx : LREAL;
+    ry : LREAL;
+    rz : LREAL;
+    frameId : UINT;
+END_VAR
+VAR
+    pose : stPose3D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[pose.x := x;
+pose.y := y;
+pose.z := z;
+pose.rx := rx;
+pose.ry := ry;
+pose.rz := rz;
+Create3DValues := Create3D(sName := sName, pose := pose, frameId := frameId);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Delete" Id="{b9bf175a-8f5f-4f04-845a-748134349812}">
+      <Declaration><![CDATA[METHOD PUBLIC Delete : BOOL
+VAR_INPUT
+    sName : STRING(80);
+END_VAR
+VAR
+    nIndex : UINT;
+    nShiftIndex : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Delete := FALSE;
+nIndex := FindIndex(sName := sName);
+
+IF nIndex = 0 THEN
+    bError := TRUE;
+    nErrorID := 16#E802;
+    eResult := POINTSTORE_DATABASE_ERROR;
+    sLastOperation := 'Point not found';
+    RETURN;
+END_IF
+
+FOR nShiftIndex := nIndex TO nPointCount - 1 DO
+    aPoints[nShiftIndex] := aPoints[nShiftIndex + 1];
+END_FOR
+nPointCount := nPointCount - 1;
+bFound := FALSE;
+pPoint := 0;
+bError := FALSE;
+eResult := POINTSTORE_DONE;
+bDone := TRUE;
+sLastOperation := 'Deleted point';
+Delete := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FindIndex" Id="{ad72fd3e-57ea-4b2a-b260-695ec99cfd7d}">
+      <Declaration><![CDATA[METHOD PRIVATE FindIndex : UINT
+VAR_INPUT
+    sName : STRING(80);
+END_VAR
+VAR
+    nIndex : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FindIndex := 0;
+
+FOR nIndex := 1 TO nPointCount DO
+    IF (aPoints[nIndex].robot_prefix = sRobotPrefix) AND (aPoints[nIndex].short_name = sName) THEN
+        FindIndex := nIndex;
+        RETURN;
+    END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Load" Id="{0f9f4e59-e2f1-4493-9ce7-02d86f51f918}">
+      <Declaration><![CDATA[METHOD PUBLIC Load : BOOL
+VAR_INPUT
+    sName : STRING(80);
+END_VAR
+VAR
+    nIndex : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Load := FALSE;
+nIndex := FindIndex(sName := sName);
+bFound := nIndex <> 0;
+
+IF bFound THEN
+    xPoint := aPoints[nIndex];
+    pPoint := ADR(xPoint);
+    bError := FALSE;
+    eResult := POINTSTORE_DONE;
+    bDone := TRUE;
+    sLastOperation := 'Loaded point';
+ELSE
+    pPoint := 0;
+    bError := FALSE;
+    eResult := POINTSTORE_DONE;
+    bDone := TRUE;
+    sLastOperation := 'Point not found';
+END_IF
+Load := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PointName" Id="{b5b5ae96-26ce-41d2-877e-ca29f7e37f86}">
+      <Declaration><![CDATA[METHOD PRIVATE PointName : STRING(80)
+VAR_INPUT
+    sName : STRING(80);
+    nId : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF sName <> '' THEN
+    PointName := sName;
+ELSE
+    PointName := CONCAT('Point_', DINT_TO_STRING(nId));
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Rename" Id="{cf65fd03-8e99-44d3-a32a-56836dd09382}">
+      <Declaration><![CDATA[METHOD PUBLIC Rename : BOOL
+VAR_INPUT
+    sOldName : STRING(80);
+    sNewName : STRING(80);
+END_VAR
+VAR
+    nIndex : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Rename := FALSE;
+nIndex := FindIndex(sName := sOldName);
+
+IF (nIndex = 0) OR (sNewName = '') THEN
+    bError := TRUE;
+    nErrorID := 16#E802;
+    eResult := POINTSTORE_DATABASE_ERROR;
+    sLastOperation := 'Point not found or invalid name';
+    RETURN;
+END_IF
+
+aPoints[nIndex].short_name := sNewName;
+xPoint := aPoints[nIndex];
+pPoint := ADR(xPoint);
+bError := FALSE;
+eResult := POINTSTORE_DONE;
+bDone := TRUE;
+sLastOperation := 'Renamed point';
+Rename := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Retouch2D" Id="{9fa1d4af-358c-40fd-a3df-13813c79bbce}">
+      <Declaration><![CDATA[METHOD PUBLIC Retouch2D : BOOL
+VAR_INPUT
+    sCurrentName : STRING(80);
+    sNewName : STRING(80);
+    pose : stPose2D;
+    frameId : UINT;
+END_VAR
+VAR
+    nIndex : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Retouch2D := FALSE;
+nIndex := FindIndex(sName := sCurrentName);
+
+IF nIndex = 0 THEN
+    bError := TRUE;
+    nErrorID := 16#E802;
+    eResult := POINTSTORE_DATABASE_ERROR;
+    sLastOperation := 'Point not found';
+    RETURN;
+END_IF
+
+IF sNewName <> '' THEN
+    aPoints[nIndex].short_name := sNewName;
+END_IF
+aPoints[nIndex].pose_kind := 'POSE_2D';
+aPoints[nIndex].frame_id := UINT_TO_DINT(frameId);
+aPoints[nIndex].x := pose.x;
+aPoints[nIndex].y := pose.y;
+aPoints[nIndex].z := 0;
+aPoints[nIndex].rx := 0;
+aPoints[nIndex].ry := 0;
+aPoints[nIndex].rz := 0;
+aPoints[nIndex].theta := pose.theta;
+xPoint := aPoints[nIndex];
+pPoint := ADR(xPoint);
+bError := FALSE;
+eResult := POINTSTORE_DONE;
+bDone := TRUE;
+sLastOperation := 'Retouched 2D point';
+Retouch2D := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Retouch3D" Id="{51acb7cb-a7d1-4233-9d76-1df126a0c6ea}">
+      <Declaration><![CDATA[METHOD PUBLIC Retouch3D : BOOL
+VAR_INPUT
+    sCurrentName : STRING(80);
+    sNewName : STRING(80);
+    pose : stPose3D;
+    frameId : UINT;
+END_VAR
+VAR
+    nIndex : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Retouch3D := FALSE;
+nIndex := FindIndex(sName := sCurrentName);
+
+IF nIndex = 0 THEN
+    bError := TRUE;
+    nErrorID := 16#E802;
+    eResult := POINTSTORE_DATABASE_ERROR;
+    sLastOperation := 'Point not found';
+    RETURN;
+END_IF
+
+IF sNewName <> '' THEN
+    aPoints[nIndex].short_name := sNewName;
+END_IF
+aPoints[nIndex].pose_kind := 'POSE_3D';
+aPoints[nIndex].frame_id := UINT_TO_DINT(frameId);
+aPoints[nIndex].x := pose.x;
+aPoints[nIndex].y := pose.y;
+aPoints[nIndex].z := pose.z;
+aPoints[nIndex].rx := pose.rx;
+aPoints[nIndex].ry := pose.ry;
+aPoints[nIndex].rz := pose.rz;
+aPoints[nIndex].theta := 0;
+xPoint := aPoints[nIndex];
+pPoint := ADR(xPoint);
+bError := FALSE;
+eResult := POINTSTORE_DONE;
+bDone := TRUE;
+sLastOperation := 'Retouched 3D point';
+Retouch3D := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

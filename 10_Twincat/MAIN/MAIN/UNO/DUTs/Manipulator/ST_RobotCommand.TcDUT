@@ -9,6 +9,8 @@ STRUCT
     RelativePose : stRelativePose3D;
     Joints : stJoint6;
     SpeedOverride : LREAL;
+    DigitalOutput : UINT;
+    DigitalOutputValue : BOOL;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

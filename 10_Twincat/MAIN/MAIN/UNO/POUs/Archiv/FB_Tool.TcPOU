@@ -6,18 +6,28 @@ VAR_INPUT
 	sOpen: Skill_Greifer_open;
 END_VAR
 VAR_OUTPUT
+	visStatus: stVisStatusTool;
 END_VAR
 VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[StateMachine();
-
-pA_Skills[1]:=ADR(sOpen);
-
-sOpen(pTool:=THIS,pin:=9);]]></ST>
+      <ST><![CDATA[]]></ST>
     </Implementation>
     <Folder Name="StateControl" Id="{53ff33b6-3262-41f7-b537-f1feb7ee1671}" />
+    <Action Name="CYCLIC_TOOL" Id="{dff3f002-2f5f-470a-8757-89415d48f543}">
+      <Implementation>
+        <ST><![CDATA[CYCLIC_BASE();
+
+
+//VISSTATUS
+//TODO
+
+// GO INTO GREIFER.... INSTANCE OF THIS FB //todo
+pA_Skills[1]:=ADR(sOpen);
+sOpen(pTool:=THIS,pin:=9);]]></ST>
+      </Implementation>
+    </Action>
     <Method Name="onActivate" Id="{f08f7dc1-202a-4da9-a3e3-b4c98ccb8fdb}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED onActivate : eResult
 

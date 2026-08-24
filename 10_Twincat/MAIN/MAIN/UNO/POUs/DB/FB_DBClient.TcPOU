@@ -2,6 +2,18 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_DBClient" Id="{03dd5829-1fb0-409d-8c46-5038977b4180}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_DBClient
+VAR_INPUT
+	    sDriver : STRING := 'PostgreSQL Unicode(x64)';
+        sServer : STRING := '192.168.250.102';
+		sDatabaseServerNetID : STRING := '192.168.250.100.1.1';
+        nPort : UINT:= 5432;
+        sDatabase : STRING := 'robotdata';
+        sUser : STRING := 'admin';
+        sPassword : STRING := '1';
+		
+		
+END_VAR
+
 VAR_OUTPUT
     bBusy       : BOOL;
     bDone       : BOOL;
@@ -64,6 +76,7 @@ VAR
     // Latched ODBC configuration
     // ---------------------------------------------------------
     sCfgDriver   : STRING(255);
+    sCfgNetID    : STRING(23);
     sCfgServer   : STRING(255);
     sCfgDatabase : STRING(255);
     nCfgPort     : UDINT;
@@ -110,9 +123,10 @@ E_DBClientState.DBCLIENT_IDLE:
 E_DBClientState.DBCLIENT_ODBC_START:
 
     bBusy := TRUE;
+    ADSLOGSTR(ADSLOG_MSGTYPE_HINT, 'DBClient: create ODBC configuration', '');
 
     fbOdbcAdd(
-        sNetID        := '',
+        sNetID        := sCfgNetID,
 
         eDBType       := eDBType_ODBC_PostgreSQL,
         eDBValueType  := eDBValue_Bytes,
@@ -163,6 +177,7 @@ E_DBClientState.DBCLIENT_ODBC_WAIT:
 
             bBusy := FALSE;
             sLastOperation := 'ODBC configuration failed';
+            ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'DBClient: ODBC configuration failed, error %s', UDINT_TO_STRING(nErrorID));
 
             eState := E_DBClientState.DBCLIENT_IDLE;
 
@@ -170,6 +185,7 @@ E_DBClientState.DBCLIENT_ODBC_WAIT:
 
             // Save dynamically generated database ID
             hDBID := fbOdbcAdd.hDBID;
+            ADSLOGSTR(ADSLOG_MSGTYPE_HINT, 'DBClient: ODBC configuration created, hDBID %s', UDINT_TO_STRING(hDBID));
 
             eState := E_DBClientState.DBCLIENT_ODBC_RESET;
 
@@ -195,6 +211,7 @@ E_DBClientState.DBCLIENT_ODBC_RESET:
 // =============================================================
 E_DBClientState.DBCLIENT_RELOAD_START:
 
+    ADSLOGSTR(ADSLOG_MSGTYPE_HINT, 'DBClient: reload Database Server configuration', '');
     fbReloadConfig(
         sNetID   := '',
         bExecute := TRUE,
@@ -220,6 +237,7 @@ E_DBClientState.DBCLIENT_RELOAD_WAIT:
 
             bBusy := FALSE;
             sLastOperation := 'Database configuration reload failed';
+            ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'DBClient: configuration reload failed, error %s', UDINT_TO_STRING(nErrorID));
 
             eState := E_DBClientState.DBCLIENT_IDLE;
 
@@ -245,6 +263,7 @@ E_DBClientState.DBCLIENT_RELOAD_RESET:
     bDone := TRUE;
 
     sLastOperation := 'ODBC configuration created';
+    ADSLOGSTR(ADSLOG_MSGTYPE_HINT, 'DBClient: Database Server configuration reloaded', '');
 
     eState := E_DBClientState.DBCLIENT_IDLE;
 
@@ -269,6 +288,7 @@ E_DBClientState.DBCLIENT_CONNECT:
             bConnected := FALSE;
 
             sLastOperation := 'SQL Connect failed';
+            ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'DBClient: SQL Connect failed for hDBID %s', UDINT_TO_STRING(hDBID));
 
             eState := E_DBClientState.DBCLIENT_IDLE;
 
@@ -300,6 +320,7 @@ E_DBClientState.DBCLIENT_CREATE_COMMAND:
             bConnected := FALSE;
 
             sLastOperation := 'CreateCmd failed';
+            ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'DBClient: CreateCmd failed', '');
 
             eState := E_DBClientState.DBCLIENT_IDLE;
 
@@ -311,6 +332,7 @@ E_DBClientState.DBCLIENT_CREATE_COMMAND:
             bDone := TRUE;
 
             sLastOperation := 'Connected';
+            ADSLOGSTR(ADSLOG_MSGTYPE_HINT, 'DBClient: SQL connection established', '');
 
             eState := E_DBClientState.DBCLIENT_IDLE;
 
@@ -346,6 +368,7 @@ E_DBClientState.DBCLIENT_EXECUTE:
             bBusy := FALSE;
 
             sLastOperation := 'SQL Execute failed';
+            ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'DBClient: SQL execution failed', '');
 
             eState := E_DBClientState.DBCLIENT_IDLE;
 
@@ -355,6 +378,7 @@ E_DBClientState.DBCLIENT_EXECUTE:
             bDone := TRUE;
 
             sLastOperation := 'SQL Execute completed';
+            ADSLOGSTR(ADSLOG_MSGTYPE_HINT, 'DBClient: SQL execution completed', '');
 
             eState := E_DBClientState.DBCLIENT_IDLE;
 
@@ -384,6 +408,7 @@ E_DBClientState.DBCLIENT_QUERY_EXECUTE:
             bBusy := FALSE;
 
             sLastOperation := 'SQL Query failed';
+            ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'DBClient: SQL query failed', '');
 
             eState := E_DBClientState.DBCLIENT_IDLE;
 
@@ -423,6 +448,7 @@ E_DBClientState.DBCLIENT_QUERY_READ:
             bBusy := FALSE;
 
             sLastOperation := 'SQL Result read failed';
+            ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'DBClient: SQL result read failed', '');
 
             eState := E_DBClientState.DBCLIENT_IDLE;
 
@@ -432,6 +458,7 @@ E_DBClientState.DBCLIENT_QUERY_READ:
             bDone := TRUE;
 
             sLastOperation := 'Query completed';
+            ADSLOGSTR(ADSLOG_MSGTYPE_HINT, 'DBClient: SQL query completed', '');
 
             eState := E_DBClientState.DBCLIENT_IDLE;
 
@@ -455,6 +482,7 @@ E_DBClientState.DBCLIENT_DISCONNECT:
             nErrorID := 0;
 
             sLastOperation := 'Disconnect failed';
+            ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'DBClient: Disconnect failed', '');
 
         ELSE
 
@@ -463,6 +491,7 @@ E_DBClientState.DBCLIENT_DISCONNECT:
             bDone := TRUE;
 
             sLastOperation := 'Disconnected';
+            ADSLOGSTR(ADSLOG_MSGTYPE_HINT, 'DBClient: disconnected', '');
 
         END_IF
 
@@ -479,6 +508,7 @@ END_CASE]]></ST>
       <Declaration><![CDATA[METHOD PUBLIC ConfigurePostgreSQL : BOOL
 VAR_INPUT
     sDriver   : STRING(255);
+    sDatabaseServerNetID : STRING(23);
     sServer   : STRING(255);
     nPort     : UDINT;
 
@@ -504,6 +534,7 @@ AND NOT bConnected THEN
     // Latch the parameters because the actual operation
     // takes multiple PLC cycles.
     sCfgDriver   := sDriver;
+    sCfgNetID    := sDatabaseServerNetID;
     sCfgServer   := sServer;
     nCfgPort     := nPort;
 
@@ -522,6 +553,7 @@ AND NOT bConnected THEN
     bBusy := TRUE;
 
     sLastOperation := 'Configure PostgreSQL';
+    ADSLOGSTR(ADSLOG_MSGTYPE_HINT, 'DBClient.ConfigurePostgreSQL accepted for %s', sCfgDatabase);
 
     eState := DBCLIENT_ODBC_START;
 
@@ -550,6 +582,7 @@ AND (hDBID <> 0) THEN
     bBusy := TRUE;
 
     sLastOperation := 'Connect';
+    ADSLOGSTR(ADSLOG_MSGTYPE_HINT, 'DBClient.Connect accepted, hDBID %s', UDINT_TO_STRING(hDBID));
 
     eState := DBCLIENT_CONNECT;
 
@@ -575,6 +608,7 @@ AND bConnected THEN
     bBusy := TRUE;
 
     sLastOperation := 'Disconnect';
+    ADSLOGSTR(ADSLOG_MSGTYPE_HINT, 'DBClient.Disconnect accepted', '');
 
     eState := DBCLIENT_DISCONNECT;
 
@@ -605,6 +639,7 @@ AND bConnected THEN
     bBusy := TRUE;
 
     sLastOperation := 'Execute';
+    ADSLOGSTR(ADSLOG_MSGTYPE_HINT, 'DBClient.Execute accepted', '');
 
     eState := DBCLIENT_EXECUTE;
 
@@ -657,6 +692,7 @@ AND (nRecordCount > 0) THEN
     bBusy := TRUE;
 
     sLastOperation := 'Query';
+    ADSLOGSTR(ADSLOG_MSGTYPE_HINT, 'DBClient.Query accepted', '');
 
     eState := DBCLIENT_QUERY_EXECUTE;
 
@@ -681,6 +717,7 @@ IF NOT bBusy THEN
     nErrorID := 0;
 
     sLastOperation := '';
+    ADSLOGSTR(ADSLOG_MSGTYPE_HINT, 'DBClient.ResetError accepted', '');
 
     ResetError := TRUE;
 
@@ -707,6 +744,7 @@ AND (nDBID <> 0) THEN
     hDBID := nDBID;
 
     bConfigured := TRUE;
+    ADSLOGSTR(ADSLOG_MSGTYPE_HINT, 'DBClient.UseExistingDbId accepted, hDBID %s', UDINT_TO_STRING(hDBID));
 
     UseExistingDbId := TRUE;
 

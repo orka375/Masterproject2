@@ -1,0 +1,63 @@
+# Deploy this script as the running PolyScope program before enabling FB_UR5.
+# PLC inputs:  int 24=execute ID, 25=command, 26=DO channel, 27=DO value,
+#              doubles 24..29=target, 30=speed, 31=acceleration.
+# PLC outputs: int 24=accepted ID, 25=completed ID, 26=error, 27=executing.
+
+global ur5_rtde_last_execute_id = -1
+
+def ur5_rtde_command_server():
+  while True:
+    execute_id = read_input_integer_register(24)
+
+    if execute_id != ur5_rtde_last_execute_id:
+      command = read_input_integer_register(25)
+      write_output_integer_register(24, execute_id)
+      write_output_integer_register(26, 0)
+      write_output_integer_register(27, 1)
+
+      if command == 1:
+        movej([
+          read_input_float_register(24),
+          read_input_float_register(25),
+          read_input_float_register(26),
+          read_input_float_register(27),
+          read_input_float_register(28),
+          read_input_float_register(29)
+        ], a=read_input_float_register(31), v=read_input_float_register(30))
+
+      elif command == 2:
+        movel(p[
+          read_input_float_register(24),
+          read_input_float_register(25),
+          read_input_float_register(26),
+          read_input_float_register(27),
+          read_input_float_register(28),
+          read_input_float_register(29)
+        ], a=read_input_float_register(31), v=read_input_float_register(30))
+
+      elif command == 3:
+        stopj(a=read_input_float_register(31))
+
+      elif command == 4:
+        set_speed_slider(read_input_float_register(24))
+
+      elif command == 5:
+        set_standard_digital_out(
+          read_input_integer_register(26),
+          read_input_integer_register(27) != 0
+        )
+
+      else:
+        write_output_integer_register(26, 1)
+      end
+
+      write_output_integer_register(27, 0)
+      write_output_integer_register(25, execute_id)
+      ur5_rtde_last_execute_id = execute_id
+    end
+
+    sync()
+  end
+end
+
+ur5_rtde_command_server()

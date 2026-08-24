@@ -9,7 +9,7 @@ VAR_INPUT
 END_VAR
 
 VAR_OUTPUT
-
+	visStatus: stVisStatusManip;
 END_VAR
 VAR
 	_tcppos, _tcpvel : stPose3D;
@@ -25,9 +25,7 @@ END_VAR
 
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[// StateMachine();
-// RunSkillStateMachines();
-// fbPM();]]></ST>
+      <ST><![CDATA[]]></ST>
     </Implementation>
     <Folder Name="MotionControl" Id="{fc8c0aca-629b-4848-a20d-78e9ce6e9fda}" />
     <Folder Name="StateControl" Id="{12a0430c-efeb-4d5c-9e24-8b660ff5f112}" />
@@ -174,6 +172,23 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
+    <Action Name="CYCLIC_MANIP" Id="{c5ea77dd-14da-4015-9108-0744e50afbab}">
+      <Implementation>
+        <ST><![CDATA[CYCLIC_ROB();
+
+visStatus.State:=eStatus;
+visStatus.Mode:=eModus;
+visStatus.isMoving:=RobotMoving;
+visStatus.isReady:=RobotReady;
+visStatus.isConnected:=CommunicationReady;
+// 	isLocked: BOOL;
+// visStatus.isBusy:=;
+visStatus.isInCollision:=Collision;
+visStatus.hasError:=bError;
+visStatus.TCPPosition:=ActualTcpPose;
+]]></ST>
+      </Implementation>
+    </Action>
     <Method Name="Home" Id="{332921a2-9f70-499b-943d-00519405a468}">
       <Declaration><![CDATA[{warning 'Add method implementation '}
 METHOD Home : BOOL
@@ -348,6 +363,22 @@ END_VAR
       <Implementation>
         <ST><![CDATA[_currFrame := frame;
 SetFrame := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetDO" Id="{1b1484e8-2eba-4b5a-9bc9-3e9f0cf73af2}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD SetDO : BOOL
+VAR_INPUT
+    nOutput : UINT;
+    bValue : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SetDO := RequestCommand(eCommand := E_RobotCommand.SetDigitalOutput);
+
+IF SetDO THEN
+    _command.DigitalOutput := nOutput;
+    _command.DigitalOutputValue := bValue;
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="SetSpeedOverride" Id="{d7e8f9a0-b1c2-4d3e-8f4a-5b6c7d8e9f0a}" FolderPath="MotionControl\">

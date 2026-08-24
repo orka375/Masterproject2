@@ -19,7 +19,18 @@ END_VAR
       <Declaration><![CDATA[METHOD PROTECTED onActivate : eResult
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[onActivate := eResult.SUCCESS;]]></ST>
+        <ST><![CDATA[//set digital output
+
+
+
+
+ADSLOGSTR(ADSLOG_MSGTYPE_HINT, 'Skill Greifer open activated successfull', '');
+//check
+// if open then
+deactivate();
+
+
+onActivate := eResult.SUCCESS;]]></ST>
       </Implementation>
     </Method>
     <Method Name="onCleanup" Id="{d4b5b5f4-4752-480e-9c80-7c06e51f9911}">

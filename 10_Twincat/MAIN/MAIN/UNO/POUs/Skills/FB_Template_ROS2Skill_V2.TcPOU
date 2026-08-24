@@ -31,11 +31,11 @@ PROPERTY Busy : BOOL
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[IF FB_Base.eStatus=eState.Active THEN
+          <ST><![CDATA[// IF FB_Base.eStatus=eState.Active THEN
 	Busy:=TRUE;
-ELSE
-	Busy:=FALSE;
-END_IF]]></ST>
+// ELSE
+// 	Busy:=FALSE;
+// END_IF]]></ST>
         </Implementation>
       </Get>
     </Property>

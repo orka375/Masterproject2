@@ -20,6 +20,9 @@ VAR_OUTPUT
 	bError: BOOL;
 	xCurrentMessage: MessageDescription;
 	eStatus: eState :=eState.Unconfigured;
+
+	{attribute 'OPC.UA.DA' := '1'}
+	MyHeartBeat: BOOL;
 END_VAR
 	
 VAR
@@ -27,14 +30,14 @@ VAR
 	_initialized: BOOL;
 	_activSkill: POINTER TO FB_Skill;
 	_finished: BOOL;
+		
+	tonBlink: TON;
+	blinkToggle: BOOL;
 
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[StateMachine();
-fbMessenger(bErrorActiv => bError);
-xCurrentMessage:=fbMessenger.currentMsg^;
-]]></ST>
+      <ST><![CDATA[]]></ST>
     </Implementation>
     <Folder Name="Error" Id="{aec3c44c-e508-420a-a8f0-d9172161c829}" />
     <Folder Name="Skill" Id="{850d4606-90d8-4980-b7f3-1269c79d7d36}" />
@@ -137,6 +140,14 @@ ELSE
 END_IF]]></ST>
       </Implementation>
     </Method>
+    <Action Name="CYCLIC_BASE" Id="{77b136d9-dc44-439e-b8b2-7b3315db320c}">
+      <Implementation>
+        <ST><![CDATA[StateMachine();
+fbMessenger(bErrorActiv => bError);
+xCurrentMessage:=fbMessenger.currentMsg^;
+MyHeartBeat:=HeartBeat();]]></ST>
+      </Implementation>
+    </Action>
     <Method Name="Deactivate" Id="{4dfdb93c-87ba-4697-9eee-0c2811499a1b}" FolderPath="StateControl\">
       <Declaration><![CDATA[{warning 'Add method implementation '}
 METHOD Deactivate : BOOL
@@ -199,6 +210,34 @@ FOR i := nLen TO 1 BY -1 DO
         RETURN;
     END_IF
 END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HeartBeat" Id="{fe4341a9-3799-4b03-9aac-3a4efb429415}">
+      <Declaration><![CDATA[METHOD HeartBeat : BOOL
+VAR_INPUT
+END_VAR
+
+VAR
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[tonBlink(IN := TRUE, PT := T#1S);
+
+// When timer is done, toggle the bit and reset the timer
+IF tonBlink.Q THEN
+    blinkToggle := NOT blinkToggle; // Flip TRUE ↔ FALSE
+    tonBlink(IN := FALSE);          // Stop timer to reset it
+ELSE
+    tonBlink(IN := TRUE);           // Keep running timer
+END_IF
+
+
+IF blinkToggle THEN
+	HeartBeat:=TRUE;
+ELSE
+	HeartBeat:=FALSE;
+END_IF
+]]></ST>
       </Implementation>
     </Method>
     <Property Name="ID" Id="{56e403f3-8552-4f82-8f86-af916d784dec}">

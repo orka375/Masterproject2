@@ -1,12 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <GVL Name="OPCUA" Id="{817fe7bd-fd4a-490a-a2c0-af3e328eba30}">
-    <Declaration><![CDATA[{attribute 'qualified_only'}
+    <Declaration><![CDATA[
 VAR_GLOBAL
 
-	UR5: FB_UR5;
-	LD90: FB_OmronLD90;
-	Meca500: FB_Meca500;
+
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>

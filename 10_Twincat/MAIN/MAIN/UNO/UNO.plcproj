@@ -183,6 +183,15 @@
     <Compile Include="DUTs\StateMachine\eSupervisoryTransitions.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\Visu\stVisStatusTool.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Visu\stVisStatusManip.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Visu\stVisStatusAMR.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="GVLs\GVL.TcGVL">
       <SubType>Code</SubType>
       <LinkAlways>true</LinkAlways>
@@ -199,13 +208,13 @@
     <Compile Include="POUs\Archiv\FB_Tool.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\DB\DATABASE.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="POUs\DB\FB_DBClient.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\DB\FB_PointManager.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\DB\FB_PointManagerMemory.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\FB_Base.TcPOU">
@@ -220,7 +229,7 @@
     <Compile Include="POUs\Helpers\FB_TcpIpClient.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\MAIN.TcPOU">
+    <Compile Include="POUs\MAINLY.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Process.TcPOU">
@@ -242,6 +251,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Robots\FB_UR5.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Robots\FB_UR5MotionDemo.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Skills\FB_Template_ROS2Skill_V2.TcPOU">
@@ -278,6 +290,7 @@
     <Folder Include="DUTs\DB" />
     <Folder Include="DUTs\Error" />
     <Folder Include="DUTs\Manipulator" />
+    <Folder Include="DUTs\Visu" />
     <Folder Include="DUTs\Skill" />
     <Folder Include="DUTs\Skill\ROS2Skills" />
     <Folder Include="DUTs\StateMachine" />

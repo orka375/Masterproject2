@@ -3,6 +3,9 @@
   <POU Name="FB_OmronLD90" Id="{fac74160-c2b3-4f77-bd69-eddf1970c653}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_OmronLD90 EXTENDS FB_ROB_AMR IMPLEMENTS ITF_CommunicationModul
 VAR_INPUT
+	
+
+
 	sLoadDeliverReturn: Skill_LoadDeliverReturn;
 	sEyes: Skill_ROS2_Eyes;
 	ComConfig: ST_CommunicationConfig;
@@ -28,12 +31,12 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[ComMachine();
-    StateMachine();
+      <ST><![CDATA[CYCLIC_AMR();
+
+ComMachine();
 
 //-------- SKILL SETUP ---------
 
-RunSkillStateMachines(); //Method in FB_ROB
 
 pA_Skills[1]:=ADR(sLoadDeliverReturn);
 pA_Skills[2]:=ADR(sEyes);
@@ -179,7 +182,7 @@ END_VAR
                 fbSocketConnect.nErrId;
 
             nErrorId :=
-                fbSocketConnect.nErrId;
+                TO_UINT(fbSocketConnect.nErrId);
 
 //             hSocket := 0;
 
@@ -281,7 +284,7 @@ END_VAR
                 fbSocketClose.nErrId;
 
             nErrorId :=
-                fbSocketClose.nErrId;
+                TO_UINT(fbSocketClose.nErrId);
 
             // The socket should no longer be used
 //             hSocket := 0;

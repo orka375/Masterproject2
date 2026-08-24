@@ -4,7 +4,7 @@
     <Declaration><![CDATA[FUNCTION_BLOCK FB_Meca500 EXTENDS FB_ROB_MANIP
 
 VAR_INPUT
-
+	
     // ----------------------------------------------------------------
     // EtherCAT connection / configuration
     // ----------------------------------------------------------------
@@ -214,9 +214,7 @@ VAR CONSTANT
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[StateMachine();          // inherited from FB_ROB
-RunSkillStateMachines(); // inherited from FB_ROB
-fbPM();						// inherited from FB_ROB
+      <ST><![CDATA[CYCLIC_MANIP();
 
 ComMachine();            // overridden here for EtherCAT
 ProcessCommand();        // Meca500 command adapter
@@ -268,7 +266,7 @@ _inCollision := xInCollisionStatus;
 bError := (_robotErrorCode <> 0) OR _localError;
 
 IF _robotErrorCode <> 0 THEN
-    nErrorId := UINT_TO_UDINT(_robotErrorCode);
+    nErrorId := _robotErrorCode;
 ELSIF _localError THEN
     // Keep the local adapter error ID until ResetConnection/onError clears it.
 ELSE
@@ -295,7 +293,7 @@ CASE eConnectionState OF
         IF NOT _ecatRequested THEN
             eConnectionState := eCommunicationState.DISCONNECTED;
 
-        ELSIF FB_Meca500.bCommunicationReady THEN
+        ELSIF bCommunicationReady THEN
             // Required safe initial state for the cyclic API.
             _cmdPending := FALSE;
             _pendingMoveID := 0;
@@ -315,9 +313,9 @@ CASE eConnectionState OF
         END_IF
 
     eCommunicationState.CONNECTED:
-        _Connected := _ecatRequested AND FB_Meca500.bCommunicationReady;
+        _Connected := _ecatRequested AND bCommunicationReady;
 
-        IF NOT _ecatRequested OR NOT FB_Meca500.bCommunicationReady THEN
+        IF NOT _ecatRequested OR NOT bCommunicationReady THEN
             M_ClearEcatOutputs();
             _Connected := FALSE;
             _sessionInitialized := FALSE;
@@ -944,7 +942,7 @@ _transitionresult := eResult.None;
 // ---- Change ----
 eModus := eMode.Manual;
 Connect();
-fbPM.Configure(sPrefix:=Name,sDatabase:=CONCAT('db_',Name));
+PM.Configure(sPrefix:=Name,sDatabase:=CONCAT('db_',Name));
 
 // ---- Check ----
 IF bError OR (_robotErrorCode <> 0) THEN

@@ -16,7 +16,8 @@ TYPE E_RobotCommand :
     Pause := 7,
     Resume := 8,
     SetSpeedOverride := 9,
-    MoveLinearRelative := 10
+    MoveLinearRelative := 10,
+    SetDigitalOutput := 11
 );
 END_TYPE
 ]]></Declaration>

@@ -199,7 +199,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[GetLatestError := MList[manz];]]></ST>
+        <ST><![CDATA[GetLatestMessage := ADR(MList[manz]);]]></ST>
       </Implementation>
     </Method>
     <Action Name="NextMsg" Id="{b95c2674-49f7-4d97-9f4a-d84c08ec2b90}">

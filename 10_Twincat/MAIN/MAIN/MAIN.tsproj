@@ -1,11 +1,13 @@
 <?xml version="1.0"?>
 <TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.24">
-	<Project ProjectGUID="{8E9AD0AE-6A12-49D4-A76A-743CB52FDE6D}" TargetNetId="10.201.178.144.1.1" Target64Bit="true" ShowHideConfigurations="#x6">
+	<Project ProjectGUID="{8E9AD0AE-6A12-49D4-A76A-743CB52FDE6D}" TargetNetId="192.168.250.100.1.1" Target64Bit="true" ShowHideConfigurations="#x6">
 		<System>
+			<Settings MaxCpus="2" NonWinCpus="1"/>
 			<Licenses>
 				<Target>
 					<ManualSelect>{67B4BA05-C1F2-4184-AE5F-4BAB0FFB09E1}</ManualSelect>
 					<ManualSelect>{3EBB9639-5FF3-42B6-8847-35C70DC013C8}</ManualSelect>
+					<ManualSelect>{92583661-35AE-45CE-BD4F-C35BFE16F07E}</ManualSelect>
 					<ManualSelect>{BDCC0070-42D5-49AE-ABF1-1D4434813D60}</ManualSelect>
 				</Target>
 			</Licenses>
@@ -26,7 +28,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{716B9777-1FC1-491F-A0F1-C1283CD11C7D}" Name="UNO" PrjFilePath="UNO\UNO.plcproj" TmcFilePath="UNO\UNO.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{F758FB02-4A43-301C-8EEF-7271967B891F}" TmcPath="UNO\UNO.tmc">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{C963BA24-EA54-ECA2-24D5-6AE4E4239EAC}" TmcPath="UNO\UNO.tmc">
 					<Name>UNO Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Contexts>

@@ -9,13 +9,15 @@ END_VAR
   
 
 VAR_INPUT
-    sRemoteHost          : T_IPv4Addr := '192.168.250.7';
+    sRobotIp          : T_IPv4Addr := '192.168.250.7';
     nRemotePort          : UDINT := 30001;
+  nRtdeRemotePort      : UDINT := 30004;
   END_VAR
   
   
 VAR_OUTPUT
 	fbTcp               : FB_TcpIpClient;
+  fbRtde              : FB_TcpIpClient;
 END_VAR
 
 VAR
@@ -26,7 +28,7 @@ END_VAR
 
 // -------- RTDE --------------------
 VAR		//RTDE		
-	aRtdeTx : ARRAY[0..255] OF BYTE;
+  aRtdeTx : ARRAY[0..2047] OF BYTE;
 	nRtdeTxSize : UDINT;
 	bRtdeSend : BOOL;
 	
@@ -35,10 +37,17 @@ VAR		//RTDE
 	nRtdeState : USINT := 0;
 	bRtdeProtocolAccepted : BOOL;
 	bRtdeOutputConfigured : BOOL;
+  bRtdeInputConfigured : BOOL;
 	bRtdeStarted : BOOL;
 	bRtdeError : BOOL;
 	nRtdeErrorId : UDINT;
 	sRtdeError : STRING(80);
+  nRtdeOutputRecipeId : BYTE;
+  nRtdeInputRecipeId : BYTE;
+  nRtdeAcceptedId : UDINT;
+  nRtdeCompletedId : UDINT;
+  nRtdeCommandError : UDINT;
+  xRtdeCommandExecuting : BOOL;
 	
 	aPrimaryRx : ARRAY[0..4095] OF BYTE;
 	nPrimaryRxBytes : UINT;
@@ -63,8 +72,15 @@ VAR CONSTANT
 
   C_RTDE_REQUEST_PROTOCOL_VERSION : BYTE := 16#56;
   C_RTDE_SETUP_OUTPUTS : BYTE := 16#4F;
+	C_RTDE_SETUP_INPUTS : BYTE := 16#49;
   C_RTDE_START : BYTE := 16#53;
   C_RTDE_DATA_PACKAGE : BYTE := 16#55;
+
+  C_UR_COMMAND_MOVEJ : UDINT := 1;
+  C_UR_COMMAND_MOVEL : UDINT := 2;
+  C_UR_COMMAND_STOP : UDINT := 3;
+  C_UR_COMMAND_SPEED_OVERRIDE : UDINT := 4;
+  C_UR_COMMAND_SET_DO : UDINT := 5;
 
   C_PRIMARY_ROBOT_STATE : BYTE := 16;
   C_PRIMARY_ROBOT_MODE_DATA : BYTE := 0;
@@ -72,10 +88,11 @@ VAR CONSTANT
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[UpdateCommunication();
-StateMachine();
+      <ST><![CDATA[CYCLIC_MANIP();
+
+UpdateCommunication();
 ProcessCommand();
-RunSkillStateMachines();
+
 
 sPiNPl(Rob:=ADR(THIS^));
 
@@ -155,12 +172,14 @@ END_VAR
         <ST><![CDATA[eModus := eMode.Manual;
 _communicationRequested := bEnableCommunication;
 
-fbPM.Configure(sPrefix:=Name,sDatabase:=CONCAT('db_',Name));
-
-
-IF fbTcp.bError THEN
+IF PM.bError THEN
   OnConfigure := eResult.ERROR;
-ELSIF CommunicationReady THEN
+ELSIF NOT PM.bBusy AND NOT PM.DB.bConnected THEN
+  PM.Configure(sPrefix := Name, sDatabase := 'robotdata');
+  OnConfigure := eResult.None;
+ELSIF fbTcp.bError THEN
+  OnConfigure := eResult.ERROR;
+ELSIF CommunicationReady AND PM.DB.bConnected THEN
   OnConfigure := eResult.SUCCESS;
 ELSE
   OnConfigure := eResult.None;
@@ -208,7 +227,7 @@ _resetCommunication := TRUE;
     <Method Name="PrepareOutputRequest" Id="{2c8514a0-fdf5-42b6-a0a1-5a20654eb416}" FolderPath="Communication\">
       <Declaration><![CDATA[METHOD PRIVATE PrepareOutputRequest
 VAR
-  sOutputNames : STRING(80) := 'actual_TCP_pose';
+  sOutputNames : STRING(255) := 'actual_TCP_pose,actual_q,output_int_register_24,output_int_register_25,output_int_register_26,output_int_register_27';
   nOutputNameLength : UINT;
 END_VAR
 ]]></Declaration>
@@ -248,6 +267,100 @@ aRtdeTx[2] := C_RTDE_START;
 nRtdeTxSize := 3;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="PrepareInputRequest" Id="{ab4e7b30-bc35-43e3-bcc7-4835698bb97e}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE PrepareInputRequest
+VAR
+  sInputNames : STRING(400) := 'input_int_register_24,input_int_register_25,input_int_register_26,input_int_register_27,input_int_register_28,input_double_register_24,input_double_register_25,input_double_register_26,input_double_register_27,input_double_register_28,input_double_register_29,input_double_register_30,input_double_register_31';
+  nInputNameLength : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nInputNameLength := LEN(sInputNames);
+        aRtdeTx[0] := UINT_TO_BYTE(SHR(nInputNameLength + 3, 8));
+        aRtdeTx[1] := UINT_TO_BYTE(nInputNameLength + 3);
+aRtdeTx[2] := C_RTDE_SETUP_INPUTS;
+MEMCPY(destAddr := ADR(aRtdeTx[3]), srcAddr := ADR(sInputNames), n := nInputNameLength);
+nRtdeTxSize := nInputNameLength + 3;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PrepareCommandRequest" Id="{ded5200c-8888-4354-82ef-d23c81a7578d}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD PRIVATE PrepareCommandRequest : BOOL
+VAR
+  nUrCommand : UDINT;
+  lrTarget0, lrTarget1, lrTarget2, lrTarget3, lrTarget4, lrTarget5 : LREAL;
+  lrSpeed : LREAL := 0.25;
+  lrAcceleration : LREAL := 1.2;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[PrepareCommandRequest := FALSE;
+nUrCommand := 0;
+
+CASE _command.Command OF
+  E_RobotCommand.MoveJoints:
+    nUrCommand := C_UR_COMMAND_MOVEJ;
+    lrTarget0 := _command.Joints.joint1;
+    lrTarget1 := _command.Joints.joint2;
+    lrTarget2 := _command.Joints.joint3;
+    lrTarget3 := _command.Joints.joint4;
+    lrTarget4 := _command.Joints.joint5;
+    lrTarget5 := _command.Joints.joint6;
+
+  E_RobotCommand.MoveLinear:
+    nUrCommand := C_UR_COMMAND_MOVEL;
+    lrTarget0 := _command.Pose.x / 1000.0;
+    lrTarget1 := _command.Pose.y / 1000.0;
+    lrTarget2 := _command.Pose.z / 1000.0;
+    lrTarget3 := _command.Pose.rx;
+    lrTarget4 := _command.Pose.ry;
+    lrTarget5 := _command.Pose.rz;
+
+  E_RobotCommand.Stop:
+    nUrCommand := C_UR_COMMAND_STOP;
+    lrAcceleration := 2.0;
+
+  E_RobotCommand.SetSpeedOverride:
+    nUrCommand := C_UR_COMMAND_SPEED_OVERRIDE;
+    lrTarget0 := _command.SpeedOverride / 100.0;
+
+  E_RobotCommand.SetDigitalOutput:
+    IF _command.DigitalOutput > 7 THEN
+      _commandErrorId := 16#E612;
+      RETURN;
+    END_IF
+    nUrCommand := C_UR_COMMAND_SET_DO;
+
+  ELSE
+    _commandErrorId := 16#E613;
+    RETURN;
+END_CASE
+
+// RTDE input data: recipe ID, five INT32 registers, and eight DOUBLE registers.
+aRtdeTx[0] := 0;
+aRtdeTx[1] := 88;
+aRtdeTx[2] := C_RTDE_DATA_PACKAGE;
+aRtdeTx[3] := nRtdeInputRecipeId;
+WriteNetworkUDInt(nStartIndex := 4, nValue := _command.ExecuteId);
+WriteNetworkUDInt(nStartIndex := 8, nValue := nUrCommand);
+WriteNetworkUDInt(nStartIndex := 12, nValue := UINT_TO_UDINT(_command.DigitalOutput));
+IF _command.DigitalOutputValue THEN
+  WriteNetworkUDInt(nStartIndex := 16, nValue := 1);
+ELSE
+  WriteNetworkUDInt(nStartIndex := 16, nValue := 0);
+END_IF
+WriteNetworkUDInt(nStartIndex := 20, nValue := 0);
+WriteNetworkLReal(nStartIndex := 24, lrValue := lrTarget0);
+WriteNetworkLReal(nStartIndex := 32, lrValue := lrTarget1);
+WriteNetworkLReal(nStartIndex := 40, lrValue := lrTarget2);
+WriteNetworkLReal(nStartIndex := 48, lrValue := lrTarget3);
+WriteNetworkLReal(nStartIndex := 56, lrValue := lrTarget4);
+WriteNetworkLReal(nStartIndex := 64, lrValue := lrTarget5);
+WriteNetworkLReal(nStartIndex := 72, lrValue := lrSpeed);
+WriteNetworkLReal(nStartIndex := 80, lrValue := lrAcceleration);
+nRtdeTxSize := 88;
+PrepareCommandRequest := TRUE;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="ProcessCommand" Id="{6a7b8c9d-0e1f-4a2b-8c3d-4e5f6a7b8c9d}" FolderPath="MotionControl\">
       <Declaration><![CDATA[METHOD PRIVATE ProcessCommand : BOOL
     ]]></Declaration>
@@ -264,17 +377,70 @@ nRtdeTxSize := 3;]]></ST>
       RETURN;
     END_IF
 
-    IF _commandState = E_RobotCommandState.Requested THEN
-      IF NOT CommunicationReady THEN
-        _commandState := E_RobotCommandState.Error;
-        _commandErrorId := 16#E610;
-      ELSE
-        // No verified UR RTDE/URScript command protocol is available yet.
-        // Do not claim that a command was sent.
-        _commandState := E_RobotCommandState.Error;
-        _commandErrorId := 16#E611;
-      END_IF
-    END_IF]]></ST>
+    CASE _commandState OF
+      E_RobotCommandState.Requested:
+        IF NOT CommunicationReady OR NOT bRtdeStarted THEN
+          _commandState := E_RobotCommandState.Error;
+          _commandErrorId := 16#E610;
+        ELSIF PrepareCommandRequest() THEN
+          bRtdeSend := TRUE;
+          _commandState := E_RobotCommandState.Sending;
+        ELSE
+          _commandState := E_RobotCommandState.Error;
+        END_IF
+
+      E_RobotCommandState.Sending:
+        IF (nRtdeAcceptedId = _command.ExecuteId) AND (nRtdeCommandError <> 0) THEN
+          _commandState := E_RobotCommandState.Error;
+          _commandErrorId := nRtdeCommandError;
+        ELSIF nRtdeAcceptedId = _command.ExecuteId THEN
+          _commandState := E_RobotCommandState.Accepted;
+        END_IF
+
+      E_RobotCommandState.Accepted:
+        IF (nRtdeAcceptedId = _command.ExecuteId) AND (nRtdeCommandError <> 0) THEN
+          _commandState := E_RobotCommandState.Error;
+          _commandErrorId := nRtdeCommandError;
+        ELSIF xRtdeCommandExecuting THEN
+          _commandState := E_RobotCommandState.Executing;
+        ELSIF nRtdeCompletedId = _command.ExecuteId THEN
+          _commandState := E_RobotCommandState.Done;
+        END_IF
+
+      E_RobotCommandState.Executing:
+        IF (nRtdeAcceptedId = _command.ExecuteId) AND (nRtdeCommandError <> 0) THEN
+          _commandState := E_RobotCommandState.Error;
+          _commandErrorId := nRtdeCommandError;
+        ELSIF nRtdeCompletedId = _command.ExecuteId THEN
+          _commandState := E_RobotCommandState.Done;
+        END_IF
+    END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveJ" Id="{694a8774-0129-48e9-92c5-2b30ecad11e2}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD MoveJ : BOOL
+VAR_INPUT
+  joints : stJoint6;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MoveJ := RequestCommand(eCommand := E_RobotCommand.MoveJoints);
+IF MoveJ THEN
+  _command.Joints := joints;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveL" Id="{ff52d036-40c2-4fc5-a715-0301f0173778}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD MoveL : BOOL
+VAR_INPUT
+  target : stTarget3D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MoveL := RequestCommand(eCommand := E_RobotCommand.MoveLinear);
+IF MoveL THEN
+  _command.Pose := target.pose;
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="ProcessPrimaryReceive" Id="{9dc75a93-105d-4c39-b2e5-f5b4f3e21583}" FolderPath="Communication\">
@@ -410,8 +576,8 @@ VAR
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF fbTcp.bRxNewData THEN
-  IF (UINT_TO_UDINT(nRtdeRxBytes) + fbTcp.nRxBytes) > UINT_TO_UDINT(SIZEOF(aRtdeRx)) THEN
+          <ST><![CDATA[IF fbRtde.bRxNewData THEN
+        IF (UINT_TO_UDINT(nRtdeRxBytes) + fbRtde.nRxBytes) > UINT_TO_UDINT(SIZEOF(aRtdeRx)) THEN
     bRtdeError := TRUE;
     nRtdeErrorId := 16#E620;
     sRtdeError := 'RTDE receive buffer overflow';
@@ -421,10 +587,10 @@ END_VAR
 
   MEMCPY(
     destAddr := ADR(aRtdeRx[nRtdeRxBytes]),
-    srcAddr := ADR(fbTcp.aRxData),
-    n := fbTcp.nRxBytes
+    srcAddr := ADR(fbRtde.aRxData),
+    n := fbRtde.nRxBytes
   );
-  nRtdeRxBytes := UDINT_TO_UINT(UINT_TO_UDINT(nRtdeRxBytes) + fbTcp.nRxBytes);
+  nRtdeRxBytes := UDINT_TO_UINT(UINT_TO_UDINT(nRtdeRxBytes) + fbRtde.nRxBytes);
 END_IF
 
 nOffset := 0;
@@ -454,12 +620,23 @@ WHILE (nRtdeRxBytes - nOffset) >= 3 DO
       END_IF
 
     C_RTDE_SETUP_OUTPUTS:
-      IF nFrameLength > 3 THEN
+      IF (nFrameLength > 4) AND (aRtdeRx[nOffset + 3] <> 0) THEN
         bRtdeOutputConfigured := TRUE;
+        nRtdeOutputRecipeId := aRtdeRx[nOffset + 3];
       ELSE
         bRtdeError := TRUE;
         nRtdeErrorId := 16#E623;
         sRtdeError := 'RTDE output recipe rejected';
+      END_IF
+
+    C_RTDE_SETUP_INPUTS:
+      IF (nFrameLength = 4) AND (aRtdeRx[nOffset + 3] <> 0) THEN
+        bRtdeInputConfigured := TRUE;
+        nRtdeInputRecipeId := aRtdeRx[nOffset + 3];
+      ELSE
+        bRtdeError := TRUE;
+        nRtdeErrorId := 16#E625;
+        sRtdeError := 'RTDE input recipe rejected';
       END_IF
 
     C_RTDE_START:
@@ -472,13 +649,23 @@ WHILE (nRtdeRxBytes - nOffset) >= 3 DO
       END_IF
 
     C_RTDE_DATA_PACKAGE:
-      IF nFrameLength >= 52 THEN
+      IF nFrameLength >= 116 THEN
         _tcppos.x := ReadNetworkLReal(nStartIndex := nOffset + 4)*1000;
         _tcppos.y := ReadNetworkLReal(nStartIndex := nOffset + 12)*1000;
         _tcppos.z := ReadNetworkLReal(nStartIndex := nOffset + 20)*1000;
         _tcppos.rx := ReadNetworkLReal(nStartIndex := nOffset + 28);
         _tcppos.ry := ReadNetworkLReal(nStartIndex := nOffset + 36);
         _tcppos.rz := ReadNetworkLReal(nStartIndex := nOffset + 44);
+        _jointpos.joint1 := ReadNetworkLReal(nStartIndex := nOffset + 52);
+        _jointpos.joint2 := ReadNetworkLReal(nStartIndex := nOffset + 60);
+        _jointpos.joint3 := ReadNetworkLReal(nStartIndex := nOffset + 68);
+        _jointpos.joint4 := ReadNetworkLReal(nStartIndex := nOffset + 76);
+        _jointpos.joint5 := ReadNetworkLReal(nStartIndex := nOffset + 84);
+        _jointpos.joint6 := ReadNetworkLReal(nStartIndex := nOffset + 92);
+        nRtdeAcceptedId := ReadNetworkUDInt(nStartIndex := nOffset + 100);
+        nRtdeCompletedId := ReadNetworkUDInt(nStartIndex := nOffset + 104);
+        nRtdeCommandError := ReadNetworkUDInt(nStartIndex := nOffset + 108);
+        xRtdeCommandExecuting := ReadNetworkUDInt(nStartIndex := nOffset + 112) <> 0;
       END_IF
   END_CASE
 
@@ -565,6 +752,52 @@ END_VAR
     ResetConnection := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="ReadNetworkUDInt" Id="{a67dc41d-cab7-4e2b-9f07-ec8ff7bb4c3c}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE ReadNetworkUDInt : UDINT
+VAR_INPUT
+  nStartIndex : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ReadNetworkUDInt :=
+  SHL(BYTE_TO_UDINT(aRtdeRx[nStartIndex]), 24) +
+  SHL(BYTE_TO_UDINT(aRtdeRx[nStartIndex + 1]), 16) +
+  SHL(BYTE_TO_UDINT(aRtdeRx[nStartIndex + 2]), 8) +
+  BYTE_TO_UDINT(aRtdeRx[nStartIndex + 3]);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="WriteNetworkLReal" Id="{a9e9d18d-8892-43db-a3be-d5f9ff15ef3a}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE WriteNetworkLReal
+VAR_INPUT
+  nStartIndex : UINT;
+  lrValue : LREAL;
+END_VAR
+VAR
+  aValueBytes : ARRAY[0..7] OF BYTE;
+  nIndex : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MEMCPY(destAddr := ADR(aValueBytes), srcAddr := ADR(lrValue), n := SIZEOF(lrValue));
+FOR nIndex := 0 TO 7 DO
+  aRtdeTx[nStartIndex + nIndex] := aValueBytes[7 - nIndex];
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="WriteNetworkUDInt" Id="{cd0841aa-7fd6-44e5-93f6-0962aafc87c7}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE WriteNetworkUDInt
+VAR_INPUT
+  nStartIndex : UINT;
+  nValue : UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[aRtdeTx[nStartIndex] := UDINT_TO_BYTE(SHR(nValue, 24));
+aRtdeTx[nStartIndex + 1] := UDINT_TO_BYTE(SHR(nValue, 16));
+aRtdeTx[nStartIndex + 2] := UDINT_TO_BYTE(SHR(nValue, 8));
+aRtdeTx[nStartIndex + 3] := UDINT_TO_BYTE(nValue);]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="ResetPrimarySession" Id="{899aef5b-5b2f-4853-97d0-cbc527440a1e}" FolderPath="Communication\">
       <Declaration><![CDATA[METHOD PRIVATE ResetPrimarySession
 ]]></Declaration>
@@ -591,9 +824,16 @@ nRtdeTxSize := 0;
 nRtdeRxBytes := 0;
 bRtdeProtocolAccepted := FALSE;
 bRtdeOutputConfigured := FALSE;
+bRtdeInputConfigured := FALSE;
 bRtdeStarted := FALSE;
 bRtdeError := FALSE;
 nRtdeErrorId := 0;
+nRtdeOutputRecipeId := 0;
+nRtdeInputRecipeId := 0;
+nRtdeAcceptedId := 0;
+nRtdeCompletedId := 0;
+nRtdeCommandError := 0;
+xRtdeCommandExecuting := FALSE;
 sRtdeError := '';]]></ST>
       </Implementation>
     </Method>
@@ -604,32 +844,83 @@ sRtdeError := '';]]></ST>
         <ST><![CDATA[fbTcp(
       bEnable := _communicationRequested,
       bReset := _resetCommunication,
-      sRemoteHost := sRemoteHost,
+      sRemoteHost := sRobotIp,
       nRemotePort := nRemotePort,
       bReceiveEnable := TRUE,
       bSend := FALSE,
       pSendData := 0,
       nSendSize := 0
     );
+
+    fbRtde(
+      bEnable := _communicationRequested,
+      bReset := _resetCommunication,
+      sRemoteHost := sRobotIp,
+      nRemotePort := nRtdeRemotePort,
+      bReceiveEnable := TRUE,
+      bSend := bRtdeSend,
+      pSendData := ADR(aRtdeTx),
+      nSendSize := nRtdeTxSize
+    );
     _resetCommunication := FALSE;
+    bRtdeSend := FALSE;
 
     ProcessPrimaryReceive();
+    ProcessRtdeReceive();
 
     IF NOT fbTcp.bConnected THEN
       ResetPrimarySession();
     END_IF
 
-    CommunicationReady := fbTcp.bConnected AND bPrimaryStateSeen AND NOT bPrimaryError;
+    IF NOT fbRtde.bConnected THEN
+      ResetRtdeSession();
+    ELSIF bRtdeError THEN
+      _resetCommunication := TRUE;
+    ELSE
+      CASE nRtdeState OF
+        C_RTDE_WAIT_TCP:
+          PrepareProtocolRequest();
+          bRtdeSend := TRUE;
+          nRtdeState := C_RTDE_WAIT_PROTOCOL;
+
+        C_RTDE_WAIT_PROTOCOL:
+          IF bRtdeProtocolAccepted THEN
+            PrepareOutputRequest();
+            bRtdeSend := TRUE;
+            nRtdeState := C_RTDE_WAIT_OUTPUTS;
+          END_IF
+
+        C_RTDE_WAIT_OUTPUTS:
+          IF bRtdeOutputConfigured THEN
+            PrepareInputRequest();
+            bRtdeSend := TRUE;
+            nRtdeState := C_RTDE_WAIT_START;
+          END_IF
+
+        C_RTDE_WAIT_START:
+          IF bRtdeInputConfigured THEN
+            PrepareStartRequest();
+            bRtdeSend := TRUE;
+            nRtdeState := C_RTDE_STREAMING;
+          END_IF
+      END_CASE
+    END_IF
+
+    CommunicationReady := fbTcp.bConnected AND bPrimaryStateSeen AND NOT bPrimaryError AND bRtdeStarted AND NOT bRtdeError;
     RobotEnabled := CommunicationReady AND xPrimaryRobotConnected AND xPrimaryRobotEnabled AND xPrimaryRobotPowerOn;
     RobotReady := RobotEnabled AND NOT xPrimaryEmergencyStopped AND NOT xPrimaryProtectiveStopped;
-    RobotMoving := FALSE;
+    RobotMoving := xRtdeCommandExecuting;
     Busy := CommunicationReady AND xPrimaryProgramRunning;
-    bError := fbTcp.bError OR bPrimaryError OR xPrimaryEmergencyStopped OR xPrimaryProtectiveStopped;
+    bError := fbTcp.bError OR fbRtde.bError OR bPrimaryError OR bRtdeError OR xPrimaryEmergencyStopped OR xPrimaryProtectiveStopped;
 
     IF fbTcp.bError THEN
-      nErrorId := fbTcp.nErrorId;
+      nErrorId := TO_UINT(fbTcp.nErrorId);
+    ELSIF fbRtde.bError THEN
+      nErrorId := TO_UINT(fbRtde.nErrorId);
     ELSIF bPrimaryError THEN
-      nErrorId := nPrimaryErrorId;
+      nErrorId := TO_UINT(nPrimaryErrorId);
+    ELSIF bRtdeError THEN
+      nErrorId := TO_UINT(nRtdeErrorId);
     ELSIF xPrimaryEmergencyStopped THEN
       nErrorId := 16#E630;
     ELSIF xPrimaryProtectiveStopped THEN

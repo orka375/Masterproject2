@@ -5,6 +5,7 @@
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
+	visStatus: stVisStatusAMR;
 	bTargetreached: BOOL;
 END_VAR
 VAR
@@ -70,6 +71,25 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
+    <Action Name="CYCLIC_AMR" Id="{ebcfe1a2-a428-4cd0-a9d1-512be0cd10b6}">
+      <Implementation>
+        <ST><![CDATA[CYCLIC_ROB();
+
+visStatus.State:=eStatus;
+visStatus.Mode:=eModus;
+visStatus.isMoving:=RobotMoving;
+visStatus.isReady:=RobotReady;
+visStatus.isConnected:=CommunicationReady;
+// 	isLocked: BOOL;
+// visStatus.isBusy:=;
+visStatus.isInCollision:=Collision;
+visStatus.hasError:=bError;
+visStatus.TCPPosition:=ActualTcpPose;
+
+visStatus.isDocked:=IsDocked;
+visStatus.TargetReached:=TargetReached;]]></ST>
+      </Implementation>
+    </Action>
     <Method Name="Dock" Id="{7a2cbcfa-840f-4b61-9db6-42db4be3c502}" FolderPath="MotionControl - Override\">
       <Declaration><![CDATA[METHOD Dock : BOOL
 ]]></Declaration>
@@ -117,7 +137,7 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF bError THEN
     OnActivate := eResult.ERROR;
-    ELSIF Connected THEN
+    ELSIF CommunicationReady THEN
       OnActivate := eResult.SUCCESS;
 ELSE
       OnActivate := eResult.None;
@@ -128,13 +148,13 @@ END_IF]]></ST>
       <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Disconnect();
-
-    IF eConnectionState <> eCommunicationState.DISCONNECTED THEN
-      OnCleanup := eResult.None;
-    ELSE
+        <ST><![CDATA[// Disconnect();
+// 
+//     IF eConnectionState <> eCommunicationState.DISCONNECTED THEN
+//       OnCleanup := eResult.None;
+//     ELSE
       OnCleanup := eResult.SUCCESS;
-    END_IF]]></ST>
+//     END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnConfigure" Id="{cb165446-431a-4f44-a815-7e6356f9994b}" FolderPath="StateControl\">
@@ -142,9 +162,9 @@ END_IF]]></ST>
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[
-fbPM.Configure(sPrefix:=Name,sDatabase:=CONCAT('db_',Name));
+PM.Configure(sPrefix:=Name,sDatabase:=CONCAT('db_',Name));
 
-if fbPM.b
+// if fbPM.b
 
 OnConfigure := eResult.SUCCESS;
 ]]></ST>
@@ -172,15 +192,15 @@ END_IF]]></ST>
       <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Disconnect();
-
-    IF eConnectionState <> eCommunicationState.DISCONNECTED THEN
-      OnShutdown := eResult.None;
-    ELSIF bError THEN
-      OnShutdown := eResult.ERROR;
-    ELSE
+        <ST><![CDATA[// Disconnect();
+// 
+//     IF eConnectionState <> eCommunicationState.DISCONNECTED THEN
+//       OnShutdown := eResult.None;
+//     ELSIF bError THEN
+//       OnShutdown := eResult.ERROR;
+//     ELSE
       OnShutdown := eResult.SUCCESS;
-    END_IF]]></ST>
+//     END_IF]]></ST>
       </Implementation>
     </Method>
     <Property Name="TargetReached" Id="{1ffd5e85-127b-44be-a405-ac0615b395e0}">

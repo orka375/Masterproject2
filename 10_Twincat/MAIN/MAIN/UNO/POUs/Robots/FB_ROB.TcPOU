@@ -4,7 +4,9 @@
     <Declaration><![CDATA[FUNCTION_BLOCK FB_ROB EXTENDS FB_Base IMPLEMENTS ITF_1_Robot
 
 VAR_INPUT
-	fbPM: FB_PointManager;
+	nErrorId : UINT; //FIX BUG
+	PM: FB_PointManager;
+// 	FILESERVER: FB_FileServer;
 END_VAR
 
 
@@ -21,16 +23,14 @@ END_VAR
 
 VAR
 	_speedOverride : LREAL := 100.0;
+	index: INT;
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[StateMachine();
-RunSkillStateMachines();
-fbPM();]]></ST>
+      <ST><![CDATA[]]></ST>
     </Implementation>
     <Folder Name="Generic Control" Id="{d269719e-4481-455b-8abd-a0a346547cd3}" />
     <Folder Name="Generic Motion Settings" Id="{e84a80be-ec15-4bef-9f1f-3428dddc27ab}" />
     <Folder Name="Generic Status" Id="{c1e8e35a-1828-4d72-a2cb-3aa1cc7ab721}" />
-    <Folder Name="Skills" Id="{f8b54bbe-556e-476b-9ce8-c905ac3569a6}" />
     <Folder Name="StateControl" Id="{306f9b72-2cb2-4dec-88a3-0a1776eb8cb9}" />
     <Property Name="Busy" Id="{9cc952da-997b-48e1-bc3f-e76175b74970}" FolderPath="Generic Status\">
       <Declaration><![CDATA[PROPERTY Busy : BOOL]]></Declaration>
@@ -69,7 +69,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[CommunicationReady := FB_ROB.bCommunicationReady;]]></ST>
+          <ST><![CDATA[// CommunicationReady := FB_ROB.bCommunicationReady;]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{a3a4030b-8d2a-45fa-89c6-94fd0d2368eb}">
@@ -77,10 +77,24 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[FB_ROB.bCommunicationReady := CommunicationReady;]]></ST>
+          <ST><![CDATA[// FB_ROB.bCommunicationReady := CommunicationReady;]]></ST>
         </Implementation>
       </Set>
     </Property>
+    <Action Name="CYCLIC_ROB" Id="{ebf16c89-c511-406b-9426-1ade99c4f730}">
+      <Implementation>
+        <ST><![CDATA[CYCLIC_BASE();
+
+FOR index := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
+    IF pA_Skills[index] <> 0 THEN
+        pA_Skills[index]^.StateMachine();
+    END_IF
+END_FOR
+
+
+PM();]]></ST>
+      </Implementation>
+    </Action>
     <Method Name="DisableRobot" Id="{bbb8a1cb-19df-48a2-aa34-15efcd08818d}" FolderPath="Generic Control\">
       <Declaration><![CDATA[METHOD DisableRobot : BOOL]]></Declaration>
       <Implementation>
@@ -124,8 +138,7 @@ OnActivate := eResult.SUCCESS;]]></ST>
     <Method Name="OnCleanup" Id="{b8d25f1a-bd56-4d52-bf77-294e7c965601}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult]]></Declaration>
       <Implementation>
-        <ST><![CDATA[eModus := eMode.Manual;
-OnCleanup := eResult.SUCCESS;]]></ST>
+        <ST><![CDATA[]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnConfigure" Id="{fb57d4c1-8d73-4b61-a93c-ea33b423e3bc}" FolderPath="StateControl\">
@@ -137,12 +150,12 @@ _transitionresult := eResult.None;
 
 // ---- Change ----
 eModus := eMode.Manual;
-Connect();
+// Connect();
 
 // ---- Check ----
-IF bError OR (_robotErrorCode <> 0) THEN
+IF bError THEN
     _transitionresult := eResult.ERROR;
-ELSIF Connected THEN
+ELSIF CommunicationReady THEN
     _transitionresult := eResult.SUCCESS;
 END_IF
 
@@ -259,21 +272,6 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Method Name="RunSkillStateMachines" Id="{ab7481c6-37ce-4d03-b209-9a2671ab3d76}" FolderPath="Skills\">
-      <Declaration><![CDATA[METHOD RunSkillStateMachines : BOOL
-VAR
-    index : INT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[FOR index := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
-    IF pA_Skills[index] <> 0 THEN
-        pA_Skills[index]^.StateMachine();
-    END_IF
-END_FOR
-RunSkillStateMachines := TRUE;]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="SetOperationMode" Id="{a36cbff6-922e-4670-8cae-63446b6e1765}" FolderPath="Generic Control\">
       <Declaration><![CDATA[METHOD SetOperationMode : BOOL
 VAR_INPUT
