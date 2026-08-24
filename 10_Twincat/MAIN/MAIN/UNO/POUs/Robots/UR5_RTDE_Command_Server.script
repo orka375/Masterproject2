@@ -1,4 +1,5 @@
-# Deploy this script as the running PolyScope program before enabling FB_UR5.
+# Use this script only with FB_UR5.bEnableRtdeCommandChannel = TRUE.
+# Do not run it with External Control; that URCap owns the same RTDE input registers.
 # PLC inputs:  int 24=execute ID, 25=command, 26=DO channel, 27=DO value,
 #              doubles 24..29=target, 30=speed, 31=acceleration.
 # PLC outputs: int 24=accepted ID, 25=completed ID, 26=error, 27=executing.

@@ -4,11 +4,11 @@
     <Declaration><![CDATA[PROGRAM MAINLY
 VAR
 	
-	BFH_RobLab_UR5: FB_UR5;
-	BFH_RobLab_UR5e: FB_UR5;
+// 	BFH_RobLab_UR5: FB_UR5;
+// 	BFH_RobLab_UR5e: FB_UR5;
 	ETA_Ausb_UR5: FB_UR5;
-	ETA_TechCenter_LD90: FB_OmronLD90;
-	ETA_Meca500: FB_Meca500;
+// 	ETA_TechCenter_LD90: FB_OmronLD90;
+// 	ETA_Meca500: FB_Meca500;
   fbUR5MotionDemo : FB_UR5MotionDemo;
   bRunUR5MotionDemo : BOOL;
   stDemoMoveLTarget : stTarget3D;
@@ -19,38 +19,160 @@ VAR
     _state_LD90_sEyes : eState;
     currPos : stPose3D;
     currJoints : stJoint6;
+	testcreate: BOOL;
+    bTestMoveSavedPoint : BOOL;
+    bTestMoveSavedPointOld : BOOL;
+    bTestMoveSavedPointAccepted : BOOL;
+    stSavedPointTarget : stTarget3D;
+    bUR5CommunicationReady : BOOL;
+    bUR5RobotReady : BOOL;
+    nUR5PrimaryErrorId : UDINT;
+    nUR5RtdeErrorId : UDINT;
+    sUR5PrimaryError : STRING(80);
+    sUR5RtdeError : STRING(80);
+    bUR5RtdeReady : BOOL;
+    nUR5RtdeProtocolState : USINT;
+    nUR5RtdeProtocolErrorId : UDINT;
+    sUR5RtdeProtocolError : STRING(80);
+    bStartUR5RtdeDemo : BOOL;
+    bResetUR5RtdeDemo : BOOL;
+    fbStartUR5RtdeDemo : R_TRIG;
+    fbUR5RtdeDemoTimeout : TON;
+    nUR5RtdeDemoStep : USINT;
+    bUR5RtdeDemoBusy : BOOL;
+    bUR5RtdeDemoDone : BOOL;
+    bUR5RtdeDemoError : BOOL;
+    nUR5RtdeDemoErrorId : UDINT;
+    stUR5RtdeDemoPose : stPose3D;
+    stUR5RtdeDemoJoints : stJoint6;
+	i: INT;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[BFH_RobLab_UR5(
-	sRobotIp:='192.168.250.4');
-BFH_RobLab_UR5e(sRobotIp:='192.168.100.1');
-ETA_Ausb_UR5(sRobotIp:='192.168.250.4');
+      <ST><![CDATA[// BFH_RobLab_UR5(
+// 	sRobotIp:='192.168.250.4');
+// BFH_RobLab_UR5e(sRobotIp:='192.168.100.1');
+ETA_Ausb_UR5(sRobotIp:='192.168.250.2');
 
 
-fbUR5MotionDemo(
-  bStart := bRunUR5MotionDemo,
-  bReset := FALSE,
-  MoveLTarget := stDemoMoveLTarget,
-  MoveJJoints := stDemoMoveJJoints,
-  nDigitalOutput := 0,
-  bDigitalOutputValue := TRUE,
-  Rob := ETA_Ausb_UR5
+// fbUR5MotionDemo(
+//   bStart := bRunUR5MotionDemo,
+//   bReset := FALSE,
+//   MoveLTarget := stDemoMoveLTarget,
+//   MoveJJoints := stDemoMoveJJoints,
+//   nDigitalOutput := 0,
+//   bDigitalOutputValue := TRUE,
+//   Rob := ETA_Ausb_UR5
+// );
+
+// ETA_TechCenter_LD90();
+// 
+// P(Rob := ADR(ETA_TechCenter_LD90));
+// 
+// // currPos := BFH_RobLab_UR5.ActualTcpPose;
+// // currJoints := BFH_RobLab_UR5.ActualJointPosition;
+// 
+// currPos := ETA_Ausb_UR5.ActualTcpPose;
+// currJoints := ETA_Ausb_UR5.ActualJointPosition;
+// 
+// _state_LD90 := ETA_TechCenter_LD90.State;
+// _state_LD90_sLDR := ETA_TechCenter_LD90.sLoadDeliverReturn.State;
+// _state_LD90_sEyes := ETA_TechCenter_LD90.sEyes.State;
+
+bUR5CommunicationReady := ETA_Ausb_UR5.CommunicationReady;
+bUR5RobotReady := ETA_Ausb_UR5.RobotReady;
+nUR5PrimaryErrorId := ETA_Ausb_UR5.fbTcp.nErrorId;
+nUR5RtdeErrorId := ETA_Ausb_UR5.fbRtde.nErrorId;
+sUR5PrimaryError := ETA_Ausb_UR5.fbTcp.sError;
+sUR5RtdeError := ETA_Ausb_UR5.fbRtde.sError;
+bUR5RtdeReady := ETA_Ausb_UR5.bRtdeReady;
+nUR5RtdeProtocolState := ETA_Ausb_UR5.nRtdeProtocolState;
+nUR5RtdeProtocolErrorId := ETA_Ausb_UR5.nRtdeProtocolErrorId;
+sUR5RtdeProtocolError := ETA_Ausb_UR5.sRtdeProtocolError;
+
+fbStartUR5RtdeDemo(CLK := bStartUR5RtdeDemo);
+fbUR5RtdeDemoTimeout(
+  IN := nUR5RtdeDemoStep = 10,
+  PT := T#10S
 );
 
-ETA_TechCenter_LD90();
+IF bResetUR5RtdeDemo THEN
+  nUR5RtdeDemoStep := 0;
+  nUR5RtdeDemoErrorId := 0;
+END_IF
 
-P(Rob := ADR(ETA_TechCenter_LD90));
+CASE nUR5RtdeDemoStep OF
+  0:
+    IF fbStartUR5RtdeDemo.Q THEN
+      nUR5RtdeDemoErrorId := 0;
+      nUR5RtdeDemoStep := 10;
+    END_IF
 
-// currPos := BFH_RobLab_UR5.ActualTcpPose;
-// currJoints := BFH_RobLab_UR5.ActualJointPosition;
+  10:
+    IF ETA_Ausb_UR5.fbRtde.bError THEN
+      nUR5RtdeDemoErrorId := ETA_Ausb_UR5.fbRtde.nErrorId;
+      nUR5RtdeDemoStep := 255;
+    ELSIF ETA_Ausb_UR5.nRtdeProtocolErrorId <> 0 THEN
+      nUR5RtdeDemoErrorId := ETA_Ausb_UR5.nRtdeProtocolErrorId;
+      nUR5RtdeDemoStep := 255;
+    ELSIF fbUR5RtdeDemoTimeout.Q THEN
+      nUR5RtdeDemoErrorId := 16#E711;
+      nUR5RtdeDemoStep := 255;
+    ELSIF ETA_Ausb_UR5.bRtdeReady THEN
+      stUR5RtdeDemoPose := ETA_Ausb_UR5.ActualTcpPose;
+      stUR5RtdeDemoJoints := ETA_Ausb_UR5.ActualJointPosition;
+	  
+	  stUR5RtdeDemoJoints.joint1:=stUR5RtdeDemoJoints.joint1*180.0/3.14159;
+	  stUR5RtdeDemoJoints.joint2:=stUR5RtdeDemoJoints.joint2*180.0/3.14159;
+	  stUR5RtdeDemoJoints.joint3:=stUR5RtdeDemoJoints.joint3*180.0/3.14159;
+	  stUR5RtdeDemoJoints.joint4:=stUR5RtdeDemoJoints.joint4*180.0/3.14159;
+	  stUR5RtdeDemoJoints.joint5:=stUR5RtdeDemoJoints.joint5*180.0/3.14159;
+	  stUR5RtdeDemoJoints.joint6:=stUR5RtdeDemoJoints.joint6*180.0/3.14159;
+	
+      nUR5RtdeDemoStep := 100;
+    END_IF
 
-currPos := ETA_Ausb_UR5.ActualTcpPose;
-currJoints := ETA_Ausb_UR5.ActualJointPosition;
+  100:
+    IF NOT bStartUR5RtdeDemo THEN
+      nUR5RtdeDemoStep := 0;
+    END_IF
 
-_state_LD90 := ETA_TechCenter_LD90.State;
-_state_LD90_sLDR := ETA_TechCenter_LD90.sLoadDeliverReturn.State;
-_state_LD90_sEyes := ETA_TechCenter_LD90.sEyes.State;]]></ST>
+  255:
+    ;
+
+  ELSE
+    nUR5RtdeDemoErrorId := 16#E7FF;
+    nUR5RtdeDemoStep := 255;
+END_CASE
+
+bUR5RtdeDemoBusy := nUR5RtdeDemoStep = 10;
+bUR5RtdeDemoDone := nUR5RtdeDemoStep = 100;
+bUR5RtdeDemoError := nUR5RtdeDemoStep = 255;
+
+IF testcreate THEN
+	ETA_Ausb_UR5.PM.Create3D(sName:='Test',pose:=ETA_Ausb_UR5.ActualTcpPose,1);
+	testcreate:=FALSE;
+END_IF
+
+IF bTestMoveSavedPoint AND NOT bTestMoveSavedPointOld THEN
+  bTestMoveSavedPointAccepted := FALSE;
+
+  IF ETA_Ausb_UR5.PM.Load(sName := 'Test')
+    AND ETA_Ausb_UR5.PM.bFound
+    AND (ETA_Ausb_UR5.PM.xPoint.pose_kind = 'POSE_3D')
+    AND ETA_Ausb_UR5.RobotReady THEN
+    stSavedPointTarget.pose.x := ETA_Ausb_UR5.PM.xPoint.x;
+    stSavedPointTarget.pose.y := ETA_Ausb_UR5.PM.xPoint.y;
+    stSavedPointTarget.pose.z := ETA_Ausb_UR5.PM.xPoint.z;
+    stSavedPointTarget.pose.rx := ETA_Ausb_UR5.PM.xPoint.rx;
+    stSavedPointTarget.pose.ry := ETA_Ausb_UR5.PM.xPoint.ry;
+    stSavedPointTarget.pose.rz := ETA_Ausb_UR5.PM.xPoint.rz;
+
+    bTestMoveSavedPointAccepted := ETA_Ausb_UR5.MoveL(target := stSavedPointTarget);
+  END_IF
+END_IF
+
+bTestMoveSavedPointOld := bTestMoveSavedPoint;]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

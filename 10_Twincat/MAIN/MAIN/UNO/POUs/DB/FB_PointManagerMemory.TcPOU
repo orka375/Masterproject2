@@ -26,7 +26,10 @@ bBusy := FALSE;
 
 IF NOT bError THEN
     eResult := POINTSTORE_IDLE;
-END_IF]]></ST>
+END_IF
+
+
+]]></ST>
     </Implementation>
     <Method Name="Configure" Id="{4b1f7eb1-6aef-4d80-a0ba-dd1b9f426f56}">
       <Declaration><![CDATA[METHOD PUBLIC Configure : BOOL
