@@ -1,0 +1,246 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_Messenger" Id="{83b10ff9-5df7-47f5-bb58-80d01c25214b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Messenger
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+// 	newMAvail: BOOL;
+	currentMsg: POINTER TO MessageDescription;
+	bErrorActiv: BOOL;
+END_VAR
+VAR
+	MList	: ARRAY [1..GVL.MaxNrOfMessages] OF MessageDescription;
+	emptyMsg: MessageDescription;
+	
+	IndexShownM 	: INT := 0;
+	manz		: INT := 0;
+	
+	myTime		: STRING;
+	fbTime   	: FB_LocalSystemTime:=(bEnable:=TRUE, dwCycle:=1);
+	i: INT;
+// 	unread: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fbTime();
+IF fbTime.bValid THEN
+	myTime := SYSTEMTIME_TO_STRING(fbTime.systemTime);
+END_IF
+
+
+
+IF IndexShownM>9 THEN
+	IndexShownM:=1;
+	
+END_IF
+
+
+
+bErrorActiv:= FALSE;
+IF manz>0 THEN
+	FOR i:=1 TO manz DO
+		IF NOT MList[i].bQuit AND MList[i].Category=eSeverity.ERROR THEN
+			bErrorActiv:=TRUE;
+			EXIT;
+		END_IF
+	END_FOR
+END_IF
+
+
+
+IF manz>0 THEN
+	currentMsg:=ADR(MList[IndexShownM]);
+ELSE
+	currentMsg:=ADR(emptyMsg);
+END_IF
+
+
+]]></ST>
+    </Implementation>
+    <Method Name="AddError" Id="{037ddfe7-b312-4cbd-8fc4-eb84b0d4e5f3}">
+      <Declaration><![CDATA[METHOD AddError : MessageDescription
+VAR_INPUT
+	Category: eMessageCategories;
+	sSender: STRING;
+	sMessage: STRING := '';
+END_VAR
+
+VAR
+	rng : DRAND;         // Random number generator function block
+    seed : INT := 12345;    // Seed value (can also be set using system time)
+    randomValue : LINT;        // Output random integer
+	index: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IndexShownM:= IndexShownM+1;
+index := manz + 1;
+
+MList[index].Typ := eMessageTypes.ERROR;
+MList[index].Category:=Category;
+MList[index].sSender:=sSender;
+MList[index].tTime:= DT_TO_TIME(SYSTEMTIME_TO_DT(fbTime.systemTime));
+MList[index].sMessage:=sMessage;
+MList[index].ID:=TO_UINT(1000+index);
+
+//UPLOAD TO SCADA
+// STATUSWRITER.WriteMessage(MList[index]);
+
+ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_ERROR, msgFmtStr := 'ERROR : %s',strArg := sSender);
+
+manz:=index;
+
+AddError := MList[index];]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AddHint" Id="{8902f9a6-54f8-4c1a-a645-2f7e5ef010fc}">
+      <Declaration><![CDATA[METHOD AddHint : MessageDescription
+VAR_INPUT
+	Category: eMessageCategories;
+	sSender: STRING;
+	sMessage: STRING := '';
+END_VAR
+
+VAR
+	rng : DRAND;         // Random number generator function block
+    seed : INT := 12345;    // Seed value (can also be set using system time)
+    randomValue : LINT;        // Output random integer
+	index: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IndexShownM:= IndexShownM+1;
+
+index := manz + 1;
+
+MList[index].Typ := eMessageTypes.HINT;
+MList[index].Category:=Category;
+MList[index].sSender:=sSender;
+MList[index].tTime:= DT_TO_TIME(SYSTEMTIME_TO_DT(fbTime.systemTime));
+MList[index].ID:=TO_UINT(1000+index);
+
+//UPLOAD TO SCADA
+// STATUSWRITER.WriteMessage(MList[index]);
+
+ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_HINT, msgFmtStr := 'HINT : %s',strArg := sSender);
+
+manz:=index;
+
+AddHint := MList[index];]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AddWarn" Id="{b24a4c33-b96b-4cdf-924e-0dc567d10727}">
+      <Declaration><![CDATA[METHOD AddWarn : MessageDescription
+VAR_INPUT
+	Category: eMessageCategories;
+	sSender: STRING;
+	sMessage: STRING := '';
+END_VAR
+
+VAR
+	rng : DRAND;         // Random number generator function block
+    seed : INT := 12345;    // Seed value (can also be set using system time)
+    randomValue : LINT;        // Output random integer
+	index: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IndexShownM:= IndexShownM+1;
+
+index := manz + 1;
+
+MList[index].Typ := eMessageTypes.WARN;
+MList[index].Category:=Category;
+MList[index].sSender:=sSender;
+MList[index].tTime:= DT_TO_TIME(SYSTEMTIME_TO_DT(fbTime.systemTime));
+MList[index].sMessage:=sMessage;
+MList[index].ID:=TO_UINT(1000+index);
+
+//UPLOAD TO SCADA
+// STATUSWRITER.WriteMessage(MList[index]);;
+
+
+ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN, msgFmtStr := 'WARN : %s',strArg := sSender);
+
+manz:=index;
+
+AddWarn := MList[index];]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ClearMsgs" Id="{bcb7abb8-2079-4267-a0fd-3f416f48ad8f}">
+      <Declaration><![CDATA[METHOD ClearMsgs : BOOL
+VAR_INPUT
+END_VAR
+
+VAR
+	DefaultError : MessageDescription;
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO GVL.MaxNrOfMessages DO
+	MList[i]:= emptyMsg;
+END_FOR
+
+IndexShownM:=0;
+manz:=0;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetLatestError" Id="{17a1758b-7485-4ce4-83aa-f16fb7ee4cb5}">
+      <Declaration><![CDATA[METHOD GetLatestError : MessageDescription
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetLatestError := MList[manz];]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetLatestMessage" Id="{c0703a3a-c079-4dd6-8b67-7359a7b29171}">
+      <Declaration><![CDATA[METHOD GetLatestMessage : POINTER TO MessageDescription
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetLatestError := MList[manz];]]></ST>
+      </Implementation>
+    </Method>
+    <Action Name="NextMsg" Id="{b95c2674-49f7-4d97-9f4a-d84c08ec2b90}">
+      <Implementation>
+        <ST><![CDATA[IF IndexShownM<manz THEN
+	IndexShownM := IndexShownM +1;
+ELSE
+	IndexShownM := 1;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="PrevError" Id="{41490f66-6df5-4a2e-bc70-d41c0c396599}">
+      <Implementation>
+        <ST><![CDATA[IF IndexShownM <> 1 THEN
+	IndexShownM := IndexShownM-1;
+ELSE
+	IF manz=0 THEN
+		IndexShownM:= 1;
+	ELSE
+		IndexShownM :=manz;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="Quittieren" Id="{138369ab-7406-4bc4-91c8-b967f18451de}">
+      <Declaration><![CDATA[METHOD Quittieren : BOOL
+VAR_INPUT
+	ind		: INT;
+END_VAR
+
+VAR
+	name		: STRING;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MList[ind].bQuit := TRUE;
+
+//TODO
+//QUITTIEREN DER HARDWARE]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

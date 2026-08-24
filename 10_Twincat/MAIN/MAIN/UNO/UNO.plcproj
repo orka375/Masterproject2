@@ -84,10 +84,19 @@
     <Compile Include="DUTs\DB\ST_SQLValue.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\Error\eErrorReactions.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Error\eMessageCategories.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Error\eMessageTypes.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\Error\eSeverity.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Error\stError.TcDUT">
+    <Compile Include="DUTs\Error\MessageDescription.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\ITF_0_BaseComponent.TcIO">
@@ -174,6 +183,10 @@
     <Compile Include="DUTs\StateMachine\eSupervisoryTransitions.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="GVLs\GVL.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
     <Compile Include="GVLs\OPCUA.TcGVL">
       <SubType>Code</SubType>
     </Compile>
@@ -199,6 +212,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Helpers\FB_Helper.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Helpers\FB_Messenger.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Helpers\FB_TcpIpClient.TcPOU">

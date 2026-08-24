@@ -28,7 +28,7 @@ CASE eState OF
 
         IF fbDB.ConfigurePostgreSQL(
             sDriver   := 'PostgreSQL Unicode(x64)',
-            sServer   := '192.168.250.37',
+            sServer   := '192.168.250.102',
             nPort     := 5432,
 
             sDatabase := 'robotdata',

@@ -51,5 +51,15 @@
       <From>tcpvel</From>
       <To>_tcpvel</To>
     </RenamedSymbol>
+    <RenamedType>
+      <Type guid="83b10ff9-5df7-47f5-bb58-80d01c25214b">MESSENGER_LEVEL_R</Type>
+      <From>MESSENGER_LEVEL_R</From>
+      <To>FB_Messenger</To>
+    </RenamedType>
+    <RenamedSymbol>
+      <Type guid="83b10ff9-5df7-47f5-bb58-80d01c25214b">FB_Messenger</Type>
+      <From>showMsg</From>
+      <To>currentMsg</To>
+    </RenamedSymbol>
   </Renames>
 </Refactors>

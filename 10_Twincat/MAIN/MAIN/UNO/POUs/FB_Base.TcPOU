@@ -7,7 +7,7 @@ FUNCTION_BLOCK ABSTRACT FB_Base  IMPLEMENTS ITF_0_BaseComponent
 VAR_INPUT
 	pA_Skills : ARRAY[1..4] OF POINTER TO FB_Skill;
 	bAutoConfigure: BOOL:=TRUE;		//If True, StateMachine trys automatic to reach State "ACTIV" otherwise each transition must be called manually
-	
+	fbMessenger: FB_Messenger;
 END_VAR
 
 VAR_OUTPUT
@@ -18,7 +18,7 @@ VAR_OUTPUT
 	{attribute 'noinit'} 
 	sInstanceName: STRING;
 	bError: BOOL;
-	nErrorId: UDINT;
+	xCurrentMessage: MessageDescription;
 	eStatus: eState :=eState.Unconfigured;
 END_VAR
 	
@@ -31,8 +31,12 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[StateMachine();]]></ST>
+      <ST><![CDATA[StateMachine();
+fbMessenger(bErrorActiv => bError);
+xCurrentMessage:=fbMessenger.currentMsg^;
+]]></ST>
     </Implementation>
+    <Folder Name="Error" Id="{aec3c44c-e508-420a-a8f0-d9172161c829}" />
     <Folder Name="Skill" Id="{850d4606-90d8-4980-b7f3-1269c79d7d36}" />
     <Folder Name="StateControl" Id="{bcaabc90-8311-4d61-b63c-66c13d25292f}" />
     <Method Name="Activate" Id="{8d29e9eb-3e7c-4311-8303-d07f52bcf283}" FolderPath="StateControl\">
