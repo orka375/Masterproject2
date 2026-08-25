@@ -5,12 +5,13 @@
 {attribute 'OPC.UA.DA' := '1'}
 TYPE ST_SkillControl :
 STRUCT
-    Configure   : BOOL := FALSE;
+	
+    Configure   : BOOL := FALSE; //TRIGGER ON RISING EDGE
     Activate    : BOOL := FALSE;
     Deactivate  : BOOL := FALSE;
     Cleanup     : BOOL := FALSE;
     Shutdown    : BOOL := FALSE;
-
+	
     Start       : BOOL := FALSE;
     Cancel      : BOOL := FALSE;
     Stop        : BOOL := FALSE;
@@ -20,6 +21,15 @@ STRUCT
 
     RequestId   : UDINT := 0;
     Timeout     : REAL := 10.0;
+	
+	//ERROR HANDLING	
+// 	AbortCriteria: eAbortCriterias;		// STIRR, CONTRTEMP, STOP
+// 	AbortValue: REAL; 					// STIRR, CONTRTEMP, STOP
+// 	TaskIDToChange: UINT;			// STOP PAUSE
+// 	EmergencyStop: BOOL;			// STOP
+// 	ErrorReaction: eErrorReactions;	// STOP
+// 	bBreak: BOOL;					// PAUSE
+// 	bContinue: BOOL;				// PAUSE 
 END_STRUCT
 END_TYPE]]></Declaration>
   </DUT>

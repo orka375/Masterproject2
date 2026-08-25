@@ -1,0 +1,478 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_0_Base" Id="{ccfcc891-ed7a-48a9-bb43-020f08aa1f30}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'reflection'} 
+FUNCTION_BLOCK ABSTRACT FB_0_Base  IMPLEMENTS ITF_0_BaseComponent
+
+VAR_INPUT
+	{attribute 'OPC.UA.DA.StructuredType':=1}
+	{attribute 'OPC.UA.DA' := '1'}
+	pA_Skills : ARRAY[1..8] OF POINTER TO FB_1_Skill;
+	bAutoConfigure: BOOL:=TRUE;		//If True, StateMachine trys automatic to reach State "INACTIV" otherwise each transition must be called manually
+	MESSENGER: FB_Messenger;
+END_VAR
+
+VAR_OUTPUT
+	{attribute 'instance-path'} 
+    {attribute 'noinit'} 
+    sPath : STRING(255); 
+	{attribute 'instance-name'}
+	{attribute 'noinit'} 
+	sInstanceName: STRING;
+	{attribute 'OPC.UA.DA' := '1'}
+	bError: BOOL;
+	{attribute 'OPC.UA.DA.StructuredType':=1}
+	{attribute 'OPC.UA.DA' := '1'}
+	xCurrentMessage: MessageDescription;
+	
+	{attribute 'OPC.UA.DA' := '1'}
+	eStatus: eState :=eState.Unconfigured;
+
+	{attribute 'OPC.UA.DA' := '1'}
+	MyHeartBeat: BOOL;
+END_VAR
+	
+VAR
+	_transitionresult: eResult;
+	_initialized: BOOL;
+	_activSkill: POINTER TO FB_1_Skill;
+	_finished: BOOL;
+		
+	tonBlink: TON;
+	blinkToggle: BOOL;
+
+	j: INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Error" Id="{aec3c44c-e508-420a-a8f0-d9172161c829}" />
+    <Folder Name="Skill" Id="{850d4606-90d8-4980-b7f3-1269c79d7d36}" />
+    <Folder Name="StateControl" Id="{bcaabc90-8311-4d61-b63c-66c13d25292f}" />
+    <Method Name="Activate" Id="{8d29e9eb-3e7c-4311-8303-d07f52bcf283}" FolderPath="StateControl\">
+      <Declaration><![CDATA[// {warning 'Add method implementation '}
+{attribute 'TcRpcEnable':='1'}
+METHOD Activate : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+IF State=eState.Inactive THEN
+	State:=eState.Activating;
+ELSE
+	ADSLOGSTR(
+    msgCtrlMask := ADSLOG_MSGTYPE_WARN,
+    msgFmtStr   := 'Activate failed in: %s',
+    strArg      := sPath
+);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ActiveSkillFinished" Id="{ef7884ee-b95f-4e2b-99d5-6eec8ef530b0}" FolderPath="Skill\">
+      <Declaration><![CDATA[PROPERTY ActiveSkillFinished : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7a058996-3f7d-427f-b8ca-a105f674216e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActiveSkillFinished := _finished;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ActivSkill" Id="{dfe033c7-9592-4013-80d5-146698809287}" FolderPath="Skill\">
+      <Declaration><![CDATA[PROPERTY ActivSkill : POINTER TO FB_1_Skill]]></Declaration>
+      <Get Name="Get" Id="{e109dadb-aebc-46d7-8503-83cedc7d4d97}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_activSkill := ActivSkill;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{d2c17d86-3fac-4ba0-9bd8-8387d8b93250}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActivSkill := _activSkill;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="AutoBoot" Id="{44f3c7f4-dba0-4e5c-9aec-1d95215b519e}">
+      <Declaration><![CDATA[PROPERTY AutoBoot : BOOL]]></Declaration>
+      <Get Name="Get" Id="{ee124298-bcc7-439c-9105-d90c42f3e44b}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AutoBoot:=bAutoConfigure;
+]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{6e39cfd8-2d79-4d05-8c85-3f94875be35d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[bAutoConfigure:=AutoBoot;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Cleanup" Id="{c4819076-2442-41bd-8aa1-fe9bd8639fb5}" FolderPath="StateControl\">
+      <Declaration><![CDATA[// {warning 'Add method implementation '}
+{attribute 'TcRpcEnable':='1'}
+METHOD Cleanup : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF State=eState.Inactive THEN
+	State:=eState.CleaningUp;
+ELSE
+	ADSLOGSTR(
+    msgCtrlMask := ADSLOG_MSGTYPE_WARN,
+    msgFmtStr   := 'Cleanup failed in: %s',
+    strArg      := Path
+);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Configure" Id="{e049feb0-d020-4b0d-9355-74a020722637}" FolderPath="StateControl\">
+      <Declaration><![CDATA[// {warning 'Add method implementation '}
+{attribute 'TcRpcEnable':='1'}
+METHOD Configure : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF State=eState.Unconfigured THEN
+	State:=eState.Configuring;
+ELSE
+	ADSLOGSTR(
+    msgCtrlMask := ADSLOG_MSGTYPE_WARN,
+    msgFmtStr   := 'Configure failed in: %s',
+    strArg      := Path
+);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Action Name="CYCLIC_BASE" Id="{77b136d9-dc44-439e-b8b2-7b3315db320c}">
+      <Implementation>
+        <ST><![CDATA[StateMachine();
+MESSENGER(bErrorActiv => bError);
+xCurrentMessage:=MESSENGER.currentMsg^;
+MyHeartBeat:=HeartBeat();
+
+
+FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
+	IF pA_Skills[j]<>0 THEN
+		pA_Skills[j]^();
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="Deactivate" Id="{4dfdb93c-87ba-4697-9eee-0c2811499a1b}" FolderPath="StateControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+{attribute 'TcRpcEnable':='1'}
+METHOD Deactivate : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF State=eState.Active THEN
+	State:=eState.Deactivating;
+ELSE
+	ADSLOGSTR(
+    msgCtrlMask := ADSLOG_MSGTYPE_WARN,
+    msgFmtStr   := 'Deactivate failed in: %s',
+    strArg      := Path
+);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Destroy" Id="{84232af5-24cf-43e3-b44a-0f85cd0c58bf}" FolderPath="StateControl\">
+      <Declaration><![CDATA[// {warning 'Add method implementation '}
+{attribute 'TcRpcEnable':='1'}
+METHOD Destroy : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF State=eState.Finalized THEN
+	State:=eState.Unconfigured;
+ELSE
+	ADSLOGSTR(
+    msgCtrlMask := ADSLOG_MSGTYPE_WARN,
+    msgFmtStr   := 'Destroy failed in: %s',
+    strArg      := Path
+);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetInstanceName" Id="{c1f8f8ea-ec47-4367-ae51-64fda65ac886}">
+      <Declaration><![CDATA[METHOD GetInstanceName : STRING
+VAR
+    i    : DINT;
+    nLen : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nLen := LEN(sPath);
+GetInstanceName := sPath;
+
+FOR i := nLen TO 1 BY -1 DO
+    IF sPath[i] = 46 THEN //46 = '.' in ASCII
+        GetInstanceName := RIGHT(sPath, TO_INT(nLen - i-1));
+        RETURN;
+    END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HeartBeat" Id="{fe4341a9-3799-4b03-9aac-3a4efb429415}">
+      <Declaration><![CDATA[METHOD HeartBeat : BOOL
+VAR_INPUT
+END_VAR
+
+VAR
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[tonBlink(IN := TRUE, PT := T#1S);
+
+// When timer is done, toggle the bit and reset the timer
+IF tonBlink.Q THEN
+    blinkToggle := NOT blinkToggle; // Flip TRUE ↔ FALSE
+    tonBlink(IN := FALSE);          // Stop timer to reset it
+ELSE
+    tonBlink(IN := TRUE);           // Keep running timer
+END_IF
+
+
+IF blinkToggle THEN
+	HeartBeat:=TRUE;
+ELSE
+	HeartBeat:=FALSE;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ID" Id="{56e403f3-8552-4f82-8f86-af916d784dec}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY ID : UINT
+]]></Declaration>
+      <Get Name="Get" Id="{01362321-941b-405e-a5c3-370fadd50709}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{53535a56-c051-4863-b3cf-33275af6d47b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Name" Id="{548614ea-6498-4c1d-a5ce-7f6dbb849726}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY Name : STRING
+]]></Declaration>
+      <Get Name="Get" Id="{9abd0c45-0dec-4466-a4b2-9f1564c8ba2e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[
+
+Name:=sInstanceName;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="OnActivate" Id="{24d6886a-9f1d-4c0e-8d8e-f6dd1ec5f0d5}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[OnActivate := eResult.SUCCESS;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCleanup" Id="{c53ec4e7-ff8a-4f5b-9f71-a4f6d4368c1b}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[OnCleanup := eResult.SUCCESS;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnConfigure" Id="{3309e05d-b0f8-4780-a3c5-9d432f8faea3}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[OnConfigure := eResult.SUCCESS;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{d4f5f9b3-96c4-4d53-92d3-200d86bcd1c0}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[OnDeactivate := eResult.SUCCESS;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{9d8c13be-0b23-41d4-93f7-5ea06689f4d4}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[OnError := eResult.SUCCESS;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnShutdown" Id="{baf0cda2-305c-4fe2-9dcb-4d0d08ee6a48}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[OnShutdown := eResult.SUCCESS;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Path" Id="{459f7f21-cbfe-4701-91b3-a410fc19512e}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY Path : STRING
+]]></Declaration>
+      <Get Name="Get" Id="{2daa2808-fefd-47e5-b0e8-8c13e9ff4c08}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Path:=sPath;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Shutdown" Id="{a12b67df-13c4-4acd-81a2-259afa6359fe}" FolderPath="StateControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+{attribute 'TcRpcEnable':='1'}
+METHOD Shutdown : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF State=eState.Inactive OR State=eState.Unconfigured OR State=eState.Active THEN
+	State:=eState.ShuttingDown;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="State" Id="{186f624f-e691-4cfe-9392-dd87366cedc2}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY State : eState
+]]></Declaration>
+      <Get Name="Get" Id="{8c20bc39-5e17-48de-81e9-f86cdcf5978c}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[State:=eStatus;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f2b0cb44-bade-4a8a-80d6-a1f37ebc07e9}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[eStatus:=State;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="StateMachine" Id="{2f358a4c-c272-4679-b042-e935cc28a3dc}">
+      <Declaration><![CDATA[METHOD StateMachine : eState
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _initialized THEN
+    sInstanceName := GetInstanceName();
+    _initialized := TRUE;
+END_IF
+
+CASE eStatus OF
+    eState.Unconfigured:
+        IF bAutoConfigure THEN
+            Configure();
+        END_IF
+
+    eState.Inactive:
+        ;
+
+    eState.Active:
+        ;
+    eState.Finalized:
+        Destroy();
+
+    eState.Configuring:
+        _transitionresult := OnConfigure();
+        CASE _transitionresult OF
+            eResult.SUCCESS:
+                eStatus := eState.Inactive;
+            eResult.FAILURE:
+                eStatus := eState.Unconfigured;
+            eResult.ERROR:
+                eStatus := eState.ErrorProcessing;
+        END_CASE;
+
+    eState.Activating:
+        _transitionresult := OnActivate();
+        CASE _transitionresult OF
+            eResult.SUCCESS:
+                eStatus := eState.Active;
+            eResult.FAILURE:
+                eStatus := eState.Inactive;
+            eResult.ERROR:
+                eStatus := eState.ErrorProcessing;
+        END_CASE;
+
+    eState.Deactivating:
+        _transitionresult := OnDeactivate();
+        CASE _transitionresult OF
+            eResult.SUCCESS:
+                eStatus := eState.Inactive;
+            eResult.FAILURE:
+                eStatus := eState.Inactive;
+            eResult.ERROR:
+                eStatus := eState.ErrorProcessing;
+        END_CASE;
+
+    eState.ErrorProcessing:
+        _transitionresult := OnError();
+        CASE _transitionresult OF
+            eResult.SUCCESS:
+                eStatus := eState.Unconfigured;
+            eResult.FAILURE:
+                eStatus := eState.Finalized;
+            eResult.ERROR:
+                eStatus := eState.ErrorProcessing;
+        END_CASE;
+
+    eState.CleaningUp:
+        _transitionresult := OnCleanup();
+        CASE _transitionresult OF
+            eResult.SUCCESS:
+                eStatus := eState.Unconfigured;
+            eResult.FAILURE:
+                eStatus := eState.Unconfigured;
+            eResult.ERROR:
+                eStatus := eState.ErrorProcessing;
+        END_CASE;
+
+    eState.ShuttingDown:
+        _transitionresult := OnShutdown();
+        CASE _transitionresult OF
+            eResult.SUCCESS:
+                eStatus := eState.Finalized;
+            eResult.FAILURE:
+                eStatus := eState.Finalized;
+            eResult.ERROR:
+                eStatus := eState.ErrorProcessing;
+        END_CASE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,10 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="Skill_PickPlace" Id="{0265789f-44be-4ed2-bfd3-e8ebd7334e24}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK Skill_PickPlace EXTENDS FB_Template_Skill
+    <Declaration><![CDATA[FUNCTION_BLOCK Skill_PickPlace EXTENDS FB_2_Skill_SFC
 VAR_INPUT
-	Rob: POINTER TO FB_ROB_MANIP;
-	sPickReference: STRING;
+	
+	sPickName: STRING;
+	sPlaceName: STRING;
 END_VAR
 VAR_OUTPUT
 	
@@ -760,7 +761,7 @@ END_VAR]]></Declaration>
     </Action>
     <Action Name="_a_aRead_9_entry" Id="{8e8ec55a-a4d1-45bf-9399-57ef58eac1be}">
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[// _ownerMANIP^.SetDO(nOutput:=9,TRUE);]]></ST>
       </Implementation>
       <ObjectProperties>
         <XmlArchive>

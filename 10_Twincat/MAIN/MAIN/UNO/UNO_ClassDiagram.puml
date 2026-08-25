@@ -1,0 +1,450 @@
+@startuml UNO_ClassDiagram
+title UNO PLC Class Diagram
+top to bottom direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam defaultFontName Consolas
+skinparam class {
+  BackgroundColor #F7F9FC
+  BorderColor #34495E
+  ArrowColor #34495E
+}
+skinparam interface {
+  BackgroundColor #E8F4F8
+  BorderColor #2471A3
+}
+
+package "Interfaces" #EAF2F8 {
+  interface ITF_0_BaseComponent
+  interface ITF_1_Robot
+  interface ITF_1_Skill
+  interface ITF_1_Tool
+  interface ITF_2_6AxisRobot
+  interface ITF_2_AMR
+  interface ITF_BA_6Axis
+  interface ITF_BA_AMR
+  interface ITF_BA_Scara
+  interface ITF_CommunicationModul
+}
+
+package "POUs/Archiv" #FDF2E9 {
+  class "FB_Axis" as pou_POUs_Archiv_FB_Axis_TcPOU {
+    + onActivate() : eResult
+    + onCleanup() : eResult
+    + onConfigure() : eResult
+    + onDeactivate() : eResult
+    + onError() : eResult
+    + onShutdown() : eResult
+  }
+  class "FB_Helper" as pou_POUs_Archiv_FB_Helper_TcPOU {
+    + ImportConfigFromDB() : BOOL
+    + LoadFrameConfigFromDB() : BOOL
+    + LoadTargetConfigFromDB() : BOOL
+    + LoadToolConfigFromDB() : BOOL
+    + SaveConfigToDB() : BOOL
+    + SaveFrameConfigToDB() : BOOL
+    + SaveTargetConfigToDB() : BOOL
+    + SaveToolConfigToDB() : BOOL
+  }
+}
+
+package "POUs/Core" #FDF2E9 {
+  class "Demo1" as pou_POUs_Demo1_TcPOU {
+    + Activate_Robot_entry()
+    + Call_2nd_Skill_entry()
+    + Call_Rob_Goto_entry()
+    + Deactivate_Robot_entry()
+  }
+  abstract class "FB_0_Base" as pou_POUs_FB_0_Base_TcPOU {
+    + Activate() : BOOL
+    # ActiveSkillFinished : BOOL
+    # ActivSkill : POINTER TO FB_1_Skill
+    # AutoBoot : BOOL
+    + Cleanup() : BOOL
+    + Configure() : BOOL
+    + CYCLIC_BASE()
+    + Deactivate() : BOOL
+    + Destroy() : BOOL
+    + GetInstanceName() : STRING
+    + HeartBeat() : BOOL
+    # ID : UINT
+    # Name : STRING
+    + OnActivate() : eResult
+    + OnCleanup() : eResult
+    + OnConfigure() : eResult
+    + OnDeactivate() : eResult
+    + OnError() : eResult
+    + OnShutdown() : eResult
+    # Path : STRING
+    + Shutdown() : BOOL
+    # State : eState
+    + StateMachine() : eState
+  }
+  class "FB_ROS2Connector" as pou_POUs_FB_ROS2Connector_TcPOU {
+    + Activate() : BOOL
+    + Cleanup() : BOOL
+    + Configure() : BOOL
+    + Deactivate() : BOOL
+    + Destroy() : BOOL
+    + Shutdown() : BOOL
+  }
+}
+
+package "POUs/DB" #FDF2E9 {
+  class "FB_DBClient" as pou_POUs_DB_FB_DBClient_TcPOU {
+    + ConfigurePostgreSQL() : BOOL
+    + Connect() : BOOL
+    + Disconnect() : BOOL
+    + Execute() : BOOL
+    + Query() : BOOL
+    + ResetError() : BOOL
+    + UseExistingDbId() : BOOL
+  }
+  class "FB_PointManager_PostgreSQL" as pou_POUs_DB_FB_PointManager_TcPOU {
+    + Configure() : BOOL
+    + Create2D() : BOOL
+    + Create2DValues() : BOOL
+    + Create3D() : BOOL
+    + Create3DValues() : BOOL
+    + Delete() : BOOL
+    + Load() : BOOL
+    + Rename() : BOOL
+    + Retouch2D() : BOOL
+    + Retouch3D() : BOOL
+    + SqlDefaultPointName() : STRING(255)
+    + SqlLiteral() : STRING(255)
+    + SqlQuotedLiteral() : STRING(255)
+  }
+  class "FB_PointManager" as pou_POUs_DB_FB_PointManagerMemory_TcPOU {
+    + CheckName() : BOOL
+    + Configure() : BOOL
+    + Create2D() : BOOL
+    + Create2DValues() : BOOL
+    + Create3D() : BOOL
+    + Create3DValues() : BOOL
+    + Delete() : BOOL
+    + FindIndex() : UINT
+    + Load() : BOOL
+    + PointName() : STRING(80)
+    + Rename() : BOOL
+    + Retouch2D() : BOOL
+    + Retouch3D() : BOOL
+  }
+}
+
+package "POUs/Helper" #FDF2E9 {
+  class "FB_TcpIPClient" as pou_POUs_Helper_FB_TcpIPClient_TcPOU {
+  }
+  class "FB_TcpIpClient" as pou_POUs_Helper_FB_TcpIpClient_gpt_TcPOU {
+  }
+}
+
+package "POUs/Helpers" #FDF2E9 {
+  class "FB_Messenger" as pou_POUs_Helpers_FB_Messenger_TcPOU {
+    + AddError() : MessageDescription
+    + AddHint() : MessageDescription
+    + AddWarn() : MessageDescription
+    + ClearMsgs() : BOOL
+    + GetLatestError() : MessageDescription
+    + GetLatestMessage() : POINTER TO MessageDescription
+    + NextMsg()
+    + PrevError()
+    + Quittieren() : BOOL
+  }
+}
+
+package "POUs/Robots" #FDF2E9 {
+  class "FB_1_ROB" as pou_POUs_Robots_FB_1_ROB_TcPOU {
+    # Busy : BOOL
+    # CommunicationReady : BOOL
+    + CYCLIC_ROB()
+    + DisableRobot() : BOOL
+    + EnableRobot() : BOOL
+    # InCollision : BOOL
+    # Mode : eMode
+    + OnActivate() : eResult
+    + OnCleanup() : eResult
+    + OnConfigure() : eResult
+    + OnDeactivate() : eResult
+    + OnError() : eResult
+    + OnShutdown() : eResult
+    + Pause() : BOOL
+    + ResetRobot() : BOOL
+    + Resume() : BOOL
+    # RobotEnabled : BOOL
+    # RobotError : BOOL
+    # RobotMoving : BOOL
+    # RobotReady : BOOL
+    + SetOperationMode() : BOOL
+    + SetSpeedOverride() : BOOL
+    + Stop() : BOOL
+  }
+  class "FB_2_ROB_AMR" as pou_POUs_Robots_FB_2_ROB_AMR_TcPOU {
+    # ActualJointPosition : stJoint2
+    # ActualJointVelocity : stJoint2
+    # ActualTcpPose : stPose2D
+    # ActualTcpVelocity : stPose2D
+    + CYCLIC_AMR()
+    + Dock() : BOOL
+    # IsDocked : BOOL
+    + NavigateToGoal() : BOOL
+    + NavigateToPoint() : BOOL
+    + OnActivate() : eResult
+    + OnCleanup() : eResult
+    + OnConfigure() : eResult
+    + OnDeactivate() : eResult
+    + OnError() : eResult
+    + OnShutdown() : eResult
+    # TargetReached : BOOL
+    + Undock() : BOOL
+  }
+  class "FB_2_ROB_MANIP" as pou_POUs_Robots_FB_2_ROB_MANIP_TcPOU {
+    # ActualJointPosition : stJoint6
+    # ActualJointVelocity : stJoint6
+    # ActualTcpPose : stPose3D
+    # ActualTcpVelocity : stPose3D
+    # Command : ST_RobotCommand
+    # CommandErrorId : UDINT
+    # CommandState : E_RobotCommandState
+    # CurrentFrame : stFrame
+    # CurrentFrameId : UINT
+    # CurrentTool : FB_1_Tool
+    + CYCLIC_MANIP()
+    + Home() : BOOL
+    # IsHomePosition : BOOL
+    + MoveJoint() : BOOL
+    + MoveJointRelative() : BOOL
+    + MoveLinear() : BOOL
+    + MoveLinearRelative() : BOOL
+    + OnActivate() : eResult
+    + OnCleanup() : eResult
+    + OnConfigure() : eResult
+    + OnDeactivate() : eResult
+    + OnError() : eResult
+    + OnShutdown() : eResult
+    + Pause() : BOOL
+    + RequestCommand() : BOOL
+    + Resume() : BOOL
+    + SetDO() : BOOL
+    + SetFrame() : BOOL
+    + SetSpeedOverride() : BOOL
+    + SetTool() : BOOL
+    + Stop() : BOOL
+    # TargetReached : BOOL
+  }
+}
+
+package "POUs/Robots\Mecademic" #FDF2E9 {
+  class "ROBOT_MECA500" as pou_POUs_Robots_Mecademic_ROBOT_MECA500_TcPOU {
+    + ComMachine() : BOOL
+    + Connect() : BOOL
+    # Connected : BOOL
+    + Disconnect() : BOOL
+    + M_CanAcceptMotion() : BOOL
+    + M_ClearEcatOutputs() : BOOL
+    + M_CopyFeedbackToFramework() : BOOL
+    + M_EcatDintToHost() : DINT
+    + M_EcatU16ToHost() : UINT
+    + M_Home() : BOOL
+    + M_HostDintToEcat() : DINT
+    + M_HostU16ToEcat() : UINT
+    + M_JointsToArgs() : BOOL
+    + M_QueueCommand() : BOOL
+    + M_RelativePoseToAbsolute() : BOOL
+    + M_SwapDint() : DINT
+    + M_SwapU16() : UINT
+    + M_TargetToArgs() : BOOL
+    + OnActivate() : eResult
+    + OnCleanup() : eResult
+    + OnConfigure() : eResult
+    + OnDeactivate() : eResult
+    + OnError() : eResult
+    + OnShutdown() : eResult
+    + ProcessCommand() : BOOL
+    + ResetConnection() : BOOL
+  }
+}
+
+package "POUs/Robots\Omron" #FDF2E9 {
+  class "ROBOT_LD90" as pou_POUs_Robots_Omron_ROBOT_LD90_TcPOU {
+    + ComMachine() : BOOL
+    + Connect() : BOOL
+    # Connected : BOOL
+    + Disconnect() : BOOL
+    + Dock() : BOOL
+    + NavigateToGoal() : BOOL
+    + NavigateToPoint() : BOOL
+    + OnActivate() : eResult
+    + OnCleanup() : eResult
+    + OnConfigure() : eResult
+    + OnDeactivate() : eResult
+    + OnError() : eResult
+    + OnShutdown() : eResult
+    + ResetConnection() : BOOL
+    + Undock() : BOOL
+  }
+}
+
+package "POUs/Robots\UR" #FDF2E9 {
+  class "FB_TcpIpClient" as pou_POUs_Robots_UR_FB_TcpIpClient_TcPOU {
+  }
+  class "FB_UR5MotionDemo" as pou_POUs_Robots_UR_FB_UR5MotionDemo_TcPOU {
+  }
+  class "ROBOT_UR5" as pou_POUs_Robots_UR_ROBOT_UR5_TcPOU {
+    + CommCycle()
+    + Connect() : BOOL
+    # Connected : BOOL
+    + Disconnect() : BOOL
+    + MoveJ() : BOOL
+    + MoveL() : BOOL
+    + OnActivate() : eResult
+    + OnCleanup() : eResult
+    + OnConfigure() : eResult
+    + OnDeactivate() : eResult
+    + OnError() : eResult
+    + OnShutdown() : eResult
+    + PrepareCommandRequest() : BOOL
+    + PrepareInputRequest()
+    + PrepareOutputRequest()
+    + PrepareProtocolRequest()
+    + PrepareStartRequest()
+    + ProcessCommand() : BOOL
+    + ProcessPrimaryReceive()
+    + ProcessPrimaryRobotState()
+    + ProcessRtdeReceive()
+    + ReadBigEndianLReal() : LREAL
+    + ReadBigEndianUDInt() : UDINT
+    + ReadNetworkLReal() : LREAL
+    + ReadNetworkUDInt() : UDINT
+    + ResetConnection() : BOOL
+    + ResetPrimarySession()
+    + ResetRtdeSession()
+    + RtdePayloadMatches() : BOOL
+    + UpdateCommunication() : BOOL
+    + WriteNetworkLReal()
+    + WriteNetworkUDInt()
+  }
+}
+
+package "POUs/Skills" #FDF2E9 {
+  class "FB_1_Skill" as pou_POUs_Skills_FB_1_Skill_TcPOU {
+    + ActivateSkill()
+    # Busy : BOOL
+    + CYCLIC_SKILL()
+    + DeactivateSkill() : BOOL
+    # Done : BOOL
+    + onActivate() : eResult
+    + onCleanup() : eResult
+    + onConfigure() : eResult
+    + onDeactivate() : eResult
+    + onError() : eResult
+    + onShutdown() : eResult
+    + INTERNAL()
+    + INTERNAL()
+    + INTERNAL()
+    + INTERNAL()
+    + INTERNAL()
+  }
+  class "FB_2_Skill_RoCo" as pou_POUs_Skills_FB_2_Skill_RoCo_TcPOU {
+    + CYCLIC_RoCo()
+    + onActivate() : eResult
+    + onCleanup() : eResult
+    + onConfigure() : eResult
+    + onDeactivate() : eResult
+    + onError() : eResult
+    + onShutdown() : eResult
+  }
+  class "FB_2_Skill_ROS2" as pou_POUs_Skills_FB_2_Skill_ROS2_TcPOU {
+    + CYCLIC_ROS2()
+    + onActivate() : eResult
+    + onCleanup() : eResult
+    + onConfigure() : eResult
+    + onDeactivate() : eResult
+    + onError() : eResult
+    + onShutdown() : eResult
+  }
+  class "FB_2_Skill_SFC" as pou_POUs_Skills_FB_2_Skill_SFC_TcPOU {
+    + CYCLIC_SFC()
+    + onActivate() : eResult
+    + onCleanup() : eResult
+    + onConfigure() : eResult
+    + onDeactivate() : eResult
+    + onError() : eResult
+    + onShutdown() : eResult
+  }
+  class "FB_ROS2Skill" as pou_POUs_Skills_FB_Template_ROS2Skill_TcPOU {
+    # Busy : BOOL
+    # Done : BOOL
+    + onActivate() : BOOL
+    + onCleanup() : BOOL
+    + onConfigure() : BOOL
+    + onDeactivate() : BOOL
+    + onError() : BOOL
+    + onShutdown() : BOOL
+    + Pause() : BOOL
+    + Restart() : BOOL
+    + Resume() : BOOL
+    + Start() : BOOL
+    + Stop() : BOOL
+  }
+  class "Skill_LoadDeliverReturn" as pou_POUs_Skills_Skill_LoadDeliverReturn_TcPOU {
+    + GoTo_Loading_active()
+    + GoTo_Loading_entry()
+  }
+  class "Skill_PickPlace" as pou_POUs_Skills_Skill_PickPlace_TcPOU {
+    + _a_aRead_9_active()
+    + _a_aRead_9_entry()
+  }
+  class "Skill_ROS2_Eyes" as pou_POUs_Skills_Skill_ROS2_Eyes_TcPOU {
+  }
+}
+
+package "POUs/Tools" #FDF2E9 {
+  class "FB_1_Tool" as pou_POUs_Tools_FB_1_Tool_TcPOU {
+    + CYCLIC_TOOL()
+    + onActivate() : eResult
+    + onCleanup() : eResult
+    + onConfigure() : eResult
+    + onDeactivate() : eResult
+    + onError() : eResult
+    + onShutdown() : eResult
+  }
+}
+
+pou_POUs_Archiv_FB_Axis_TcPOU ..|> ITF_0_BaseComponent
+pou_POUs_Archiv_FB_Axis_TcPOU --|> FB_0_Base
+ITF_1_Robot --|> ITF_0_BaseComponent
+ITF_1_Skill --|> ITF_0_BaseComponent
+ITF_2_6AxisRobot --|> ITF_1_Robot
+ITF_2_AMR --|> ITF_1_Robot
+pou_POUs_FB_0_Base_TcPOU ..|> ITF_0_BaseComponent
+pou_POUs_FB_ROS2Connector_TcPOU --|> FB_Base
+pou_POUs_Robots_FB_1_ROB_TcPOU ..|> ITF_1_Robot
+pou_POUs_Robots_FB_1_ROB_TcPOU --|> FB_0_Base
+pou_POUs_Robots_FB_2_ROB_AMR_TcPOU ..|> ITF_2_AMR
+pou_POUs_Robots_FB_2_ROB_AMR_TcPOU --|> FB_1_ROB
+pou_POUs_Robots_FB_2_ROB_MANIP_TcPOU ..|> ITF_2_6AxisRobot
+pou_POUs_Robots_FB_2_ROB_MANIP_TcPOU --|> FB_1_ROB
+pou_POUs_Robots_Mecademic_ROBOT_MECA500_TcPOU --|> FB_2_ROB_MANIP
+pou_POUs_Robots_Omron_ROBOT_LD90_TcPOU ..|> ITF_CommunicationModul
+pou_POUs_Robots_Omron_ROBOT_LD90_TcPOU --|> FB_2_ROB_AMR
+pou_POUs_Robots_UR_ROBOT_UR5_TcPOU --|> FB_2_ROB_MANIP
+pou_POUs_Skills_FB_1_Skill_TcPOU ..|> ITF_1_Skill
+pou_POUs_Skills_FB_1_Skill_TcPOU --|> FB_0_Base
+pou_POUs_Skills_FB_2_Skill_RoCo_TcPOU --|> FB_1_Skill
+pou_POUs_Skills_FB_2_Skill_ROS2_TcPOU --|> FB_1_Skill
+pou_POUs_Skills_FB_2_Skill_SFC_TcPOU --|> FB_1_Skill
+pou_POUs_Skills_FB_Template_ROS2Skill_TcPOU --|> FB_Skill
+pou_POUs_Skills_Skill_LoadDeliverReturn_TcPOU --|> FB_2_Template_Skill
+pou_POUs_Skills_Skill_PickPlace_TcPOU --|> FB_2_Skill_SFC
+pou_POUs_Skills_Skill_ROS2_Eyes_TcPOU --|> FB_2_Skill_ROS2
+pou_POUs_Tools_FB_1_Tool_TcPOU --|> FB_0_Base
+
+legend right
+  <|-- extends
+  <|.. implements
+  Member lists are generated from current POU declarations.
+endlegend
+@enduml

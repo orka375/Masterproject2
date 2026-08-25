@@ -3,54 +3,6 @@
   <Itf Name="ITF_2_6AxisRobot" Id="{5597e200-2768-442d-a894-79ed17b4bd75}">
     <Declaration><![CDATA[INTERFACE ITF_2_6AxisRobot EXTENDS ITF_1_Robot 
 ]]></Declaration>
-    <Method Name="Home" Id="{9008c31c-e8e7-4fc4-ab50-fce636f66aa9}">
-      <Declaration><![CDATA[METHOD Home : BOOL
-VAR_INPUT
-END_VAR
-]]></Declaration>
-    </Method>
-    <Method Name="MoveJoint" Id="{01831dea-3b4d-496c-9028-1a30987f2ab5}">
-      <Declaration><![CDATA[METHOD MoveJoint : BOOL
-VAR_INPUT
-    joints : stJoint6;
-END_VAR
-]]></Declaration>
-    </Method>
-    <Method Name="MoveJointRelative" Id="{0f521464-ec50-448d-bb07-d37ea83816d3}">
-      <Declaration><![CDATA[METHOD MoveJointRelative : BOOL
-VAR_INPUT
-    offsets : stJoint6;
-END_VAR
-]]></Declaration>
-    </Method>
-    <Method Name="MoveLinear" Id="{617f15d3-641e-4bd1-b8bf-7e1c16712ddc}">
-      <Declaration><![CDATA[METHOD MoveLinear : BOOL
-VAR_INPUT
-    target : stTarget3D;
-END_VAR
-]]></Declaration>
-    </Method>
-    <Method Name="MoveLinearRelative" Id="{bdfb6932-6a17-4ad8-a206-492214d6a04f}">
-      <Declaration><![CDATA[METHOD MoveLinearRelative : BOOL
-  VAR_INPUT
-    offset : stRelativePose3D;
-  END_VAR
-  ]]></Declaration>
-    </Method>
-    <Method Name="SetTool" Id="{4419060a-b81d-49ba-98b5-0e9531683def}">
-      <Declaration><![CDATA[METHOD SetTool : BOOL
-VAR_INPUT
-    tool : FB_Tool;
-END_VAR
-]]></Declaration>
-    </Method>
-    <Method Name="SetFrame" Id="{4f810bbe-4c7e-4ed8-a1f1-65b416f3d016}">
-      <Declaration><![CDATA[METHOD SetFrame : BOOL
-VAR_INPUT
-    frame : stFrame;
-END_VAR
-]]></Declaration>
-    </Method>
     <Property Name="ActualJointPosition" Id="{f4e9d5a1-845e-4b46-b1f5-b6013f3c1bf2}">
       <Declaration><![CDATA[{warning 'Eigenschaftenimplementierung hinzufügen'}
 PROPERTY ActualJointPosition : stJoint6
@@ -96,7 +48,7 @@ PROPERTY ActualTcpPose : stPose3D
       </Get>
     </Property>
     <Property Name="CurrentTool" Id="{31260ea4-d74c-4661-b977-2f4fbc51c3ad}">
-      <Declaration><![CDATA[PROPERTY CurrentTool : FB_Tool]]></Declaration>
+      <Declaration><![CDATA[PROPERTY CurrentTool : FB_1_Tool]]></Declaration>
       <Get Name="Get" Id="{50378180-4e1c-40ab-b830-dd6d8d1d884b}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
@@ -104,12 +56,60 @@ PROPERTY ActualTcpPose : stPose3D
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>
+    <Method Name="Home" Id="{9008c31c-e8e7-4fc4-ab50-fce636f66aa9}">
+      <Declaration><![CDATA[METHOD Home : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
     <Property Name="IsHomePosition" Id="{70f6bdc3-81d8-4a72-9961-a731a8f684fb}">
       <Declaration><![CDATA[PROPERTY IsHomePosition : BOOL]]></Declaration>
       <Get Name="Get" Id="{376ed0f7-d8a4-4e9c-ac1b-17426e13c0b7}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
+    <Method Name="MoveJoint" Id="{01831dea-3b4d-496c-9028-1a30987f2ab5}">
+      <Declaration><![CDATA[METHOD MoveJoint : BOOL
+VAR_INPUT
+    joints : stJoint6;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="MoveJointRelative" Id="{0f521464-ec50-448d-bb07-d37ea83816d3}">
+      <Declaration><![CDATA[METHOD MoveJointRelative : BOOL
+VAR_INPUT
+    offsets : stJoint6;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="MoveLinear" Id="{617f15d3-641e-4bd1-b8bf-7e1c16712ddc}">
+      <Declaration><![CDATA[METHOD MoveLinear : BOOL
+VAR_INPUT
+    target : stTarget3D;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="MoveLinearRelative" Id="{bdfb6932-6a17-4ad8-a206-492214d6a04f}">
+      <Declaration><![CDATA[METHOD MoveLinearRelative : BOOL
+  VAR_INPUT
+    offset : stRelativePose3D;
+  END_VAR
+  ]]></Declaration>
+    </Method>
+    <Method Name="SetFrame" Id="{4f810bbe-4c7e-4ed8-a1f1-65b416f3d016}">
+      <Declaration><![CDATA[METHOD SetFrame : BOOL
+VAR_INPUT
+    frame : stFrame;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="SetTool" Id="{4419060a-b81d-49ba-98b5-0e9531683def}">
+      <Declaration><![CDATA[METHOD SetTool : BOOL
+VAR_INPUT
+    tool : FB_1_Tool;
+END_VAR
+]]></Declaration>
+    </Method>
     <Property Name="TargetReached" Id="{5f879bbf-7361-48f8-9f67-1ba39a94979d}">
       <Declaration><![CDATA[{warning 'Add property implementation'}
 PROPERTY TargetReached : BOOL

@@ -1,0 +1,507 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_2_ROB_MANIP" Id="{21b924b4-0fb6-46ff-9fb7-f679235d19bb}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_2_ROB_MANIP EXTENDS FB_1_ROB IMPLEMENTS ITF_2_6AxisRobot
+
+VAR_INPUT
+	currTool: FB_1_Tool;
+	bEnableCommunication : BOOL := TRUE;
+END_VAR
+
+VAR_OUTPUT
+	visStatus: stVisStatusManip;
+END_VAR
+VAR
+	_tcppos, _tcpvel : stPose3D;
+	_jointpos, _jointvel: stJoint6;
+	_currFrame: stFrame;				//unused
+	
+	//TODO What is this for?
+	_command : ST_RobotCommand;
+	_commandState : E_RobotCommandState := E_RobotCommandState.Idle;
+	_commandErrorId : UDINT;
+	_nextExecuteId : UDINT := 1;		
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="MotionControl" Id="{fc8c0aca-629b-4848-a20d-78e9ce6e9fda}" />
+    <Folder Name="StateControl" Id="{12a0430c-efeb-4d5c-9e24-8b660ff5f112}" />
+    <Property Name="ActualJointPosition" Id="{c68b9d82-514b-4e83-b58e-69cf77564b19}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY ActualJointPosition : stJoint6
+]]></Declaration>
+      <Get Name="Get" Id="{2b353ef5-5db5-4268-89e1-d980ddc297fa}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualJointPosition := _jointpos;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ActualJointVelocity" Id="{947a6f2a-4f8a-49d4-9aa5-6819f46128db}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+  PROPERTY ActualJointVelocity : stJoint6
+]]></Declaration>
+      <Get Name="Get" Id="{bcb260e7-58e3-43cb-b050-6f35e444f22e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualJointVelocity := _jointvel;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ActualTcpPose" Id="{0ea3c3d9-9984-43b2-ac68-a1a8d409d11e}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+  PROPERTY ActualTcpPose : stPose3D
+]]></Declaration>
+      <Get Name="Get" Id="{019c7e94-91db-4b36-9e6e-9be7d9fb51c3}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualTcpPose := _tcppos;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ActualTcpVelocity" Id="{cd04f35a-047d-478b-8cf7-b18ee8d2a4f9}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+  PROPERTY ActualTcpVelocity : stPose3D
+]]></Declaration>
+      <Get Name="Get" Id="{c88b221c-0030-413b-abf3-a401e3f71088}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualTcpVelocity := _tcpvel;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Command" Id="{b7921c67-b412-4e3f-a1b3-c6c9d2871c48}">
+      <Declaration><![CDATA[PROPERTY Command : ST_RobotCommand
+]]></Declaration>
+      <Get Name="Get" Id="{f3613f1c-e4c1-4407-bbc2-41307f9ea660}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Command := _command;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="CommandErrorId" Id="{e8c9b581-2cf1-4d37-9e70-9ac17734f4a2}">
+      <Declaration><![CDATA[PROPERTY CommandErrorId : UDINT
+]]></Declaration>
+      <Get Name="Get" Id="{ea31e342-2d2c-4bd5-98d4-e20b34051c17}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CommandErrorId := _commandErrorId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="CommandState" Id="{53ff1a71-cd4a-4f6f-ab03-3bbb45de07aa}">
+      <Declaration><![CDATA[PROPERTY CommandState : E_RobotCommandState
+]]></Declaration>
+      <Get Name="Get" Id="{5a7fdff7-f893-41e5-a7e5-f0d326cb0ab6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CommandState := _commandState;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="CurrentFrame" Id="{26c13a2e-22c9-42bf-93d2-6ec67f3d3b92}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+  PROPERTY CurrentFrame : stFrame
+]]></Declaration>
+      <Get Name="Get" Id="{a653af18-d7cf-47f7-a4f7-cc2e6fc7b606}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CurrentFrame := _currFrame;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{e6c6bc6d-2657-4d60-86e4-310cd9e6760e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_currFrame := CurrentFrame;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="CurrentFrameId" Id="{1702473e-444c-4cd6-804e-8254e6795235}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+  PROPERTY CurrentFrameId : UINT
+]]></Declaration>
+      <Get Name="Get" Id="{f7d65704-7385-4187-bf30-3f71423d6939}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CurrentFrameId := _currFrame.frameId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="CurrentTool" Id="{28bbf2d2-3b7d-40db-8479-5b32abdd2c79}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+  PROPERTY CurrentTool : FB_1_Tool
+]]></Declaration>
+      <Get Name="Get" Id="{53c5ea4e-aa4b-4197-b229-249acd63fd6c}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CurrentTool := currTool;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{3bc312a7-cdb2-4a49-8d8e-296c8b2ef79a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[currTool := CurrentTool;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Action Name="CYCLIC_MANIP" Id="{c5ea77dd-14da-4015-9108-0744e50afbab}">
+      <Implementation>
+        <ST><![CDATA[CYCLIC_ROB();
+
+visStatus.State:=eStatus;
+visStatus.Mode:=eModus;
+visStatus.isMoving:=RobotMoving;
+visStatus.isReady:=RobotReady;
+visStatus.isConnected:=CommunicationReady;
+// 	isLocked: BOOL;
+// visStatus.isBusy:=;
+visStatus.isInCollision:=InCollision;
+visStatus.hasError:=bError;
+visStatus.TCPPosition:=ActualTcpPose;
+]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="Home" Id="{332921a2-9f70-499b-943d-00519405a468}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD Home : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Home := RequestCommand(eCommand := E_RobotCommand.Home);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsHomePosition" Id="{0f2fd807-aeed-459c-9c2b-f2325fe045e7}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+  PROPERTY IsHomePosition : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{cc381350-4b9b-4a45-a9c1-b7537b47d8d7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="MoveJoint" Id="{9e0f1a2b-3c4d-4e5f-8a6b-7c8d9e0f1a2b}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD MoveJoint : BOOL
+VAR_INPUT
+    joints : stJoint6;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MoveJoint := RequestCommand(eCommand := E_RobotCommand.MoveJoints);
+
+IF MoveJoint THEN
+    _command.Joints := joints;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveJointRelative" Id="{d4d7d377-1aa7-4fc3-9e59-f55d00fe8d35}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MoveJointRelative : BOOL
+VAR_INPUT
+    offsets : stJoint6;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MoveJointRelative := RequestCommand(eCommand := E_RobotCommand.MoveJointsRelative);
+
+IF MoveJointRelative THEN
+    _command.Joints := offsets;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveLinear" Id="{af96fe73-c0fb-4331-8a41-58ccd3cdc293}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD MoveLinear : BOOL
+VAR_INPUT
+	target	: stTarget3D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MoveLinear := RequestCommand(eCommand := E_RobotCommand.MoveLinear);
+
+    IF MoveLinear THEN
+    	_command.Pose := target.pose;
+    END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveLinearRelative" Id="{bc2132e6-39c8-42b1-8dcb-1b232e67fc7a}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD MoveLinearRelative : BOOL
+VAR_INPUT
+    offset : stRelativePose3D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MoveLinearRelative := RequestCommand(eCommand := E_RobotCommand.MoveLinearRelative);
+
+IF MoveLinearRelative THEN
+    _command.RelativePose := offset;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnActivate" Id="{9316e65a-0316-4500-ae6c-6cb94521b4a3}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+  VAR
+    bParentOk : BOOL;
+    eParentResult : eResult;
+  END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnActivate();
+  bParentOk := eParentResult = eResult.SUCCESS;
+  IF NOT bParentOk THEN
+    ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB_MANIP.OnActivate: parent OnActivate failed', '');
+    OnActivate := eParentResult;
+    RETURN;
+  END_IF
+
+  eModus := eMode.Automatic;
+OnActivate := eResult.SUCCESS;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCleanup" Id="{e5e12f85-b185-4c53-9b05-43d399837d67}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
+  VAR
+    bParentOk : BOOL;
+    eParentResult : eResult;
+  END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnCleanup();
+  bParentOk := eParentResult = eResult.SUCCESS;
+  IF NOT bParentOk THEN
+    ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB_MANIP.OnCleanup: parent OnCleanup failed', '');
+    OnCleanup := eParentResult;
+    RETURN;
+  END_IF
+
+  eModus := eMode.Manual;
+OnCleanup := eResult.SUCCESS;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnConfigure" Id="{26716ca6-30dc-4ca6-8cda-d49a9720fe10}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
+  VAR
+    bParentOk : BOOL;
+    eParentResult : eResult;
+  END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnConfigure();
+  bParentOk := eParentResult = eResult.SUCCESS;
+  IF NOT bParentOk THEN
+    ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB_MANIP.OnConfigure: parent OnConfigure failed', '');
+    OnConfigure := eParentResult;
+    RETURN;
+  END_IF
+
+  eModus := eMode.Manual;
+OnConfigure := eResult.SUCCESS;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{b783adc3-fff9-47d4-a61d-a6f66730c870}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+  VAR
+    bParentOk : BOOL;
+    eParentResult : eResult;
+  END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
+  bParentOk := eParentResult = eResult.SUCCESS;
+  IF NOT bParentOk THEN
+    ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB_MANIP.OnDeactivate: parent OnDeactivate failed', '');
+    OnDeactivate := eParentResult;
+    RETURN;
+  END_IF
+
+  eModus := eMode.Manual;
+OnDeactivate := eResult.SUCCESS;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{6305bb7b-0fb9-4e94-97bf-c149fc83cbee}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+  VAR
+    bParentOk : BOOL;
+    eParentResult : eResult;
+  END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnError();
+  bParentOk := eParentResult = eResult.SUCCESS;
+  IF NOT bParentOk THEN
+    ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB_MANIP.OnError: parent OnError failed', '');
+    OnError := eParentResult;
+    RETURN;
+  END_IF
+
+  eModus := eMode.Manual;
+OnError := eResult.SUCCESS;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnShutdown" Id="{15a32cde-208f-43d2-8298-96af9abf0f63}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+  VAR
+    bParentOk : BOOL;
+    eParentResult : eResult;
+  END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
+  bParentOk := eParentResult = eResult.SUCCESS;
+  IF NOT bParentOk THEN
+    ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB_MANIP.OnShutdown: parent OnShutdown failed', '');
+    OnShutdown := eParentResult;
+    RETURN;
+  END_IF
+
+  eModus := eMode.Manual;
+OnShutdown := eResult.SUCCESS;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Pause" Id="{b5c6d7e8-f9a0-4b1c-8d2e-3f4a5b6c7d8e}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD Pause : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Pause := RequestCommand(eCommand := E_RobotCommand.Pause);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RequestCommand" Id="{95ca8f57-9d21-483f-b4d1-93f5a12f3e5c}">
+      <Declaration><![CDATA[METHOD PROTECTED RequestCommand : BOOL
+VAR_INPUT
+	eCommand : E_RobotCommand;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RequestCommand := FALSE;
+
+CASE _commandState OF
+	E_RobotCommandState.Idle,
+	E_RobotCommandState.Done,
+	E_RobotCommandState.Aborted,
+	E_RobotCommandState.Error:
+		_command.Command := eCommand;
+		_command.ExecuteId := _nextExecuteId;
+		_nextExecuteId := _nextExecuteId + 1;
+		_commandErrorId := 0;
+		_commandState := E_RobotCommandState.Requested;
+		RequestCommand := TRUE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Resume" Id="{c6d7e8f9-a0b1-4c2d-8e3f-4a5b6c7d8e9f}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD Resume : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Resume := RequestCommand(eCommand := E_RobotCommand.Resume);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetDO" Id="{1b1484e8-2eba-4b5a-9bc9-3e9f0cf73af2}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD SetDO : BOOL
+VAR_INPUT
+    nOutput : UINT;
+    bValue : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SetDO := RequestCommand(eCommand := E_RobotCommand.SetDigitalOutput);
+
+IF SetDO THEN
+    _command.DigitalOutput := nOutput;
+    _command.DigitalOutputValue := bValue;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetFrame" Id="{27e4f33d-4da6-4fc1-ae1b-988be1edf90e}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD SetFrame : BOOL
+VAR_INPUT
+    frame : stFrame;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_currFrame := frame;
+SetFrame := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetSpeedOverride" Id="{d7e8f9a0-b1c2-4d3e-8f4a-5b6c7d8e9f0a}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD SetSpeedOverride : BOOL
+VAR_INPUT
+    factor : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SetSpeedOverride := FALSE;
+
+IF (factor < 0.001) OR (factor > 100.0) THEN
+    RETURN;
+END_IF
+
+SetSpeedOverride := RequestCommand(eCommand := E_RobotCommand.SetSpeedOverride);
+IF SetSpeedOverride THEN
+    _command.SpeedOverride := factor;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetTool" Id="{8ccd8377-a0a9-4b8e-810b-34174cdec411}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD SetTool : BOOL
+VAR_INPUT
+    tool : FB_1_Tool;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[currTool := tool;
+SetTool := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Stop" Id="{a4b5c6d7-e8f9-4a0b-8c1d-2e3f4a5b6c7d}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD Stop : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Stop := RequestCommand(eCommand := E_RobotCommand.Stop);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="TargetReached" Id="{2237dc56-6e31-4e2f-87fb-158a23ca2344}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY TargetReached : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{fa9b9558-e97e-4d6d-afa4-8757f8a89ab1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TargetReached := _commandState = E_RobotCommandState.Done;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

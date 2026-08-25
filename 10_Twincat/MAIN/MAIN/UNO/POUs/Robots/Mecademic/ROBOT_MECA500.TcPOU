@@ -1,0 +1,1309 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ROBOT_MECA500" Id="{2f3ce915-1e6f-4cc8-9a5b-aaacdfe77a55}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ROBOT_MECA500 EXTENDS FB_2_ROB_MANIP
+
+VAR_INPUT
+	
+    // ----------------------------------------------------------------
+    // EtherCAT connection / configuration
+    // ----------------------------------------------------------------
+    bSwapIntegerByteOrder        : BOOL := TRUE;
+
+    // ----------------------------------------------------------------
+    // TxPDO 1A00h / object 6010h - RobotStatus (robot -> PLC)
+    // ----------------------------------------------------------------
+    xInBusy                      : BOOL;
+    xInActivated                 : BOOL;
+    xInHomed                     : BOOL;
+    xInSimActivated              : BOOL;
+    xInBrakesEngaged             : BOOL;
+    xInRecoveryMode              : BOOL;
+    xInEStop                     : BOOL;
+    xInCollisionStatus           : BOOL;
+    xInWorkZoneStatus            : BOOL;
+    xInMonitoringMode            : BOOL;
+    uiInErrorCode                : UINT;
+
+    // ----------------------------------------------------------------
+    // TxPDO 1A01h / object 6015h - MotionStatus
+    // Integer values are the raw mapped PDO values.
+    // ----------------------------------------------------------------
+    uiInCheckpointReached        : UINT;
+    uiInCheckpointDiscarded      : UINT;
+    uiInMoveID                   : UINT;
+    uiInFifoSpace                : UINT;
+    xInPaused                    : BOOL;
+    xInEOB                       : BOOL;
+    xInEOM                       : BOOL;
+    xInCleared                   : BOOL;
+    xInPStop2                    : BOOL;
+    xInExcessiveTorque           : BOOL;
+
+    // ----------------------------------------------------------------
+    // TxPDO 1A20h..1A23h - DynamicData slots
+    //
+    // This FB requests:
+    // slot 0 = 40 Actual joint position
+    // slot 1 = 41 Actual Cartesian pose
+    // slot 2 = 42 Actual joint velocity
+    // slot 3 = 44 Actual Cartesian velocity
+    // ----------------------------------------------------------------
+    diInDynamicType0             : DINT;
+    rInDynamic0_0                : REAL;
+    rInDynamic0_1                : REAL;
+    rInDynamic0_2                : REAL;
+    rInDynamic0_3                : REAL;
+    rInDynamic0_4                : REAL;
+    rInDynamic0_5                : REAL;
+
+    diInDynamicType1             : DINT;
+    rInDynamic1_0                : REAL;
+    rInDynamic1_1                : REAL;
+    rInDynamic1_2                : REAL;
+    rInDynamic1_3                : REAL;
+    rInDynamic1_4                : REAL;
+    rInDynamic1_5                : REAL;
+
+    diInDynamicType2             : DINT;
+    rInDynamic2_0                : REAL;
+    rInDynamic2_1                : REAL;
+    rInDynamic2_2                : REAL;
+    rInDynamic2_3                : REAL;
+    rInDynamic2_4                : REAL;
+    rInDynamic2_5                : REAL;
+
+    diInDynamicType3             : DINT;
+    rInDynamic3_0                : REAL;
+    rInDynamic3_1                : REAL;
+    rInDynamic3_2                : REAL;
+    rInDynamic3_3                : REAL;
+    rInDynamic3_4                : REAL;
+    rInDynamic3_5                : REAL;
+END_VAR
+
+VAR_OUTPUT
+    // ----------------------------------------------------------------
+    // RxPDO 1600h / object 7200h - RobotControl (PLC -> robot)
+    // ----------------------------------------------------------------
+    xOutDeactivateRobot          : BOOL;
+    xOutActivateRobot            : BOOL;
+    xOutHome                     : BOOL;
+    xOutResetError               : BOOL;
+    xOutActivateSim              : BOOL;
+    xOutEnableRecoveryMode       : BOOL;
+    xOutDisableEtherCAT          : BOOL;
+
+    // ----------------------------------------------------------------
+    // RxPDO 1601h / object 7310h - MotionControl
+    // ----------------------------------------------------------------
+    uiOutMoveID                  : UINT;
+    xOutSetPoint                 : BOOL;
+    xOutPauseMotion              : BOOL;
+    xOutClearMotion              : BOOL;
+    xOutResumeMotion             : BOOL;
+    xOutUseVariables             : BOOL;
+
+    // ----------------------------------------------------------------
+    // RxPDO 1602h / objects 7305h + 7306h - Movement
+    // ----------------------------------------------------------------
+    diOutMotionCommandID         : DINT;
+    rOutArgument1                : REAL;
+    rOutArgument2                : REAL;
+    rOutArgument3                : REAL;
+    rOutArgument4                : REAL;
+    rOutArgument5                : REAL;
+    rOutArgument6                : REAL;
+
+    // ----------------------------------------------------------------
+    // RxPDO 1610h / object 7400h - HostTime
+    // ----------------------------------------------------------------
+    diOutHostTime                : DINT;
+
+    // ----------------------------------------------------------------
+    // RxPDO 1611h / object 7410h - BrakesControl
+    // Kept disabled by this FB for safety.
+    // ----------------------------------------------------------------
+    xOutBrakesControlAllowed     : BOOL;
+    xOutBrakesEngaged            : BOOL;
+
+    // ----------------------------------------------------------------
+    // RxPDO 1620h..1623h - DynamicDataConfiguration
+    // ----------------------------------------------------------------
+    diOutDynamicType0            : DINT;
+    diOutDynamicType1            : DINT;
+    diOutDynamicType2            : DINT;
+    diOutDynamicType3            : DINT;
+END_VAR
+
+VAR
+    // ----------------------------------------------------------------
+    // Logical EtherCAT communication state
+    // ----------------------------------------------------------------
+    _Connected                   : BOOL := FALSE;
+    eConnectionState             : eCommunicationState := eCommunicationState.DISCONNECTED;
+    _ecatRequested               : BOOL := FALSE;
+    _sessionInitialized          : BOOL := FALSE;
+    _localError                  : BOOL := FALSE;
+
+    // ----------------------------------------------------------------
+    // Robot status in host byte order
+    // ----------------------------------------------------------------
+    _robotErrorCode              : UINT;
+    _robotMoveID                 : UINT;
+    _robotFifoSpace              : UINT;
+    _checkpointReached           : UINT;
+    _checkpointDiscarded         : UINT;
+
+    // ----------------------------------------------------------------
+    // Command handshake
+    // ----------------------------------------------------------------
+    _cmdPending                  : BOOL := FALSE;
+    _pendingMotionCommandID      : DINT := 0;
+    _pendingMoveID               : UINT := 0;
+    _pendingArgs                 : ARRAY[1..6] OF REAL;
+    _pendingTracksMotion         : BOOL := FALSE;
+    _pendingIsCompletionCheckpoint : BOOL := FALSE;
+
+    _nextMoveID                  : UINT := 1;
+
+    // Completion is tracked with SetCheckpoint (command ID 17).
+    _motionInProgress            : BOOL := FALSE;
+    _needCompletionCheckpoint    : BOOL := FALSE;
+    _awaitCompletionCheckpoint   : BOOL := FALSE;
+    _completionCheckpoint        : UINT := 0;
+    _nextCheckpoint              : UINT := 1;
+    _targetReached               : BOOL := TRUE;
+
+    // ----------------------------------------------------------------
+    // Robot-control requests
+    // ----------------------------------------------------------------
+    _homeRequest                 : BOOL := FALSE;
+    _resumePhase                 : USINT := 0;
+
+    // ----------------------------------------------------------------
+    // Cached actual feedback from DynamicData
+    // ----------------------------------------------------------------
+    _actualJointPos              : ARRAY[1..6] OF REAL;
+    _actualTcpPose               : ARRAY[1..6] OF REAL;
+    _actualJointVel              : ARRAY[1..6] OF REAL;
+    _actualTcpVel                : ARRAY[1..6] OF REAL;
+
+    _actualJointPosValid         : BOOL := FALSE;
+    _actualTcpPoseValid          : BOOL := FALSE;
+    _actualJointVelValid         : BOOL := FALSE;
+    _actualTcpVelValid           : BOOL := FALSE;
+	velfact: REAL;
+	_inCollision: BOOL;
+END_VAR
+
+VAR CONSTANT
+    // Mecademic cyclic MotionCommandID values
+    C_CMD_MOVE_JOINTS            : DINT := 1;
+    C_CMD_MOVE_POSE              : DINT := 2;
+    C_CMD_MOVE_LIN               : DINT := 3;
+    C_CMD_SET_CHECKPOINT         : DINT := 17;
+    C_CMD_MOVE_JOINTS_REL        : DINT := 29;
+    C_CMD_SET_TIME_SCALING       : DINT := 48;
+
+    // Dynamic data IDs
+    C_DYN_ACTUAL_JOINT_POS       : DINT := 40;
+    C_DYN_ACTUAL_CART_POS        : DINT := 41;
+    C_DYN_ACTUAL_JOINT_VEL       : DINT := 42;
+    C_DYN_ACTUAL_CART_VEL        : DINT := 44;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CYCLIC_MANIP();
+
+ComMachine();            // overridden here for EtherCAT
+ProcessCommand();        // Meca500 command adapter
+]]></ST>
+    </Implementation>
+    <Folder Name="Communication" Id="{0edfa392-13ec-405e-8b12-9a13991abddb}" />
+    <Folder Name="MotionControl" Id="{c5850f27-3318-4a76-9fb7-aa8600e19cfc}" />
+    <Folder Name="StateControl" Id="{ad91132d-5c8a-4b1d-84ac-fc8b63384dee}" />
+    <Method Name="ComMachine" Id="{5956655e-56b5-43d0-a1fc-69f853c59648}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD ComMachine : BOOL
+VAR
+    diDyn0 : DINT;
+    diDyn1 : DINT;
+    diDyn2 : DINT;
+    diDyn3 : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ============================================================
+// Convert status integers into host byte order.
+// ============================================================
+_robotErrorCode := M_EcatU16ToHost(uiInErrorCode);
+_robotMoveID := M_EcatU16ToHost(uiInMoveID);
+_robotFifoSpace := M_EcatU16ToHost(uiInFifoSpace);
+_checkpointReached := M_EcatU16ToHost(uiInCheckpointReached);
+_checkpointDiscarded := M_EcatU16ToHost(uiInCheckpointDiscarded);
+
+diDyn0 := M_EcatDintToHost(diInDynamicType0);
+diDyn1 := M_EcatDintToHost(diInDynamicType1);
+diDyn2 := M_EcatDintToHost(diInDynamicType2);
+diDyn3 := M_EcatDintToHost(diInDynamicType3);
+
+// Always request the four feedback groups used by the framework.
+diOutDynamicType0 := M_HostDintToEcat(C_DYN_ACTUAL_JOINT_POS);
+diOutDynamicType1 := M_HostDintToEcat(C_DYN_ACTUAL_CART_POS);
+diOutDynamicType2 := M_HostDintToEcat(C_DYN_ACTUAL_JOINT_VEL);
+diOutDynamicType3 := M_HostDintToEcat(C_DYN_ACTUAL_CART_VEL);
+
+// Safety defaults. Never use this FB to disable EtherCAT or release brakes.
+xOutDisableEtherCAT := FALSE;
+xOutBrakesControlAllowed := FALSE;
+xOutBrakesEngaged := TRUE;
+xOutUseVariables := FALSE;
+diOutHostTime := 0;
+
+// Update framework error/status variables.
+_inCollision := xInCollisionStatus;
+
+bError := (_robotErrorCode <> 0) OR _localError;
+
+IF _robotErrorCode <> 0 THEN
+    nErrorId := _robotErrorCode;
+ELSIF _localError THEN
+    // Keep the local adapter error ID until ResetConnection/onError clears it.
+ELSE
+    nErrorId := 0;
+END_IF
+
+// ============================================================
+// EtherCAT logical connection state.
+// ============================================================
+CASE eConnectionState OF
+
+    eCommunicationState.DISCONNECTED:
+        _Connected := FALSE;
+        xOutSetPoint := FALSE;
+
+        IF _ecatRequested THEN
+            eConnectionState := eCommunicationState.CONNECTING;
+        END_IF
+
+    eCommunicationState.CONNECTING:
+        _Connected := FALSE;
+        xOutSetPoint := FALSE;
+
+        IF NOT _ecatRequested THEN
+            eConnectionState := eCommunicationState.DISCONNECTED;
+
+        ELSIF bCommunicationReady THEN
+            // Required safe initial state for the cyclic API.
+            _cmdPending := FALSE;
+            _pendingMoveID := 0;
+            _pendingIsCompletionCheckpoint := FALSE;
+            _motionInProgress := FALSE;
+            _needCompletionCheckpoint := FALSE;
+            _awaitCompletionCheckpoint := FALSE;
+            _targetReached := TRUE;
+
+            uiOutMoveID := M_HostU16ToEcat(0);
+            diOutMotionCommandID := M_HostDintToEcat(0);
+            xOutSetPoint := FALSE;
+
+            _sessionInitialized := TRUE;
+            _Connected := TRUE;
+            eConnectionState := eCommunicationState.CONNECTED;
+        END_IF
+
+    eCommunicationState.CONNECTED:
+        _Connected := _ecatRequested AND bCommunicationReady;
+
+        IF NOT _ecatRequested OR NOT bCommunicationReady THEN
+            M_ClearEcatOutputs();
+            _Connected := FALSE;
+            _sessionInitialized := FALSE;
+            eConnectionState := eCommunicationState.DISCONNECTED;
+        END_IF
+
+    ELSE
+        _Connected := FALSE;
+        eConnectionState := eCommunicationState.DISCONNECTED;
+END_CASE
+
+// ============================================================
+// Actual dynamic feedback.
+// ============================================================
+IF diDyn0 = C_DYN_ACTUAL_JOINT_POS THEN
+    _actualJointPos[1] := rInDynamic0_0;
+    _actualJointPos[2] := rInDynamic0_1;
+    _actualJointPos[3] := rInDynamic0_2;
+    _actualJointPos[4] := rInDynamic0_3;
+    _actualJointPos[5] := rInDynamic0_4;
+    _actualJointPos[6] := rInDynamic0_5;
+    _actualJointPosValid := TRUE;
+END_IF
+
+IF diDyn1 = C_DYN_ACTUAL_CART_POS THEN
+    _actualTcpPose[1] := rInDynamic1_0;
+    _actualTcpPose[2] := rInDynamic1_1;
+    _actualTcpPose[3] := rInDynamic1_2;
+    _actualTcpPose[4] := rInDynamic1_3;
+    _actualTcpPose[5] := rInDynamic1_4;
+    _actualTcpPose[6] := rInDynamic1_5;
+    _actualTcpPoseValid := TRUE;
+END_IF
+
+IF diDyn2 = C_DYN_ACTUAL_JOINT_VEL THEN
+    _actualJointVel[1] := rInDynamic2_0;
+    _actualJointVel[2] := rInDynamic2_1;
+    _actualJointVel[3] := rInDynamic2_2;
+    _actualJointVel[4] := rInDynamic2_3;
+    _actualJointVel[5] := rInDynamic2_4;
+    _actualJointVel[6] := rInDynamic2_5;
+    _actualJointVelValid := TRUE;
+END_IF
+
+IF diDyn3 = C_DYN_ACTUAL_CART_VEL THEN
+    _actualTcpVel[1] := rInDynamic3_0;
+    _actualTcpVel[2] := rInDynamic3_1;
+    _actualTcpVel[3] := rInDynamic3_2;
+    _actualTcpVel[4] := rInDynamic3_3;
+    _actualTcpVel[5] := rInDynamic3_4;
+    _actualTcpVel[6] := rInDynamic3_5;
+    _actualTcpVelValid := TRUE;
+END_IF
+
+M_CopyFeedbackToFramework();
+
+// Service an explicit Home() request made outside the lifecycle activation.
+// Keep Home asserted until Homed confirms completion.
+IF _Connected AND _homeRequest THEN
+    IF xInHomed THEN
+        xOutHome := FALSE;
+        _homeRequest := FALSE;
+    ELSIF xInActivated THEN
+        xOutHome := TRUE;
+    END_IF
+END_IF
+
+// ============================================================
+// Motion command handshake.
+// Keep ID/arguments/MoveID stable until acknowledgement.
+// ============================================================
+IF _Connected THEN
+
+    IF _cmdPending THEN
+        diOutMotionCommandID := M_HostDintToEcat(_pendingMotionCommandID);
+        uiOutMoveID := M_HostU16ToEcat(_pendingMoveID);
+
+        rOutArgument1 := _pendingArgs[1];
+        rOutArgument2 := _pendingArgs[2];
+        rOutArgument3 := _pendingArgs[3];
+        rOutArgument4 := _pendingArgs[4];
+        rOutArgument5 := _pendingArgs[5];
+        rOutArgument6 := _pendingArgs[6];
+
+        xOutSetPoint := TRUE;
+
+        IF _robotMoveID = _pendingMoveID THEN
+            xOutSetPoint := FALSE;
+            _cmdPending := FALSE;
+
+            IF _pendingTracksMotion THEN
+                // The move has only been QUEUED, not completed.
+                _needCompletionCheckpoint := TRUE;
+                _pendingTracksMotion := FALSE;
+            END_IF
+
+            IF _pendingIsCompletionCheckpoint THEN
+                // Start watching CheckpointReached only after the SetCheckpoint
+                // command itself has been acknowledged by MoveID.
+                _awaitCompletionCheckpoint := TRUE;
+                _pendingIsCompletionCheckpoint := FALSE;
+            END_IF
+        END_IF
+
+    ELSE
+        xOutSetPoint := FALSE;
+
+        // Queue a checkpoint immediately after a motion command was accepted.
+        IF _needCompletionCheckpoint THEN
+            _needCompletionCheckpoint := FALSE;
+
+            IF M_QueueCommand(
+                diCommandID := C_CMD_SET_CHECKPOINT,
+                rArg1 := UINT_TO_REAL(_completionCheckpoint),
+                rArg2 := 0.0,
+                rArg3 := 0.0,
+                rArg4 := 0.0,
+                rArg5 := 0.0,
+                rArg6 := 0.0,
+                bTrackMotion := FALSE
+            ) THEN
+                _pendingIsCompletionCheckpoint := TRUE;
+            END_IF
+        END_IF
+    END_IF
+
+    // CheckpointReached confirms execution order, unlike MoveID which only
+    // confirms that the command was accepted/queued.
+    IF _awaitCompletionCheckpoint
+       AND (_checkpointReached = _completionCheckpoint) THEN
+        _awaitCompletionCheckpoint := FALSE;
+        _motionInProgress := FALSE;
+        _targetReached := TRUE;
+    END_IF
+
+    IF _awaitCompletionCheckpoint
+       AND (_checkpointDiscarded = _completionCheckpoint) THEN
+        _awaitCompletionCheckpoint := FALSE;
+        _motionInProgress := FALSE;
+        _targetReached := FALSE;
+        _localError := TRUE;
+        bError := TRUE;
+        nErrorId := 16#E510;
+    END_IF
+END_IF
+
+bBusy := xInBusy OR _cmdPending OR _motionInProgress OR (NOT xInEOM);
+
+CommunicationReady := _Connected;
+RobotEnabled := _Connected AND xInActivated;
+RobotReady := _Connected AND xInActivated AND xInHomed AND NOT bError AND NOT xInPaused AND NOT xInEStop AND NOT xInPStop2;
+RobotMoving := _motionInProgress OR (_Connected AND xInActivated AND NOT xInEOM);
+Busy := bBusy;
+
+ComMachine := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Connect" Id="{67f7b2ea-0680-4146-918b-7ffcd83b05dc}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD Connect : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// EtherCAT itself is connected/configured by the TwinCAT EtherCAT master.
+// This method enables the logical robot session and waits for OP state in ComMachine.
+_ecatRequested := TRUE;
+
+IF eConnectionState = eCommunicationState.DISCONNECTED THEN
+    eConnectionState := eCommunicationState.CONNECTING;
+END_IF
+
+Connect := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Connected" Id="{d040c561-ab16-415b-95d0-023f4b912129}" FolderPath="Communication\">
+      <Declaration><![CDATA[PROPERTY Connected : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7f3d6e99-ff5a-4fa3-9a2a-0bd7bb7f63e6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Connected := _Connected;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Disconnect" Id="{21c9deb4-4925-4faa-9972-b182cca11539}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD Disconnect : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Do NOT use DisableEtherCAT here: that would switch the robot out of
+// EtherCAT mode. We only stop the logical control session.
+_ecatRequested := FALSE;
+
+M_ClearEcatOutputs();
+
+_Connected := FALSE;
+_sessionInitialized := FALSE;
+_homeRequest := FALSE;
+eConnectionState := eCommunicationState.DISCONNECTED;
+
+Disconnect := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_CanAcceptMotion" Id="{52cfd241-00c0-4209-aa26-4ac7c9377b46}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD PRIVATE M_CanAcceptMotion : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_CanAcceptMotion := FALSE;
+
+IF State <> eState.Active THEN
+    RETURN;
+END_IF
+
+IF NOT _Connected OR NOT xInActivated OR NOT xInHomed THEN
+    RETURN;
+END_IF
+
+IF bError OR xInEStop OR xInPStop2 OR xInMonitoringMode THEN
+    RETURN;
+END_IF
+
+IF xInPaused OR xInCleared THEN
+    RETURN;
+END_IF
+
+IF _cmdPending OR _motionInProgress THEN
+    RETURN;
+END_IF
+
+IF _robotFifoSpace = 0 THEN
+    RETURN;
+END_IF
+
+M_CanAcceptMotion := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_ClearEcatOutputs" Id="{5ab559d0-ea7f-401c-8d06-931fa54fd2f4}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE M_ClearEcatOutputs : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[xOutDeactivateRobot := FALSE;
+xOutActivateRobot := FALSE;
+xOutHome := FALSE;
+xOutResetError := FALSE;
+xOutActivateSim := FALSE;
+xOutEnableRecoveryMode := FALSE;
+xOutDisableEtherCAT := FALSE;
+
+uiOutMoveID := M_HostU16ToEcat(0);
+xOutSetPoint := FALSE;
+xOutPauseMotion := FALSE;
+xOutClearMotion := FALSE;
+xOutResumeMotion := FALSE;
+xOutUseVariables := FALSE;
+
+diOutMotionCommandID := M_HostDintToEcat(0);
+rOutArgument1 := 0.0;
+rOutArgument2 := 0.0;
+rOutArgument3 := 0.0;
+rOutArgument4 := 0.0;
+rOutArgument5 := 0.0;
+rOutArgument6 := 0.0;
+
+diOutHostTime := 0;
+
+// Never actively release the brakes from this generic FB.
+xOutBrakesControlAllowed := FALSE;
+xOutBrakesEngaged := TRUE;
+
+// Dynamic data configuration is safe to keep active.
+diOutDynamicType0 := M_HostDintToEcat(C_DYN_ACTUAL_JOINT_POS);
+diOutDynamicType1 := M_HostDintToEcat(C_DYN_ACTUAL_CART_POS);
+diOutDynamicType2 := M_HostDintToEcat(C_DYN_ACTUAL_JOINT_VEL);
+diOutDynamicType3 := M_HostDintToEcat(C_DYN_ACTUAL_CART_VEL);
+
+M_ClearEcatOutputs := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_CopyFeedbackToFramework" Id="{350f4320-e7ab-4b46-b6aa-63afeb1640fa}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD PRIVATE M_CopyFeedbackToFramework : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _actualJointPosValid THEN
+    _jointpos.joint1 := REAL_TO_LREAL(_actualJointPos[1]);
+    _jointpos.joint2 := REAL_TO_LREAL(_actualJointPos[2]);
+    _jointpos.joint3 := REAL_TO_LREAL(_actualJointPos[3]);
+    _jointpos.joint4 := REAL_TO_LREAL(_actualJointPos[4]);
+    _jointpos.joint5 := REAL_TO_LREAL(_actualJointPos[5]);
+    _jointpos.joint6 := REAL_TO_LREAL(_actualJointPos[6]);
+END_IF
+
+IF _actualJointVelValid THEN
+    _jointvel.joint1 := REAL_TO_LREAL(_actualJointVel[1]);
+    _jointvel.joint2 := REAL_TO_LREAL(_actualJointVel[2]);
+    _jointvel.joint3 := REAL_TO_LREAL(_actualJointVel[3]);
+    _jointvel.joint4 := REAL_TO_LREAL(_actualJointVel[4]);
+    _jointvel.joint5 := REAL_TO_LREAL(_actualJointVel[5]);
+    _jointvel.joint6 := REAL_TO_LREAL(_actualJointVel[6]);
+END_IF
+
+IF _actualTcpPoseValid THEN
+    _tcppos.x := REAL_TO_LREAL(_actualTcpPose[1]);
+    _tcppos.y := REAL_TO_LREAL(_actualTcpPose[2]);
+    _tcppos.z := REAL_TO_LREAL(_actualTcpPose[3]);
+    _tcppos.rx := REAL_TO_LREAL(_actualTcpPose[4]);
+    _tcppos.ry := REAL_TO_LREAL(_actualTcpPose[5]);
+    _tcppos.rz := REAL_TO_LREAL(_actualTcpPose[6]);
+END_IF
+
+IF _actualTcpVelValid THEN
+    _tcpvel.x := REAL_TO_LREAL(_actualTcpVel[1]);
+    _tcpvel.y := REAL_TO_LREAL(_actualTcpVel[2]);
+    _tcpvel.z := REAL_TO_LREAL(_actualTcpVel[3]);
+    _tcpvel.rx := REAL_TO_LREAL(_actualTcpVel[4]);
+    _tcpvel.ry := REAL_TO_LREAL(_actualTcpVel[5]);
+    _tcpvel.rz := REAL_TO_LREAL(_actualTcpVel[6]);
+END_IF
+
+M_CopyFeedbackToFramework := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_EcatDintToHost" Id="{4c418c91-fec7-478d-98dc-f60130df6705}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE M_EcatDintToHost : DINT
+VAR_INPUT
+    value : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bSwapIntegerByteOrder THEN
+    M_EcatDintToHost := M_SwapDint(value);
+ELSE
+    M_EcatDintToHost := value;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_EcatU16ToHost" Id="{625a9bd9-d2aa-4d84-80dd-ce3c213f4f37}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE M_EcatU16ToHost : UINT
+VAR_INPUT
+    value : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bSwapIntegerByteOrder THEN
+    M_EcatU16ToHost := M_SwapU16(value);
+ELSE
+    M_EcatU16ToHost := value;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Home" Id="{2f2f1dc9-7b6d-419b-9db7-32d9c3018905}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD M_Home : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_Home := RequestCommand(eCommand := E_RobotCommand.Home);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_HostDintToEcat" Id="{03807633-23a5-4a3a-885d-3542bc963ae6}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE M_HostDintToEcat : DINT
+VAR_INPUT
+    value : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bSwapIntegerByteOrder THEN
+    M_HostDintToEcat := M_SwapDint(value);
+ELSE
+    M_HostDintToEcat := value;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_HostU16ToEcat" Id="{1243b7ce-3666-4739-a837-175d0672dd4e}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE M_HostU16ToEcat : UINT
+VAR_INPUT
+    value : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bSwapIntegerByteOrder THEN
+    M_HostU16ToEcat := M_SwapU16(value);
+ELSE
+    M_HostU16ToEcat := value;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_JointsToArgs" Id="{f9a0b1c2-d3e4-4f5a-8b6c-7d8e9f0a1b2c}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD PRIVATE M_JointsToArgs : BOOL
+VAR_INPUT
+        joints  : stJoint6;
+END_VAR
+VAR_OUTPUT
+        aValues : ARRAY[1..6] OF REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[aValues[1] := LREAL_TO_REAL(joints.joint1);
+aValues[2] := LREAL_TO_REAL(joints.joint2);
+aValues[3] := LREAL_TO_REAL(joints.joint3);
+aValues[4] := LREAL_TO_REAL(joints.joint4);
+aValues[5] := LREAL_TO_REAL(joints.joint5);
+aValues[6] := LREAL_TO_REAL(joints.joint6);
+M_JointsToArgs := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_QueueCommand" Id="{5ab300d8-fa40-47c6-bfa3-4139e4d24014}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD PRIVATE M_QueueCommand : BOOL
+VAR_INPUT
+    diCommandID : DINT;
+    rArg1       : REAL;
+    rArg2       : REAL;
+    rArg3       : REAL;
+    rArg4       : REAL;
+    rArg5       : REAL;
+    rArg6       : REAL;
+    bTrackMotion: BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_QueueCommand := FALSE;
+
+IF NOT _Connected OR _cmdPending THEN
+    RETURN;
+END_IF
+
+IF _robotFifoSpace = 0 THEN
+    RETURN;
+END_IF
+
+_pendingMotionCommandID := diCommandID;
+_pendingArgs[1] := rArg1;
+_pendingArgs[2] := rArg2;
+_pendingArgs[3] := rArg3;
+_pendingArgs[4] := rArg4;
+_pendingArgs[5] := rArg5;
+_pendingArgs[6] := rArg6;
+_pendingTracksMotion := bTrackMotion;
+_pendingIsCompletionCheckpoint := FALSE;
+
+// Every non-cyclic command needs a changed, non-zero MoveID.
+_pendingMoveID := _nextMoveID;
+_nextMoveID := _nextMoveID + 1;
+
+// Keep IDs positive in a signed 16-bit interpretation.
+IF (_nextMoveID = 0) OR (_nextMoveID > 32000) THEN
+    _nextMoveID := 1;
+END_IF
+
+IF bTrackMotion THEN
+    _motionInProgress := TRUE;
+    _targetReached := FALSE;
+
+    _completionCheckpoint := _nextCheckpoint;
+    _nextCheckpoint := _nextCheckpoint + 1;
+
+    IF (_nextCheckpoint = 0) OR (_nextCheckpoint > 8000) THEN
+        _nextCheckpoint := 1;
+    END_IF
+END_IF
+
+_cmdPending := TRUE;
+M_QueueCommand := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_RelativePoseToAbsolute" Id="{f90daa67-b4d1-4d18-8dd4-4eccb523c3e1}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD PRIVATE M_RelativePoseToAbsolute : BOOL
+VAR_INPUT
+        offset : stRelativePose3D;
+END_VAR
+VAR_OUTPUT
+        pose : stPose3D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_RelativePoseToAbsolute := FALSE;
+
+IF NOT _actualTcpPoseValid THEN
+        RETURN;
+END_IF
+
+pose.x := REAL_TO_LREAL(_actualTcpPose[1]) + offset.dx;
+pose.y := REAL_TO_LREAL(_actualTcpPose[2]) + offset.dy;
+pose.z := REAL_TO_LREAL(_actualTcpPose[3]) + offset.dz;
+pose.rx := REAL_TO_LREAL(_actualTcpPose[4]) + offset.drx;
+pose.ry := REAL_TO_LREAL(_actualTcpPose[5]) + offset.dry;
+pose.rz := REAL_TO_LREAL(_actualTcpPose[6]) + offset.drz;
+
+M_RelativePoseToAbsolute := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_SwapDint" Id="{b89a3a20-acb1-4a93-bd1d-a8efc8898704}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE M_SwapDint : DINT
+VAR_INPUT
+    value : DINT;
+END_VAR
+VAR
+    dwIn  : DWORD;
+    dwOut : DWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[dwIn := DINT_TO_DWORD(value);
+
+dwOut :=
+    SHL(dwIn AND DWORD#16#000000FF, 24)
+    OR SHL(dwIn AND DWORD#16#0000FF00, 8)
+    OR SHR(dwIn AND DWORD#16#00FF0000, 8)
+    OR SHR(dwIn AND DWORD#16#FF000000, 24);
+
+M_SwapDint := DWORD_TO_DINT(dwOut);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_SwapU16" Id="{9165c9e0-28ac-4f70-925a-74f917285f10}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE M_SwapU16 : UINT
+VAR_INPUT
+    value : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_SwapU16 :=
+    SHL(value AND UINT#16#00FF, 8)
+    OR SHR(value AND UINT#16#FF00, 8);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_TargetToArgs" Id="{9d5acc63-fddd-4c9c-9034-205537d16cf6}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD PRIVATE M_TargetToArgs : BOOL
+VAR_INPUT
+    pose    : stPose3D;
+END_VAR
+VAR_OUTPUT
+    aValues : ARRAY[1..6] OF REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[aValues[1] := LREAL_TO_REAL(pose.x);
+aValues[2] := LREAL_TO_REAL(pose.y);
+aValues[3] := LREAL_TO_REAL(pose.z);
+aValues[4] := LREAL_TO_REAL(pose.rx);
+aValues[5] := LREAL_TO_REAL(pose.ry);
+aValues[6] := LREAL_TO_REAL(pose.rz);
+M_TargetToArgs := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnActivate" Id="{b9d2baff-9b5e-454a-9608-066761b62c00}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+VAR
+    bParentOk : BOOL;
+    eParentResult : eResult;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnActivate();
+    bParentOk := eParentResult = eResult.SUCCESS;
+    IF NOT bParentOk THEN
+        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_Meca500.OnActivate: parent OnActivate failed', '');
+        OnActivate := eParentResult;
+        RETURN;
+    END_IF
+
+    // ---- Init ----
+_transitionresult := eResult.None;
+
+IF NOT Connected THEN
+    _transitionresult := eResult.FAILURE;
+
+ELSIF (_robotErrorCode <> 0) OR xInEStop OR xInPStop2 THEN
+    _transitionresult := eResult.ERROR;
+
+ELSE
+    // ActivateRobot is a triggered action: hold until Activated confirms it.
+    IF NOT xInActivated THEN
+        xOutDeactivateRobot := FALSE;
+        xOutActivateRobot := TRUE;
+        xOutHome := FALSE;
+        _resumePhase := 0;
+
+    // Home is a triggered action: hold until Homed confirms it.
+    ELSIF NOT xInHomed THEN
+        xOutActivateRobot := FALSE;
+        xOutHome := TRUE;
+        _resumePhase := 0;
+
+    ELSE
+        xOutActivateRobot := FALSE;
+        xOutHome := FALSE;
+
+        // A previous ClearMotion may leave the robot paused.
+        // ResumeMotion is edge-triggered, so produce a clean low->high->low pulse.
+        IF xInPaused THEN
+            CASE _resumePhase OF
+                0:
+                    xOutResumeMotion := FALSE;
+                    _resumePhase := 1;
+
+                1:
+                    xOutResumeMotion := TRUE;
+                    _resumePhase := 2;
+
+                2:
+                    xOutResumeMotion := FALSE;
+            END_CASE
+        ELSE
+            xOutResumeMotion := FALSE;
+            _resumePhase := 0;
+            _transitionresult := eResult.SUCCESS;
+        END_IF
+    END_IF
+END_IF
+
+OnActivate := _transitionresult;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCleanup" Id="{d83e7a1b-e936-4a79-97d4-2eb8ea5a0c73}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
+VAR
+    bParentOk : BOOL;
+    eParentResult : eResult;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnCleanup();
+    bParentOk := eParentResult = eResult.SUCCESS;
+    IF NOT bParentOk THEN
+        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_Meca500.OnCleanup: parent OnCleanup failed', '');
+        OnCleanup := eParentResult;
+        RETURN;
+    END_IF
+
+    _transitionresult := eResult.None;
+
+eModus := eMode.Manual;
+Disconnect();
+
+IF NOT Connected THEN
+    _transitionresult := eResult.SUCCESS;
+END_IF
+
+OnCleanup := _transitionresult;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnConfigure" Id="{713f5b8f-7427-4ceb-adba-a72d466cc3d9}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
+VAR
+    bParentOk : BOOL;
+    eParentResult : eResult;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnConfigure();
+    bParentOk := eParentResult = eResult.SUCCESS;
+    IF NOT bParentOk THEN
+        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_Meca500.OnConfigure: parent OnConfigure failed', '');
+        OnConfigure := eParentResult;
+        RETURN;
+    END_IF
+
+    // ---- Init ----
+_transitionresult := eResult.None;
+
+// ---- Change ----
+eModus := eMode.Manual;
+Connect();
+PM.Configure(sPrefix:=Name,sDatabase:=CONCAT('db_',Name));
+
+// ---- Check ----
+IF bError OR (_robotErrorCode <> 0) THEN
+    _transitionresult := eResult.ERROR;
+ELSIF Connected THEN
+    _transitionresult := eResult.SUCCESS;
+END_IF
+
+// ---- Change State ----
+OnConfigure := _transitionresult;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{1398c304-234b-422f-b021-0870aaf38840}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+VAR
+    bParentOk : BOOL;
+    eParentResult : eResult;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
+    bParentOk := eParentResult = eResult.SUCCESS;
+    IF NOT bParentOk THEN
+        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_Meca500.OnDeactivate: parent OnDeactivate failed', '');
+        OnDeactivate := eParentResult;
+        RETURN;
+    END_IF
+
+    // ---- Init ----
+_transitionresult := eResult.None;
+eModus := eMode.Manual;
+
+// Stop posting commands immediately.
+_cmdPending := FALSE;
+_needCompletionCheckpoint := FALSE;
+_awaitCompletionCheckpoint := FALSE;
+_motionInProgress := FALSE;
+_targetReached := FALSE;
+
+xOutSetPoint := FALSE;
+xOutResumeMotion := FALSE;
+
+// First clear the motion queue and wait for acknowledgement.
+IF xInActivated AND NOT xInCleared THEN
+    xOutClearMotion := TRUE;
+    xOutDeactivateRobot := FALSE;
+
+// Then deactivate and hold the request until Activated is cleared.
+ELSIF xInActivated THEN
+    xOutClearMotion := FALSE;
+    xOutDeactivateRobot := TRUE;
+
+ELSE
+    xOutClearMotion := FALSE;
+    xOutDeactivateRobot := FALSE;
+    _transitionresult := eResult.SUCCESS;
+END_IF
+
+IF (_robotErrorCode <> 0) THEN
+    _transitionresult := eResult.ERROR;
+END_IF
+
+OnDeactivate := _transitionresult;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{28552745-375b-42ce-bc29-900d788bc750}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+VAR
+    bParentOk : BOOL;
+    eParentResult : eResult;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnError();
+    bParentOk := eParentResult = eResult.SUCCESS;
+    IF NOT bParentOk THEN
+        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_Meca500.OnError: parent OnError failed', '');
+        OnError := eParentResult;
+        RETURN;
+    END_IF
+
+    _transitionresult := eResult.None;
+
+eModus := eMode.Manual;
+
+_cmdPending := FALSE;
+_motionInProgress := FALSE;
+_needCompletionCheckpoint := FALSE;
+_awaitCompletionCheckpoint := FALSE;
+
+xOutSetPoint := FALSE;
+xOutPauseMotion := TRUE;
+
+// Reset robot errors only while the robot reports an ErrorCode.
+// Safety E-stop/P-stop conditions are not bypassed here.
+IF _robotErrorCode <> 0 THEN
+    xOutResetError := TRUE;
+ELSE
+    xOutResetError := FALSE;
+END_IF
+
+IF (_robotErrorCode = 0) AND NOT xInEStop AND NOT xInPStop2 THEN
+    _localError := FALSE;
+    xOutPauseMotion := FALSE;
+    bError := FALSE;
+    nErrorId := 0;
+    M_ClearEcatOutputs();
+    _transitionresult := eResult.SUCCESS;
+END_IF
+
+OnError := _transitionresult;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnShutdown" Id="{1d4a8f19-f631-40bb-91a1-86bc341b395e}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+VAR
+    bParentOk : BOOL;
+    eParentResult : eResult;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
+    bParentOk := eParentResult = eResult.SUCCESS;
+    IF NOT bParentOk THEN
+        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_Meca500.OnShutdown: parent OnShutdown failed', '');
+        OnShutdown := eParentResult;
+        RETURN;
+    END_IF
+
+    _transitionresult := eResult.None;
+
+eModus := eMode.Manual;
+Disconnect();
+
+IF NOT Connected THEN
+    _transitionresult := eResult.SUCCESS;
+END_IF
+
+OnShutdown := _transitionresult;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ProcessCommand" Id="{e8f9a0b1-c2d3-4e5f-8a6b-7c8d9e0f1a2b}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD PRIVATE ProcessCommand : BOOL
+VAR
+    aValues : ARRAY[1..6] OF REAL;
+    targetPose : stPose3D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ProcessCommand := TRUE;
+
+IF bError THEN
+    IF (_commandState <> E_RobotCommandState.Idle)
+       AND (_commandState <> E_RobotCommandState.Done)
+       AND (_commandState <> E_RobotCommandState.Aborted) THEN
+        _commandState := E_RobotCommandState.Error;
+        _commandErrorId := nErrorId;
+    END_IF
+    RETURN;
+END_IF
+
+CASE _commandState OF
+    E_RobotCommandState.Idle,
+    E_RobotCommandState.Done,
+    E_RobotCommandState.Aborted,
+    E_RobotCommandState.Error:
+        ;
+
+    E_RobotCommandState.Requested:
+        CASE _command.Command OF
+            E_RobotCommand.Home:
+                IF _Connected AND xInActivated THEN
+                    _homeRequest := TRUE;
+                    xOutHome := TRUE;
+                    _commandState := E_RobotCommandState.Sending;
+                END_IF
+
+            E_RobotCommand.MovePose,
+            E_RobotCommand.MoveLinear,
+            E_RobotCommand.MoveLinearRelative:
+                IF M_CanAcceptMotion() THEN
+                    IF _command.Command = E_RobotCommand.MoveLinearRelative THEN
+                        IF NOT M_RelativePoseToAbsolute(offset := _command.RelativePose, pose => targetPose) THEN
+                            RETURN;
+                        END_IF
+                    ELSE
+                        targetPose := _command.Pose;
+                    END_IF
+
+                    M_TargetToArgs(pose := targetPose, aValues => aValues);
+                    IF _command.Command = E_RobotCommand.MovePose THEN
+                        M_QueueCommand(C_CMD_MOVE_POSE, aValues[1], aValues[2], aValues[3], aValues[4], aValues[5], aValues[6], TRUE);
+                    ELSE
+                        M_QueueCommand(C_CMD_MOVE_LIN, aValues[1], aValues[2], aValues[3], aValues[4], aValues[5], aValues[6], TRUE);
+                    END_IF
+                    IF _cmdPending THEN
+                        _commandState := E_RobotCommandState.Sending;
+                    END_IF
+                END_IF
+
+            E_RobotCommand.MoveJoints,
+            E_RobotCommand.MoveJointsRelative:
+                IF M_CanAcceptMotion() THEN
+                    M_JointsToArgs(joints := _command.Joints, aValues => aValues);
+                    IF _command.Command = E_RobotCommand.MoveJoints THEN
+                        M_QueueCommand(C_CMD_MOVE_JOINTS, aValues[1], aValues[2], aValues[3], aValues[4], aValues[5], aValues[6], TRUE);
+                    ELSE
+                        M_QueueCommand(C_CMD_MOVE_JOINTS_REL, aValues[1], aValues[2], aValues[3], aValues[4], aValues[5], aValues[6], TRUE);
+                    END_IF
+                    IF _cmdPending THEN
+                        _commandState := E_RobotCommandState.Sending;
+                    END_IF
+                END_IF
+
+            E_RobotCommand.SetSpeedOverride:
+                IF _Connected AND NOT _cmdPending THEN
+                    M_QueueCommand(C_CMD_SET_TIME_SCALING, LREAL_TO_REAL(_command.SpeedOverride), 0.0, 0.0, 0.0, 0.0, 0.0, FALSE);
+                    IF _cmdPending THEN
+                        velfact := LREAL_TO_REAL(_command.SpeedOverride);
+						
+                        _commandState := E_RobotCommandState.Sending;
+                    END_IF
+                END_IF
+
+            E_RobotCommand.Stop:
+                xOutClearMotion := TRUE;
+                _commandState := E_RobotCommandState.Sending;
+
+            E_RobotCommand.Pause:
+                xOutPauseMotion := TRUE;
+                _commandState := E_RobotCommandState.Sending;
+
+            E_RobotCommand.Resume:
+                xOutResumeMotion := TRUE;
+                _commandState := E_RobotCommandState.Sending;
+        END_CASE
+
+    E_RobotCommandState.Sending:
+        CASE _command.Command OF
+            E_RobotCommand.Home:
+                IF xInHomed THEN
+                    xOutHome := FALSE;
+                    _homeRequest := FALSE;
+                    _commandState := E_RobotCommandState.Done;
+                END_IF
+
+            E_RobotCommand.Stop:
+                IF xInCleared THEN
+                    xOutClearMotion := FALSE;
+                    _commandState := E_RobotCommandState.Aborted;
+                END_IF
+
+            E_RobotCommand.Pause:
+                IF xInPaused THEN
+                    xOutPauseMotion := FALSE;
+                    _commandState := E_RobotCommandState.Done;
+                END_IF
+
+            E_RobotCommand.Resume:
+                xOutResumeMotion := FALSE;
+                IF NOT xInPaused THEN
+                    _commandState := E_RobotCommandState.Done;
+                END_IF
+
+            ELSE
+                IF NOT _cmdPending THEN
+                    _commandState := E_RobotCommandState.Accepted;
+                END_IF
+        END_CASE
+
+    E_RobotCommandState.Accepted:
+        CASE _command.Command OF
+            E_RobotCommand.MovePose,
+            E_RobotCommand.MoveLinear,
+            E_RobotCommand.MoveLinearRelative,
+            E_RobotCommand.MoveJoints,
+            E_RobotCommand.MoveJointsRelative:
+                _commandState := E_RobotCommandState.Executing;
+            ELSE
+                _commandState := E_RobotCommandState.Done;
+        END_CASE
+
+    E_RobotCommandState.Executing:
+        IF NOT _motionInProgress THEN
+            IF _targetReached THEN
+                _commandState := E_RobotCommandState.Done;
+            ELSE
+                _commandState := E_RobotCommandState.Error;
+                _commandErrorId := nErrorId;
+            END_IF
+        END_IF
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetConnection" Id="{f2f98d84-e82a-4ccb-a5e3-a2f998fe4384}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD ResetConnection : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Reset only the PLC-side EtherCAT session. The EtherCAT slave itself is
+// owned by the TwinCAT master and is not disabled/reconfigured here.
+_ecatRequested := FALSE;
+_sessionInitialized := FALSE;
+
+_cmdPending := FALSE;
+_motionInProgress := FALSE;
+_needCompletionCheckpoint := FALSE;
+_awaitCompletionCheckpoint := FALSE;
+_targetReached := TRUE;
+
+_localError := FALSE;
+bError := FALSE;
+nErrorId := 0;
+_pendingIsCompletionCheckpoint := FALSE;
+
+M_ClearEcatOutputs();
+
+eConnectionState := eCommunicationState.DISCONNECTED;
+
+// Request a fresh logical session. ComMachine will wait for OP state.
+_ecatRequested := TRUE;
+
+ResetConnection := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

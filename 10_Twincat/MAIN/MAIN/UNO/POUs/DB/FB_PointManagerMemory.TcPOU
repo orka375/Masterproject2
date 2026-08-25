@@ -31,6 +31,29 @@ END_IF
 
 ]]></ST>
     </Implementation>
+    <Method Name="CheckName" Id="{31a92c55-4048-4436-bde0-9a31231e253b}">
+      <Declaration><![CDATA[METHOD CheckName : BOOL
+VAR_INPUT
+	sInput: STRING;
+END_VAR
+
+VAR
+	i: DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF nNextId<>1 THEN
+	FOR i := 1 TO nNextId-1 DO
+		IF aPoints[i].short_name = sInput THEN
+			CheckName:=FALSE;
+			RETURN;
+		END_IF
+	END_FOR
+	CheckName:=TRUE;
+ELSE
+	CheckName:=TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="Configure" Id="{4b1f7eb1-6aef-4d80-a0ba-dd1b9f426f56}">
       <Declaration><![CDATA[METHOD PUBLIC Configure : BOOL
 VAR_INPUT
@@ -61,6 +84,7 @@ VAR_INPUT
 END_VAR
 VAR
     nIndex : UINT;
+	name: STRING(80);
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -73,6 +97,15 @@ IF nPointCount >= 100 THEN
     sLastOperation := 'Memory point store full';
     RETURN;
 END_IF
+
+name := PointName(sName := sName, nId := aPoints[nIndex].id);
+IF NOT CheckName(name) THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Name: %s is already used, saving as ...',sName);
+	name := PointName(sName := '', nId := aPoints[nIndex].id);
+	sName := name;
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'... %s',sName);
+END_IF
+
 
 nPointCount := nPointCount + 1;
 nIndex := nPointCount;
@@ -124,6 +157,7 @@ VAR_INPUT
 END_VAR
 VAR
     nIndex : UINT;
+	name: STRING(80);
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -137,12 +171,20 @@ IF nPointCount >= 100 THEN
     RETURN;
 END_IF
 
+name := PointName(sName := sName, nId := aPoints[nIndex].id);
+IF NOT CheckName(name) THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Name: %s is already used, saving as ...',sName);
+	name := PointName(sName := '', nId := aPoints[nIndex].id);
+	sName := name;
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'... %s',sName);
+END_IF
+
 nPointCount := nPointCount + 1;
 nIndex := nPointCount;
 aPoints[nIndex].id := nNextId;
 nNextId := nNextId + 1;
 aPoints[nIndex].robot_prefix := sRobotPrefix;
-aPoints[nIndex].short_name := PointName(sName := sName, nId := aPoints[nIndex].id);
+aPoints[nIndex].short_name := 
 aPoints[nIndex].pose_kind := 'POSE_3D';
 aPoints[nIndex].frame_id := UINT_TO_DINT(frameId);
 aPoints[nIndex].x := pose.x;

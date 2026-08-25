@@ -4,16 +4,12 @@
     <Declaration><![CDATA[PROGRAM MAINLY
 VAR
 	
-// 	BFH_RobLab_UR5: FB_UR5;
-// 	BFH_RobLab_UR5e: FB_UR5;
-	ETA_Ausb_UR5: FB_UR5;
-// 	ETA_TechCenter_LD90: FB_OmronLD90;
-// 	ETA_Meca500: FB_Meca500;
+
   fbUR5MotionDemo : FB_UR5MotionDemo;
   bRunUR5MotionDemo : BOOL;
   stDemoMoveLTarget : stTarget3D;
   stDemoMoveJJoints : stJoint6;
-    P : Process;
+    P : Demo1;
     _state_LD90 : eState;
     _state_LD90_sLDR : eState;
     _state_LD90_sEyes : eState;
@@ -52,7 +48,7 @@ END_VAR
       <ST><![CDATA[// BFH_RobLab_UR5(
 // 	sRobotIp:='192.168.250.4');
 // BFH_RobLab_UR5e(sRobotIp:='192.168.100.1');
-ETA_Ausb_UR5(sRobotIp:='192.168.250.2');
+ETA_Ausb_UR5();
 
 
 // fbUR5MotionDemo(

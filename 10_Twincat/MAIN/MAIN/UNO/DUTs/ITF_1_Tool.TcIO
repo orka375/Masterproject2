@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="ITF_1_Tool" Id="{401e2f37-a48a-4601-b049-191cb683eebc}">
+    <Declaration><![CDATA[INTERFACE ITF_1_Tool
+]]></Declaration>
+    <Method Name="Grip" Id="{8d9f4c5f-6eec-4f7a-b2a0-780c13b9b5ce}">
+      <Declaration><![CDATA[METHOD Grip : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="Release" Id="{202fb732-cc5b-491e-89c1-ded2a24699ec}">
+      <Declaration><![CDATA[METHOD Release : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

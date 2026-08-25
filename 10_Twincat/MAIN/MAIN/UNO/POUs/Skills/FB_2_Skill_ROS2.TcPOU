@@ -1,0 +1,294 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_2_Skill_ROS2" Id="{2e00d6a1-8d22-4bf8-a533-217a1a8bd953}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_2_Skill_ROS2 EXTENDS FB_1_Skill
+VAR_INPUT
+	{attribute 'OPC.UA.DA.StructuredType':=1}
+	{attribute 'OPC.UA.DA' := '1'}
+	Control     : ST_SkillControl;
+	{attribute 'OPC.UA.DA.StructuredType':=1}
+	{attribute 'OPC.UA.DA' := '1'}
+    Status      : ST_SkillStatus;
+
+//     Specific    : ST_RobotMoveSpecific;
+	
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CYCLIC_ROS2();]]></ST>
+    </Implementation>
+    <Folder Name="StateControl" Id="{a0d7267b-99f4-41f2-8af1-fa0fbdfbdb62}" />
+    <Action Name="CYCLIC_ROS2" Id="{e850367c-2480-40a1-a151-25b4245f1759}">
+      <Implementation>
+        <ST><![CDATA[CYCLIC_SKILL();
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="onActivate" Id="{bc2d83b7-2512-4688-a8e1-54e2299564c4}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onActivate : eResult
+    VAR
+    	bParentOk: BOOL;
+    	eParentResult: eResult;
+    END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onActivate();
+bParentOk := eParentResult = eResult.SUCCESS;
+IF NOT bParentOk THEN
+  ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_2_Skill_ROS2.onActivate: parent onActivate failed', '');
+  onActivate := eParentResult;
+  RETURN;
+END_IF
+
+onActivate := eResult.SUCCESS;
+      RETURN;
+      // ---- Init ----
+_transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+
+
+
+// ---- Check ----
+_transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF _transitionresult= eResult.SUCCESS THEN
+	State:=eState.Active;
+ELSIF _transitionresult= eResult.FAILURE THEN
+	State:=eState.Inactive;
+ELSIF _transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onActivate is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onCleanup" Id="{6fd91c29-8e32-488f-9ae6-151d92027456}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onCleanup : eResult
+    VAR
+    	bParentOk: BOOL;
+    	eParentResult: eResult;
+    END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onCleanup();
+bParentOk := eParentResult = eResult.SUCCESS;
+IF NOT bParentOk THEN
+  ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_2_Skill_ROS2.onCleanup: parent onCleanup failed', '');
+  onCleanup := eParentResult;
+  RETURN;
+END_IF
+
+onCleanup := eResult.SUCCESS;
+      RETURN;
+      // ---- Init ----
+_transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+
+
+// ---- Check ----
+_transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF _transitionresult= eResult.SUCCESS THEN
+	State:=eState.Unconfigured;
+ELSIF _transitionresult= eResult.FAILURE THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is FAILURE ','');
+ELSIF _transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is NONE','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onConfigure" Id="{d115cc8e-7f1a-49b5-899a-a8343b56dd26}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onConfigure : eResult
+    VAR
+    	bParentOk: BOOL;
+    	eParentResult: eResult;
+    END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onConfigure();
+bParentOk := eParentResult = eResult.SUCCESS;
+IF NOT bParentOk THEN
+  ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_2_Skill_ROS2.onConfigure: parent onConfigure failed', '');
+  onConfigure := eParentResult;
+  RETURN;
+END_IF
+
+onConfigure := eResult.SUCCESS;
+      RETURN;
+      // ---- Init ----
+_transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+
+// ---- Check ----
+_transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF _transitionresult= eResult.SUCCESS THEN
+	State:=eState.Inactive;
+ELSIF _transitionresult= eResult.FAILURE THEN
+	State:=eState.Unconfigured;
+ELSIF _transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onConfigure is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onDeactivate" Id="{88519088-d0f4-44de-be30-f5617d391955}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onDeactivate : eResult
+    VAR
+    	bParentOk: BOOL;
+    	eParentResult: eResult;
+    END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onDeactivate();
+bParentOk := eParentResult = eResult.SUCCESS;
+IF NOT bParentOk THEN
+  ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_2_Skill_ROS2.onDeactivate: parent onDeactivate failed', '');
+  onDeactivate := eParentResult;
+  RETURN;
+END_IF
+
+onDeactivate := eResult.SUCCESS;
+      RETURN;
+      // ---- Init ----
+_transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+ //Stopping SFC
+
+
+
+// ---- Check ----
+_transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF _transitionresult= eResult.SUCCESS THEN
+	State:=eState.Inactive;
+ELSIF _transitionresult= eResult.FAILURE THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is FAILURE','');
+ELSIF _transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onError" Id="{6f028444-e95e-464c-8fca-f4509fc4038a}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onError : eResult
+    VAR
+    	bParentOk: BOOL;
+    	eParentResult: eResult;
+    END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onError();
+bParentOk := eParentResult = eResult.SUCCESS;
+IF NOT bParentOk THEN
+  ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_2_Skill_ROS2.onError: parent onError failed', '');
+  onError := eParentResult;
+  RETURN;
+END_IF
+
+onError := eResult.SUCCESS;
+      RETURN;
+      // ---- Init ----
+_transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+
+
+
+
+// ---- Check ----
+_transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF _transitionresult= eResult.SUCCESS THEN
+	State:=eState.Unconfigured;
+ELSIF _transitionresult= eResult.FAILURE THEN
+	State:=eState.Finalized;
+ELSIF _transitionresult= eResult.ERROR THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is Error','');
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onShutdown" Id="{46466cbc-d126-42d4-a4a0-92feae79e9e1}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onShutdown : eResult
+    VAR
+    	bParentOk: BOOL;
+    	eParentResult: eResult;
+    END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onShutdown();
+bParentOk := eParentResult = eResult.SUCCESS;
+IF NOT bParentOk THEN
+  ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_2_Skill_ROS2.onShutdown: parent onShutdown failed', '');
+  onShutdown := eParentResult;
+  RETURN;
+END_IF
+
+onShutdown := eResult.SUCCESS;
+      RETURN;
+      // ---- Init ----
+_transitionresult:=eResult.None;
+
+
+
+// ---- Change ----
+
+
+
+// ---- Check ----
+_transitionresult := eResult.SUCCESS;
+
+
+// ---- Change State ----
+IF _transitionresult= eResult.SUCCESS THEN
+	State:=eState.Finalized;
+ELSIF _transitionresult= eResult.FAILURE THEN
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is FAILURE','');
+ELSIF _transitionresult= eResult.ERROR THEN
+	State:=eState.ErrorProcessing;
+ELSE
+	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is None','');
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

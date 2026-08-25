@@ -114,7 +114,7 @@
     <Compile Include="DUTs\ITF_2_AMR.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\ITF_Tool.TcIO">
+    <Compile Include="DUTs\ITF_1_Tool.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Manipulator\E_RobotCommand.TcDUT">
@@ -192,12 +192,9 @@
     <Compile Include="DUTs\Visu\stVisStatusAMR.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="GVLs\GVL.TcGVL">
+    <Compile Include="GVLs\SETUP.TcGVL">
       <SubType>Code</SubType>
       <LinkAlways>true</LinkAlways>
-    </Compile>
-    <Compile Include="GVLs\OPCUA.TcGVL">
-      <SubType>Code</SubType>
     </Compile>
     <Compile Include="PlcTask.TcTTO">
       <SubType>Code</SubType>
@@ -205,7 +202,7 @@
     <Compile Include="POUs\Archiv\FB_Axis.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Archiv\FB_Tool.TcPOU">
+    <Compile Include="POUs\Archiv\FB_Helper.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\DB\FB_DBClient.TcPOU">
@@ -217,55 +214,52 @@
     <Compile Include="POUs\DB\FB_PointManagerMemory.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\FB_Base.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Helpers\FB_Helper.TcPOU">
+    <Compile Include="POUs\FB_0_Base.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Helpers\FB_Messenger.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Helpers\FB_TcpIpClient.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="POUs\MAINLY.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Process.TcPOU">
+    <Compile Include="POUs\Demo1.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Robots\FB_Meca500.TcPOU">
+    <Compile Include="POUs\Robots\FB_1_ROB.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Robots\FB_OmronLD90.TcPOU">
+    <Compile Include="POUs\Robots\FB_2_ROB_AMR.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Robots\FB_ROB.TcPOU">
+    <Compile Include="POUs\Robots\FB_2_ROB_MANIP.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Robots\FB_ROB_AMR.TcPOU">
+    <Compile Include="POUs\Robots\Mecademic\ROBOT_MECA500.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Robots\FB_ROB_MANIP.TcPOU">
+    <Compile Include="POUs\Robots\Omron\ROBOT_LD90.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Robots\FB_UR5.TcPOU">
+    <Compile Include="POUs\Robots\UR\FB_TcpIpClient.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Robots\FB_UR5MotionDemo.TcPOU">
+    <Compile Include="POUs\Robots\UR\ROBOT_UR5.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Skills\FB_Template_ROS2Skill_V2.TcPOU">
+    <Compile Include="POUs\Robots\UR\FB_UR5MotionDemo.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Skills\FB_Skill.TcPOU">
+    <Compile Include="POUs\Skills\FB_1_Skill.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Skills\FB_Template_Skill.TcPOU">
+    <Compile Include="POUs\Skills\FB_2_Skill_SFC.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Skills\Skill_Greifer_open.TcPOU">
+    <Compile Include="POUs\Skills\FB_2_Skill_RoCo.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Skills\FB_2_Skill_ROS2.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Skills\Skill_LoadDeliverReturn.TcPOU">
@@ -275,6 +269,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Skills\Skill_ROS2_Eyes.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Tools\FB_1_Tool.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\_TODO.TcPOU">
@@ -298,7 +295,12 @@
     <Folder Include="POUs\Archiv" />
     <Folder Include="POUs\DB" />
     <Folder Include="POUs\Helpers" />
+    <Folder Include="POUs\Tools" />
     <Folder Include="POUs\Robots" />
+    <Folder Include="POUs\Robots\Omron" />
+    <Folder Include="POUs\Robots\UR" />
+    <Folder Include="POUs\Robots\Mecademic" />
+    <Folder Include="POUs\Robots\Stäubli" />
     <Folder Include="POUs\Skills" />
     <Folder Include="POUs\Skills\Skill_Greifer_open" />
     <Folder Include="VISUs" />

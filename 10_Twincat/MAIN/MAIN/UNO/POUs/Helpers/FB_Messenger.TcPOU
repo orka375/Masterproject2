@@ -10,7 +10,7 @@ VAR_OUTPUT
 	bErrorActiv: BOOL;
 END_VAR
 VAR
-	MList	: ARRAY [1..GVL.MaxNrOfMessages] OF MessageDescription;
+	MList	: ARRAY [1..SETUP.MaxNrOfMessages] OF MessageDescription;
 	emptyMsg: MessageDescription;
 	
 	IndexShownM 	: INT := 0;
@@ -175,7 +175,7 @@ VAR
 	i: INT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[FOR i := 1 TO GVL.MaxNrOfMessages DO
+        <ST><![CDATA[FOR i := 1 TO SETUP.MaxNrOfMessages DO
 	MList[i]:= emptyMsg;
 END_FOR
 

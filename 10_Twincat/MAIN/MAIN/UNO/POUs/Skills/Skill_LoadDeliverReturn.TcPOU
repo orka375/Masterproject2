@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="Skill_LoadDeliverReturn" Id="{8977347b-02ee-433d-9081-1576e654bc94}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK Skill_LoadDeliverReturn EXTENDS FB_Template_Skill
+    <Declaration><![CDATA[FUNCTION_BLOCK Skill_LoadDeliverReturn EXTENDS FB_2_Template_Skill
 VAR_INPUT
-	Rob: POINTER TO FB_ROB_AMR;
+	Rob: POINTER TO FB_2_ROB_AMR;
 	sPickReference: STRING;
 END_VAR
 VAR_OUTPUT

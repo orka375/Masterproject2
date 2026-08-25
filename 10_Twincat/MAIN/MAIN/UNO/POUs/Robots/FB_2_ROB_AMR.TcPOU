@@ -1,0 +1,314 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_2_ROB_AMR" Id="{cf71feff-3eb8-4d62-9de2-ec89e7c3ba43}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_2_ROB_AMR EXTENDS FB_1_ROB IMPLEMENTS ITF_2_AMR
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+	visStatus: stVisStatusAMR;
+	bTargetreached: BOOL;
+END_VAR
+VAR
+	_tcppos, _tcpvel : stPose2D;
+	_jointpos, _jointvel: stJoint2;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="MotionControl - Override" Id="{67b3627f-d3d9-4d23-986a-0e1d03e05b51}" />
+    <Folder Name="StateControl" Id="{5824b502-00ae-4537-9581-ce8706661f80}" />
+    <Property Name="ActualJointPosition" Id="{a9bb0008-2bc7-471b-b7cd-69232649304e}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY ActualJointPosition : stJoint2
+]]></Declaration>
+      <Get Name="Get" Id="{c40e1322-8cf0-4659-99cb-1ad8b6629bcb}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualJointPosition := _jointpos;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ActualJointVelocity" Id="{0493ea03-284e-4697-b6d9-85f06afe56ed}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY ActualJointVelocity : stJoint2
+]]></Declaration>
+      <Get Name="Get" Id="{6f83ad7c-bb1b-49e3-a3b5-2da802613af4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualJointVelocity:= _jointvel;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ActualTcpPose" Id="{5f2eea29-65d5-4ce1-8b21-86b7c8473be6}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY ActualTcpPose : stPose2D
+]]></Declaration>
+      <Get Name="Get" Id="{fa0df135-1f19-4fd2-b0d5-1f3480c883d6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualTcpPose := _tcppos;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ActualTcpVelocity" Id="{353dfdcb-eeca-4ed7-9a9e-990541ee5c2e}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY ActualTcpVelocity : stPose2D
+]]></Declaration>
+      <Get Name="Get" Id="{edff15a4-fbcc-4630-ae2a-c4883c3e01f6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualTcpVelocity := _tcpvel;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Action Name="CYCLIC_AMR" Id="{ebcfe1a2-a428-4cd0-a9d1-512be0cd10b6}">
+      <Implementation>
+        <ST><![CDATA[CYCLIC_ROB();
+
+visStatus.State:=eStatus;
+visStatus.Mode:=eModus;
+visStatus.isMoving:=RobotMoving;
+visStatus.isReady:=RobotReady;
+visStatus.isConnected:=CommunicationReady;
+// 	isLocked: BOOL;
+// visStatus.isBusy:=;
+visStatus.isInCollision:=InCollision;
+visStatus.hasError:=bError;
+visStatus.TCPPosition:=ActualTcpPose;
+
+visStatus.isDocked:=IsDocked;
+visStatus.TargetReached:=TargetReached;]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="Dock" Id="{7a2cbcfa-840f-4b61-9db6-42db4be3c502}" FolderPath="MotionControl - Override\">
+      <Declaration><![CDATA[METHOD Dock : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsDocked" Id="{b1223d7e-f467-499a-a850-c3753fbde900}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY IsDocked : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{4fc975e3-63b2-4f01-8d05-8125246e628b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="NavigateToGoal" Id="{b2e2ff45-ccbe-41b1-afea-be4075ff97b2}" FolderPath="MotionControl - Override\">
+      <Declaration><![CDATA[// {warning 'Add method implementation '}
+  METHOD NavigateToGoal : BOOL
+VAR_INPUT
+    goal : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="NavigateToPoint" Id="{2db64f24-9a85-44a5-a853-3b922490bedd}" FolderPath="MotionControl - Override\">
+      <Declaration><![CDATA[METHOD NavigateToPoint : BOOL
+  VAR_INPUT
+    point : stPose2D;
+  END_VAR
+  ]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnActivate" Id="{87bcfeb5-637b-4246-b013-c7747d0d3053}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+
+VAR
+	bParentOk: BOOL;
+    	eParentResult: eResult;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnActivate();
+    bParentOk := eParentResult = eResult.SUCCESS;
+
+    IF NOT bParentOk THEN
+        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB_AMR.OnActivate: parent OnActivate failed', '');
+        OnActivate := eParentResult;
+        RETURN;
+    END_IF
+
+
+IF bError THEN
+    OnActivate := eResult.ERROR;
+    ELSIF CommunicationReady THEN
+      OnActivate := eResult.SUCCESS;
+ELSE
+      OnActivate := eResult.None;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCleanup" Id="{70dc0820-01d4-4f5b-84fc-9914b0c296bf}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
+  VAR
+    bParentOk: BOOL;
+    eParentResult: eResult;
+  END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnCleanup();
+  bParentOk := eParentResult = eResult.SUCCESS;
+
+  IF NOT bParentOk THEN
+    ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB_AMR.OnCleanup: parent OnCleanup failed', '');
+    OnCleanup := eParentResult;
+    RETURN;
+  END_IF
+
+  // Disconnect();
+// 
+//     IF eConnectionState <> eCommunicationState.DISCONNECTED THEN
+//       OnCleanup := eResult.None;
+//     ELSE
+      OnCleanup := eResult.SUCCESS;
+//     END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnConfigure" Id="{cb165446-431a-4f44-a815-7e6356f9994b}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
+  VAR
+    bParentOk: BOOL;
+    eParentResult: eResult;
+  END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnConfigure();
+  bParentOk := eParentResult = eResult.SUCCESS;
+
+  IF NOT bParentOk THEN
+    ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB_AMR.OnConfigure: parent OnConfigure failed', '');
+    OnConfigure := eParentResult;
+    RETURN;
+  END_IF
+
+PM.Configure(sPrefix:=Name,sDatabase:=CONCAT('db_',Name));
+
+// if fbPM.b
+
+OnConfigure := eResult.SUCCESS;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{53f91d36-ca4e-4655-9369-60aadeb29812}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+  VAR
+    bParentOk: BOOL;
+    eParentResult: eResult;
+  END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
+  bParentOk := eParentResult = eResult.SUCCESS;
+
+  IF NOT bParentOk THEN
+    ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB_AMR.OnDeactivate: parent OnDeactivate failed', '');
+    OnDeactivate := eParentResult;
+    RETURN;
+  END_IF
+
+  IF bError THEN
+    OnDeactivate := eResult.ERROR;
+ELSE
+    OnDeactivate := eResult.SUCCESS;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{d2189026-696b-4a07-b8cf-376dec470a43}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+  VAR
+    bParentOk: BOOL;
+    eParentResult: eResult;
+  END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnError();
+  bParentOk := eParentResult = eResult.SUCCESS;
+
+  IF NOT bParentOk THEN
+    ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB_AMR.OnError: parent OnError failed', '');
+    OnError := eParentResult;
+    RETURN;
+  END_IF
+
+  OnError := eResult.SUCCESS;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnShutdown" Id="{04379ee7-470c-4f20-91e9-ed3450a5b8b5}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+  VAR
+    bParentOk: BOOL;
+    eParentResult: eResult;
+  END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
+  bParentOk := eParentResult = eResult.SUCCESS;
+
+  IF NOT bParentOk THEN
+    ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB_AMR.OnShutdown: parent OnShutdown failed', '');
+    OnShutdown := eParentResult;
+    RETURN;
+  END_IF
+
+  // Disconnect();
+// 
+//     IF eConnectionState <> eCommunicationState.DISCONNECTED THEN
+//       OnShutdown := eResult.None;
+//     ELSIF bError THEN
+//       OnShutdown := eResult.ERROR;
+//     ELSE
+      OnShutdown := eResult.SUCCESS;
+//     END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="TargetReached" Id="{1ffd5e85-127b-44be-a405-ac0615b395e0}">
+      <Declaration><![CDATA[PROPERTY TargetReached : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{57de425a-d48b-4d0b-8603-0f3a7e17fce2}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TargetReached:=bTargetreached;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{942b15fc-f5de-4bca-9fdf-4d667e329064}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[bTargetreached:=TargetReached;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Undock" Id="{7fd604b3-b44b-4e9a-9b9f-e9b2cbe8020e}" FolderPath="MotionControl - Override\">
+      <Declaration><![CDATA[METHOD Undock : BOOL
+  VAR_INPUT
+  END_VAR
+  ]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

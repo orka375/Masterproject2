@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_UR5MotionDemo" Id="{3d4f1082-4f31-4ebd-9291-3ed449848bd7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_UR5MotionDemo
+VAR_INPUT
+  bStart : BOOL;
+  bReset : BOOL;
+  MoveLTarget : stTarget3D;
+  MoveJJoints : stJoint6;
+  nDigitalOutput : UINT := 0;
+  bDigitalOutputValue : BOOL := TRUE;
+END_VAR
+VAR_IN_OUT
+  Rob : ROBOT_UR5;
+END_VAR
+VAR_OUTPUT
+  bBusy : BOOL;
+  bDone : BOOL;
+  bError : BOOL;
+  nStep : USINT;
+  nErrorId : UDINT;
+END_VAR
+VAR
+  bStartOld : BOOL;
+  bStartRise : BOOL;
+  fbCommandTimeout : TON;
+END_VAR
+VAR CONSTANT
+  C_IDLE : USINT := 0;
+  C_WAIT_READY : USINT := 10;
+  C_SEND_MOVEL : USINT := 20;
+  C_WAIT_MOVEL : USINT := 30;
+  C_SEND_MOVEJ : USINT := 40;
+  C_WAIT_MOVEJ : USINT := 50;
+  C_SEND_SET_DO : USINT := 60;
+  C_WAIT_SET_DO : USINT := 70;
+  C_DONE : USINT := 100;
+  C_ERROR : USINT := 255;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[bStartRise := bStart AND NOT bStartOld;
+bStartOld := bStart;
+
+fbCommandTimeout(
+  IN := (nStep = C_WAIT_MOVEL) OR (nStep = C_WAIT_MOVEJ) OR (nStep = C_WAIT_SET_DO),
+  PT := T#60S
+);
+
+IF bReset THEN
+  nStep := C_IDLE;
+  nErrorId := 0;
+END_IF
+
+CASE nStep OF
+  C_IDLE:
+    IF bStartRise THEN
+      nErrorId := 0;
+      nStep := C_WAIT_READY;
+    END_IF
+
+  C_WAIT_READY:
+    IF Rob.bError THEN
+      nErrorId := Rob.nErrorId;
+      nStep := C_ERROR;
+    ELSIF Rob.RobotReady THEN
+      nStep := C_SEND_MOVEL;
+    END_IF
+
+  C_SEND_MOVEL:
+    IF Rob.MoveL(target := MoveLTarget) THEN
+      nStep := C_WAIT_MOVEL;
+    END_IF
+
+  C_WAIT_MOVEL:
+    IF fbCommandTimeout.Q THEN
+      nErrorId := 16#E701;
+      nStep := C_ERROR;
+    ELSIF Rob.CommandState = E_RobotCommandState.Error THEN
+      nErrorId := Rob.CommandErrorId;
+      nStep := C_ERROR;
+    ELSIF Rob.CommandState = E_RobotCommandState.Done THEN
+      nStep := C_SEND_MOVEJ;
+    END_IF
+
+  C_SEND_MOVEJ:
+    IF Rob.MoveJ(joints := MoveJJoints) THEN
+      nStep := C_WAIT_MOVEJ;
+    END_IF
+
+  C_WAIT_MOVEJ:
+    IF fbCommandTimeout.Q THEN
+      nErrorId := 16#E702;
+      nStep := C_ERROR;
+    ELSIF Rob.CommandState = E_RobotCommandState.Error THEN
+      nErrorId := Rob.CommandErrorId;
+      nStep := C_ERROR;
+    ELSIF Rob.CommandState = E_RobotCommandState.Done THEN
+      nStep := C_SEND_SET_DO;
+    END_IF
+
+  C_SEND_SET_DO:
+    IF Rob.SetDO(nOutput := nDigitalOutput, bValue := bDigitalOutputValue) THEN
+      nStep := C_WAIT_SET_DO;
+    END_IF
+
+  C_WAIT_SET_DO:
+    IF fbCommandTimeout.Q THEN
+      nErrorId := 16#E703;
+      nStep := C_ERROR;
+    ELSIF Rob.CommandState = E_RobotCommandState.Error THEN
+      nErrorId := Rob.CommandErrorId;
+      nStep := C_ERROR;
+    ELSIF Rob.CommandState = E_RobotCommandState.Done THEN
+      nStep := C_DONE;
+    END_IF
+
+  C_DONE:
+    IF NOT bStart THEN
+      nStep := C_IDLE;
+    END_IF
+
+  C_ERROR:
+    ;
+
+  ELSE
+    nErrorId := 16#E7FF;
+    nStep := C_ERROR;
+END_CASE
+
+bBusy := (nStep <> C_IDLE) AND (nStep <> C_DONE) AND (nStep <> C_ERROR);
+bDone := nStep = C_DONE;
+bError := nStep = C_ERROR;]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>
