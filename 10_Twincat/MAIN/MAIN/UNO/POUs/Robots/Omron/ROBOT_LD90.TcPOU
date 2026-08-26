@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="ROBOT_LD90" Id="{fac74160-c2b3-4f77-bd69-eddf1970c653}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK ROBOT_LD90 EXTENDS FB_2_ROB_AMR IMPLEMENTS ITF_CommunicationModul
+    <Declaration><![CDATA[FUNCTION_BLOCK ROBOT_LD90 EXTENDS FB_2_ROB_AMR
 VAR_INPUT
 	
 
 
 	sLoadDeliverReturn: Skill_LoadDeliverReturn;
 	sEyes: Skill_ROS2_Eyes;
-	ComConfig: ST_CommunicationConfig;
+	ComConfig: stComm_TCPIP_Config;
 END_VAR
 VAR_OUTPUT
   SocketErrorId: UDINT;
@@ -17,17 +17,7 @@ VAR
 	MissionIndex: INT;
 	oldMissionIndex: INT;
 	waitTimer: TON;
-  fbSocketConnect: FB_SocketConnect;
-  fbSocketClose: FB_SocketClose;
-  hSocket: T_HSOCKET;
-  eConnectionState: eCommunicationState := eCommunicationState.DISCONNECTED;
-  _connected: BOOL;
-  xConnectRequest: BOOL;
-  xDisconnectRequest: BOOL;
-  xSocketConnectExecute: BOOL;
-  xSocketCloseExecute: BOOL;
-  xSocketConnectStarted: BOOL;
-  xSocketCloseStarted: BOOL;
+  COMM: FB_2_Comm_TcpIp;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -64,7 +54,6 @@ IF waitTimer.Q THEN
 END_IF]]></ST>
     </Implementation>
     <Folder Name="Communication" Id="{2a9c337e-719c-4121-a5a9-4ddfd8584a43}" />
-    <Folder Name="MotionControl" Id="{94b27a46-e651-4eff-a38f-a2a3d5ee10b5}" />
     <Folder Name="StateControl" Id="{67994def-610e-4a0b-a6c8-85df31e22884}" />
     <Method Name="ComMachine" Id="{040d86b8-c78e-42d4-a5c1-25c0270b6e14}" FolderPath="Communication\">
       <Declaration><![CDATA[METHOD ComMachine : BOOL
@@ -72,306 +61,35 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[CASE eConnectionState OF
+        <ST><![CDATA[// The TCP/IP connection is handled by the communication module.
+COMM.Config := ComConfig;
+COMM.CYCLIC_TCPIP();
 
+CommunicationReady := COMM.Connected;
 
-    // =========================================================
-    // DISCONNECTED
-    // =========================================================
+bError := COMM.bError;
+SocketErrorId := COMM.nErrorId;
+nErrorId := TO_UINT(COMM.nErrorId);
 
-    eCommunicationState.DISCONNECTED:
-
-       _connected := FALSE;
-
-
-        // Make sure socket handle is cleared
-//         hSocket
-
-
-        // -----------------------------------------------------
-        // Connect requested
-        // -----------------------------------------------------
-
-        IF xConnectRequest THEN
-
-            xConnectRequest := FALSE;
-
-            // Clear previous errors
-            bError := FALSE;
-            nErrorId := 0;
-            SocketErrorId := 0;
-
-            // Start FB_SocketConnect
-            xSocketConnectExecute := TRUE;
-            xSocketConnectStarted := TRUE;
-
-            eConnectionState :=
-                eCommunicationState.CONNECTING;
-
-        END_IF;
-
-
-    // =========================================================
-    // CONNECTING
-    // =========================================================
-
-    eCommunicationState.CONNECTING:
-
-        _connected := FALSE;
-        
-
-
-        // -----------------------------------------------------
-        // Execute FB_SocketConnect
-        // -----------------------------------------------------
-
-        fbSocketConnect(
-            sSrvNetId := '',
-            sRemoteHost := ComConfig.sIpAddress,
-            nRemotePort := ComConfig.nPort,
-            bExecute := xSocketConnectExecute,
-            tTimeout := ComConfig.tTimeout
-        );
-
-
-        // Execute must only be TRUE for one cycle
-        xSocketConnectExecute := FALSE;
-
-
-        // -----------------------------------------------------
-        // Connection successful
-        // -----------------------------------------------------
-
-        IF xSocketConnectStarted
-          AND NOT fbSocketConnect.bBusy
-            AND NOT fbSocketConnect.bError
-//             AND (fbSocketConnect.hSocket <> 0)
-        THEN
-
-            hSocket :=
-                fbSocketConnect.hSocket;
-
-            _connected := TRUE;
-            xSocketConnectStarted := FALSE;
-    
-
-            bError := FALSE;
-            nErrorId := 0;
-            SocketErrorId := 0;
-
-            eConnectionState :=
-                eCommunicationState.CONNECTED;
-
-        END_IF;
-
-
-        // -----------------------------------------------------
-        // Connection failed
-        // -----------------------------------------------------
-
-        IF NOT fbSocketConnect.bBusy
-            AND fbSocketConnect.bError
-        THEN
-
-            _connected := FALSE;
-          xSocketConnectStarted := FALSE;
-
-            bError := TRUE;
-
-            SocketErrorId :=
-                fbSocketConnect.nErrId;
-
-            nErrorId :=
-                TO_UINT(fbSocketConnect.nErrId);
-
-//             hSocket := 0;
-
-            eConnectionState :=
-                eCommunicationState.ERROR;
-
-        END_IF;
-
-
-    // =========================================================
-    // CONNECTED
-    // =========================================================
-
-    eCommunicationState.CONNECTED:
-
-        _connected := TRUE;
-
-
-
-        // -----------------------------------------------------
-        // Disconnect requested
-        // -----------------------------------------------------
-
-        IF xDisconnectRequest THEN
-
-            xDisconnectRequest := FALSE;
-
-
-            // Start socket close
-            xSocketCloseExecute := TRUE;
-            xSocketCloseStarted := TRUE;
-
-            eConnectionState :=
-                eCommunicationState.DISCONNECTING;
-
-        END_IF;
-
-
-    // =========================================================
-    // DISCONNECTING
-    // =========================================================
-
-    eCommunicationState.DISCONNECTING:
-
-        _connected := FALSE;
-
-
-        // -----------------------------------------------------
-        // Execute FB_SocketClose
-        // -----------------------------------------------------
-
-        fbSocketClose(
-            sSrvNetId := '',
-            hSocket := hSocket,
-            bExecute := xSocketCloseExecute,
-            tTimeout := ComConfig.tTimeout
-        );
-
-
-        // Execute only for one cycle
-        xSocketCloseExecute := FALSE;
-
-
-        // -----------------------------------------------------
-        // Socket closed successfully
-        // -----------------------------------------------------
-
-        IF xSocketCloseStarted
-          AND NOT fbSocketClose.bBusy
-            AND NOT fbSocketClose.bError
-        THEN
-
-            _connected := FALSE;
-
-
-            xSocketCloseStarted := FALSE;
-
-            eConnectionState :=
-                eCommunicationState.DISCONNECTED;
-
-        END_IF;
-
-
-        // -----------------------------------------------------
-        // Socket close failed
-        // -----------------------------------------------------
-
-        IF NOT fbSocketClose.bBusy
-            AND fbSocketClose.bError
-        THEN
-
-            _connected := FALSE;
-          xSocketCloseStarted := FALSE;
-
-
-            bError := TRUE;
-
-            SocketErrorId :=
-                fbSocketClose.nErrId;
-
-            nErrorId :=
-                TO_UINT(fbSocketClose.nErrId);
-
-            // The socket should no longer be used
-//             hSocket := 0;
-
-            eConnectionState :=
-                eCommunicationState.ERROR;
-
-        END_IF;
-
-
-    // =========================================================
-    // ERROR
-    // =========================================================
-
-    eCommunicationState.ERROR:
-
-        _connected := FALSE;
-        // -----------------------------------------------------
-        // Do not attempt to use the socket after an error
-        // -----------------------------------------------------
-
-//         hSocket := 0;
-
-
-        // -----------------------------------------------------
-        // A new connection request can recover from the error
-        // -----------------------------------------------------
-
-        IF xConnectRequest THEN
-
-            xConnectRequest := FALSE;
-
-            bError := FALSE;
-            nErrorId := 0;
-            SocketErrorId := 0;
-
-            xSocketConnectExecute := TRUE;
-            xSocketConnectStarted := TRUE;
-
-            eConnectionState :=
-                eCommunicationState.CONNECTING;
-
-        END_IF;
-
-
-END_CASE;
-
-CommunicationReady := _connected;
 ComMachine := NOT bError;]]></ST>
       </Implementation>
     </Method>
     <Method Name="Connect" Id="{70fa978a-67c6-43be-99fb-d03c8689cf07}" FolderPath="Communication\">
-      <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD Connect : BOOL
+      <Declaration><![CDATA[METHOD Connect : BOOL
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[
 Connect := FALSE;
 
-// Already connected
-IF eConnectionState = eCommunicationState.CONNECTED THEN
-    Connect := TRUE;
-    RETURN;
-END_IF;
-
-// Already trying to connect
-IF eConnectionState = eCommunicationState.CONNECTING THEN
-    Connect := TRUE;
-    RETURN;
-END_IF;
-
-// Don't accept a new connection while disconnecting
-IF eConnectionState = eCommunicationState.DISCONNECTING THEN
-    RETURN;
-END_IF;
-
 // Validate address
 IF LEN(ComConfig.sIpAddress) = 0 THEN
     bError := TRUE;
-//     ErrorId := 16#1001;
     RETURN;
 END_IF;
 
 // Validate port
 IF ComConfig.nPort = 0 THEN
     bError := TRUE;
-//     ErrorId := 16#1002;
     RETURN;
 END_IF;
 
@@ -379,10 +97,7 @@ END_IF;
 bError := FALSE;
 nErrorId := 0;
 
-// Request connection
-xConnectRequest := TRUE;
-
-Connect := TRUE;]]></ST>
+Connect := COMM.Connect();]]></ST>
       </Implementation>
     </Method>
     <Property Name="Connected" Id="{e71d8962-d52b-46f4-b79d-88e001b39f65}" FolderPath="Communication\">
@@ -394,7 +109,7 @@ PROPERTY Connected : BOOL
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Connected:=_connected;]]></ST>
+          <ST><![CDATA[Connected:=COMM.Connected;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -403,215 +118,218 @@ END_VAR
 METHOD Disconnect : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF eConnectionState = eCommunicationState.DISCONNECTED THEN
+        <ST><![CDATA[IF COMM.Connected THEN
       Disconnect := TRUE;
       RETURN;
     END_IF
 
-    xConnectRequest := FALSE;
-    xDisconnectRequest := TRUE;
-    Disconnect := TRUE;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="Dock" Id="{ed889dfa-89d4-4c82-aa20-11f1706e94ee}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD Dock : BOOL
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Dock := FALSE;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="NavigateToGoal" Id="{bbbc983d-cf30-4dcf-8a44-55f25ea52986}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[
-  METHOD NavigateToGoal : BOOL
-VAR_INPUT
-    goal : STRING;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[NavigateToGoal := FALSE;
-
-  ADSLOGSTR(
-    msgCtrlMask := ADSLOG_MSGTYPE_HINT,
-    msgFmtStr   := 'Goes to goal %s',
-    strArg      := goal
-);
-
-TargetReached:=FALSE;
-MissionIndex:=MissionIndex+1;
-  NavigateToGoal := TRUE;
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="NavigateToPoint" Id="{d734b238-2cc5-407d-bb20-af9fe27df7a9}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD NavigateToPoint : BOOL
-  VAR_INPUT
-    point : stPose2D;
-  END_VAR
-  ]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
+    Disconnect := COMM.Disconnect();]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnActivate" Id="{7fa92802-2ede-4193-9973-ad7754d17239}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
-    VAR
-      bParentOk : BOOL;
-      eParentResult : eResult;
-    END_VAR
-]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnActivate();
-bParentOk := eParentResult = eResult.SUCCESS;
-IF NOT bParentOk THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_OmronLD90.OnActivate: parent OnActivate failed', '');
-	OnActivate := eParentResult;
-	RETURN;
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+IF bError THEN
+    myResult := ERROR;
+    ELSIF Connected THEN
+      myResult := SUCCESS;
+ELSE
+      myResult := None;
 END_IF
 
-      IF bError THEN
-    OnActivate := eResult.ERROR;
-    ELSIF Connected THEN
-      OnActivate := eResult.SUCCESS;
-ELSE
-      OnActivate := eResult.None;
-END_IF]]></ST>
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnActivate := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnCleanup" Id="{7747948a-f8e1-4cdb-8a20-610ab536a0ef}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
-    VAR
-      bParentOk : BOOL;
-      eParentResult : eResult;
-    END_VAR
-]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnCleanup();
-      bParentOk := eParentResult = eResult.SUCCESS;
-      IF NOT bParentOk THEN
-        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_OmronLD90.OnCleanup: parent OnCleanup failed', '');
-        OnCleanup := eParentResult;
-        RETURN;
-      END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-      Disconnect();
+Disconnect();
 
-    IF eConnectionState <> eCommunicationState.DISCONNECTED THEN
-      OnCleanup := eResult.None;
+    IF COMM.Connected THEN
+      myResult := None;
     ELSE
-      OnCleanup := eResult.SUCCESS;
-    END_IF]]></ST>
+      myResult := SUCCESS;
+    END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnCleanup := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnConfigure" Id="{c568c508-6321-435c-b7c4-683ad73a8f42}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
-    VAR
-      bParentOk : BOOL;
-      eParentResult : eResult;
-    END_VAR
-]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnConfigure();
-      bParentOk := eParentResult = eResult.SUCCESS;
-      IF NOT bParentOk THEN
-        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_OmronLD90.OnConfigure: parent OnConfigure failed', '');
-        OnConfigure := eParentResult;
-        RETURN;
-      END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-      Connect();
+Connect();
 
     IF bError THEN
-      OnConfigure := eResult.ERROR;
+      myResult := ERROR;
     ELSIF Connected THEN
-      OnConfigure := eResult.SUCCESS;
+      myResult := SUCCESS;
     ELSE
-      OnConfigure := eResult.None;
-    END_IF]]></ST>
+      myResult := None;
+    END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnConfigure := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnDeactivate" Id="{57ce1156-6b80-40b7-8fff-100660e6e779}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
-    VAR
-      bParentOk : BOOL;
-      eParentResult : eResult;
-    END_VAR
-]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
-      bParentOk := eParentResult = eResult.SUCCESS;
-      IF NOT bParentOk THEN
-        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_OmronLD90.OnDeactivate: parent OnDeactivate failed', '');
-        OnDeactivate := eParentResult;
-        RETURN;
-      END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-      IF bError THEN
-    OnDeactivate := eResult.ERROR;
+IF bError THEN
+    myResult := ERROR;
 ELSE
-    OnDeactivate := eResult.SUCCESS;
-END_IF]]></ST>
+    myResult := SUCCESS;
+END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnDeactivate := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnError" Id="{74c0a508-94ea-4785-a0ea-1af2639ff5e5}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
-    VAR
-      bParentOk : BOOL;
-      eParentResult : eResult;
-    END_VAR
-]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
-      bParentOk := eParentResult = eResult.SUCCESS;
-      IF NOT bParentOk THEN
-        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_OmronLD90.OnError: parent OnError failed', '');
-        OnError := eParentResult;
-        RETURN;
-      END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-      OnError := eResult.SUCCESS;]]></ST>
+myResult := SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnError := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnShutdown" Id="{f496723a-9c1c-413c-b4ed-4d78c56c0863}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
-    VAR
-      bParentOk : BOOL;
-      eParentResult : eResult;
-    END_VAR
-]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
-      bParentOk := eParentResult = eResult.SUCCESS;
-      IF NOT bParentOk THEN
-        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_OmronLD90.OnShutdown: parent OnShutdown failed', '');
-        OnShutdown := eParentResult;
-        RETURN;
-      END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-      Disconnect();
+Disconnect();
 
-    IF eConnectionState <> eCommunicationState.DISCONNECTED THEN
-      OnShutdown := eResult.None;
+    IF COMM.Connected THEN
+      myResult := None;
     ELSIF bError THEN
-      OnShutdown := eResult.ERROR;
+      myResult := ERROR;
     ELSE
-      OnShutdown := eResult.SUCCESS;
-    END_IF]]></ST>
+      myResult := SUCCESS;
+    END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnShutdown := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="ResetConnection" Id="{1a6fc39d-923f-4cb8-bc55-cd413f8ec29d}" FolderPath="Communication\">
-      <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD ResetConnection : BOOL
+      <Declaration><![CDATA[METHOD ResetConnection : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="Undock" Id="{c887c4e0-0c83-4491-ac2c-d3b9fd05bfa5}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD Undock : BOOL
-  VAR_INPUT
-  END_VAR
-  ]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[bError := FALSE;
+nErrorId := 0;
+SocketErrorId := 0;
+
+COMM.Reset();
+ResetConnection := COMM.Reconnect();]]></ST>
       </Implementation>
     </Method>
   </POU>

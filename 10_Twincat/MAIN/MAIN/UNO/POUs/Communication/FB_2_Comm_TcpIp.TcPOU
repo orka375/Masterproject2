@@ -1,0 +1,294 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_2_Comm_TcpIp" Id="{e695efdc-e187-4f84-8c3d-4878e12ff71c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_2_Comm_TcpIp EXTENDS FB_1_CommunicationModul
+VAR_INPUT
+    Config : stComm_TCPIP_Config;
+    bReceiveEnable : BOOL := TRUE;
+END_VAR
+VAR_OUTPUT
+    bReadyForSend : BOOL;
+    bSendBusy : BOOL;
+    bSendDone : BOOL;
+    bRxNewData : BOOL;
+    nRxBytes : UDINT;
+    bError : BOOL;
+    nErrorId : UDINT;
+    sError : STRING(80);
+END_VAR
+VAR
+    fbClient : FB_TcpIpClient;
+    _sendRequest : BOOL;
+    _resetRequest : BOOL;
+    _txBuffer : ARRAY[0..2047] OF BYTE;
+    _txSize : UDINT;
+END_VAR
+VAR CONSTANT
+    C_BUFFER_SIZE : UDINT := 2048;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="StateControl" Id="{76d61647-738d-4b23-8853-f6e5794603cd}" />
+    <Property Name="Connected" Id="{77e58f43-f11a-4c1e-aebf-53d4980dac4c}">
+      <Declaration><![CDATA[PROPERTY Connected : BOOL]]></Declaration>
+      <Get Name="Get" Id="{50b1f798-6d6d-402d-8bc8-a345bfbefc6b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Connected := fbClient.bConnected;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Action Name="CYCLIC_TCPIP" Id="{e079c791-bd51-481e-8c49-3586c05afcb2}">
+      <Implementation>
+        <ST><![CDATA[CYCLIC_COMM();
+Update();]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="OnActivate" Id="{0ed4d272-2017-43c8-8627-328b7fa74b51}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnActivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnActivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCleanup" Id="{67356389-b773-4afe-aa41-40842006ed91}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnCleanup();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+Update();
+    myResult:=NONE;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnCleanup := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnConfigure" Id="{fe1e62cc-b3f4-4da7-9fa1-851d69b6c7d8}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnConfigure();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+IF (LEN(Config.sIpAddress) = 0) OR (Config.nPort = 0) THEN
+    Messenger.AddWarn(eMessageCategories.Undefined, sSender := Name, sMessage := 'TCP/IP configuration is invalid');
+      myResult := FAILURE;
+ELSE
+      myResult := SUCCESS;
+    END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnConfigure := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{98b9db24-dd3c-4d2b-a2df-a4c02bc21178}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+Update();
+    myResult:=NONE;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnDeactivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{cbca3eb3-1f59-4132-8cb6-1ba90593b065}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnError();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+Update();
+    myResult:=NONE;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnError := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnShutdown" Id="{f085909e-b37c-4b4c-a9a3-f41132b1f91f}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+Update();
+
+IF fbClient.bConnected THEN
+      myResult := None;
+ELSE
+      myResult := SUCCESS;
+    END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnShutdown := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="RxData" Id="{4a0d0f2c-27c2-4f4a-a7cf-4b0f6d7f5a11}">
+      <Declaration><![CDATA[// Start of the receive buffer, valid for nRxBytes bytes while bRxNewData is set.
+PROPERTY RxData : POINTER TO BYTE]]></Declaration>
+      <Get Name="Get" Id="{8f8a5b5e-1f22-4d2f-9b60-51f7ec7c6d22}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RxData := ADR(fbClient.aRxData);]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Send" Id="{ef48ac7a-3006-4248-b9fc-337133a074ce}">
+      <Declaration><![CDATA[METHOD Send : BOOL
+VAR_INPUT
+    pData : PVOID;
+    nDataSize : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Send := FALSE;
+
+IF (pData = 0) OR (nDataSize = 0) OR (nDataSize > C_BUFFER_SIZE) OR _sendRequest OR bSendBusy THEN
+    RETURN;
+END_IF
+
+// Copy into an own buffer so the caller may reuse its data immediately.
+MEMCPY(destAddr := ADR(_txBuffer), srcAddr := pData, n := nDataSize);
+_txSize := nDataSize;
+_sendRequest := TRUE;
+Send := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Update" Id="{1f329bb1-c1b5-4d91-9d17-ceb7bfae8aee}">
+      <Declaration><![CDATA[METHOD Update : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// A reconnect drops the link first and lets the client reopen it.
+IF _ReconnectRequested AND NOT fbClient.bConnected THEN
+    _ReconnectRequested := FALSE;
+END_IF
+
+fbClient(
+    bEnable := _CommEnabled AND NOT _ReconnectRequested,
+    bReset := _resetRequest,
+    Config := Config,
+    bReceiveEnable := bReceiveEnable,
+    bSend := _sendRequest,
+    pSendData := ADR(_txBuffer),
+    nSendSize := _txSize
+);
+
+_resetRequest := FALSE;
+_sendRequest := FALSE;
+
+bReadyForSend := fbClient.bReadyForSend;
+bSendBusy := fbClient.bSendBusy;
+bSendDone := fbClient.bSendDone;
+bRxNewData := fbClient.bRxNewData;
+nRxBytes := fbClient.nRxBytes;
+bError := fbClient.bError;
+nErrorId := fbClient.nErrorId;
+sError := fbClient.sError;
+
+Update := NOT bError;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

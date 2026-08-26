@@ -18,14 +18,14 @@
       </Get>
     </Property>
     <Property Name="ActualTcpPose" Id="{831ceed7-2617-41c1-8c18-8a215c121b7b}">
-      <Declaration><![CDATA[PROPERTY ActualTcpPose : stPose2D
+      <Declaration><![CDATA[PROPERTY ActualTcpPose : stPoseGeneral
 ]]></Declaration>
       <Get Name="Get" Id="{93f8d1ef-7924-4a2c-a53c-3c6b67f7af41}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
     <Property Name="ActualTcpVelocity" Id="{978d98cf-314d-4a06-bce6-c7862b54f7da}">
-      <Declaration><![CDATA[PROPERTY ActualTcpVelocity : stPose2D]]></Declaration>
+      <Declaration><![CDATA[PROPERTY ActualTcpVelocity : stPoseGeneral]]></Declaration>
       <Get Name="Get" Id="{118a71d0-5d0a-4d44-82d2-e1740559cd71}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
@@ -52,7 +52,7 @@ END_VAR
     <Method Name="NavigateToPoint" Id="{48f91d39-0773-4800-994b-b41b1d05a064}">
       <Declaration><![CDATA[METHOD NavigateToPoint : BOOL
   VAR_INPUT
-    point : stPose2D;
+    point : stPoseGeneral;
   END_VAR
   ]]></Declaration>
     </Method>

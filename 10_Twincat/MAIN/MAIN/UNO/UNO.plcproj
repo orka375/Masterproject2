@@ -21,10 +21,13 @@
     <Compile Include="DUTs\AMR\stJoint2.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AMR\stPose2D.TcDUT">
+    <Compile Include="DUTs\BaseActions\eBA.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AMR\stTarget2D.TcDUT">
+    <Compile Include="DUTs\BaseActions\eProgress.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\BaseActions\stBA_Settings.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\BaseActions\ITF_BA_6Axis.TcIO">
@@ -39,10 +42,7 @@
     <Compile Include="DUTs\BasicRobot\eMode.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\BasicRobot\stFrame.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\BasicRobot\stPose.TcDUT">
+    <Compile Include="DUTs\BasicRobot\stPoseGeneral.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\BasicRobot\stTarget.TcDUT">
@@ -51,10 +51,7 @@
     <Compile Include="DUTs\Communication\eCommunicationState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Communication\ITF_CommunicationModul.TcIO">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\Communication\ST_CommunicationConfig.TcDUT">
+    <Compile Include="DUTs\Communication\stComm_TCPIP_Config.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\DB\E_DBClientState.TcDUT">
@@ -102,19 +99,22 @@
     <Compile Include="DUTs\ITF_0_BaseComponent.TcIO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\ITF_1_Communication.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\ITF_1_Robot.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\ITF_1_Skill.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\ITF_2_6AxisRobot.TcIO">
+    <Compile Include="DUTs\ITF_1_Tool.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\ITF_2_AMR.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\ITF_1_Tool.TcIO">
+    <Compile Include="DUTs\ITF_2_Manip.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Manipulator\E_RobotCommand.TcDUT">
@@ -127,15 +127,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Manipulator\stJoint6.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\Manipulator\stPose3D.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\Manipulator\stRelativePose3D.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\Manipulator\stTarget3D.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Skill\ROS2Skills\E_SkillState.TcDUT">
@@ -171,6 +162,9 @@
     <Compile Include="DUTs\Skill\ST_SkillStatus.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\StateMachine\eHealth.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\StateMachine\eInternalTransitions.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -181,6 +175,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\StateMachine\eSupervisoryTransitions.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\StateMachine\eTransitions.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Visu\stVisStatusTool.TcDUT">
@@ -199,16 +196,13 @@
     <Compile Include="PlcTask.TcTTO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Archiv\FB_Axis.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="POUs\Archiv\FB_Helper.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\DB\FB_DBClient.TcPOU">
+    <Compile Include="POUs\Communication\FB_1_CommunicationModul.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\DB\FB_PointManager.TcPOU">
+    <Compile Include="POUs\Communication\FB_2_Comm_TcpIp.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\DB\FB_PointManagerMemory.TcPOU">
@@ -218,6 +212,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Helpers\FB_Messenger.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Helpers\FB_TcpIpClient.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Helpers\FB_Utilities.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\MAINLY.TcPOU">
@@ -239,9 +239,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Robots\Omron\ROBOT_LD90.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Robots\UR\FB_TcpIpClient.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Robots\UR\ROBOT_UR5.TcPOU">
@@ -271,6 +268,9 @@
     <Compile Include="POUs\Skills\Skill_ROS2_Eyes.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Templates\TEMPLATE_BA_HANDLER.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Tools\FB_1_Tool.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -295,6 +295,8 @@
     <Folder Include="POUs\Archiv" />
     <Folder Include="POUs\DB" />
     <Folder Include="POUs\Helpers" />
+    <Folder Include="POUs\Communication" />
+    <Folder Include="POUs\Templates" />
     <Folder Include="POUs\Tools" />
     <Folder Include="POUs\Robots" />
     <Folder Include="POUs\Robots\Omron" />

@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="ITF_2_Manip" Id="{5597e200-2768-442d-a894-79ed17b4bd75}">
+    <Declaration><![CDATA[INTERFACE ITF_2_Manip EXTENDS ITF_1_Robot 
+]]></Declaration>
+    <Property Name="ActualJointPosition" Id="{f4e9d5a1-845e-4b46-b1f5-b6013f3c1bf2}">
+      <Declaration><![CDATA[{warning 'Eigenschaftenimplementierung hinzufügen'}
+PROPERTY ActualJointPosition : stJoint6
+
+]]></Declaration>
+      <Get Name="Get" Id="{9bc35bbe-7807-471e-9049-dfe1eaeec2ec}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="ActualJointVelocity" Id="{a5ea3d6b-243a-4425-9bdd-13270e6b23d8}">
+      <Declaration><![CDATA[PROPERTY ActualJointVelocity : stJoint6]]></Declaration>
+      <Get Name="Get" Id="{b2cbd5f6-df64-4021-8c9b-d68ee343f3fa}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="ActualTcpPose" Id="{3ccb050e-fb6b-4d88-80e5-9740c700b585}">
+      <Declaration><![CDATA[{warning 'Eigenschaftenimplementierung hinzufügen'}
+PROPERTY ActualTcpPose : stPoseGeneral
+]]></Declaration>
+      <Get Name="Get" Id="{26f7e51c-a2e1-4966-939c-6ce06ce2cce5}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="ActualTcpVelocity" Id="{29c2cbff-861a-434c-bd80-cca88e4b0432}">
+      <Declaration><![CDATA[PROPERTY ActualTcpVelocity : stPoseGeneral]]></Declaration>
+      <Get Name="Get" Id="{d62f14c4-b447-4702-98b3-1685b412e392}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="Home" Id="{9008c31c-e8e7-4fc4-ab50-fce636f66aa9}">
+      <Declaration><![CDATA[METHOD Home : UINT]]></Declaration>
+    </Method>
+    <Property Name="IsHomePosition" Id="{70f6bdc3-81d8-4a72-9961-a731a8f684fb}">
+      <Declaration><![CDATA[PROPERTY IsHomePosition : BOOL]]></Declaration>
+      <Get Name="Get" Id="{376ed0f7-d8a4-4e9c-ac1b-17426e13c0b7}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="MoveJoint" Id="{01831dea-3b4d-496c-9028-1a30987f2ab5}">
+      <Declaration><![CDATA[METHOD MoveJoint : UINT
+VAR_INPUT
+    Target : stTarget;
+	Velocity: REAL;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="MoveJointRelative" Id="{0f521464-ec50-448d-bb07-d37ea83816d3}">
+      <Declaration><![CDATA[METHOD MoveJointRelative : UINT
+VAR_INPUT
+    Target : stTarget;
+	Velocity: REAL;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="MoveLinear" Id="{617f15d3-641e-4bd1-b8bf-7e1c16712ddc}">
+      <Declaration><![CDATA[METHOD MoveLinear : UINT
+VAR_INPUT
+	Target	: stTarget;
+	Velocity: REAL;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="MoveLinearRelative" Id="{bdfb6932-6a17-4ad8-a206-492214d6a04f}">
+      <Declaration><![CDATA[METHOD MoveLinearRelative : UINT
+VAR_INPUT
+    Offset : stPoseGeneral;
+	Velocity: REAL;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="TargetReached" Id="{5f879bbf-7361-48f8-9f67-1ba39a94979d}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY TargetReached : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{2a36317c-e606-43b2-a57c-1527af6e3f25}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

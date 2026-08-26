@@ -39,6 +39,11 @@ VAR_GLOBAL
 	
 // 	ETA_TechCenter_LD90: FB_OmronLD90;
 // 	ETA_Meca500: FB_Meca500;
+END_VAR
+
+
+VAR_GLOBAL
+// 	PLC: FB_0_Base;
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>

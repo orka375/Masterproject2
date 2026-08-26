@@ -6,7 +6,7 @@
     <Method Name="MC_MoveAxesAbsolute" Id="{d7a13520-dd4d-4a6e-871f-97fa01c7b0cd}">
       <Declaration><![CDATA[METHOD MC_MoveAxesAbsolute : BOOL
 VAR_INPUT
-	target: stTarget3D;
+	target: stTarget;
 END_VAR
 ]]></Declaration>
     </Method>
@@ -21,7 +21,7 @@ END_VAR
     <Method Name="MC_MoveLinearAbsolute" Id="{2e5e5835-32e6-49a7-b20c-922a33165d14}">
       <Declaration><![CDATA[METHOD MC_MoveLinearAbsolute : BOOL
 VAR_INPUT
-	target: stTarget3D;
+	target: stTarget;
 END_VAR
 ]]></Declaration>
     </Method>

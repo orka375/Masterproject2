@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <DUT Name="E_RobotCommand" Id="{0e6e3e13-8f2b-4379-9019-d5b4d0bf289c}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
@@ -17,7 +17,8 @@ TYPE E_RobotCommand :
     Resume := 8,
     SetSpeedOverride := 9,
     MoveLinearRelative := 10,
-    SetDigitalOutput := 11
+    SetDigitalOutput := 11,
+	GoTo := 12,
 );
 END_TYPE
 ]]></Declaration>

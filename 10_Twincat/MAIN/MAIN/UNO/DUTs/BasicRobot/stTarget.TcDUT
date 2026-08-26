@@ -5,6 +5,7 @@
 STRUCT
 	name : STRING(80);
 	frameId : INT;
+	pose: stPoseGeneral;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

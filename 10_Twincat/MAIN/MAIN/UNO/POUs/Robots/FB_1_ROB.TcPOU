@@ -4,76 +4,109 @@
     <Declaration><![CDATA[FUNCTION_BLOCK FB_1_ROB EXTENDS FB_0_Base IMPLEMENTS ITF_1_Robot
 
 VAR_INPUT
-	nErrorId : UINT; //FIX BUG
 	PM: FB_PointManager;
+	COMM: FB_1_CommunicationModul;
+	fOffset: REAL := 0.1;
+	
 // 	FILESERVER: FB_FileServer;
 END_VAR
 
 
 VAR_OUTPUT
-    bCommunicationReady : BOOL;
+	BA_ID: UINT;
+	BA_STATUS: eProgress;
     bReady : BOOL;
-    bEnabled : BOOL;
     bMoving : BOOL;
-    bBusy : BOOL;
+   	bEStop : BOOL;
     bInCollision : BOOL;
     eModus : eMode;
     
 END_VAR
 
 VAR
+	_tcppos, _tcpvel : stPoseGeneral;
+	_jointpos, _jointvel: stJoint6;
 	_speedOverride : LREAL := 100.0;
 	index: INT;
+	
+	//BAHANDLER
+	Idcounter: UINT:=1000;
+	
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Folder Name="Generic Control" Id="{d269719e-4481-455b-8abd-a0a346547cd3}" />
-    <Folder Name="Generic Motion Settings" Id="{e84a80be-ec15-4bef-9f1f-3428dddc27ab}" />
     <Folder Name="Generic Status" Id="{c1e8e35a-1828-4d72-a2cb-3aa1cc7ab721}" />
     <Folder Name="StateControl" Id="{306f9b72-2cb2-4dec-88a3-0a1776eb8cb9}" />
-    <Property Name="Busy" Id="{9cc952da-997b-48e1-bc3f-e76175b74970}" FolderPath="Generic Status\">
-      <Declaration><![CDATA[PROPERTY Busy : BOOL]]></Declaration>
-      <Get Name="Get" Id="{19a4579d-a5c4-4a8f-b588-1cda29eef266}">
+    <Property Name="ActualJointPosition" Id="{c68b9d82-514b-4e83-b58e-69cf77564b19}" FolderPath="Generic Status\">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY ActualJointPosition : stJoint6
+]]></Declaration>
+      <Get Name="Get" Id="{2b353ef5-5db5-4268-89e1-d980ddc297fa}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Busy := bBusy;]]></ST>
+          <ST><![CDATA[ActualJointPosition := _jointpos;]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{2c85e6a2-337f-449c-aad2-4b015e26ecdd}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[bBusy := Busy;]]></ST>
-        </Implementation>
-      </Set>
     </Property>
-    <Property Name="CommunicationReady" Id="{80fca5f5-8709-4982-a384-df957ec0f13e}" FolderPath="Generic Status\">
-      <Declaration><![CDATA[PROPERTY CommunicationReady : BOOL]]></Declaration>
-      <Get Name="Get" Id="{99f48d79-5a32-4dfc-8ac6-28f7e421e088}">
+    <Property Name="ActualJointVelocity" Id="{947a6f2a-4f8a-49d4-9aa5-6819f46128db}" FolderPath="Generic Status\">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+  PROPERTY ActualJointVelocity : stJoint6
+]]></Declaration>
+      <Get Name="Get" Id="{bcb260e7-58e3-43cb-b050-6f35e444f22e}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[// CommunicationReady := FB_ROB.bCommunicationReady;]]></ST>
+          <ST><![CDATA[ActualJointVelocity := _jointvel;]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{a3a4030b-8d2a-45fa-89c6-94fd0d2368eb}">
+    </Property>
+    <Property Name="ActualTcpPose" Id="{0ea3c3d9-9984-43b2-ac68-a1a8d409d11e}" FolderPath="Generic Status\">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+  PROPERTY ActualTcpPose : stPoseGeneral
+]]></Declaration>
+      <Get Name="Get" Id="{019c7e94-91db-4b36-9e6e-9be7d9fb51c3}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[// FB_ROB.bCommunicationReady := CommunicationReady;]]></ST>
+          <ST><![CDATA[ActualTcpPose := _tcppos;]]></ST>
         </Implementation>
-      </Set>
+      </Get>
     </Property>
+    <Property Name="ActualTcpVelocity" Id="{cd04f35a-047d-478b-8cf7-b18ee8d2a4f9}" FolderPath="Generic Status\">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+ PROPERTY ActualTcpVelocity : stPoseGeneral
+]]></Declaration>
+      <Get Name="Get" Id="{c88b221c-0030-413b-abf3-a401e3f71088}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualTcpVelocity := _tcpvel;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="BA_Handler" Id="{83e2d403-4d26-4906-9c94-3843f0c8311a}">
+      <Declaration><![CDATA[{warning 'Override with your own Method in final FB'}
+METHOD BA_Handler : eResult
+VAR_INPUT
+	Cmd: eBA;
+	Settings: stBA_Settings;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
     <Action Name="CYCLIC_ROB" Id="{ebf16c89-c511-406b-9426-1ade99c4f730}">
       <Implementation>
         <ST><![CDATA[CYCLIC_BASE();
-
+COMM.CYCLIC_COMM();
 FOR index := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
     IF pA_Skills[index] <> 0 THEN
         pA_Skills[index]^.StateMachine();
@@ -81,27 +114,47 @@ FOR index := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 
 END_FOR
 
 
-PM();]]></ST>
+PM();
+
+
+// --------------PROPS------------
+
+//ActualJointPosition: DONE
+//ActualJointVelocity DONE
+//ActualTCPPosition: DONE
+//ActualTCPVelocity: DONE
+
+//InCollision: depend on Robot Type //TODO
+//Mode: depend on RobotType	//TODO
+
+//RobotMoving:
+bMoving :=
+    (ABS(_tcpvel.X)  > fOffset) OR
+    (ABS(_tcpvel.Y)  > fOffset) OR
+    (ABS(_tcpvel.Z)  > fOffset) OR
+    (ABS(_tcpvel.Rx) > fOffset) OR
+    (ABS(_tcpvel.Ry) > fOffset) OR
+    (ABS(_tcpvel.Rz) > fOffset);
+	
+//RobotReady
+bReady := ((State=eState.Active) AND (NOT Busy));
+
+]]></ST>
       </Implementation>
     </Action>
-    <Method Name="DisableRobot" Id="{bbb8a1cb-19df-48a2-aa34-15efcd08818d}" FolderPath="Generic Control\">
-      <Declaration><![CDATA[METHOD DisableRobot : BOOL]]></Declaration>
+    <Method Name="EStop" Id="{ff1c583d-626a-4142-b727-591a7a8cf9e6}" FolderPath="Generic Control\">
+      <Declaration><![CDATA[{warning 'OVERRIDE'}
+METHOD EStop : BOOL]]></Declaration>
       <Implementation>
-        <ST><![CDATA[bEnabled := FALSE;
-DisableRobot := Deactivate();]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="EnableRobot" Id="{3bb80d4c-ff29-49a1-abc5-c8b4d3120296}" FolderPath="Generic Control\">
-      <Declaration><![CDATA[METHOD EnableRobot : BOOL]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[bEnabled := TRUE;
-EnableRobot := TRUE;]]></ST>
+        <ST><![CDATA[bEStop := TRUE; //depend on Robot Type //TODO]]></ST>
       </Implementation>
     </Method>
     <Property Name="InCollision" Id="{8eea56b9-50ca-4510-b567-db19e3eca5c7}" FolderPath="Generic Status\">
-      <Declaration><![CDATA[PROPERTY InCollision : BOOL]]></Declaration>
+      <Declaration><![CDATA[{warning 'OVERRIDE'}
+PROPERTY InCollision : BOOL]]></Declaration>
       <Get Name="Get" Id="{885867df-c0d3-4443-aec9-8d2b982d6c40}">
-        <Declaration><![CDATA[VAR
+        <Declaration><![CDATA[
+VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
@@ -110,7 +163,8 @@ END_VAR
       </Get>
     </Property>
     <Property Name="Mode" Id="{b02ce28c-7dc7-4355-aadb-75f0e04880fa}" FolderPath="Generic Status\">
-      <Declaration><![CDATA[PROPERTY Mode : eMode]]></Declaration>
+      <Declaration><![CDATA[{warning 'OVERRIDE'}
+PROPERTY Mode : eMode]]></Declaration>
       <Get Name="Get" Id="{5422baec-3cfa-49de-a9e5-c204b5dc3b85}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -128,191 +182,214 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Method Name="OnActivate" Id="{92a2cf27-c6ee-447f-b5b4-e372093c0834}" FolderPath="StateControl\">
+    <Method Name="OnActivate" Id="{7b4aeb1a-03a1-4343-a4ec-ae506adf08bc}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
-    VAR
-      bParentOk: BOOL;
-      eParentResult: eResult;
-    END_VAR]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnActivate();
-    bParentOk := eParentResult = eResult.SUCCESS;
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-    IF NOT bParentOk THEN
-      ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB.OnActivate: parent OnActivate failed', '');
-      OnActivate := eParentResult;
-      RETURN;
-    END_IF
+SetOperationMode(mode:=eMode.Automatic);
 
-eModus := eMode.Automatic;
-OnActivate := eResult.SUCCESS;]]></ST>
+IF Comm.LastTransitionType = eTransitions.Activate THEN
+	IF Comm.LastTransitionResult = SUCCESS THEN
+		myResult:=SUCCESS;
+	END_IF
+ELSE
+	COMM.Activate();
+END_IF
+
+
+RobotReady:=TRUE;
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnActivate := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnCleanup" Id="{b8d25f1a-bd56-4d52-bf77-294e7c965601}" FolderPath="StateControl\">
+    <Method Name="OnCleanup" Id="{abbcd3bd-990a-4ed5-b6f1-dfd0ae87cf2b}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
-    VAR
-      bParentOk: BOOL;
-      eParentResult: eResult;
-    END_VAR]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnCleanup();
-    bParentOk := eParentResult = eResult.SUCCESS;
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-    IF NOT bParentOk THEN
-      ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB.OnCleanup: parent OnCleanup failed', '');
-      OnCleanup := eParentResult;
-      RETURN;
-    END_IF
+IF Comm.LastTransitionType = eTransitions.Cleanup THEN
+	IF Comm.LastTransitionResult = SUCCESS THEN
+		myResult:=SUCCESS;
+	END_IF
+ELSE
+	COMM.Cleanup();
+END_IF
 
-    OnCleanup := eResult.SUCCESS;]]></ST>
+RobotReady:=FALSE;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnCleanup := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnConfigure" Id="{fb57d4c1-8d73-4b61-a93c-ea33b423e3bc}" FolderPath="StateControl\">
+    <Method Name="OnConfigure" Id="{bd3e8dc6-48d5-4baa-bedc-e35aad6800eb}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
-    VAR
-      bParentOk: BOOL;
-      eParentResult: eResult;
-    END_VAR
-]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnConfigure();
-    bParentOk := eParentResult = eResult.SUCCESS;
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-    IF NOT bParentOk THEN
-      ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB.OnConfigure: parent OnConfigure failed', '');
-      OnConfigure := eParentResult;
-      RETURN;
-    END_IF
-
-    // ---- Init ----
-_transitionresult := eParentResult;
-
-// ---- Change ----
-eModus := eMode.Manual;
+PM.Configure(sPrefix:=Name,sDatabase:=CONCAT('db_',Name)); //TODO
 
 
-// ---- Check ----
-IF bError THEN
-    _transitionresult := eResult.ERROR;
+IF Comm.LastTransitionType = eTransitions.Configure THEN
+	IF Comm.LastTransitionResult = SUCCESS AND COMM.Connected  THEN
+		myResult:=SUCCESS;
+	END_IF
+ELSE
+	COMM.Configure();
 END_IF
 
-IF _transitionresult <>eResult.SUCCESS THEN
-	bAutoConfigure:=FALSE;
-END_IF
-// ---- Change State ----
-OnConfigure := _transitionresult;]]></ST>
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnConfigure := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnDeactivate" Id="{9cfadd55-1f96-401b-82a9-c49bdb0b9d71}" FolderPath="StateControl\">
+    <Method Name="OnDeactivate" Id="{faaec7af-0344-4472-acc7-f531208fcec2}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
-    VAR
-      bParentOk: BOOL;
-      eParentResult: eResult;
-    END_VAR]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
-    bParentOk := eParentResult = eResult.SUCCESS;
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-    IF NOT bParentOk THEN
-      ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB.OnDeactivate: parent OnDeactivate failed', '');
-      OnDeactivate := eParentResult;
-      RETURN;
-    END_IF
+IF Comm.LastTransitionType = eTransitions.Deactivate THEN
+	IF Comm.LastTransitionResult = SUCCESS THEN
+		myResult:=SUCCESS;
+	END_IF
+ELSE
+	COMM.Deactivate();
+END_IF
 
-    eModus := eMode.Manual;
-OnDeactivate := eResult.SUCCESS;]]></ST>
+RobotReady:=FALSE;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnDeactivate := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnError" Id="{af5714ff-685b-4718-92d7-e4e00300345c}" FolderPath="StateControl\">
+    <Method Name="OnError" Id="{0b0c0809-6bf1-423c-8b3f-cd8152466e7f}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
-    VAR
-      bParentOk: BOOL;
-      eParentResult: eResult;
-    END_VAR]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
-    bParentOk := eParentResult = eResult.SUCCESS;
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-    IF NOT bParentOk THEN
-      ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB.OnError: parent OnError failed', '');
-      OnError := eParentResult;
-      RETURN;
-    END_IF
+RobotReady:=FALSE;
 
-    eModus := eMode.Manual;
-OnError := eResult.SUCCESS;]]></ST>
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnError := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnShutdown" Id="{54edc0cd-8c64-49fa-9d9a-b9e92650f21c}" FolderPath="StateControl\">
+    <Method Name="OnShutdown" Id="{650aa75d-42d2-4cb6-bb17-ae8fce601101}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
-    VAR
-      bParentOk: BOOL;
-      eParentResult: eResult;
-    END_VAR]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
-    bParentOk := eParentResult = eResult.SUCCESS;
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-    IF NOT bParentOk THEN
-      ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_ROB.OnShutdown: parent OnShutdown failed', '');
-      OnShutdown := eParentResult;
-      RETURN;
-    END_IF
+IF Comm.LastTransitionType = eTransitions.Shutdown THEN
+	IF Comm.LastTransitionResult = SUCCESS THEN
+		myResult:=SUCCESS;
+	END_IF
+ELSE
+	COMM.Shutdown();
+END_IF
 
-    eModus := eMode.Manual;
-OnShutdown := eResult.SUCCESS;]]></ST>
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnShutdown := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Pause" Id="{4e031858-9871-4cbe-80c4-7b945008a9d5}" FolderPath="Generic Control\">
-      <Declaration><![CDATA[METHOD Pause : BOOL]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Pause := FALSE;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="ResetRobot" Id="{3ea33c07-baa7-444c-a0bc-e71071e519dd}" FolderPath="Generic Control\">
-      <Declaration><![CDATA[METHOD ResetRobot : BOOL]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[bError := FALSE;
-nErrorId := 0;
-ResetRobot := TRUE;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="Resume" Id="{5d4cc18a-f3ec-4e77-a0a2-63e6b1c4f8da}" FolderPath="Generic Control\">
-      <Declaration><![CDATA[METHOD Resume : BOOL]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Resume := FALSE;]]></ST>
-      </Implementation>
-    </Method>
-    <Property Name="RobotEnabled" Id="{8b95af0d-0de5-4e03-a42f-b367f7d60c51}" FolderPath="Generic Status\">
-      <Declaration><![CDATA[PROPERTY RobotEnabled : BOOL]]></Declaration>
-      <Get Name="Get" Id="{e7fba8f0-0b85-4bb7-b5f5-3bbf4b89f164}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[RobotEnabled := bEnabled;]]></ST>
-        </Implementation>
-      </Get>
-      <Set Name="Set" Id="{d9bda0f1-a1cd-4d1c-9f6d-88ca4e5d9cc1}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[bEnabled := RobotEnabled;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
-    <Property Name="RobotError" Id="{e8095074-bc2d-49ad-8f7a-7a4d7677a8f7}" FolderPath="Generic Status\">
-      <Declaration><![CDATA[PROPERTY RobotError : BOOL]]></Declaration>
-      <Get Name="Get" Id="{25903a36-625c-4391-b5b1-be1d7b80d6fa}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[RobotError := bError;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
     <Property Name="RobotMoving" Id="{35ca0c87-c7ee-4f80-a87b-f8e0bf6781ef}" FolderPath="Generic Status\">
       <Declaration><![CDATA[PROPERTY RobotMoving : BOOL]]></Declaration>
       <Get Name="Get" Id="{4af7c180-96b4-478d-9ba7-15a9132d033d}">
@@ -352,35 +429,39 @@ END_VAR
       </Set>
     </Property>
     <Method Name="SetOperationMode" Id="{a36cbff6-922e-4670-8cae-63446b6e1765}" FolderPath="Generic Control\">
-      <Declaration><![CDATA[METHOD SetOperationMode : BOOL
+      <Declaration><![CDATA[{warning 'OVERRIDE'}
+METHOD SetOperationMode : eResult
 VAR_INPUT
     mode : eMode;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[eModus := mode;
-SetOperationMode := TRUE;]]></ST>
+        <ST><![CDATA[SetOperationMode := NONE;
+IF State <> eState.Active AND NOT Busy THEN
+	eModus := mode;
+END_IF
+
+
+// depend on Robot Type //TODO
+//check
+
+SetOperationMode:= SUCCESS;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="SetSpeedOverride" Id="{a5e39256-a687-447d-8a2a-a95ea9e40d2e}" FolderPath="Generic Motion Settings\">
-      <Declaration><![CDATA[METHOD SetSpeedOverride : BOOL
+    <Method Name="SetSpeedOverride" Id="{a5e39256-a687-447d-8a2a-a95ea9e40d2e}" FolderPath="Generic Control\">
+      <Declaration><![CDATA[{warning 'OVERRIDE'}
+METHOD SetSpeedOverride : BOOL
 VAR_INPUT
-    factor : LREAL;
+    prozent : REAL;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF (factor < 0.001) OR (factor > 100.0) THEN
+        <ST><![CDATA[IF (prozent < 0.001) OR (prozent > 100.0) THEN
     SetSpeedOverride := FALSE;
     RETURN;
 END_IF
-_speedOverride := factor;
+_speedOverride := prozent; // depend on Robot Type //TODO
 SetSpeedOverride := TRUE;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="Stop" Id="{ff1c583d-626a-4142-b727-591a7a8cf9e6}" FolderPath="Generic Control\">
-      <Declaration><![CDATA[METHOD Stop : BOOL]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Stop := FALSE;]]></ST>
       </Implementation>
     </Method>
   </POU>

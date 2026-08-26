@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-    <POU Name="FB_PointManager_PostgreSQL" Id="{b6db9b06-31bb-4ece-93a6-63e2ef2bfd14}" SpecialFunc="None">
-        <Declaration><![CDATA[FUNCTION_BLOCK FB_PointManager_PostgreSQL
+  <POU Name="FB_PointManager_PostgreSQL" Id="{b6db9b06-31bb-4ece-93a6-63e2ef2bfd14}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_PointManager_PostgreSQL
 VAR_OUTPUT
     bBusy : BOOL;
     bDone : BOOL;
@@ -166,7 +166,7 @@ END_IF]]></ST>
       <Declaration><![CDATA[METHOD PUBLIC Create2D : BOOL
 VAR_INPUT
     sName : STRING(80);
-    pose : stPose2D;
+    pose : stPoseGeneral;
     frameId : UINT;
 END_VAR
 ]]></Declaration>
@@ -180,7 +180,7 @@ IF (nState = 0) AND NOT bBusy AND DB.bConnected THEN
         sPendingNameExpression := SqlQuotedLiteral(sName);
     END_IF
 
-    sSql := 'INSERT INTO Point (robot_prefix, short_name, pose_kind, frame_id, x, y, z, rx, ry, rz, theta) VALUES (';
+    sSql := 'INSERT INTO Point (robot_prefix, short_name, pose_kind, frame_id, x, y, z, rx, ry, rz, rz) VALUES (';
     sSql := CONCAT(sSql, SqlQuotedLiteral(sRobotPrefix));
     sSql := CONCAT(sSql, ', ');
     sSql := CONCAT(sSql, sPendingNameExpression);
@@ -193,7 +193,7 @@ IF (nState = 0) AND NOT bBusy AND DB.bConnected THEN
     sSql := CONCAT(sSql, ', ');
     sSql := CONCAT(sSql, LREAL_TO_STRING(pose.y));
     sSql := CONCAT(sSql, ', NULL, NULL, NULL, NULL, ');
-    sSql := CONCAT(sSql, LREAL_TO_STRING(pose.theta));
+    sSql := CONCAT(sSql, LREAL_TO_STRING(pose.rz));
     sSql := CONCAT(sSql, ')');
     bError := FALSE;
     bBusy := TRUE;
@@ -210,17 +210,17 @@ VAR_INPUT
         sName : STRING(80);
         x : LREAL;
         y : LREAL;
-        theta : LREAL;
+        rz : LREAL;
         frameId : UINT;
 END_VAR
 VAR
-        pose : stPose2D;
+        pose : stPoseGeneral;
 END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[pose.x := x;
 pose.y := y;
-pose.theta := theta;
+pose.rz := rz;
 
 Create2DValues := Create2D(
         sName := sName,
@@ -233,7 +233,7 @@ Create2DValues := Create2D(
       <Declaration><![CDATA[METHOD PUBLIC Create3D : BOOL
 VAR_INPUT
     sName : STRING(80);
-    pose : stPose3D;
+    pose : stPoseGeneral;
     frameId : UINT;
 END_VAR
 ]]></Declaration>
@@ -247,7 +247,7 @@ IF (nState = 0) AND NOT bBusy AND DB.bConnected THEN
         sPendingNameExpression := SqlQuotedLiteral(sName);
     END_IF
 
-    sSql := 'INSERT INTO Point (robot_prefix, short_name, pose_kind, frame_id, x, y, z, rx, ry, rz, theta) VALUES (';
+    sSql := 'INSERT INTO Point (robot_prefix, short_name, pose_kind, frame_id, x, y, z, rx, ry, rz, rz) VALUES (';
     sSql := CONCAT(sSql, SqlQuotedLiteral(sRobotPrefix));
     sSql := CONCAT(sSql, ', ');
     sSql := CONCAT(sSql, sPendingNameExpression);
@@ -290,7 +290,7 @@ VAR_INPUT
         frameId : UINT;
 END_VAR
 VAR
-        pose : stPose3D;
+        pose : stPoseGeneral;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -317,7 +317,7 @@ END_VAR
       <Implementation>
         <ST><![CDATA[Delete := FALSE;
 
-IF (nState = 0) AND NOT bBusy AND DB.bConnected AND (sName <> '') THEN
+IF (nState = 0) AND NOT bBusy AND DB.Connected AND (sName <> '') THEN
     sPendingName := sName;
     sSql := 'DELETE FROM Point WHERE robot_prefix = ';
     sSql := CONCAT(sSql, SqlQuotedLiteral(sRobotPrefix));
@@ -345,7 +345,7 @@ IF (nState = 0) AND NOT bBusy AND DB.bConnected AND (sName <> '') THEN
     xPoint.id := 0;
     bFound := FALSE;
     pPoint := 0;
-    sSql := 'SELECT id, robot_prefix, short_name, pose_kind, frame_id, x, y, COALESCE(z, 0), COALESCE(rx, 0), COALESCE(ry, 0), COALESCE(rz, 0), COALESCE(theta, 0) FROM Point WHERE robot_prefix = ';
+    sSql := 'SELECT id, robot_prefix, short_name, pose_kind, frame_id, x, y, COALESCE(z, 0), COALESCE(rx, 0), COALESCE(ry, 0), COALESCE(rz, 0), COALESCE(rz, 0) FROM Point WHERE robot_prefix = ';
     sSql := CONCAT(sSql, SqlQuotedLiteral(sRobotPrefix));
     sSql := CONCAT(sSql, ' AND short_name = ');
     sSql := CONCAT(sSql, SqlQuotedLiteral(sName));
@@ -391,7 +391,7 @@ END_IF]]></ST>
 VAR_INPUT
     sCurrentName : STRING(80);
     sNewName : STRING(80);
-    pose : stPose2D;
+    pose : stPoseGeneral;
     frameId : UINT;
 END_VAR
 ]]></Declaration>
@@ -415,8 +415,8 @@ IF (nState = 0) AND NOT bBusy AND DB.bConnected AND (sCurrentName <> '') THEN
     sSql := CONCAT(sSql, LREAL_TO_STRING(pose.x));
     sSql := CONCAT(sSql, ', y = ');
     sSql := CONCAT(sSql, LREAL_TO_STRING(pose.y));
-    sSql := CONCAT(sSql, ', z = NULL, rx = NULL, ry = NULL, rz = NULL, theta = ');
-    sSql := CONCAT(sSql, LREAL_TO_STRING(pose.theta));
+    sSql := CONCAT(sSql, ', z = NULL, rx = NULL, ry = NULL, rz = NULL, rz = ');
+    sSql := CONCAT(sSql, LREAL_TO_STRING(pose.rz));
     sSql := CONCAT(sSql, ' WHERE robot_prefix = ');
     sSql := CONCAT(sSql, SqlQuotedLiteral(sRobotPrefix));
     sSql := CONCAT(sSql, ' AND short_name = ');
@@ -435,7 +435,7 @@ END_IF]]></ST>
 VAR_INPUT
     sCurrentName : STRING(80);
     sNewName : STRING(80);
-    pose : stPose3D;
+    pose : stPoseGeneral;
     frameId : UINT;
 END_VAR
 ]]></Declaration>
@@ -467,7 +467,7 @@ IF (nState = 0) AND NOT bBusy AND DB.bConnected AND (sCurrentName <> '') THEN
     sSql := CONCAT(sSql, LREAL_TO_STRING(pose.ry));
     sSql := CONCAT(sSql, ', rz = ');
     sSql := CONCAT(sSql, LREAL_TO_STRING(pose.rz));
-    sSql := CONCAT(sSql, ', theta = NULL WHERE robot_prefix = ');
+    sSql := CONCAT(sSql, ', rz = NULL WHERE robot_prefix = ');
     sSql := CONCAT(sSql, SqlQuotedLiteral(sRobotPrefix));
     sSql := CONCAT(sSql, ' AND short_name = ');
     sSql := CONCAT(sSql, SqlQuotedLiteral(sCurrentName));

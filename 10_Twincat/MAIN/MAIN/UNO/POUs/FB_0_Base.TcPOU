@@ -2,7 +2,7 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_0_Base" Id="{ccfcc891-ed7a-48a9-bb43-020f08aa1f30}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'reflection'} 
-FUNCTION_BLOCK ABSTRACT FB_0_Base  IMPLEMENTS ITF_0_BaseComponent
+FUNCTION_BLOCK ABSTRACT FB_0_Base EXTENDS FB_Utilities  IMPLEMENTS ITF_0_BaseComponent
 
 VAR_INPUT
 	{attribute 'OPC.UA.DA.StructuredType':=1}
@@ -20,28 +20,27 @@ VAR_OUTPUT
 	{attribute 'noinit'} 
 	sInstanceName: STRING;
 	{attribute 'OPC.UA.DA' := '1'}
-	bError: BOOL;
-	{attribute 'OPC.UA.DA.StructuredType':=1}
-	{attribute 'OPC.UA.DA' := '1'}
-	xCurrentMessage: MessageDescription;
-	
-	{attribute 'OPC.UA.DA' := '1'}
 	eStatus: eState :=eState.Unconfigured;
-
+	{attribute 'OPC.UA.DA' := '1'}
+	MyHealth: eHealth := eHealth.Unkown;
 	{attribute 'OPC.UA.DA' := '1'}
 	MyHeartBeat: BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	bBusy : BOOL;
 END_VAR
 	
 VAR
 	_transitionresult: eResult;
+	_lasttransition: ETRANSITIONS;
 	_initialized: BOOL;
 	_activSkill: POINTER TO FB_1_Skill;
 	_finished: BOOL;
-		
+	_automaticReset,_manualResetCalled: BOOL;
 	tonBlink: TON;
 	blinkToggle: BOOL;
 
 	j: INT;
+	
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -50,13 +49,16 @@ END_VAR
     <Folder Name="Error" Id="{aec3c44c-e508-420a-a8f0-d9172161c829}" />
     <Folder Name="Skill" Id="{850d4606-90d8-4980-b7f3-1269c79d7d36}" />
     <Folder Name="StateControl" Id="{bcaabc90-8311-4d61-b63c-66c13d25292f}" />
-    <Method Name="Activate" Id="{8d29e9eb-3e7c-4311-8303-d07f52bcf283}" FolderPath="StateControl\">
+    <Folder Name="Transitions" Id="{9bcd74cb-f7c2-41d9-9833-bce802401820}" />
+    <Method Name="Activate" Id="{8d29e9eb-3e7c-4311-8303-d07f52bcf283}" FolderPath="Transitions\">
       <Declaration><![CDATA[// {warning 'Add method implementation '}
 {attribute 'TcRpcEnable':='1'}
 METHOD Activate : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[
+        <ST><![CDATA[_lasttransition:=eTransitions.Activate;
+_transitionresult:= NONE;
+
 IF State=eState.Inactive THEN
 	State:=eState.Activating;
 ELSE
@@ -99,12 +101,12 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Property Name="AutoBoot" Id="{44f3c7f4-dba0-4e5c-9aec-1d95215b519e}">
-      <Declaration><![CDATA[PROPERTY AutoBoot : BOOL]]></Declaration>
+    <Property Name="AutoConfigure" Id="{44f3c7f4-dba0-4e5c-9aec-1d95215b519e}">
+      <Declaration><![CDATA[PROPERTY AutoConfigure : BOOL]]></Declaration>
       <Get Name="Get" Id="{ee124298-bcc7-439c-9105-d90c42f3e44b}">
         <Declaration><![CDATA[]]></Declaration>
         <Implementation>
-          <ST><![CDATA[AutoBoot:=bAutoConfigure;
+          <ST><![CDATA[AutoConfigure:=bAutoConfigure;
 ]]></ST>
         </Implementation>
       </Get>
@@ -113,18 +115,46 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[bAutoConfigure:=AutoBoot;]]></ST>
+          <ST><![CDATA[bAutoConfigure:=AutoConfigure;]]></ST>
         </Implementation>
       </Set>
     </Property>
-    <Method Name="Cleanup" Id="{c4819076-2442-41bd-8aa1-fe9bd8639fb5}" FolderPath="StateControl\">
+    <Property Name="Busy" Id="{9cc952da-997b-48e1-bc3f-e76175b74970}">
+      <Declaration><![CDATA[PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{19a4579d-a5c4-4a8f-b588-1cda29eef266}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy:=FALSE;
+FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
+	IF pA_Skills[j]<>0 THEN
+		IF pA_Skills[j]^.State = eState.Active THEN
+			Busy:=TRUE;
+			EXIT;
+		END_IF
+	END_IF
+END_FOR]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Cleanup" Id="{c4819076-2442-41bd-8aa1-fe9bd8639fb5}" FolderPath="Transitions\">
       <Declaration><![CDATA[// {warning 'Add method implementation '}
 {attribute 'TcRpcEnable':='1'}
 METHOD Cleanup : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF State=eState.Inactive THEN
+        <ST><![CDATA[_lasttransition:=eTransitions.Cleanup;
+_transitionresult:= NONE;
+
+IF State=eState.Inactive THEN
 	State:=eState.CleaningUp;
+	
+	FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
+		IF pA_Skills[j]<>0 THEN
+			pA_Skills[j]^.Cleanup();
+		END_IF
+	END_FOR
 ELSE
 	ADSLOGSTR(
     msgCtrlMask := ADSLOG_MSGTYPE_WARN,
@@ -134,13 +164,16 @@ ELSE
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Configure" Id="{e049feb0-d020-4b0d-9355-74a020722637}" FolderPath="StateControl\">
+    <Method Name="Configure" Id="{e049feb0-d020-4b0d-9355-74a020722637}" FolderPath="Transitions\">
       <Declaration><![CDATA[// {warning 'Add method implementation '}
 {attribute 'TcRpcEnable':='1'}
 METHOD Configure : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF State=eState.Unconfigured THEN
+        <ST><![CDATA[_lasttransition:=eTransitions.Configure;
+_transitionresult:= NONE;
+
+IF State=eState.Unconfigured THEN
 	State:=eState.Configuring;
 ELSE
 	ADSLOGSTR(
@@ -148,14 +181,16 @@ ELSE
     msgFmtStr   := 'Configure failed in: %s',
     strArg      := Path
 );
-END_IF]]></ST>
+END_IF
+
+]]></ST>
       </Implementation>
     </Method>
     <Action Name="CYCLIC_BASE" Id="{77b136d9-dc44-439e-b8b2-7b3315db320c}">
       <Implementation>
         <ST><![CDATA[StateMachine();
-MESSENGER(bErrorActiv => bError);
-xCurrentMessage:=MESSENGER.currentMsg^;
+MESSENGER();
+// xCurrentMessage:=MESSENGER.HasActivError();
 MyHeartBeat:=HeartBeat();
 
 
@@ -163,17 +198,32 @@ FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) D
 	IF pA_Skills[j]<>0 THEN
 		pA_Skills[j]^();
 	END_IF
-END_FOR]]></ST>
+END_FOR
+
+
+IF MESSENGER.HasActivError THEN
+	MyHealth:= eHealth.Dead;
+END_IF]]></ST>
       </Implementation>
     </Action>
-    <Method Name="Deactivate" Id="{4dfdb93c-87ba-4697-9eee-0c2811499a1b}" FolderPath="StateControl\">
+    <Method Name="Deactivate" Id="{4dfdb93c-87ba-4697-9eee-0c2811499a1b}" FolderPath="Transitions\">
       <Declaration><![CDATA[{warning 'Add method implementation '}
 {attribute 'TcRpcEnable':='1'}
 METHOD Deactivate : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF State=eState.Active THEN
+        <ST><![CDATA[_lasttransition:=eTransitions.Deactivate;
+_transitionresult:= NONE;
+
+IF State=eState.Active THEN
 	State:=eState.Deactivating;
+	
+	FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
+		IF pA_Skills[j]<>0 THEN
+			pA_Skills[j]^.Deactivate();
+		END_IF
+	END_FOR
+	
 ELSE
 	ADSLOGSTR(
     msgCtrlMask := ADSLOG_MSGTYPE_WARN,
@@ -183,13 +233,16 @@ ELSE
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Destroy" Id="{84232af5-24cf-43e3-b44a-0f85cd0c58bf}" FolderPath="StateControl\">
+    <Method Name="Destroy" Id="{84232af5-24cf-43e3-b44a-0f85cd0c58bf}" FolderPath="Transitions\">
       <Declaration><![CDATA[// {warning 'Add method implementation '}
 {attribute 'TcRpcEnable':='1'}
 METHOD Destroy : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF State=eState.Finalized THEN
+        <ST><![CDATA[_lasttransition:=eTransitions.Destroy;
+_transitionresult:= NONE;
+
+IF State=eState.Finalized THEN
 	State:=eState.Unconfigured;
 ELSE
 	ADSLOGSTR(
@@ -267,6 +320,28 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
+    <Property Name="LastTransitionResult" Id="{33cfd2d2-12db-4640-8fae-0ac756489078}">
+      <Declaration><![CDATA[PROPERTY LastTransitionResult : eResult]]></Declaration>
+      <Get Name="Get" Id="{4af226e2-6965-4a3b-859a-5eb5329d5f90}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[LastTransitionResult := _transitionresult;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="LastTransitionType" Id="{792affbf-edca-445b-98a0-6bdf2a77b080}">
+      <Declaration><![CDATA[PROPERTY LastTransitionType : eTransitions]]></Declaration>
+      <Get Name="Get" Id="{1cb975b9-960f-4567-b324-2c4dc1360449}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[LastTransitionType:=_lasttransition;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Property Name="Name" Id="{548614ea-6498-4c1d-a5ce-7f6dbb849726}">
       <Declaration><![CDATA[{warning 'Add property implementation'}
 PROPERTY Name : STRING
@@ -286,36 +361,117 @@ Name:=sInstanceName;]]></ST>
       <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
 VAR_INPUT
 END_VAR
-]]></Declaration>
+
+
+VAR
+	myResult: ERESULT;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[OnActivate := eResult.SUCCESS;]]></ST>
+        <ST><![CDATA[//--------------------------------------------------
+myResult:=SUCCESS;		//!!
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+
+
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnActivate := myResult;
+
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnCleanup" Id="{c53ec4e7-ff8a-4f5b-9f71-a4f6d4368c1b}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
 VAR_INPUT
 END_VAR
-]]></Declaration>
+
+VAR
+	myResult: eResult;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[OnCleanup := eResult.SUCCESS;]]></ST>
+        <ST><![CDATA[
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
+	IF pA_Skills[j]<>0 THEN
+		IF pA_Skills[j]^.LastTransitionType = eTransitions.Cleanup THEN
+			IF pA_Skills[j]^.LastTransitionResult <> SUCCESS THEN
+				myResult:=SUCCESS;
+			END_IF
+		END_IF
+	END_IF
+END_FOR
+
+
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnCleanup := myResult;
+
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnConfigure" Id="{3309e05d-b0f8-4780-a3c5-9d432f8faea3}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
 VAR_INPUT
 END_VAR
-]]></Declaration>
+
+VAR
+	myResult: eResult;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[OnConfigure := eResult.SUCCESS;]]></ST>
+        <ST><![CDATA[//--------------------------------------------------
+myResult:=SUCCESS;		//!!
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+
+
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnConfigure := myResult;
+
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnDeactivate" Id="{d4f5f9b3-96c4-4d53-92d3-200d86bcd1c0}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
 VAR_INPUT
 END_VAR
-]]></Declaration>
+
+VAR
+	myResult: ERESULT;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[OnDeactivate := eResult.SUCCESS;]]></ST>
+        <ST><![CDATA[
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
+	IF pA_Skills[j]<>0 THEN
+		IF pA_Skills[j]^.LastTransitionType = eTransitions.Deactivate THEN
+			IF pA_Skills[j]^.LastTransitionResult <> SUCCESS THEN
+				myResult:=SUCCESS;
+			END_IF
+		END_IF
+	END_IF
+END_FOR
+
+
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnDeactivate := myResult;
+
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnError" Id="{9d8c13be-0b23-41d4-93f7-5ea06689f4d4}" FolderPath="StateControl\">
@@ -324,16 +480,48 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[OnError := eResult.SUCCESS;]]></ST>
+        <ST><![CDATA[OnError := SUCCESS;
+
+
+//Escalation Surveillance //TODO
+
+
+
+_manualResetCalled:=FALSE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnShutdown" Id="{baf0cda2-305c-4fe2-9dcb-4d0d08ee6a48}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
 VAR_INPUT
 END_VAR
-]]></Declaration>
+
+VAR
+	myResult: eResult;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[OnShutdown := eResult.SUCCESS;]]></ST>
+        <ST><![CDATA[
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
+	IF pA_Skills[j]<>0 THEN
+		IF pA_Skills[j]^.LastTransitionType = eTransitions.Shutdown THEN
+			IF pA_Skills[j]^.LastTransitionResult <> SUCCESS THEN
+				myResult:=SUCCESS;
+			END_IF
+		END_IF
+	END_IF
+END_FOR
+
+
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnShutdown := myResult;
+
+]]></ST>
       </Implementation>
     </Method>
     <Property Name="Path" Id="{459f7f21-cbfe-4701-91b3-a410fc19512e}">
@@ -349,14 +537,33 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Method Name="Shutdown" Id="{a12b67df-13c4-4acd-81a2-259afa6359fe}" FolderPath="StateControl\">
+    <Method Name="Reset" Id="{b87a48b5-252c-4f97-99c7-b52cedc4931c}" FolderPath="Error\">
+      <Declaration><![CDATA[METHOD PROTECTED Reset : eResult
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_manualResetCalled:=True;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Shutdown" Id="{a12b67df-13c4-4acd-81a2-259afa6359fe}" FolderPath="Transitions\">
       <Declaration><![CDATA[{warning 'Add method implementation '}
 {attribute 'TcRpcEnable':='1'}
 METHOD Shutdown : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF State=eState.Inactive OR State=eState.Unconfigured OR State=eState.Active THEN
+        <ST><![CDATA[_lasttransition:=eTransitions.Shutdown;
+_transitionresult:= NONE;
+
+_lasttransition:=eTransitions.Shutdown;
+IF State=eState.Inactive OR State=eState.Unconfigured OR State=eState.Active THEN
 	State:=eState.ShuttingDown;
+	
+	FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
+		IF pA_Skills[j]<>0 THEN
+			pA_Skills[j]^.Cleanup();
+		END_IF
+	END_FOR
 END_IF]]></ST>
       </Implementation>
     </Method>
@@ -385,93 +592,127 @@ END_VAR
       <Declaration><![CDATA[METHOD StateMachine : eState
 VAR_INPUT
 END_VAR
-]]></Declaration>
+
+VAR
+	
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF NOT _initialized THEN
     sInstanceName := GetInstanceName();
     _initialized := TRUE;
 END_IF
 
-CASE eStatus OF
-    eState.Unconfigured:
-        IF bAutoConfigure THEN
-            Configure();
-        END_IF
-
-    eState.Inactive:
-        ;
-
-    eState.Active:
-        ;
-    eState.Finalized:
-        Destroy();
-
-    eState.Configuring:
-        _transitionresult := OnConfigure();
-        CASE _transitionresult OF
-            eResult.SUCCESS:
-                eStatus := eState.Inactive;
-            eResult.FAILURE:
-                eStatus := eState.Unconfigured;
-            eResult.ERROR:
-                eStatus := eState.ErrorProcessing;
-        END_CASE;
-
-    eState.Activating:
-        _transitionresult := OnActivate();
-        CASE _transitionresult OF
-            eResult.SUCCESS:
-                eStatus := eState.Active;
-            eResult.FAILURE:
-                eStatus := eState.Inactive;
-            eResult.ERROR:
-                eStatus := eState.ErrorProcessing;
-        END_CASE;
-
-    eState.Deactivating:
-        _transitionresult := OnDeactivate();
-        CASE _transitionresult OF
-            eResult.SUCCESS:
-                eStatus := eState.Inactive;
-            eResult.FAILURE:
-                eStatus := eState.Inactive;
-            eResult.ERROR:
-                eStatus := eState.ErrorProcessing;
-        END_CASE;
-
-    eState.ErrorProcessing:
-        _transitionresult := OnError();
-        CASE _transitionresult OF
-            eResult.SUCCESS:
-                eStatus := eState.Unconfigured;
-            eResult.FAILURE:
-                eStatus := eState.Finalized;
-            eResult.ERROR:
-                eStatus := eState.ErrorProcessing;
-        END_CASE;
-
-    eState.CleaningUp:
-        _transitionresult := OnCleanup();
-        CASE _transitionresult OF
-            eResult.SUCCESS:
-                eStatus := eState.Unconfigured;
-            eResult.FAILURE:
-                eStatus := eState.Unconfigured;
-            eResult.ERROR:
-                eStatus := eState.ErrorProcessing;
-        END_CASE;
-
-    eState.ShuttingDown:
-        _transitionresult := OnShutdown();
-        CASE _transitionresult OF
-            eResult.SUCCESS:
-                eStatus := eState.Finalized;
-            eResult.FAILURE:
-                eStatus := eState.Finalized;
-            eResult.ERROR:
-                eStatus := eState.ErrorProcessing;
-        END_CASE;
-END_CASE]]></ST>
+IF NOT Messenger.HasActivError THEN
+	
+	//RUN STATEMACHINE
+	
+	CASE eStatus OF
+		eState.Unconfigured:
+			IF bAutoConfigure THEN
+				Configure();
+			END_IF
+	
+		eState.Inactive:
+			;
+	
+		eState.Active:
+			;
+		eState.Finalized:
+			Destroy();
+	
+	
+	
+		eState.Configuring:
+			_transitionresult := OnConfigure();
+			CASE _transitionresult OF
+				NONE:
+					;
+				SUCCESS:
+					eStatus := eState.Inactive;
+				FAILURE:
+					eStatus := eState.Unconfigured;
+				ERROR:
+					eStatus := eState.ErrorProcessing;
+			END_CASE;
+	
+	
+	
+	
+		eState.Activating:
+			_transitionresult := OnActivate();
+			CASE _transitionresult OF
+				SUCCESS:
+					eStatus := eState.Active;
+				FAILURE:
+					eStatus := eState.Inactive;
+				ERROR:
+					eStatus := eState.ErrorProcessing;
+			END_CASE;
+	
+	
+	
+		eState.Deactivating:
+			_transitionresult := OnDeactivate();
+			CASE _transitionresult OF
+				SUCCESS:
+					eStatus := eState.Inactive;
+				FAILURE:
+					eStatus := eState.Inactive;
+				ERROR:
+					eStatus := eState.ErrorProcessing;
+			END_CASE;
+	
+	
+	
+		eState.ErrorProcessing:
+			IF _automaticReset THEN
+				_transitionresult := OnError();
+			ELSIF _manualResetCalled THEN
+				_transitionresult := OnError();
+				
+			END_IF
+			
+			CASE _transitionresult OF
+				SUCCESS:
+					eStatus := eState.Unconfigured;
+				FAILURE:
+					eStatus := eState.Finalized;
+				ERROR:
+					eStatus := eState.ErrorProcessing;
+			END_CASE;
+	
+	
+	
+		eState.CleaningUp:
+			_transitionresult := OnCleanup();
+			CASE _transitionresult OF
+				SUCCESS:
+					eStatus := eState.Unconfigured;
+				FAILURE:
+					eStatus := eState.Unconfigured;
+				ERROR:
+					eStatus := eState.ErrorProcessing;
+			END_CASE;
+	
+	
+	
+		eState.ShuttingDown:
+			_transitionresult := OnShutdown();
+			CASE _transitionresult OF
+				SUCCESS:
+					eStatus := eState.Finalized;
+				FAILURE:
+					eStatus := eState.Finalized;
+				ERROR:
+					eStatus := eState.ErrorProcessing;
+			END_CASE;
+	END_CASE
+ELSE
+	MyHealth := eHealth.Dead;
+	//IF bError
+	//Hold StateMachine, await Reset of Error
+END_IF
+]]></ST>
       </Implementation>
     </Method>
   </POU>

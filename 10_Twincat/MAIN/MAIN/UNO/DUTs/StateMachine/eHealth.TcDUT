@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="eHealth" Id="{c8debdf9-d4e1-4f91-a191-301e57d2e06b}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE eHealth :
+(
+	Unkown := 0,	//GREY
+	Dead := 1,	//RED
+	Offline := 2,	//RED
+	Degraded :=3,	//ORANGE
+	Healty:= 4		//HEALTY
+	
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

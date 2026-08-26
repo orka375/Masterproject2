@@ -786,7 +786,7 @@ VAR_INPUT
         offset : stRelativePose3D;
 END_VAR
 VAR_OUTPUT
-        pose : stPose3D;
+        pose : stPoseGeneral;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -843,7 +843,7 @@ END_VAR
     <Method Name="M_TargetToArgs" Id="{9d5acc63-fddd-4c9c-9034-205537d16cf6}" FolderPath="MotionControl\">
       <Declaration><![CDATA[METHOD PRIVATE M_TargetToArgs : BOOL
 VAR_INPUT
-    pose    : stPose3D;
+    pose    : stPoseGeneral;
 END_VAR
 VAR_OUTPUT
     aValues : ARRAY[1..6] OF REAL;
@@ -861,28 +861,31 @@ M_TargetToArgs := TRUE;]]></ST>
     </Method>
     <Method Name="OnActivate" Id="{b9d2baff-9b5e-454a-9608-066761b62c00}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
-VAR
-    bParentOk : BOOL;
-    eParentResult : eResult;
+VAR_INPUT
 END_VAR
-]]></Declaration>
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnActivate();
-    bParentOk := eParentResult = eResult.SUCCESS;
-    IF NOT bParentOk THEN
-        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_Meca500.OnActivate: parent OnActivate failed', '');
-        OnActivate := eParentResult;
-        RETURN;
-    END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-    // ---- Init ----
-_transitionresult := eResult.None;
+// ---- Init ----
+_transitionresult := None;
 
 IF NOT Connected THEN
-    _transitionresult := eResult.FAILURE;
+    _transitionresult := FAILURE;
 
 ELSIF (_robotErrorCode <> 0) OR xInEStop OR xInPStop2 THEN
-    _transitionresult := eResult.ERROR;
+    _transitionresult := ERROR;
 
 ELSE
     // ActivateRobot is a triggered action: hold until Activated confirms it.
@@ -920,60 +923,76 @@ ELSE
         ELSE
             xOutResumeMotion := FALSE;
             _resumePhase := 0;
-            _transitionresult := eResult.SUCCESS;
+            _transitionresult := SUCCESS;
         END_IF
     END_IF
 END_IF
 
-OnActivate := _transitionresult;]]></ST>
+myResult := _transitionresult;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnActivate := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnCleanup" Id="{d83e7a1b-e936-4a79-97d4-2eb8ea5a0c73}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
-VAR
-    bParentOk : BOOL;
-    eParentResult : eResult;
+VAR_INPUT
 END_VAR
-]]></Declaration>
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnCleanup();
-    bParentOk := eParentResult = eResult.SUCCESS;
-    IF NOT bParentOk THEN
-        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_Meca500.OnCleanup: parent OnCleanup failed', '');
-        OnCleanup := eParentResult;
-        RETURN;
-    END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-    _transitionresult := eResult.None;
+_transitionresult := None;
 
 eModus := eMode.Manual;
 Disconnect();
 
 IF NOT Connected THEN
-    _transitionresult := eResult.SUCCESS;
+    _transitionresult := SUCCESS;
 END_IF
 
-OnCleanup := _transitionresult;]]></ST>
+myResult := _transitionresult;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnCleanup := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnConfigure" Id="{713f5b8f-7427-4ceb-adba-a72d466cc3d9}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
-VAR
-    bParentOk : BOOL;
-    eParentResult : eResult;
+VAR_INPUT
 END_VAR
-]]></Declaration>
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnConfigure();
-    bParentOk := eParentResult = eResult.SUCCESS;
-    IF NOT bParentOk THEN
-        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_Meca500.OnConfigure: parent OnConfigure failed', '');
-        OnConfigure := eParentResult;
-        RETURN;
-    END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-    // ---- Init ----
-_transitionresult := eResult.None;
+// ---- Init ----
+_transitionresult := None;
 
 // ---- Change ----
 eModus := eMode.Manual;
@@ -982,33 +1001,41 @@ PM.Configure(sPrefix:=Name,sDatabase:=CONCAT('db_',Name));
 
 // ---- Check ----
 IF bError OR (_robotErrorCode <> 0) THEN
-    _transitionresult := eResult.ERROR;
+    _transitionresult := ERROR;
 ELSIF Connected THEN
-    _transitionresult := eResult.SUCCESS;
+    _transitionresult := SUCCESS;
 END_IF
 
 // ---- Change State ----
-OnConfigure := _transitionresult;]]></ST>
+myResult := _transitionresult;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnConfigure := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnDeactivate" Id="{1398c304-234b-422f-b021-0870aaf38840}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
-VAR
-    bParentOk : BOOL;
-    eParentResult : eResult;
+VAR_INPUT
 END_VAR
-]]></Declaration>
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
-    bParentOk := eParentResult = eResult.SUCCESS;
-    IF NOT bParentOk THEN
-        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_Meca500.OnDeactivate: parent OnDeactivate failed', '');
-        OnDeactivate := eParentResult;
-        RETURN;
-    END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-    // ---- Init ----
-_transitionresult := eResult.None;
+// ---- Init ----
+_transitionresult := None;
 eModus := eMode.Manual;
 
 // Stop posting commands immediately.
@@ -1034,33 +1061,41 @@ ELSIF xInActivated THEN
 ELSE
     xOutClearMotion := FALSE;
     xOutDeactivateRobot := FALSE;
-    _transitionresult := eResult.SUCCESS;
+    _transitionresult := SUCCESS;
 END_IF
 
 IF (_robotErrorCode <> 0) THEN
-    _transitionresult := eResult.ERROR;
+    _transitionresult := ERROR;
 END_IF
 
-OnDeactivate := _transitionresult;]]></ST>
+myResult := _transitionresult;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnDeactivate := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnError" Id="{28552745-375b-42ce-bc29-900d788bc750}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
-VAR
-    bParentOk : BOOL;
-    eParentResult : eResult;
+VAR_INPUT
 END_VAR
-]]></Declaration>
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
-    bParentOk := eParentResult = eResult.SUCCESS;
-    IF NOT bParentOk THEN
-        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_Meca500.OnError: parent OnError failed', '');
-        OnError := eParentResult;
-        RETURN;
-    END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-    _transitionresult := eResult.None;
+_transitionresult := None;
 
 eModus := eMode.Manual;
 
@@ -1086,45 +1121,58 @@ IF (_robotErrorCode = 0) AND NOT xInEStop AND NOT xInPStop2 THEN
     bError := FALSE;
     nErrorId := 0;
     M_ClearEcatOutputs();
-    _transitionresult := eResult.SUCCESS;
+    _transitionresult := SUCCESS;
 END_IF
 
-OnError := _transitionresult;]]></ST>
+myResult := _transitionresult;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnError := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnShutdown" Id="{1d4a8f19-f631-40bb-91a1-86bc341b395e}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
-VAR
-    bParentOk : BOOL;
-    eParentResult : eResult;
+VAR_INPUT
 END_VAR
-]]></Declaration>
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
-    bParentOk := eParentResult = eResult.SUCCESS;
-    IF NOT bParentOk THEN
-        ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_Meca500.OnShutdown: parent OnShutdown failed', '');
-        OnShutdown := eParentResult;
-        RETURN;
-    END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-    _transitionresult := eResult.None;
+_transitionresult := None;
 
 eModus := eMode.Manual;
 Disconnect();
 
 IF NOT Connected THEN
-    _transitionresult := eResult.SUCCESS;
+    _transitionresult := SUCCESS;
 END_IF
 
-OnShutdown := _transitionresult;]]></ST>
+myResult := _transitionresult;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnShutdown := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="ProcessCommand" Id="{e8f9a0b1-c2d3-4e5f-8a6b-7c8d9e0f1a2b}" FolderPath="MotionControl\">
       <Declaration><![CDATA[METHOD PRIVATE ProcessCommand : BOOL
 VAR
     aValues : ARRAY[1..6] OF REAL;
-    targetPose : stPose3D;
+    targetPose : stPoseGeneral;
 END_VAR
 ]]></Declaration>
       <Implementation>

@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="ITF_1_Communication" Id="{137062f4-e0da-4742-8af0-d297ced283f8}">
+    <Declaration><![CDATA[INTERFACE ITF_1_Communication
+]]></Declaration>
+    <Method Name="Connect" Id="{87cfa5c5-c74d-443b-add2-3a7c89de83c3}">
+      <Declaration><![CDATA[METHOD Connect : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="Connected" Id="{e3a4778a-0f53-4054-bb5d-4b61ee314b7b}">
+      <Declaration><![CDATA[PROPERTY Connected : BOOL]]></Declaration>
+      <Get Name="Get" Id="{c9e26e2d-8e27-47d9-95e7-96b913ca6803}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="Disconnect" Id="{c9f14a31-d44b-4480-9761-6c4eb27b28db}">
+      <Declaration><![CDATA[METHOD Disconnect : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="Reconnect" Id="{bf377ed8-2360-417f-9da3-0098c69dbfd2}">
+      <Declaration><![CDATA[METHOD Reconnect : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="Send" Id="{fbb76a85-3e04-4d63-ace1-c87edd3b98a3}">
+      <Declaration><![CDATA[METHOD Send : BOOL
+VAR_INPUT
+      pData : PVOID;
+      nDataSize : UDINT;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="Update" Id="{1e26b47d-130f-40af-81c4-fb80dc20112f}">
+      <Declaration><![CDATA[METHOD Update : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

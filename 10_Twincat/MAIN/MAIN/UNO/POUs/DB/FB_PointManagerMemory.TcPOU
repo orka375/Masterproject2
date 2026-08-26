@@ -79,7 +79,7 @@ END_IF]]></ST>
       <Declaration><![CDATA[METHOD PUBLIC Create2D : BOOL
 VAR_INPUT
     sName : STRING(80);
-    pose : stPose2D;
+    pose : stPoseGeneral;
     frameId : UINT;
 END_VAR
 VAR
@@ -117,7 +117,7 @@ aPoints[nIndex].pose_kind := 'POSE_2D';
 aPoints[nIndex].frame_id := UINT_TO_DINT(frameId);
 aPoints[nIndex].x := pose.x;
 aPoints[nIndex].y := pose.y;
-aPoints[nIndex].theta := pose.theta;
+aPoints[nIndex].rz := pose.rz;
 xPoint := aPoints[nIndex];
 pPoint := ADR(xPoint);
 bFound := TRUE;
@@ -134,17 +134,17 @@ VAR_INPUT
     sName : STRING(80);
     x : LREAL;
     y : LREAL;
-    theta : LREAL;
+    rz : LREAL;
     frameId : UINT;
 END_VAR
 VAR
-    pose : stPose2D;
+    pose : stPoseGeneral;
 END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[pose.x := x;
 pose.y := y;
-pose.theta := theta;
+pose.rz := rz;
 Create2DValues := Create2D(sName := sName, pose := pose, frameId := frameId);]]></ST>
       </Implementation>
     </Method>
@@ -152,7 +152,7 @@ Create2DValues := Create2D(sName := sName, pose := pose, frameId := frameId);]]>
       <Declaration><![CDATA[METHOD PUBLIC Create3D : BOOL
 VAR_INPUT
     sName : STRING(80);
-    pose : stPose3D;
+    pose : stPoseGeneral;
     frameId : UINT;
 END_VAR
 VAR
@@ -216,7 +216,7 @@ VAR_INPUT
     frameId : UINT;
 END_VAR
 VAR
-    pose : stPose3D;
+    pose : stPoseGeneral;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -367,7 +367,7 @@ Rename := TRUE;]]></ST>
 VAR_INPUT
     sCurrentName : STRING(80);
     sNewName : STRING(80);
-    pose : stPose2D;
+    pose : stPoseGeneral;
     frameId : UINT;
 END_VAR
 VAR
@@ -397,7 +397,7 @@ aPoints[nIndex].z := 0;
 aPoints[nIndex].rx := 0;
 aPoints[nIndex].ry := 0;
 aPoints[nIndex].rz := 0;
-aPoints[nIndex].theta := pose.theta;
+aPoints[nIndex].rz := pose.rz;
 xPoint := aPoints[nIndex];
 pPoint := ADR(xPoint);
 bError := FALSE;
@@ -412,7 +412,7 @@ Retouch2D := TRUE;]]></ST>
 VAR_INPUT
     sCurrentName : STRING(80);
     sNewName : STRING(80);
-    pose : stPose3D;
+    pose : stPoseGeneral;
     frameId : UINT;
 END_VAR
 VAR
@@ -442,7 +442,7 @@ aPoints[nIndex].z := pose.z;
 aPoints[nIndex].rx := pose.rx;
 aPoints[nIndex].ry := pose.ry;
 aPoints[nIndex].rz := pose.rz;
-aPoints[nIndex].theta := 0;
+aPoints[nIndex].rz := 0;
 xPoint := aPoints[nIndex];
 pPoint := ADR(xPoint);
 bError := FALSE;

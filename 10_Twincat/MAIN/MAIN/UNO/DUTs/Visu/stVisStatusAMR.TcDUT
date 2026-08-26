@@ -17,7 +17,7 @@ STRUCT
 	TargetReached: BOOL;
 	isInCollision: BOOL;
 	hasError: BOOL;
-	TCPPosition: stPose2D;
+	TCPPosition: stPoseGeneral;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

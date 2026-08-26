@@ -10,6 +10,12 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
+    <Property Name="Busy" Id="{40247604-64eb-4bf8-bd71-13681de4b94c}">
+      <Declaration><![CDATA[PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{4e01a15e-27d1-4a27-8b69-b9e60512da87}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
     <Method Name="Cleanup" Id="{2b58a7de-95d9-467c-85d1-db9dec921482}" FolderPath="Transitions\">
       <Declaration><![CDATA[METHOD Cleanup : BOOL
 VAR_INPUT

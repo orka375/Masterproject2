@@ -5,7 +5,7 @@
 VAR_INPUT
   bStart : BOOL;
   bReset : BOOL;
-  MoveLTarget : stTarget3D;
+  MoveLTarget : stTarget;
   MoveJJoints : stJoint6;
   nDigitalOutput : UINT := 0;
   bDigitalOutputValue : BOOL := TRUE;

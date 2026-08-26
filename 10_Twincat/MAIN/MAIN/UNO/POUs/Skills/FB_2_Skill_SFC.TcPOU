@@ -348,263 +348,164 @@ END_VAR
     </Action>
     <Method Name="onActivate" Id="{e62a8707-006b-4214-80df-3d7118df6453}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED onActivate : eResult
-    VAR
-    	bParentOk: BOOL;
-    	eParentResult: eResult;
-    END_VAR
-]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.onActivate();
-bParentOk := eParentResult = eResult.SUCCESS;
-IF NOT bParentOk THEN
-  ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_2_Skill_SFC.onActivate: parent onActivate failed', '');
-  onActivate := eParentResult;
-  RETURN;
-END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-onActivate := eResult.SUCCESS;
-      RETURN;
-      // ---- Init ----
-_transitionresult:=eResult.None;
+myResult:=NONE;
 
-
-
-// ---- Change ----
-
-
-
-
-// ---- Check ----
-_transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF _transitionresult= eResult.SUCCESS THEN
-	State:=eState.Active;
-ELSIF _transitionresult= eResult.FAILURE THEN
-	State:=eState.Inactive;
-ELSIF _transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onActivate is None','');
-END_IF]]></ST>
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onActivate := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="onCleanup" Id="{1ee1e40f-fc7b-4614-b00d-86d9c771a442}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED onCleanup : eResult
-    VAR
-    	bParentOk: BOOL;
-    	eParentResult: eResult;
-    END_VAR
-]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.onCleanup();
-bParentOk := eParentResult = eResult.SUCCESS;
-IF NOT bParentOk THEN
-  ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_2_Skill_SFC.onCleanup: parent onCleanup failed', '');
-  onCleanup := eParentResult;
-  RETURN;
-END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-onCleanup := eResult.SUCCESS;
-      RETURN;
-      // ---- Init ----
-_transitionresult:=eResult.None;
+myResult:=NONE;
 
-
-
-// ---- Change ----
-
-
-
-// ---- Check ----
-_transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF _transitionresult= eResult.SUCCESS THEN
-	State:=eState.Unconfigured;
-ELSIF _transitionresult= eResult.FAILURE THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is FAILURE ','');
-ELSIF _transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onCleanup is NONE','');
-END_IF]]></ST>
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onCleanup := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="onConfigure" Id="{dc5c12e0-021d-49a1-8746-87ad379a229c}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED onConfigure : eResult
-    VAR
-    	bParentOk: BOOL;
-    	eParentResult: eResult;
-    END_VAR
-]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.onConfigure();
-bParentOk := eParentResult = eResult.SUCCESS;
-IF NOT bParentOk THEN
-  ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_2_Skill_SFC.onConfigure: parent onConfigure failed', '');
-  onConfigure := eParentResult;
-  RETURN;
-END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-onConfigure := eResult.SUCCESS;
-      RETURN;
-      // ---- Init ----
-_transitionresult:=eResult.None;
+myResult:=NONE;
 
-
-
-// ---- Change ----
-
-
-// ---- Check ----
-_transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF _transitionresult= eResult.SUCCESS THEN
-	State:=eState.Inactive;
-ELSIF _transitionresult= eResult.FAILURE THEN
-	State:=eState.Unconfigured;
-ELSIF _transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onConfigure is None','');
-END_IF]]></ST>
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onConfigure := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="onDeactivate" Id="{2776c250-0af2-41dd-ba5a-bd29717e9f7c}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED onDeactivate : eResult
-    VAR
-    	bParentOk: BOOL;
-    	eParentResult: eResult;
-    END_VAR
-]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.onDeactivate();
-bParentOk := eParentResult = eResult.SUCCESS;
-IF NOT bParentOk THEN
-  ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_2_Skill_SFC.onDeactivate: parent onDeactivate failed', '');
-  onDeactivate := eParentResult;
-  RETURN;
-END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-onDeactivate := eResult.SUCCESS;
-      RETURN;
-      // ---- Init ----
-_transitionresult:=eResult.None;
+myResult:=NONE;
 
-
-
-// ---- Change ----
- //Stopping SFC
-
-
-
-// ---- Check ----
-_transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF _transitionresult= eResult.SUCCESS THEN
-	State:=eState.Inactive;
-ELSIF _transitionresult= eResult.FAILURE THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is FAILURE','');
-ELSIF _transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onDeactivate is None','');
-END_IF]]></ST>
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onDeactivate := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="onError" Id="{a254357c-5987-481d-8b51-d3f19aebbf20}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED onError : eResult
-    VAR
-    	bParentOk: BOOL;
-    	eParentResult: eResult;
-    END_VAR
-]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.onError();
-bParentOk := eParentResult = eResult.SUCCESS;
-IF NOT bParentOk THEN
-  ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_2_Skill_SFC.onError: parent onError failed', '');
-  onError := eParentResult;
-  RETURN;
-END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-onError := eResult.SUCCESS;
-      RETURN;
-      // ---- Init ----
-_transitionresult:=eResult.None;
+myResult:=NONE;
 
-
-
-// ---- Change ----
-
-
-
-
-
-// ---- Check ----
-_transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF _transitionresult= eResult.SUCCESS THEN
-	State:=eState.Unconfigured;
-ELSIF _transitionresult= eResult.FAILURE THEN
-	State:=eState.Finalized;
-ELSIF _transitionresult= eResult.ERROR THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is Error','');
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onError is None','');
-END_IF]]></ST>
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onError := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="onShutdown" Id="{ff585b5e-d6bc-425e-9ccc-ddea2557f2bd}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED onShutdown : eResult
-    VAR
-    	bParentOk: BOOL;
-    	eParentResult: eResult;
-    END_VAR
-]]></Declaration>
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.onShutdown();
-bParentOk := eParentResult = eResult.SUCCESS;
-IF NOT bParentOk THEN
-  ADSLOGSTR(ADSLOG_MSGTYPE_ERROR, 'FB_2_Skill_SFC.onShutdown: parent onShutdown failed', '');
-  onShutdown := eParentResult;
-  RETURN;
-END_IF
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-onShutdown := eResult.SUCCESS;
-      RETURN;
-      // ---- Init ----
-_transitionresult:=eResult.None;
+myResult:=NONE;
 
-
-
-// ---- Change ----
-
-
-
-// ---- Check ----
-_transitionresult := eResult.SUCCESS;
-
-
-// ---- Change State ----
-IF _transitionresult= eResult.SUCCESS THEN
-	State:=eState.Finalized;
-ELSIF _transitionresult= eResult.FAILURE THEN
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is FAILURE','');
-ELSIF _transitionresult= eResult.ERROR THEN
-	State:=eState.ErrorProcessing;
-ELSE
-	ADSLOGSTR(ADSLOG_MSGTYPE_WARN,'Transitionresult from onShutdown is None','');
-END_IF]]></ST>
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onShutdown := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <ObjectProperties>

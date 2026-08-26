@@ -3,10 +3,12 @@
   <POU Name="FB_Messenger" Id="{83b10ff9-5df7-47f5-bb58-80d01c25214b}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_Messenger
 VAR_INPUT
+	bExecuteQuittieren: BOOL;
 END_VAR
 VAR_OUTPUT
 // 	newMAvail: BOOL;
 	currentMsg: POINTER TO MessageDescription;
+	activError: POINTER TO MessageDescription;
 	bErrorActiv: BOOL;
 END_VAR
 VAR
@@ -20,6 +22,8 @@ VAR
 	fbTime   	: FB_LocalSystemTime:=(bEnable:=TRUE, dwCycle:=1);
 	i: INT;
 // 	unread: BOOL;
+	_unreadError: BOOL;
+	nActivErrorIndex: INT;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -42,6 +46,8 @@ IF manz>0 THEN
 	FOR i:=1 TO manz DO
 		IF NOT MList[i].bQuit AND MList[i].Category=eSeverity.ERROR THEN
 			bErrorActiv:=TRUE;
+			activError := ADR(MList[i]);
+			nActivErrorIndex:=i;
 			EXIT;
 		END_IF
 	END_FOR
@@ -55,7 +61,10 @@ ELSE
 	currentMsg:=ADR(emptyMsg);
 END_IF
 
-
+IF bExecuteQuittieren THEN
+	bExecuteQuittieren:=FALSE;
+	Quittieren(nActivErrorIndex);
+END_IF
 ]]></ST>
     </Implementation>
     <Method Name="AddError" Id="{037ddfe7-b312-4cbd-8fc4-eb84b0d4e5f3}">
@@ -184,13 +193,13 @@ manz:=0;
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="GetLatestError" Id="{17a1758b-7485-4ce4-83aa-f16fb7ee4cb5}">
-      <Declaration><![CDATA[METHOD GetLatestError : MessageDescription
+    <Method Name="GetActivError" Id="{17a1758b-7485-4ce4-83aa-f16fb7ee4cb5}">
+      <Declaration><![CDATA[METHOD GetActivError : MessageDescription
 VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[GetLatestError := MList[manz];]]></ST>
+        <ST><![CDATA[GetActivError := MList[nActivErrorIndex];]]></ST>
       </Implementation>
     </Method>
     <Method Name="GetLatestMessage" Id="{c0703a3a-c079-4dd6-8b67-7359a7b29171}">
@@ -202,6 +211,18 @@ END_VAR
         <ST><![CDATA[GetLatestMessage := ADR(MList[manz]);]]></ST>
       </Implementation>
     </Method>
+    <Property Name="HasActivError" Id="{c866ca77-0858-4c7e-919c-8b318f921da8}">
+      <Declaration><![CDATA[PROPERTY HasActivError : BOOL]]></Declaration>
+      <Get Name="Get" Id="{85f3fa10-3488-4dbd-9f72-ff0fe6bce33a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HasActivError:=bErrorActiv;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Action Name="NextMsg" Id="{b95c2674-49f7-4d97-9f4a-d84c08ec2b90}">
       <Implementation>
         <ST><![CDATA[IF IndexShownM<manz THEN

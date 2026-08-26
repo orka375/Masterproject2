@@ -14,7 +14,7 @@ STRUCT
 	isBusy: BOOL;
 	isInCollision: BOOL;
 	hasError: BOOL;
-	TCPPosition: stPose3D;
+	TCPPosition: stPoseGeneral;
 END_STRUCT
 END_TYPE
 ]]></Declaration>
