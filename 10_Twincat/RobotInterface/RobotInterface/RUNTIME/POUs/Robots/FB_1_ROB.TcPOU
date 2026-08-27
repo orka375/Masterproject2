@@ -1,8 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_1_ROB" Id="{7ce28b50-28f8-4d4c-bb25-1006bf064637}" SpecialFunc="None">
+<<<<<<< HEAD:10_Twincat/RobotInterface/RobotInterface/RUNTIME/POUs/Robots/FB_1_ROB.TcPOU
     <Declaration><![CDATA[FUNCTION_BLOCK FB_1_ROB EXTENDS FB_0_Base 
 // IMPLEMENTS ITF_1_Robot
+=======
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_1_ROB EXTENDS FB_0_Base IMPLEMENTS ITF_1_Robot
+>>>>>>> 6f5a142b5ece5f04d9c6aeb73e11587d89002c25:10_Twincat/MAIN/MAIN/UNO/POUs/Robots/FB_1_ROB.TcPOU
 
 VAR_INPUT
 	PM: FB_PointManager;
@@ -183,7 +187,11 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
+<<<<<<< HEAD:10_Twincat/RobotInterface/RobotInterface/RUNTIME/POUs/Robots/FB_1_ROB.TcPOU
     <Method Name="OnActivate" Id="{c53d2e09-95f6-4470-b92a-1736ae881f81}" FolderPath="StateControl\">
+=======
+    <Method Name="OnActivate" Id="{67ca159e-e674-4aba-b868-e118478e4a53}" FolderPath="StateControl\">
+>>>>>>> 6f5a142b5ece5f04d9c6aeb73e11587d89002c25:10_Twincat/MAIN/MAIN/UNO/POUs/Robots/FB_1_ROB.TcPOU
       <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
 VAR_INPUT
 END_VAR
@@ -222,7 +230,11 @@ OnActivate := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
+<<<<<<< HEAD:10_Twincat/RobotInterface/RobotInterface/RUNTIME/POUs/Robots/FB_1_ROB.TcPOU
     <Method Name="OnCleanup" Id="{734e8874-f49e-492d-ae48-dcfbab1bde00}" FolderPath="StateControl\">
+=======
+    <Method Name="OnCleanup" Id="{b9df34ec-a33f-4888-a955-17ffdd0cfa8d}" FolderPath="StateControl\">
+>>>>>>> 6f5a142b5ece5f04d9c6aeb73e11587d89002c25:10_Twincat/MAIN/MAIN/UNO/POUs/Robots/FB_1_ROB.TcPOU
       <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
 VAR_INPUT
 END_VAR
@@ -257,7 +269,11 @@ OnCleanup := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
+<<<<<<< HEAD:10_Twincat/RobotInterface/RobotInterface/RUNTIME/POUs/Robots/FB_1_ROB.TcPOU
     <Method Name="OnConfigure" Id="{405f6b01-72da-4ba1-a9bb-82f8cc48639e}" FolderPath="StateControl\">
+=======
+    <Method Name="OnConfigure" Id="{c4fa859f-f349-4d9b-9904-77d6466b7677}" FolderPath="StateControl\">
+>>>>>>> 6f5a142b5ece5f04d9c6aeb73e11587d89002c25:10_Twincat/MAIN/MAIN/UNO/POUs/Robots/FB_1_ROB.TcPOU
       <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
 VAR_INPUT
 END_VAR
@@ -295,7 +311,11 @@ OnConfigure := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
+<<<<<<< HEAD:10_Twincat/RobotInterface/RobotInterface/RUNTIME/POUs/Robots/FB_1_ROB.TcPOU
     <Method Name="OnDeactivate" Id="{0745a082-7014-41b6-ad3f-f3e98871c693}" FolderPath="StateControl\">
+=======
+    <Method Name="OnDeactivate" Id="{b0ae1467-27e1-4e67-850f-b8f7c4c0ec21}" FolderPath="StateControl\">
+>>>>>>> 6f5a142b5ece5f04d9c6aeb73e11587d89002c25:10_Twincat/MAIN/MAIN/UNO/POUs/Robots/FB_1_ROB.TcPOU
       <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
 VAR_INPUT
 END_VAR
@@ -330,7 +350,11 @@ OnDeactivate := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
+<<<<<<< HEAD:10_Twincat/RobotInterface/RobotInterface/RUNTIME/POUs/Robots/FB_1_ROB.TcPOU
     <Method Name="OnError" Id="{241d30dc-f0b7-4588-8953-d135c03fba6b}" FolderPath="StateControl\">
+=======
+    <Method Name="OnError" Id="{1e71393a-7ce5-42b7-a091-22974ca1a66b}" FolderPath="StateControl\">
+>>>>>>> 6f5a142b5ece5f04d9c6aeb73e11587d89002c25:10_Twincat/MAIN/MAIN/UNO/POUs/Robots/FB_1_ROB.TcPOU
       <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
 VAR_INPUT
 END_VAR
@@ -358,7 +382,11 @@ OnError := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
+<<<<<<< HEAD:10_Twincat/RobotInterface/RobotInterface/RUNTIME/POUs/Robots/FB_1_ROB.TcPOU
     <Method Name="OnShutdown" Id="{b65c468a-c599-4af9-bafe-bb502871193c}" FolderPath="StateControl\">
+=======
+    <Method Name="OnShutdown" Id="{bd04022f-08f1-472a-b6c0-26326ae37e02}" FolderPath="StateControl\">
+>>>>>>> 6f5a142b5ece5f04d9c6aeb73e11587d89002c25:10_Twincat/MAIN/MAIN/UNO/POUs/Robots/FB_1_ROB.TcPOU
       <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
 VAR_INPUT
 END_VAR
