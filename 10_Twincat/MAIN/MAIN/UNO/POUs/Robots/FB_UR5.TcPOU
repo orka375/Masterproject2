@@ -137,6 +137,32 @@ END_VAR
     Disconnect := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="MoveJ" Id="{694a8774-0129-48e9-92c5-2b30ecad11e2}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD MoveJ : BOOL
+VAR_INPUT
+  joints : stJoint6;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MoveJ := RequestCommand(eCommand := E_RobotCommand.MoveJoints);
+IF MoveJ THEN
+  _command.Joints := joints;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveL" Id="{ff52d036-40c2-4fc5-a715-0301f0173778}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD MoveL : BOOL
+VAR_INPUT
+  target : stTarget3D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MoveL := RequestCommand(eCommand := E_RobotCommand.MoveLinear);
+IF MoveL THEN
+  _command.Pose := target.pose;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="OnActivate" Id="{dc70c063-7d50-424b-ae24-a3b2e8b82a59}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
 
@@ -172,18 +198,18 @@ END_VAR
         <ST><![CDATA[eModus := eMode.Manual;
 _communicationRequested := bEnableCommunication;
 
-IF PM.bError THEN
-  OnConfigure := eResult.ERROR;
-ELSIF NOT PM.bBusy AND NOT PM.DB.bConnected THEN
-  PM.Configure(sPrefix := Name, sDatabase := 'robotdata');
-  OnConfigure := eResult.None;
-ELSIF fbTcp.bError THEN
-  OnConfigure := eResult.ERROR;
-ELSIF CommunicationReady AND PM.DB.bConnected THEN
+// IF PM.bError THEN
+//   OnConfigure := eResult.ERROR;
+// ELSIF NOT PM.bBusy AND NOT PM.DB.bConnected THEN
+//   PM.Configure(sPrefix := Name, sDatabase := 'robotdata');
+//   OnConfigure := eResult.None;
+// ELSIF fbTcp.bError THEN
+//   OnConfigure := eResult.ERROR;
+// ELSIF CommunicationReady AND PM.DB.bConnected THEN
   OnConfigure := eResult.SUCCESS;
-ELSE
-  OnConfigure := eResult.None;
-END_IF]]></ST>
+// ELSE
+//   OnConfigure := eResult.None;
+// END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnDeactivate" Id="{b48ff0b4-7768-470e-ba5f-bd75733f4dc6}" FolderPath="StateControl\">
@@ -222,65 +248,6 @@ _resetCommunication := TRUE;
     ELSE
       OnShutdown := eResult.None;
     END_IF]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="PrepareOutputRequest" Id="{2c8514a0-fdf5-42b6-a0a1-5a20654eb416}" FolderPath="Communication\">
-      <Declaration><![CDATA[METHOD PRIVATE PrepareOutputRequest
-VAR
-  sOutputNames : STRING(255) := 'actual_TCP_pose,actual_q,output_int_register_24,output_int_register_25,output_int_register_26,output_int_register_27';
-  nOutputNameLength : UINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[nOutputNameLength := LEN(sOutputNames);
-
-aRtdeTx[0] := 0;
-aRtdeTx[1] := UINT_TO_BYTE(nOutputNameLength + 3);
-aRtdeTx[2] := C_RTDE_SETUP_OUTPUTS;
-MEMCPY(
-  destAddr := ADR(aRtdeTx[3]),
-  srcAddr := ADR(sOutputNames),
-  n := nOutputNameLength
-);
-nRtdeTxSize := nOutputNameLength + 3;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="PrepareProtocolRequest" Id="{26ca3ba7-1940-4c76-a828-54092b2e4811}" FolderPath="Communication\">
-      <Declaration><![CDATA[METHOD PRIVATE PrepareProtocolRequest
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[aRtdeTx[0] := 0;
-aRtdeTx[1] := 5;
-aRtdeTx[2] := C_RTDE_REQUEST_PROTOCOL_VERSION;
-aRtdeTx[3] := 0;
-aRtdeTx[4] := 1;
-nRtdeTxSize := 5;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="PrepareStartRequest" Id="{062e85eb-4b11-4249-bfdd-40cfb3f0dabb}" FolderPath="Communication\">
-      <Declaration><![CDATA[METHOD PRIVATE PrepareStartRequest
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[aRtdeTx[0] := 0;
-aRtdeTx[1] := 3;
-aRtdeTx[2] := C_RTDE_START;
-nRtdeTxSize := 3;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="PrepareInputRequest" Id="{ab4e7b30-bc35-43e3-bcc7-4835698bb97e}" FolderPath="Communication\">
-      <Declaration><![CDATA[METHOD PRIVATE PrepareInputRequest
-VAR
-  sInputNames : STRING(400) := 'input_int_register_24,input_int_register_25,input_int_register_26,input_int_register_27,input_int_register_28,input_double_register_24,input_double_register_25,input_double_register_26,input_double_register_27,input_double_register_28,input_double_register_29,input_double_register_30,input_double_register_31';
-  nInputNameLength : UINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[nInputNameLength := LEN(sInputNames);
-        aRtdeTx[0] := UINT_TO_BYTE(SHR(nInputNameLength + 3, 8));
-        aRtdeTx[1] := UINT_TO_BYTE(nInputNameLength + 3);
-aRtdeTx[2] := C_RTDE_SETUP_INPUTS;
-MEMCPY(destAddr := ADR(aRtdeTx[3]), srcAddr := ADR(sInputNames), n := nInputNameLength);
-nRtdeTxSize := nInputNameLength + 3;]]></ST>
       </Implementation>
     </Method>
     <Method Name="PrepareCommandRequest" Id="{ded5200c-8888-4354-82ef-d23c81a7578d}" FolderPath="MotionControl\">
@@ -361,6 +328,65 @@ nRtdeTxSize := 88;
 PrepareCommandRequest := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="PrepareInputRequest" Id="{ab4e7b30-bc35-43e3-bcc7-4835698bb97e}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE PrepareInputRequest
+VAR
+  sInputNames : STRING(400) := 'input_int_register_24,input_int_register_25,input_int_register_26,input_int_register_27,input_int_register_28,input_double_register_24,input_double_register_25,input_double_register_26,input_double_register_27,input_double_register_28,input_double_register_29,input_double_register_30,input_double_register_31';
+  nInputNameLength : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nInputNameLength := LEN(sInputNames);
+        aRtdeTx[0] := UINT_TO_BYTE(SHR(nInputNameLength + 3, 8));
+        aRtdeTx[1] := UINT_TO_BYTE(nInputNameLength + 3);
+aRtdeTx[2] := C_RTDE_SETUP_INPUTS;
+MEMCPY(destAddr := ADR(aRtdeTx[3]), srcAddr := ADR(sInputNames), n := nInputNameLength);
+nRtdeTxSize := nInputNameLength + 3;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PrepareOutputRequest" Id="{2c8514a0-fdf5-42b6-a0a1-5a20654eb416}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE PrepareOutputRequest
+VAR
+  sOutputNames : STRING(255) := 'actual_TCP_pose,actual_q,output_int_register_24,output_int_register_25,output_int_register_26,output_int_register_27';
+  nOutputNameLength : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nOutputNameLength := LEN(sOutputNames);
+
+aRtdeTx[0] := 0;
+aRtdeTx[1] := UINT_TO_BYTE(nOutputNameLength + 3);
+aRtdeTx[2] := C_RTDE_SETUP_OUTPUTS;
+MEMCPY(
+  destAddr := ADR(aRtdeTx[3]),
+  srcAddr := ADR(sOutputNames),
+  n := nOutputNameLength
+);
+nRtdeTxSize := nOutputNameLength + 3;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PrepareProtocolRequest" Id="{26ca3ba7-1940-4c76-a828-54092b2e4811}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE PrepareProtocolRequest
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[aRtdeTx[0] := 0;
+aRtdeTx[1] := 5;
+aRtdeTx[2] := C_RTDE_REQUEST_PROTOCOL_VERSION;
+aRtdeTx[3] := 0;
+aRtdeTx[4] := 1;
+nRtdeTxSize := 5;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PrepareStartRequest" Id="{062e85eb-4b11-4249-bfdd-40cfb3f0dabb}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE PrepareStartRequest
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[aRtdeTx[0] := 0;
+aRtdeTx[1] := 3;
+aRtdeTx[2] := C_RTDE_START;
+nRtdeTxSize := 3;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="ProcessCommand" Id="{6a7b8c9d-0e1f-4a2b-8c3d-4e5f6a7b8c9d}" FolderPath="MotionControl\">
       <Declaration><![CDATA[METHOD PRIVATE ProcessCommand : BOOL
     ]]></Declaration>
@@ -415,32 +441,6 @@ PrepareCommandRequest := TRUE;]]></ST>
           _commandState := E_RobotCommandState.Done;
         END_IF
     END_CASE]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="MoveJ" Id="{694a8774-0129-48e9-92c5-2b30ecad11e2}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD MoveJ : BOOL
-VAR_INPUT
-  joints : stJoint6;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[MoveJ := RequestCommand(eCommand := E_RobotCommand.MoveJoints);
-IF MoveJ THEN
-  _command.Joints := joints;
-END_IF]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="MoveL" Id="{ff52d036-40c2-4fc5-a715-0301f0173778}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD MoveL : BOOL
-VAR_INPUT
-  target : stTarget3D;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[MoveL := RequestCommand(eCommand := E_RobotCommand.MoveLinear);
-IF MoveL THEN
-  _command.Pose := target.pose;
-END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="ProcessPrimaryReceive" Id="{9dc75a93-105d-4c39-b2e5-f5b4f3e21583}" FolderPath="Communication\">
@@ -576,7 +576,7 @@ VAR
 END_VAR
 ]]></Declaration>
       <Implementation>
-          <ST><![CDATA[IF fbRtde.bRxNewData THEN
+        <ST><![CDATA[IF fbRtde.bRxNewData THEN
         IF (UINT_TO_UDINT(nRtdeRxBytes) + fbRtde.nRxBytes) > UINT_TO_UDINT(SIZEOF(aRtdeRx)) THEN
     bRtdeError := TRUE;
     nRtdeErrorId := 16#E620;
@@ -742,16 +742,6 @@ MEMCPY(
 );]]></ST>
       </Implementation>
     </Method>
-    <Method Name="ResetConnection" Id="{ab760c43-0912-46a9-8200-3ef0d14f05e9}" FolderPath="Communication\">
-      <Declaration><![CDATA[METHOD ResetConnection : BOOL
-VAR_INPUT
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[_resetCommunication := TRUE;
-    ResetConnection := TRUE;]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="ReadNetworkUDInt" Id="{a67dc41d-cab7-4e2b-9f07-ec8ff7bb4c3c}" FolderPath="Communication\">
       <Declaration><![CDATA[METHOD PRIVATE ReadNetworkUDInt : UDINT
 VAR_INPUT
@@ -766,36 +756,14 @@ END_VAR
   BYTE_TO_UDINT(aRtdeRx[nStartIndex + 3]);]]></ST>
       </Implementation>
     </Method>
-    <Method Name="WriteNetworkLReal" Id="{a9e9d18d-8892-43db-a3be-d5f9ff15ef3a}" FolderPath="Communication\">
-      <Declaration><![CDATA[METHOD PRIVATE WriteNetworkLReal
+    <Method Name="ResetConnection" Id="{ab760c43-0912-46a9-8200-3ef0d14f05e9}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD ResetConnection : BOOL
 VAR_INPUT
-  nStartIndex : UINT;
-  lrValue : LREAL;
-END_VAR
-VAR
-  aValueBytes : ARRAY[0..7] OF BYTE;
-  nIndex : UINT;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[MEMCPY(destAddr := ADR(aValueBytes), srcAddr := ADR(lrValue), n := SIZEOF(lrValue));
-FOR nIndex := 0 TO 7 DO
-  aRtdeTx[nStartIndex + nIndex] := aValueBytes[7 - nIndex];
-END_FOR]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="WriteNetworkUDInt" Id="{cd0841aa-7fd6-44e5-93f6-0962aafc87c7}" FolderPath="Communication\">
-      <Declaration><![CDATA[METHOD PRIVATE WriteNetworkUDInt
-VAR_INPUT
-  nStartIndex : UINT;
-  nValue : UDINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[aRtdeTx[nStartIndex] := UDINT_TO_BYTE(SHR(nValue, 24));
-aRtdeTx[nStartIndex + 1] := UDINT_TO_BYTE(SHR(nValue, 16));
-aRtdeTx[nStartIndex + 2] := UDINT_TO_BYTE(SHR(nValue, 8));
-aRtdeTx[nStartIndex + 3] := UDINT_TO_BYTE(nValue);]]></ST>
+        <ST><![CDATA[_resetCommunication := TRUE;
+    ResetConnection := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="ResetPrimarySession" Id="{899aef5b-5b2f-4853-97d0-cbc527440a1e}" FolderPath="Communication\">
@@ -930,6 +898,38 @@ sRtdeError := '';]]></ST>
     END_IF
 
     UpdateCommunication := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="WriteNetworkLReal" Id="{a9e9d18d-8892-43db-a3be-d5f9ff15ef3a}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE WriteNetworkLReal
+VAR_INPUT
+  nStartIndex : UINT;
+  lrValue : LREAL;
+END_VAR
+VAR
+  aValueBytes : ARRAY[0..7] OF BYTE;
+  nIndex : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MEMCPY(destAddr := ADR(aValueBytes), srcAddr := ADR(lrValue), n := SIZEOF(lrValue));
+FOR nIndex := 0 TO 7 DO
+  aRtdeTx[nStartIndex + nIndex] := aValueBytes[7 - nIndex];
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="WriteNetworkUDInt" Id="{cd0841aa-7fd6-44e5-93f6-0962aafc87c7}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD PRIVATE WriteNetworkUDInt
+VAR_INPUT
+  nStartIndex : UINT;
+  nValue : UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[aRtdeTx[nStartIndex] := UDINT_TO_BYTE(SHR(nValue, 24));
+aRtdeTx[nStartIndex + 1] := UDINT_TO_BYTE(SHR(nValue, 16));
+aRtdeTx[nStartIndex + 2] := UDINT_TO_BYTE(SHR(nValue, 8));
+aRtdeTx[nStartIndex + 3] := UDINT_TO_BYTE(nValue);]]></ST>
       </Implementation>
     </Method>
   </POU>

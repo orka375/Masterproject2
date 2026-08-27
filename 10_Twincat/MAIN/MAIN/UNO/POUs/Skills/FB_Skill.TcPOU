@@ -4,14 +4,19 @@
     <Declaration><![CDATA[FUNCTION_BLOCK FB_Skill EXTENDS FB_Base IMPLEMENTS ITF_1_Skill
 VAR_INPUT
 	_owner: POINTER TO FB_Base;
-	SFCInit, SFCPause, SFCReset: BOOL;
+	{attribute 'OPC.UA.DA.StructuredType':=1}
+	{attribute 'OPC.UA.DA' := '1'}
+	Control     : ST_SkillControl;
+	{attribute 'OPC.UA.DA.StructuredType':=1}
+	{attribute 'OPC.UA.DA' := '1'}
+    Status      : ST_SkillStatus;
+	Specific	: ST_SkillSpecific;
 END_VAR
 VAR_OUTPUT
-	bBusy, bDone: BOOL;
-	SFCError: BOOL;
-	SFCCurrentStep: STRING;
+
 END_VAR
 VAR
+
 // 	SubSkillHandler : FB_SkillHandler;
 END_VAR
 
@@ -344,64 +349,6 @@ END_VAR
     <Folder Name="Internal" Id="{20bd2501-e1eb-4995-8337-668ddeba1c4c}" />
     <Folder Name="Public" Id="{242a8bf6-3dc5-446b-a89d-936e418b8756}" />
     <Folder Name="StateControl" Id="{31a6bbdd-3ba2-4185-a10e-7900c7f6f8d3}" />
-    <Method Name="ActivateSkill" Id="{d8fc5668-9fa7-43c2-a944-aada2bd4cb8c}" FolderPath="Public\">
-      <Declaration><![CDATA[{attribute 'TcRpcEnable':='1'}
-METHOD ActivateSkill
-VAR_INPUT
-// 	pSkill : POINTER TO FB_SKILL;
-// 	name: STRING := '';
-END_VAR
-
-VAR
-	toolready: BOOL;
-	i: INT;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Start();
-_owner^.ActivSkill:= THIS;
-
-
-// IF name<>'' THEN
-// 	FOR i := TO_INT(LOWER_BOUND(_owner^.pA_Skills, 1)) TO TO_INT(UPPER_BOUND(_owner^.pA_Skills, 1)) DO
-// 		IF _owner^.pA_Skills[i]<>0 THEN
-// 			IF FIND(STR1:=pA_Skills[i]^.Name, STR2:=name)<>0 THEN
-// 				pSkill:=_owner^.pA_Skills[i];
-// 				ADSLOGSTR(
-// 					msgCtrlMask := ADSLOG_MSGTYPE_HINT,
-// 					msgFmtStr   := 'CallSkill: Found by name: %s',
-// 					strArg      := _owner^.pA_Skills[i]^.Name
-// 				);
-// 				EXIT;
-// 			END_IF
-// 		END_IF
-// 	END_FOR
-// 	
-// END_IF
-// 
-// 
-// IF pSkill<>0 THEN
-// 	activSkill:= pSkill;
-// 	
-// // 	toolready:=TRUE;
-// // 	IF _owner^.pTool<>0 THEN
-// // 		toolready:=FALSE;
-// // 		IF _owner^.pTool^.State = eState.Active THEN
-// // 			toolready:=TRUE;
-// // 		END_IF
-// // 	END_IF
-// 	
-// 	
-// 	pSkill^.Start();
-// ELSE
-// 	ADSLOGSTR(
-//     msgCtrlMask := ADSLOG_MSGTYPE_ERROR,
-//     msgFmtStr   := 'CallSkill: Pointer to Skill is empty: %s',
-//     strArg      := _owner^.Path
-// );
-// END_IF
-]]></ST>
-      </Implementation>
-    </Method>
     <Property Name="Busy" Id="{59c0b902-0e96-4aa6-80c4-17e0cd6c8a94}">
       <Declaration><![CDATA[{warning 'Add property implementation'}
 PROPERTY Busy : BOOL
@@ -690,6 +637,64 @@ IF act_succ THEN
     strArg      := Name
 );
  END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StartSkill" Id="{d8fc5668-9fa7-43c2-a944-aada2bd4cb8c}" FolderPath="Public\">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable':='1'}
+METHOD StartSkill
+VAR_INPUT
+// 	pSkill : POINTER TO FB_SKILL;
+// 	name: STRING := '';
+END_VAR
+
+VAR
+	toolready: BOOL;
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Start();
+_owner^.ActivSkill:= THIS;
+
+
+// IF name<>'' THEN
+// 	FOR i := TO_INT(LOWER_BOUND(_owner^.pA_Skills, 1)) TO TO_INT(UPPER_BOUND(_owner^.pA_Skills, 1)) DO
+// 		IF _owner^.pA_Skills[i]<>0 THEN
+// 			IF FIND(STR1:=pA_Skills[i]^.Name, STR2:=name)<>0 THEN
+// 				pSkill:=_owner^.pA_Skills[i];
+// 				ADSLOGSTR(
+// 					msgCtrlMask := ADSLOG_MSGTYPE_HINT,
+// 					msgFmtStr   := 'CallSkill: Found by name: %s',
+// 					strArg      := _owner^.pA_Skills[i]^.Name
+// 				);
+// 				EXIT;
+// 			END_IF
+// 		END_IF
+// 	END_FOR
+// 	
+// END_IF
+// 
+// 
+// IF pSkill<>0 THEN
+// 	activSkill:= pSkill;
+// 	
+// // 	toolready:=TRUE;
+// // 	IF _owner^.pTool<>0 THEN
+// // 		toolready:=FALSE;
+// // 		IF _owner^.pTool^.State = eState.Active THEN
+// // 			toolready:=TRUE;
+// // 		END_IF
+// // 	END_IF
+// 	
+// 	
+// 	pSkill^.Start();
+// ELSE
+// 	ADSLOGSTR(
+//     msgCtrlMask := ADSLOG_MSGTYPE_ERROR,
+//     msgFmtStr   := 'CallSkill: Pointer to Skill is empty: %s',
+//     strArg      := _owner^.Path
+// );
+// END_IF
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="Stop" Id="{4c723123-1adf-4d21-9269-2419097dc023}" FolderPath="Internal\">

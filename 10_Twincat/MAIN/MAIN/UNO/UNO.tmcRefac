@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Refactors>
+  <Renames>
+    <RenamedType>
+      <Type guid="d8fc5668-9fa7-43c2-a944-aada2bd4cb8c">ACTIVATESKILL</Type>
+      <From>ActivateSkill</From>
+      <To>StartSkill</To>
+    </RenamedType>
+  </Renames>
+</Refactors>

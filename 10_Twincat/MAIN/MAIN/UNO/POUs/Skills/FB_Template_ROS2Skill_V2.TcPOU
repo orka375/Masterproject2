@@ -3,12 +3,7 @@
   <POU Name="FB_Template_ROS2Skill_V2" Id="{2e00d6a1-8d22-4bf8-a533-217a1a8bd953}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_Template_ROS2Skill_V2 EXTENDS FB_Skill
 VAR_INPUT
-	{attribute 'OPC.UA.DA.StructuredType':=1}
-	{attribute 'OPC.UA.DA' := '1'}
-	Control     : ST_SkillControl;
-	{attribute 'OPC.UA.DA.StructuredType':=1}
-	{attribute 'OPC.UA.DA' := '1'}
-    Status      : ST_SkillStatus;
+
 
 //     Specific    : ST_RobotMoveSpecific;
 	
