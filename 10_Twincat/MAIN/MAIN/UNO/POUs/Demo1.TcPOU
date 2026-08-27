@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="Demo1" Id="{91af6b76-831c-43b6-9c52-2ccba4bf085a}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM Demo1
@@ -1479,7 +1479,7 @@ END_VAR
     </Action>
     <Action Name="Call_2nd_Skill_entry" Id="{71902e93-ed0b-4c27-91d3-25303768aa84}">
       <Implementation>
-        <ST><![CDATA[ROB^.pA_Skills[2]^.ActivateSkill();
+        <ST><![CDATA[ROB^.pA_Skills[2]^.StartSkill();
 ]]></ST>
       </Implementation>
       <ObjectProperties>
@@ -1498,7 +1498,7 @@ END_VAR
     </Action>
     <Action Name="Call_Rob_Goto_entry" Id="{d0acbf1c-0b96-427e-82dd-7405bcf4bc3e}">
       <Implementation>
-        <ST><![CDATA[Rob^.pA_Skills[1]^.ActivateSkill();
+        <ST><![CDATA[Rob^.pA_Skills[1]^.StartSkill();
 ]]></ST>
       </Implementation>
       <ObjectProperties>

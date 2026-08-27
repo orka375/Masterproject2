@@ -5,13 +5,7 @@
 	{attribute 'OPC.UA.DA' := '1'}
 TYPE ST_GripperSpecific :
 STRUCT
-    TargetPosition  : REAL := 0.0;
-    ActualPosition  : REAL := 0.0;
 
-    TargetForce     : REAL := 0.0;
-    ActualForce     : REAL := 0.0;
-
-    ObjectDetected  : BOOL := FALSE;
 END_STRUCT
 END_TYPE]]></Declaration>
   </DUT>

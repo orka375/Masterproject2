@@ -1,8 +1,12 @@
 <?xml version="1.0"?>
 <TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.24">
-	<Project ProjectGUID="{8E9AD0AE-6A12-49D4-A76A-743CB52FDE6D}" TargetNetId="192.168.250.100.1.1" Target64Bit="true" ShowHideConfigurations="#x6">
+	<Project ProjectGUID="{8E9AD0AE-6A12-49D4-A76A-743CB52FDE6D}" Target64Bit="true" ShowHideConfigurations="#x6">
 		<System>
-			<Settings MaxCpus="2" NonWinCpus="1"/>
+			<Settings MaxCpus="20" NonWinCpus="2" PCoreAffinity="4095" ECoreAffinity="1044480">
+				<Cpu/>
+				<Cpu CpuId="18"/>
+				<Cpu CpuId="19"/>
+			</Settings>
 			<Licenses>
 				<Target>
 					<ManualSelect>{67B4BA05-C1F2-4184-AE5F-4BAB0FFB09E1}</ManualSelect>
@@ -15,12 +19,6 @@
 				<Task Id="3" Priority="20" CycleTime="100000" AmsPort="350" AdtTasks="true">
 					<Name>PlcTask</Name>
 				</Task>
-				<Task Id="4" CycleTime="10000" AmsPort="351" AdtTasks="true">
-					<Name>PlcTask_1</Name>
-				</Task>
-				<Task Id="5" Priority="21" CycleTime="100000" AmsPort="352" AdtTasks="true">
-					<Name>PlcTask1</Name>
-				</Task>
 				<Task Id="6" Priority="22" CycleTime="100000" AmsPort="353" AdtTasks="true">
 					<Name>PlcTask2</Name>
 				</Task>
@@ -28,7 +26,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{716B9777-1FC1-491F-A0F1-C1283CD11C7D}" Name="UNO" PrjFilePath="UNO\UNO.plcproj" TmcFilePath="UNO\UNO.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{92FAF560-76F2-3111-254D-323E5AECD65B}" TmcPath="UNO\UNO.tmc">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{5E4D77F3-67AC-CF37-951C-438D6422CE9D}" TmcPath="UNO\UNO.tmc">
 					<Name>UNO Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Contexts>

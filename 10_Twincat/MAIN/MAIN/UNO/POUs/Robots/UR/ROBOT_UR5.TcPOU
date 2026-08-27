@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="ROBOT_UR5" Id="{7138b06d-6984-4953-8124-68042278758b}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK ROBOT_UR5 EXTENDS FB_2_ROB_MANIP 
@@ -487,10 +487,14 @@ END_VAR
     </Method>
     <Method Name="ResetConnection" Id="{ab760c43-0912-46a9-8200-3ef0d14f05e9}" FolderPath="Communication\">
       <Declaration><![CDATA[METHOD ResetConnection : BOOL
+    <Method Name="ResetConnection" Id="{ab760c43-0912-46a9-8200-3ef0d14f05e9}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD ResetConnection : BOOL
 VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
+        <ST><![CDATA[_resetCommunication := TRUE;
+    ResetConnection := TRUE;]]></ST>
         <ST><![CDATA[_resetCommunication := TRUE;
     ResetConnection := TRUE;]]></ST>
       </Implementation>

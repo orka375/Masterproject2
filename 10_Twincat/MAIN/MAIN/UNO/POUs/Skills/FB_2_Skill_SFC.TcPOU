@@ -1,15 +1,25 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_2_Skill_SFC" Id="{bd0554e8-683d-4220-802c-15143a2f2b18}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_2_Skill_SFC EXTENDS FB_1_Skill
 VAR_INPUT
+	_owner: POINTER TO FB_Base;
+	{attribute 'OPC.UA.DA.StructuredType':=1}
+	{attribute 'OPC.UA.DA' := '1'}
+	Control     : ST_SkillControl;
+	{attribute 'OPC.UA.DA.StructuredType':=1}
+	{attribute 'OPC.UA.DA' := '1'}
+    Status      : ST_SkillStatus;
+	Specific	: ST_SkillSpecific;
 	SFCInit, SFCPause, SFCReset: BOOL;
 END_VAR
 VAR_OUTPUT
+
 	SFCError: BOOL;
 	SFCCurrentStep: STRING;
 END_VAR
 VAR
+
 // 	SubSkillHandler : FB_SkillHandler;
 END_VAR
 
