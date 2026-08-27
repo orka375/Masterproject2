@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="ITF_BA_AMR" Id="{4d7b847a-995a-4492-b7ff-3c61a44f7325}">
+    <Declaration><![CDATA[INTERFACE ITF_BA_AMR
+]]></Declaration>
+    <Method Name="MC_MoveAxesAbsolute" Id="{ab8630f6-1bed-432f-ad06-bc8c41fbe76e}">
+      <Declaration><![CDATA[METHOD MC_MoveAxesAbsolute : BOOL
+VAR_INPUT
+	target: stTarget;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="MC_MoveAxesRelative" Id="{902d67bf-6067-419a-b02e-8f921433ee19}">
+      <Declaration><![CDATA[METHOD MC_MoveAxesRelative : BOOL
+VAR_INPUT
+	axes: ARRAY[1..6] OF FB_Axis;
+	offsets: ARRAY[1..6] OF REAL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="MC_MoveLinearAbsolute" Id="{e0a6e723-237e-46f4-b289-eb3bd8fdd16f}">
+      <Declaration><![CDATA[METHOD MC_MoveLinearAbsolute : BOOL
+VAR_INPUT
+	target: stTarget;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="MC_ReadAnalogInput" Id="{070b53ff-9723-48be-8892-9dc9abcc79fb}">
+      <Declaration><![CDATA[METHOD PUBLIC MC_ReadAnalogInput : LREAL
+VAR_INPUT
+	input : INT;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="MC_ReadDigitalInput" Id="{ccb9b97c-0b1b-4da0-ac89-c4217398f24e}">
+      <Declaration><![CDATA[METHOD PUBLIC MC_ReadDigitalInput : BOOL
+VAR_INPUT
+	input : INT;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="MC_SetDigitalOutput" Id="{a42b56c3-97da-4208-abed-8bbbaf37cf4f}">
+      <Declaration><![CDATA[METHOD PUBLIC MC_SetDigitalOutput : BOOL
+VAR_INPUT
+	output : INT;
+	value : BOOL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="MC_SetOperationMode" Id="{49aaee93-8cbe-40c8-a610-36f8e4973d32}">
+      <Declaration><![CDATA[METHOD PUBLIC MC_SetOperationMode : BOOL
+VAR_INPUT
+	mode: eMode;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

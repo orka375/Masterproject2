@@ -1,0 +1,208 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_ExternalHandshake" Id="{ec643ec3-90cb-4ca2-9133-5680b008e6ec}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ExternalHandshake
+VAR_INPUT
+    bExecute    : BOOL;
+	Cmd			: POINTER TO stExternalCommand;
+	Stat    : 		POINTER TO stExternalStatus;
+END_VAR
+
+VAR_OUTPUT
+	myCommand   : stExternalCommand;
+    
+    tTimeoutAck : TIME := T#5S;
+    tTimeoutRun : TIME := T#60S;
+    bBusy       : BOOL;
+    bDone       : BOOL;
+    bSuccess    : BOOL;
+    bFailure    : BOOL;
+    bError      : BOOL;
+    nErrorID    : UDINT;
+
+    // TRUE while the command must be transmitted
+    bCommandValid : BOOL;
+END_VAR
+
+VAR
+    Shake      : E_CommandHandshakeState := E_CommandHandshakeState.Idle;
+
+
+    bExecuteOld : BOOL;
+    bExecuteRise : BOOL;
+
+    tonAck      : TON;
+    tonResult   : TON;
+	rtExecute: R_TRIG;
+	CLK: BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[rtExecute(CLK:=bExecute);
+
+
+//TODO: What happens if new command, but old handshake is not finished
+// TODO ADD queue with handshakes to do
+
+// Default timer calls
+tonAck(
+    IN := Shake = E_CommandHandshakeState.WaitAck,
+    PT := tTimeoutAck
+);
+
+tonResult(
+    IN := Shake = E_CommandHandshakeState.WaitResult,
+    PT := tTimeoutRun
+);
+
+
+CASE Shake OF
+
+
+// ============================================================
+// IDLE
+// ============================================================
+E_CommandHandshakeState.Idle:
+
+    bBusy := FALSE;
+    bDone := FALSE;
+
+    bSuccess := FALSE;
+    bFailure := FALSE;
+    bError := FALSE;
+
+    nErrorID := 0;
+
+    bCommandValid := FALSE;
+
+
+    IF rtExecute.Q THEN //if queue not empty
+		MEMCPY(ADR(myCommand),Cmd,SIZEOF(stExternalCommand));
+
+        bCommandValid := TRUE;
+        bBusy := TRUE;
+
+        Shake := E_CommandHandshakeState.WaitAck;
+
+    END_IF
+
+
+// ============================================================
+// WAIT FOR EXTERNAL CONTROLLER TO ACCEPT COMMAND
+// ============================================================
+E_CommandHandshakeState.WaitAck:
+
+    bBusy := TRUE;
+    bCommandValid := TRUE;
+
+	
+    IF Stat^.eState = eState.Activating THEN
+
+        // External software copied and accepted the command.
+        // Command no longer needs to remain valid.
+        bCommandValid := FALSE;
+        Shake := E_CommandHandshakeState.WaitResult;
+
+
+    ELSIF tonAck.Q THEN
+
+        bCommandValid := FALSE;
+
+        bBusy := FALSE;
+        bError := TRUE;
+        bDone := TRUE;
+
+        nErrorID := 16#1001; // Handshake ACK timeout
+
+        Shake := E_CommandHandshakeState.Done;
+
+    END_IF
+
+
+// ============================================================
+// WAIT FOR COMMAND RESULT
+// ============================================================
+E_CommandHandshakeState.WaitResult:
+
+    bBusy := TRUE;
+    bCommandValid := FALSE;
+
+	IF Stat^.eState = eState.Active THEN
+		  CASE Stat^.eResult OF
+
+			SUCCESS:
+	
+				bBusy := FALSE;
+				bSuccess := TRUE;
+				bDone := TRUE;
+	
+				Shake := E_CommandHandshakeState.Done;
+	
+	
+			FAILURE:
+	
+				bBusy := FALSE;
+				bFailure := TRUE;
+				bDone := TRUE;
+	
+				Shake := E_CommandHandshakeState.Done;
+	
+	
+			ERROR:
+	
+				bBusy := FALSE;
+				bError := TRUE;
+				bDone := TRUE;
+	
+				nErrorID := Stat^.nErrorID;
+	
+				Shake := E_CommandHandshakeState.Done;
+	
+		END_CASE
+	END_IF
+  
+  	    IF tonResult.Q THEN
+
+        bBusy := FALSE;
+        bError := TRUE;
+        bDone := TRUE;
+
+        nErrorID := 16#1002; // Result timeout
+
+        Shake := E_CommandHandshakeState.Done;
+
+    END_IF
+
+
+// ============================================================
+// DONE
+// ============================================================
+E_CommandHandshakeState.Done:
+
+    bBusy := FALSE;
+    bCommandValid := FALSE;
+
+    // Hold result until Execute is removed.
+    IF NOT bExecute THEN
+
+        bDone := FALSE;
+        bSuccess := FALSE;
+        bFailure := FALSE;
+        bError := FALSE;
+        nErrorID := 0;
+
+        Shake := E_CommandHandshakeState.Idle;
+
+    END_IF
+
+END_CASE]]></ST>
+    </Implementation>
+    <Method Name="Execute" Id="{89dab55b-6526-4bd1-8c84-f36f850a69a1}">
+      <Declaration><![CDATA[METHOD Execute : eResult
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+bExecute:=TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

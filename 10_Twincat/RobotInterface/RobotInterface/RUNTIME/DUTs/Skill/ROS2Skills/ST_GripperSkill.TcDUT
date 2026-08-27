@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_GripperSkill" Id="{0e35fd3b-c263-482b-a971-feec88f1a076}">
+    <Declaration><![CDATA[{attribute 'OPC.UA.DA.StructuredType':=1}
+TYPE ST_GripperSkill :
+STRUCT
+    Control     : ST_SkillControl;
+    Status      : stExternalStatus;
+
+    Specific    : ST_GripperSpecific;
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,218 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_1_Tool" Id="{b1d965f9-80c9-4ed1-8c86-7d42c5c70293}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_1_Tool EXTENDS FB_0_Base
+VAR_INPUT
+	pROB: POINTER TO FB_1_ROB;
+END_VAR
+VAR_OUTPUT
+	visStatus: stVisStatusTool;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="StateControl" Id="{53ff33b6-3262-41f7-b537-f1feb7ee1671}" />
+    <Action Name="CYCLIC_TOOL" Id="{dff3f002-2f5f-470a-8757-89415d48f543}">
+      <Implementation>
+        <ST><![CDATA[CYCLIC_BASE();
+
+
+//VISSTATUS
+//TODO
+]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="fb_init" Id="{bff0a7ba-3d66-4afd-8956-38fd03511f58}">
+      <Declaration><![CDATA[(*FB_Init is always available implicitly and it is used primarily for initialization.
+The return value is not evaluated. For a specific influence, you can also declare the
+methods explicitly and provide additional code there with the standard initialization
+code. You can evaluate the return value.*)
+METHOD FB_Init : BOOL
+VAR_INPUT
+	(* TRUE: the retain variables are initialized (reset warm / reset cold)*)
+	bInitRetains	: BOOL;
+	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
+	bInCopyCode	: BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Explicitly initialize the base FB
+SUPER^.FB_Init(
+    bInitRetains := bInitRetains,
+    bInCopyCode  := bInCopyCode
+);
+
+FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
+	IF pA_Skills[j]<>0 THEN
+		pa_Skills[j]^.pROB:=pROB;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onActivate" Id="{f08f7dc1-202a-4da9-a3e3-b4c98ccb8fdb}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onActivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onActivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+myResult:=NONE;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onActivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onCleanup" Id="{5f653bd9-79a9-457e-9486-5b597592962d}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onCleanup : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onCleanup();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+myResult:=NONE;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onCleanup := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onConfigure" Id="{dbe1a2e7-a092-4589-85e0-cae2ad014539}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onConfigure : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onConfigure();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+myResult:=NONE;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onConfigure := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onDeactivate" Id="{7bafeac5-ea48-4fa6-837b-172e23cfe7dd}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onDeactivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onDeactivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+myResult:=NONE;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onDeactivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onError" Id="{a42923bc-a704-4471-bfcc-ef605c0e08f9}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onError : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onError();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+myResult:=NONE;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onError := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onShutdown" Id="{d564eedf-30cf-49ef-bdf9-182cbaf13e45}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onShutdown : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onShutdown();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+myResult:=NONE;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onShutdown := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

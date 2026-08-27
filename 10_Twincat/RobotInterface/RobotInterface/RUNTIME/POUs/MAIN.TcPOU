@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="MAIN" Id="{85d06b9d-6930-4657-baf8-8d40974ee2d3}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	
+
+    _state_LD90 : eState;
+    _state_LD90_sLDR : eState;
+    _state_LD90_sEyes : eState;
+
+	i: INT;
+	testcreate: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Demo1();
+
+
+// BFH_RobLab_UR5(
+// 	sRobotIp:='192.168.250.4');
+// BFH_RobLab_UR5e(sRobotIp:='192.168.100.1');
+ETA_Ausb_UR5();
+
+
+// fbUR5MotionDemo(
+//   bStart := bRunUR5MotionDemo,
+//   bReset := FALSE,
+//   MoveLTarget := stDemoMoveLTarget,
+//   MoveJJoints := stDemoMoveJJoints,
+//   nDigitalOutput := 0,
+//   bDigitalOutputValue := TRUE,
+//   Rob := ETA_Ausb_UR5
+// );
+
+// ETA_TechCenter_LD90();
+// 
+// P(Rob := ADR(ETA_TechCenter_LD90));
+// 
+// // currPos := BFH_RobLab_UR5.ActualTcpPose;
+// // currJoints := BFH_RobLab_UR5.ActualJointPosition;
+// 
+// currPos := ETA_Ausb_UR5.ActualTcpPose;
+// currJoints := ETA_Ausb_UR5.ActualJointPosition;
+// 
+// _state_LD90 := ETA_TechCenter_LD90.State;
+// _state_LD90_sLDR := ETA_TechCenter_LD90.sLoadDeliverReturn.State;
+// _state_LD90_sEyes := ETA_TechCenter_LD90.sEyes.State;
+
+
+
+IF testcreate THEN
+	ETA_Ausb_UR5.PM.Create3D(sName:='Test',pose:=ETA_Ausb_UR5.ActualTcpPose,1);
+	testcreate:=FALSE;
+END_IF
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

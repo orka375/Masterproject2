@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stExternalCommand" Id="{cad1bdb5-a271-4d06-8a47-25760d0f4170}">
+    <Declaration><![CDATA[TYPE stExternalCommand :
+STRUCT
+    nSequence : UINT; //instance of communication
+    eCommand  : eSkillCommandType; //what to do
+    nSkillID  : UINT; //WHICH SKILL (IF MULTIPLE)
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

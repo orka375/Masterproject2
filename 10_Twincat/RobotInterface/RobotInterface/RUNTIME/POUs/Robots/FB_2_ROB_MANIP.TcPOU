@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_2_ROB_MANIP" Id="{21b924b4-0fb6-46ff-9fb7-f679235d19bb}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_2_ROB_MANIP EXTENDS FB_1_ROB 
+// IMPLEMENTS ITF_2_Manip
+
+VAR_INPUT
+	Tool: FB_1_Tool;
+	bEnableCommunication : BOOL := TRUE;
+END_VAR
+
+VAR_OUTPUT
+	visStatus: stVisStatusManip;
+END_VAR
+VAR
+
+
+	
+	//TODO What is this for?
+	_command : ST_RobotCommand;
+	_commandState : E_RobotCommandState := E_RobotCommandState.Idle;
+	_commandErrorId : UDINT;
+	_nextExecuteId : UDINT := 1;		
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="MotionControl" Id="{fc8c0aca-629b-4848-a20d-78e9ce6e9fda}" />
+    <Action Name="CYCLIC_MANIP" Id="{c5ea77dd-14da-4015-9108-0744e50afbab}">
+      <Implementation>
+        <ST><![CDATA[CYCLIC_ROB();
+
+visStatus.State:=eStatus;
+visStatus.Mode:=eModus;
+visStatus.isMoving:=RobotMoving;
+visStatus.isReady:=RobotReady;
+visStatus.isConnected:=Comm.Connected;
+// 	isLocked: BOOL;
+// visStatus.isBusy:=;
+visStatus.isInCollision:=InCollision;
+visStatus.hasError:=Messenger.HasActivError;
+visStatus.TCPPosition:=ActualTcpPose;
+]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="Home" Id="{332921a2-9f70-499b-943d-00519405a468}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD Home : UINT
+
+
+VAR
+	Config: stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+Home:= BA_Handler(Cmd:=eBA.Home,Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsHomePosition" Id="{0f2fd807-aeed-459c-9c2b-f2325fe045e7}">
+      <Declaration><![CDATA[{warning 'Override with your own Method in final FB'}
+  PROPERTY IsHomePosition : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{cc381350-4b9b-4a45-a9c1-b7537b47d8d7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="MoveJoint" Id="{9e0f1a2b-3c4d-4e5f-8a6b-7c8d9e0f1a2b}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD MoveJoint : UINT
+VAR_INPUT
+    Target : stTarget;
+	Velocity: REAL;
+END_VAR
+
+VAR
+	Config: stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Config.Velocity:=Velocity;
+Config.Target:=Target;
+
+
+MoveJoint := BA_Handler(Cmd:=eBA.MoveJ,Settings:=Config); //HAndler returns a UINT ID of the BA
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveJointRelative" Id="{d4d7d377-1aa7-4fc3-9e59-f55d00fe8d35}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[
+METHOD MoveJointRelative : UINT
+VAR_INPUT
+    Target : stTarget;
+	Velocity: REAL;
+END_VAR
+
+VAR
+	Config: stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Config.Velocity:=Velocity;
+Config.Target:=Target;
+
+
+MoveJointRelative:= BA_Handler(Cmd:=eBA.MoveJRelativ,Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveLinear" Id="{af96fe73-c0fb-4331-8a41-58ccd3cdc293}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD MoveLinear : UINT
+VAR_INPUT
+	Target	: stTarget;
+	Velocity: REAL;
+END_VAR
+
+VAR
+	Config: stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Config.Velocity:=Velocity;
+Config.Target:=Target;
+
+
+MoveLinear:= BA_Handler(Cmd:=eBA.MoveL,Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveLinearRelative" Id="{bc2132e6-39c8-42b1-8dcb-1b232e67fc7a}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD MoveLinearRelative : UINT
+VAR_INPUT
+    Offset : stPoseGeneral;
+	Velocity: REAL;
+END_VAR
+
+VAR
+	Config: stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Config.Velocity:=Velocity;
+Config.Pose:=Offset;
+
+
+MoveLinearRelative:= BA_Handler(Cmd:=eBA.MoveL,Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetDO" Id="{1b1484e8-2eba-4b5a-9bc9-3e9f0cf73af2}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD SetDO : UINT
+VAR_INPUT
+    nOutput : UINT;
+    bValue : BOOL;
+END_VAR
+
+VAR
+	Config: stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Config.Pin:=nOutput;
+Config.bValue:=bValue;
+
+
+SetDO:= BA_Handler(Cmd:=eBA.SetDO,Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="TargetReached" Id="{2237dc56-6e31-4e2f-87fb-158a23ca2344}">
+      <Declaration><![CDATA[{warning 'Override with your own Method in final FB'}
+PROPERTY TargetReached : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{fa9b9558-e97e-4d6d-afa4-8757f8a89ab1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TargetReached := _commandState = E_RobotCommandState.Done;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

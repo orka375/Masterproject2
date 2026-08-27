@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ROBOT_UR5" Id="{7138b06d-6984-4953-8124-68042278758b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ROBOT_UR5 EXTENDS FB_2_ROB_MANIP 
+
+VAR_INPUT
+    sRobotIp          : T_IPv4Addr := '192.168.250.2';
+    nRemotePort          : UINT := 30001;
+	nRtdeRemotePort      : UINT := 30004;
+	bEnableRtdeCommandChannel : BOOL := FALSE;
+END_VAR
+  
+  
+VAR_OUTPUT
+	COMM_Primary        : FB_2_Comm_TcpIp;
+ 	COMM_Rtde           : FB_2_Comm_TcpIp;
+
+END_VAR
+
+VAR
+	_communicationRequested : BOOL;
+	_resetCommunication : BOOL;
+END_VAR
+
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CYCLIC_MANIP();
+
+
+
+
+]]></ST>
+    </Implementation>
+    <Method Name="BA_Handler" Id="{d7ca35aa-fd04-4db2-bc8f-94c9161e0ebc}">
+      <Declaration><![CDATA[{warning 'Override with your own Method in final FB'}
+METHOD BA_Handler : eResult
+VAR_INPUT
+	Cmd: eBA;
+	Settings: stBA_Settings;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

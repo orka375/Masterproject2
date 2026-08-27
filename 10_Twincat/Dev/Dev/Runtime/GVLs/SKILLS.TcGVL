@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-  <GVL Name="SKILLS" Id="{2674ea69-411b-4ed8-9b8b-eeed1056ace2}">
-    <Declaration><![CDATA[{attribute 'qualified_only'}
-VAR_GLOBAL
-	PnP: FB_PickPlaceSkill;
-END_VAR]]></Declaration>
-  </GVL>
-</TcPlcObject>
