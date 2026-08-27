@@ -182,7 +182,7 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Method Name="OnActivate" Id="{7b4aeb1a-03a1-4343-a4ec-ae506adf08bc}" FolderPath="StateControl\">
+    <Method Name="OnActivate" Id="{67ca159e-e674-4aba-b868-e118478e4a53}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
 VAR_INPUT
 END_VAR
@@ -221,7 +221,7 @@ OnActivate := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnCleanup" Id="{abbcd3bd-990a-4ed5-b6f1-dfd0ae87cf2b}" FolderPath="StateControl\">
+    <Method Name="OnCleanup" Id="{b9df34ec-a33f-4888-a955-17ffdd0cfa8d}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
 VAR_INPUT
 END_VAR
@@ -256,7 +256,7 @@ OnCleanup := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnConfigure" Id="{bd3e8dc6-48d5-4baa-bedc-e35aad6800eb}" FolderPath="StateControl\">
+    <Method Name="OnConfigure" Id="{c4fa859f-f349-4d9b-9904-77d6466b7677}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
 VAR_INPUT
 END_VAR
@@ -294,7 +294,7 @@ OnConfigure := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnDeactivate" Id="{faaec7af-0344-4472-acc7-f531208fcec2}" FolderPath="StateControl\">
+    <Method Name="OnDeactivate" Id="{b0ae1467-27e1-4e67-850f-b8f7c4c0ec21}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
 VAR_INPUT
 END_VAR
@@ -329,7 +329,7 @@ OnDeactivate := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnError" Id="{0b0c0809-6bf1-423c-8b3f-cd8152466e7f}" FolderPath="StateControl\">
+    <Method Name="OnError" Id="{1e71393a-7ce5-42b7-a091-22974ca1a66b}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
 VAR_INPUT
 END_VAR
@@ -357,7 +357,7 @@ OnError := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnShutdown" Id="{650aa75d-42d2-4cb6-bb17-ae8fce601101}" FolderPath="StateControl\">
+    <Method Name="OnShutdown" Id="{bd04022f-08f1-472a-b6c0-26326ae37e02}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
 VAR_INPUT
 END_VAR
