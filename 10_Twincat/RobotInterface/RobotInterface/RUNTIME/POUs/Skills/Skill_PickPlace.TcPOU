@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="Skill_PickPlace" Id="{0265789f-44be-4ed2-bfd3-e8ebd7334e24}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK Skill_PickPlace EXTENDS FB_2_Skill_SFC
+    <Declaration><![CDATA[FUNCTION_BLOCK Skill_PickPlace  EXTENDS FB_1_Skill
+// FB_2_Skill_SFC
 VAR_INPUT
 	
 	sPickName: STRING;
@@ -145,7 +146,7 @@ END_VAR]]></Declaration>
                         <o>
                           <v n="AttributeId">{38391c6d-6d4a-42f8-8ee7-9f45e5adafa8}</v>
                           <o n="Value" t="StringValue">
-                            <v n="Value">"eStatus=eState.Active"</v>
+                            <v n="Value">"State=eState.Active"</v>
                             <v n="DefaultValue">""</v>
                           </o>
                           <v n="Id">24L</v>

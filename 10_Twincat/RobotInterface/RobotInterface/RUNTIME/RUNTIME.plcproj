@@ -111,13 +111,7 @@
     <Compile Include="DUTs\Skill\E_CommandHandshakeState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Skill\E_FB_SkillState.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="DUTs\Skill\eSkillCommandType.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\Skill\E_SkillState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Skill\ROS2Skills\ST_EyesSpecific.TcDUT">
@@ -243,15 +237,6 @@
     <Compile Include="POUs\Skills\FB_1_Skill.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Skills\FB_2_Skill_RoCo.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Skills\FB_2_Skill_ROS2.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Skills\FB_2_Skill_SFC.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="POUs\Skills\FB_ExternalHandshake.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -268,6 +253,30 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Templates\TEMPLATE_BA_HANDLER.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Test\DEBUG_COMM.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Test\DEBUG_SKILL.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Test\DEBUG_STATE.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Test\TEST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Test\TESTSETUP.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Test\TEST_ROBOT.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Test\TEST_Skill.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Test\TEST_Skill_Counter.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Tools\FB_1_Tool.TcPOU">
@@ -313,9 +322,9 @@
     </PlaceholderReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="POUs\Robots\UR5_RTDE_Command_Server.script">
+    <None Include="RUNTIME.tmc">
       <SubType>Content</SubType>
-    </Content>
+    </None>
     <Content Include="UNO.plcproj">
       <SubType>Content</SubType>
     </Content>
@@ -342,6 +351,7 @@
     <Folder Include="POUs\Communication" />
     <Folder Include="POUs\DB" />
     <Folder Include="POUs\Helpers" />
+    <Folder Include="POUs\Test" />
     <Folder Include="POUs\Robots" />
     <Folder Include="POUs\Robots\Mecademic" />
     <Folder Include="POUs\Robots\Omron" />
@@ -356,8 +366,8 @@
   <ProjectExtensions>
     <PlcProjectOptions>
       <XmlArchive>
-  <Data>
-    <o xml:space="preserve" t="OptionKey">
+        <Data>
+          <o xml:space="preserve" t="OptionKey">
       <v n="Name">"&lt;ProjectRoot&gt;"</v>
       <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
         <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
@@ -427,14 +437,14 @@
       </d>
       <d n="Values" t="Hashtable" />
     </o>
-  </Data>
-  <TypeList>
-    <Type n="Boolean">System.Boolean</Type>
-    <Type n="Hashtable">System.Collections.Hashtable</Type>
-    <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
-    <Type n="String">System.String</Type>
-  </TypeList>
-</XmlArchive>
+        </Data>
+        <TypeList>
+          <Type n="Boolean">System.Boolean</Type>
+          <Type n="Hashtable">System.Collections.Hashtable</Type>
+          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+          <Type n="String">System.String</Type>
+        </TypeList>
+      </XmlArchive>
     </PlcProjectOptions>
   </ProjectExtensions>
 </Project>

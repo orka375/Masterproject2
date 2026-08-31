@@ -33,5 +33,15 @@ ELSIF r1 = FAILURE OR r2 = FAILURE THEN
 END_IF]]></ST>
       </Implementation>
     </Method>
+    <Method Name="ProposeHealth" Id="{7aa2f37d-3bc5-465a-8b0b-206f6885d607}">
+      <Declaration><![CDATA[METHOD ProposeHealth
+VAR_INPUT
+	H: eHealth;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
   </POU>
 </TcPlcObject>

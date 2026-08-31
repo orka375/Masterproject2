@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="MAIN" Id="{9b9a608d-bb70-4991-90db-a3114d01a4ca}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	Dashboard: FB_UR_Dashboard;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[Dashboard();]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

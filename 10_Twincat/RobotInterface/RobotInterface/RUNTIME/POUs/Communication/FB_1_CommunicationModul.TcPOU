@@ -4,12 +4,15 @@
     <Declaration><![CDATA[FUNCTION_BLOCK FB_1_CommunicationModul EXTENDS FB_0_BASE 
 // IMPLEMENTS ITF_1_Communication
 VAR_INPUT
+	DEBUG_COMM: DEBUG_COMM;
 END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
 	_CommEnabled: BOOL;
-  _ReconnectRequested: BOOL;
+  	_ReconnectRequested: BOOL;
+	connectagain: BOOL;
+	_CommunicationReady: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -32,7 +35,8 @@ Connect := TRUE;]]></ST>
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[]]></ST>
+          <ST><![CDATA[Connected:= _CommunicationReady OR DEBUG_COMM.bSimConnected;
+]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -69,13 +73,8 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-succ := Connect();
-IF succ THEN
-	myResult:=NONE;
-ELSE
-	myResult:=FAILURE;
-END_IF
 
+myResult:=SUCCESS;
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
@@ -102,11 +101,9 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-succ := Disconnect();
-IF succ THEN
-	myResult:=NONE;
-ELSE
-	myResult:=FAILURE;
+Disconnect();
+IF NOT Connected THEN
+	myResult:=SUCCESS;
 END_IF
 
 // ----- END YOUR CODE -----------------------------
@@ -134,7 +131,11 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-myResult:=NONE;
+Connect();
+IF Connected THEN
+	myResult:=SUCCESS;
+END_IF
+
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
@@ -161,12 +162,7 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-succ := Disconnect();
-IF succ THEN
-	myResult:=NONE;
-ELSE
-	myResult:=FAILURE;
-END_IF
+myResult:=SUCCESS;
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
@@ -194,7 +190,23 @@ myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
 Messenger.AddWarn(eMessageCategories.Undefined, sSender:=Name, sMessage:= 'OnError executing: resetting connection');
-myResult := Reset();
+// myResult := Reset();
+
+IF NOT connectagain THEN
+	Disconnect();
+	IF NOT Connected THEN
+		connectagain:=TRUE;
+	END_IF
+END_IF
+
+
+IF connectagain THEN
+	Connect();
+	IF Connected THEN
+		connectagain:=FALSE;
+		myResult:=SUCCESS;
+	END_IF
+END_IF
 
 
 // ----- END YOUR CODE -----------------------------
@@ -222,12 +234,10 @@ END_VAR
     myResult:=NONE;
     // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-    succ := Disconnect();
-    IF succ THEN
-    	myResult:=NONE;
-    ELSE
-    	myResult:=FAILURE;
-    END_IF
+Disconnect();
+IF NOT Connected THEN
+	myResult:=SUCCESS;
+END_IF
 
     // ----- END YOUR CODE -----------------------------
     //--------------------------------------------------

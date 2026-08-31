@@ -6,7 +6,7 @@
 {attribute 'to_string'}
 TYPE eMessageCategories :
 (
-	HardwareFailure := 0,
+	None:=0,	
 	TimeoutFailure := 1,
 	MissingData := 2,
 	LostConnection := 3,
@@ -16,7 +16,8 @@ TYPE eMessageCategories :
 	ParentFailed:=7,
 	External:=8,
 	Positiv:=9,
-	StateMachine:=10
+	StateMachine:=10,
+	HardwareFailure := 11
 );
 END_TYPE
 ]]></Declaration>

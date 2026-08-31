@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <GVL Name="TESTSETUP" Id="{afb3172e-52f3-48ee-939b-708551773a13}">
+    <Declaration><![CDATA[{attribute 'global_init_slot' := '40500'} //https://infosys.beckhoff.com/index.php?content=../content/1031/tc3_plc_intro/2529649291.html&id=
+VAR_GLOBAL CONSTANT
+	MaxNrofMessages: UINT:= 30;
+	emptySkill : FB_1_Skill; //emptySkill
+END_VAR
+
+
+{attribute 'global_init_slot' := '40600'} //https://infosys.beckhoff.com/index.php?content=../content/1031/tc3_plc_intro/2529649291.html&id=
+//Skills
+VAR_GLOBAL
+	TS1: TEST_Skill_Counter := (nMax:=5);
+	TS2: TEST_Skill_Counter := (nMax:=7);
+
+END_VAR
+
+
+
+{attribute 'global_init_slot' := '40700'} //https://infosys.beckhoff.com/index.php?content=../content/1031/tc3_plc_intro/2529649291.html&id=
+//Robots
+VAR_GLOBAL
+
+
+	TR: TEST_ROBOT :=(
+		pA_Skills:= [ADR(TS1),ADR(TS2)]
+	);
+	
+
+END_VAR
+
+
+VAR_GLOBAL
+
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

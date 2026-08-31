@@ -40,10 +40,10 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[// Explicitly initialize the base FB
-SUPER^.FB_Init(
-    bInitRetains := bInitRetains,
-    bInCopyCode  := bInCopyCode
-);
+// SUPER^.FB_Init(
+//     bInitRetains := bInitRetains,
+//     bInCopyCode  := bInCopyCode
+// );
 
 FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
 	IF pA_Skills[j]<>0 THEN
@@ -71,7 +71,7 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-myResult:=NONE;
+myResult:=SUCCESS;
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
@@ -98,7 +98,8 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-myResult:=NONE;
+myResult:=SUCCESS;
+
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
@@ -125,7 +126,7 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-myResult:=NONE;
+myResult:=SUCCESS;
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
@@ -152,7 +153,7 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-myResult:=NONE;
+myResult:=SUCCESS;
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
@@ -179,7 +180,8 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-myResult:=NONE;
+myResult:=SUCCESS;
+
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
@@ -206,7 +208,8 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-myResult:=NONE;
+myResult:=SUCCESS;
+
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------

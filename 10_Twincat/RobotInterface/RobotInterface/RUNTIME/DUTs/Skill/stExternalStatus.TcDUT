@@ -5,12 +5,11 @@
 {attribute 'OPC.UA.DA' := '1'}
 TYPE stExternalStatus :
 STRUCT
-    nSkillID     : UINT;
-	
-    eState       : eState;
-	eResult		: eResult;
-	bError       : BOOL;
-    nErrorID     : UDINT;
+	SKILLID				: UINT;
+	SKILLNAME			: STRING;
+	ExecutionBusy		: BOOL;
+    ExecutionDone       : BOOL;
+	ExecutionResult		: eResult;
 END_STRUCT
 END_TYPE
 

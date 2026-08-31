@@ -28,9 +28,13 @@ END_VAR
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Folder Name="MotionControl" Id="{fc8c0aca-629b-4848-a20d-78e9ce6e9fda}" />
+    <Folder Name="StateControl" Id="{4f99cba4-d44f-4086-b21c-31fe1a3d2978}" />
     <Action Name="CYCLIC_MANIP" Id="{c5ea77dd-14da-4015-9108-0744e50afbab}">
       <Implementation>
         <ST><![CDATA[CYCLIC_ROB();
+Tool.CYCLIC_TOOL();
+
+
 
 visStatus.State:=eStatus;
 visStatus.Mode:=eModus;
@@ -144,6 +148,213 @@ Config.Pose:=Offset;
 
 
 MoveLinearRelative:= BA_Handler(Cmd:=eBA.MoveL,Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnActivate" Id="{8545c31c-13d9-413d-a788-5dc93d08af33}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnActivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+
+IF Tool.LastTransitionType = eTransitions.Activate THEN
+	IF Tool.LastTransitionResult = SUCCESS THEN
+		myResult:=SUCCESS;
+	END_IF
+ELSE
+	Tool.Activate();
+END_IF
+
+
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnActivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCleanup" Id="{bee78ada-5292-4275-9002-58d1c3177ebe}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnCleanup();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+IF Tool.LastTransitionType = eTransitions.Cleanup THEN
+	IF Tool.LastTransitionResult = SUCCESS THEN
+		myResult:=SUCCESS;
+	END_IF
+ELSE
+	Tool.Cleanup();
+END_IF
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnCleanup := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnConfigure" Id="{c4c1f796-20a8-4791-af0e-0e2d378d2ded}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnConfigure();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+PM.Configure(sPrefix:=Name,sDatabase:=CONCAT('db_',Name)); //TODO
+
+
+IF Tool.LastTransitionType = eTransitions.Configure THEN
+	IF Tool.LastTransitionResult = SUCCESS AND COMM.Connected  THEN
+		myResult:=SUCCESS;
+	END_IF
+ELSE
+	Tool.Configure();
+END_IF
+
+
+
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnConfigure := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{a6d9797f-7816-4343-988a-e3311ba5d69a}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+IF Tool.LastTransitionType = eTransitions.Deactivate THEN
+	IF Tool.LastTransitionResult = SUCCESS THEN
+		myResult:=SUCCESS;
+	END_IF
+ELSE
+	Tool.Deactivate();
+END_IF
+
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnDeactivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{70cb8b10-ead7-4574-b102-c006cadaaa08}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnError();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnError := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnShutdown" Id="{33fd0fdb-eda0-4636-921c-64c45a1b7fdc}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+IF Tool.LastTransitionType = eTransitions.Shutdown THEN
+	IF Tool.LastTransitionResult = SUCCESS THEN
+		myResult:=SUCCESS;
+	END_IF
+ELSE
+	Tool.Shutdown();
+END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnShutdown := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="SetDO" Id="{1b1484e8-2eba-4b5a-9bc9-3e9f0cf73af2}" FolderPath="MotionControl\">

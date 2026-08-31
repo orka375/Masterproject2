@@ -10,6 +10,8 @@ VAR_OUTPUT
 	currentMsg: POINTER TO MessageDescription;
 	activError: POINTER TO MessageDescription;
 	bErrorActiv: BOOL;
+	sMyTime		: STRING;
+	xMyTime		: TIME;
 END_VAR
 VAR
 	MList	: ARRAY [1..SETUP.MaxNrOfMessages] OF MessageDescription;
@@ -18,7 +20,7 @@ VAR
 	IndexShownM 	: INT := 0;
 	manz		: INT := 0;
 	
-	myTime		: STRING;
+	
 	fbTime   	: FB_LocalSystemTime:=(bEnable:=TRUE, dwCycle:=1);
 	i: INT;
 // 	unread: BOOL;
@@ -29,7 +31,12 @@ END_VAR
     <Implementation>
       <ST><![CDATA[fbTime();
 IF fbTime.bValid THEN
-	myTime := SYSTEMTIME_TO_STRING(fbTime.systemTime);
+	sMyTime := SYSTEMTIME_TO_STRING(fbTime.systemTime);
+	xMyTime:= DINT_TO_TIME(
+		WORD_TO_DINT(fbTime.systemTime.wHour) * 3600000 +
+		WORD_TO_DINT(fbTime.systemTime.wMinute) * 60000 +
+		WORD_TO_DINT(fbTime.systemTime.wSecond) * 1000 +
+    	WORD_TO_DINT(fbTime.systemTime.wMilliseconds));
 END_IF
 
 
@@ -44,7 +51,7 @@ END_IF
 bErrorActiv:= FALSE;
 IF manz>0 THEN
 	FOR i:=1 TO manz DO
-		IF NOT MList[i].bQuit AND MList[i].Category=eSeverity.ERROR THEN
+		IF NOT MList[i].bQuit AND MList[i].Severity=eSeverity.ERROR THEN
 			bErrorActiv:=TRUE;
 			activError := ADR(MList[i]);
 			nActivErrorIndex:=i;
@@ -80,12 +87,13 @@ VAR
     seed : INT := 12345;    // Seed value (can also be set using system time)
     randomValue : LINT;        // Output random integer
 	index: INT;
+	ss: STRING(255);
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IndexShownM:= IndexShownM+1;
 index := manz + 1;
 
-MList[index].Typ := eMessageTypes.ERROR;
+MList[index].Severity := eMessageTypes.ERROR;
 MList[index].Category:=Category;
 MList[index].sSender:=sSender;
 MList[index].tTime:= DT_TO_TIME(SYSTEMTIME_TO_DT(fbTime.systemTime));
@@ -94,8 +102,8 @@ MList[index].ID:=TO_UINT(1000+index);
 
 //UPLOAD TO SCADA
 // STATUSWRITER.WriteMessage(MList[index]);
-
-ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_ERROR, msgFmtStr := 'ERROR : %s',strArg := sSender);
+ss := CONCAT(sMessage, ' : %s');
+ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_ERROR, msgFmtStr := ss,strArg := sSender);
 
 manz:=index;
 
@@ -115,13 +123,14 @@ VAR
     seed : INT := 12345;    // Seed value (can also be set using system time)
     randomValue : LINT;        // Output random integer
 	index: INT;
+	ss: Tc2_System.T_MaxString;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IndexShownM:= IndexShownM+1;
 
 index := manz + 1;
 
-MList[index].Typ := eMessageTypes.HINT;
+MList[index].Severity := eMessageTypes.HINT;
 MList[index].Category:=Category;
 MList[index].sSender:=sSender;
 MList[index].tTime:= DT_TO_TIME(SYSTEMTIME_TO_DT(fbTime.systemTime));
@@ -130,7 +139,8 @@ MList[index].ID:=TO_UINT(1000+index);
 //UPLOAD TO SCADA
 // STATUSWRITER.WriteMessage(MList[index]);
 
-ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_HINT, msgFmtStr := 'HINT : %s',strArg := sSender);
+ss := CONCAT(sMessage, ' : %s');
+ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_HINT, msgFmtStr := ss,strArg := sSender);
 
 manz:=index;
 
@@ -150,13 +160,14 @@ VAR
     seed : INT := 12345;    // Seed value (can also be set using system time)
     randomValue : LINT;        // Output random integer
 	index: INT;
+	ss: Tc2_System.T_MaxString;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IndexShownM:= IndexShownM+1;
 
 index := manz + 1;
 
-MList[index].Typ := eMessageTypes.WARN;
+MList[index].Severity := eMessageTypes.WARN;
 MList[index].Category:=Category;
 MList[index].sSender:=sSender;
 MList[index].tTime:= DT_TO_TIME(SYSTEMTIME_TO_DT(fbTime.systemTime));
@@ -167,7 +178,8 @@ MList[index].ID:=TO_UINT(1000+index);
 // STATUSWRITER.WriteMessage(MList[index]);;
 
 
-ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN, msgFmtStr := 'WARN : %s',strArg := sSender);
+ss := CONCAT(sMessage, ' : %s');
+ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN, msgFmtStr := ss,strArg := sSender);
 
 manz:=index;
 
@@ -194,12 +206,12 @@ manz:=0;
       </Implementation>
     </Method>
     <Method Name="GetActivError" Id="{17a1758b-7485-4ce4-83aa-f16fb7ee4cb5}">
-      <Declaration><![CDATA[METHOD GetActivError : MessageDescription
+      <Declaration><![CDATA[METHOD GetActivError : POINTER TO MessageDescription
 VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[GetActivError := MList[nActivErrorIndex];]]></ST>
+        <ST><![CDATA[]]></ST>
       </Implementation>
     </Method>
     <Method Name="GetLatestMessage" Id="{c0703a3a-c079-4dd6-8b67-7359a7b29171}">
@@ -233,6 +245,17 @@ END_IF
 ]]></ST>
       </Implementation>
     </Action>
+    <Property Name="PointerActivError" Id="{b8a52c53-ed23-425b-afa5-93be5f1426ec}">
+      <Declaration><![CDATA[PROPERTY PointerActivError : POINTER TO MessageDescription]]></Declaration>
+      <Get Name="Get" Id="{54390850-3822-4632-bc68-d81277c73a66}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PointerActivError := ADR(MList[nActivErrorIndex]);]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Action Name="PrevError" Id="{41490f66-6df5-4a2e-bc70-d41c0c396599}">
       <Implementation>
         <ST><![CDATA[IF IndexShownM <> 1 THEN

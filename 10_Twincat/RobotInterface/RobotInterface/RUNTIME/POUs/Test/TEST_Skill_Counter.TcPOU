@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TEST_Skill_Counter" Id="{9cc805e9-554a-4c3c-ae9d-761e6423e9f0}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK TEST_Skill_Counter EXTENDS FB_1_Skill
+VAR_INPUT
+    bExecute : BOOL;
+    bStop    : BOOL;
+    nMax     : UINT := 6;
+END_VAR
+
+VAR_OUTPUT
+//     bBusy    : BOOL;
+//     bDone    : BOOL;
+    nCounter : UINT;
+END_VAR
+
+VAR
+    fbTimer     : TON;
+    fbExecute   : R_TRIG;
+    sLogMessage : STRING(255);
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Detect start command
+fbExecute(CLK := bExecute);
+
+
+// Start / restart
+IF fbExecute.Q THEN
+	bExecute:=FALSE;
+    nCounter := 0;
+    bBusy := TRUE;
+    ExecutionDone:=FALSE;
+	ExecutionResult:= NONE;
+
+    // Reset timer
+    fbTimer(IN := FALSE);
+END_IF
+
+
+// Stop immediately
+IF bStop THEN
+    bBusy := FALSE;
+    ExecutionDone:=TRUE;
+	ExecutionResult:= FAILURE;
+
+    fbTimer(IN := FALSE);
+	bStop:=FALSE;
+ELSE
+
+    IF bBusy THEN
+
+        // 1 second timer
+        fbTimer(
+            IN := TRUE,
+            PT := T#1S
+        );
+
+        IF fbTimer.Q THEN
+
+            // Increment counter
+            nCounter := nCounter + 1;
+
+            // Create log string
+            sLogMessage := CONCAT(
+                'Counter : ',
+                UINT_TO_STRING(nCounter)
+            );
+
+            // Log to TwinCAT logger
+            ADSLOGSTR(
+                msgCtrlMask := ADSLOG_MSGTYPE_HINT,
+                msgFmtStr := '%s',
+                strArg := sLogMessage
+            );
+
+            // Reset timer for next second
+            fbTimer(IN := FALSE);
+
+
+            // Maximum reached
+            IF nCounter >= nMax THEN
+                bBusy := FALSE;
+				ExecutionDone:=TRUE;
+				ExecutionResult:= SUCCESS;
+            END_IF
+
+        END_IF
+
+    ELSE
+        fbTimer(IN := FALSE);
+    END_IF
+
+END_IF]]></ST>
+    </Implementation>
+    <Folder Name="Internal" Id="{25e8d683-9ab8-4256-93ea-fcc69095bd16}" />
+    <Method Name="_M_Start" Id="{fe4f3d36-6698-41d1-87dc-e21c5b8934c3}" FolderPath="Internal\">
+      <Declaration><![CDATA[METHOD INTERNAL _M_Start : eResult
+
+VAR
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// !! THESE AREN'T THE METHODS YOU CALL TO START/STOP THE SKILL //
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+bExecute:=TRUE;
+
+
+// ----- END YOUR CODE -----------------------------
+ExecutionDone:=FALSE;		//IMPORTANT
+ExecutionResult:=NONE;		//IMPORTANT
+_M_Start:=SUCCESS;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_M_Stop" Id="{0b88cca9-fe19-4131-9190-bcc6416485e0}" FolderPath="Internal\">
+      <Declaration><![CDATA[METHOD INTERNAL _M_Stop : eResult
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// !! THESE AREN'T THE METHODS YOU CALL TO START/STOP THE SKILL //
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+bStop:=TRUE;
+
+// ----- END YOUR CODE -----------------------------
+_M_Stop:=SUCCESS;
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>
