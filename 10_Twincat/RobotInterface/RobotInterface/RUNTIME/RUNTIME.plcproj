@@ -48,10 +48,10 @@
     <Compile Include="DUTs\BasicRobot\stTarget.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Communication\eCommunicationState.TcDUT">
+    <Compile Include="DUTs\Communication\E_CommState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Communication\stComm_TCPIP_Config.TcDUT">
+    <Compile Include="DUTs\Communication\stComm_UR_Config.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\DB\E_DBClientState.TcDUT">
@@ -114,27 +114,6 @@
     <Compile Include="DUTs\Skill\eSkillCommandType.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Skill\ROS2Skills\ST_EyesSpecific.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\Skill\ROS2Skills\ST_GripperSkill.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\Skill\ROS2Skills\ST_GripperSpecific.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\Skill\ROS2Skills\ST_QrSkill.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\Skill\ROS2Skills\ST_QrSkillSpecific.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\Skill\ROS2Skills\sT_RobotMoveSkill.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\Skill\ROS2Skills\ST_RobotMoveSpecific.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="DUTs\Skill\stExternalCommand.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -178,9 +157,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Communication\FB_1_CommunicationModul.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Communication\FB_2_Comm_TcpIp.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\DB\FB_DBClient.TcPOU">
@@ -228,7 +204,13 @@
     <Compile Include="POUs\Robots\Omron\ROBOT_LD90.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Robots\UR\FB_UR5MotionDemo.TcPOU">
+    <Compile Include="POUs\Robots\UR\FB_2_COMM_UR.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Robots\UR\FB_UR_Dashboard.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Robots\UR\FB_UR_RTDE.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Robots\UR\ROBOT_UR5.TcPOU">
@@ -366,8 +348,8 @@
   <ProjectExtensions>
     <PlcProjectOptions>
       <XmlArchive>
-        <Data>
-          <o xml:space="preserve" t="OptionKey">
+  <Data>
+    <o xml:space="preserve" t="OptionKey">
       <v n="Name">"&lt;ProjectRoot&gt;"</v>
       <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
         <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
@@ -437,14 +419,14 @@
       </d>
       <d n="Values" t="Hashtable" />
     </o>
-        </Data>
-        <TypeList>
-          <Type n="Boolean">System.Boolean</Type>
-          <Type n="Hashtable">System.Collections.Hashtable</Type>
-          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
-          <Type n="String">System.String</Type>
-        </TypeList>
-      </XmlArchive>
+  </Data>
+  <TypeList>
+    <Type n="Boolean">System.Boolean</Type>
+    <Type n="Hashtable">System.Collections.Hashtable</Type>
+    <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+    <Type n="String">System.String</Type>
+  </TypeList>
+</XmlArchive>
     </PlcProjectOptions>
   </ProjectExtensions>
 </Project>

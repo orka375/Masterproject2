@@ -1,51 +1,93 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-  <POU Name="FB_2_Comm_TcpIp" Id="{e695efdc-e187-4f84-8c3d-4878e12ff71c}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_2_Comm_TcpIp EXTENDS FB_1_CommunicationModul
+  <POU Name="FB_2_COMM_UR" Id="{e695efdc-e187-4f84-8c3d-4878e12ff71c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_2_COMM_UR EXTENDS FB_1_CommunicationModul
 VAR_INPUT
-    Config : stComm_TCPIP_Config;
-    bReceiveEnable : BOOL := TRUE;
+    Config : stComm_UR_Config;
 END_VAR
 VAR_OUTPUT
-    bReadyForSend : BOOL;
-    bSendBusy : BOOL;
-    bSendDone : BOOL;
-    bRxNewData : BOOL;
-    nRxBytes : UDINT;
-    bError : BOOL;
-    nErrorId : UDINT;
-    sError : STRING(80);
+  
 END_VAR
 VAR
-    fbClient : FB_TcpIpClient;
-    _sendRequest : BOOL;
-    _resetRequest : BOOL;
-    _txBuffer : ARRAY[0..2047] OF BYTE;
-    _txSize : UDINT;
-END_VAR
-VAR CONSTANT
-    C_BUFFER_SIZE : UDINT := 2048;
-END_VAR
-]]></Declaration>
+    Dashboard : FB_UR_Dashboard;
+    RTDE      : FB_UR_RTDE;
+
+    _DashboardConnected : BOOL;
+
+    _RTDEConnected : BOOL;
+    _RTDEReady     : BOOL;
+    _RTDEStreaming : BOOL;
+END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[]]></ST>
+      <ST><![CDATA[CYCLIC_COMM_UR();]]></ST>
     </Implementation>
     <Folder Name="StateControl" Id="{76d61647-738d-4b23-8853-f6e5794603cd}" />
-    <Property Name="Connected" Id="{77e58f43-f11a-4c1e-aebf-53d4980dac4c}">
-      <Declaration><![CDATA[PROPERTY Connected : BOOL]]></Declaration>
-      <Get Name="Get" Id="{50b1f798-6d6d-402d-8bc8-a345bfbefc6b}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[Connected := fbClient.bConnected;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Action Name="CYCLIC_TCPIP" Id="{e079c791-bd51-481e-8c49-3586c05afcb2}">
+    <Action Name="CYCLIC_COMM_UR" Id="{e079c791-bd51-481e-8c49-3586c05afcb2}">
       <Implementation>
-        <ST><![CDATA[CYCLIC_COMM();
-Update();]]></ST>
+        <ST><![CDATA[ // ==================================================
+// 1. Generic communication state machine
+// ==================================================
+
+CYCLIC_COMM();
+
+
+// ==================================================
+// 2. UR Dashboard :29999
+// ==================================================
+
+Dashboard(
+    sRobotIP         := Config.sIpAddress,
+    tResponseTimeout := Config.tTimeout,
+    bConnect         := bRequestConnection,
+
+    bConnected       => _DashboardConnected
+);
+
+
+// ==================================================
+// 3. UR RTDE :30004
+// ==================================================
+
+RTDE(
+    sRobotIP   := Config.sIpAddress,
+    bEnable    := bRequestConnection,
+    fFrequency := 10.0,
+
+    bConnected => _RTDEConnected,
+    bReady     => _RTDEReady,
+    bStreaming => _RTDEStreaming
+);
+
+
+// ==================================================
+// 4. Generate feedback for FB_1
+// ==================================================
+
+_CommunicationConnected :=
+    _DashboardConnected
+    AND _RTDEConnected;
+
+
+_CommunicationReady :=
+    _DashboardConnected
+    AND _RTDEConnected
+    AND _RTDEReady
+    AND _RTDEStreaming;
+
+
+// ==================================================
+// 5. Communication diagnostics
+// ==================================================
+
+// TODO USER:
+// IF Dashboard.bError THEN
+//     Messenger.AddError(...);
+// END_IF
+
+// TODO USER:
+// IF RTDE.bError THEN
+//     Messenger.AddError(...);
+// END_IF]]></ST>
       </Implementation>
     </Action>
     <Method Name="OnActivate" Id="{0ed4d272-2017-43c8-8627-328b7fa74b51}" FolderPath="StateControl\">
@@ -95,8 +137,7 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-Update();
-    myResult:=NONE;
+myResult:=SUCCESS;
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
@@ -123,12 +164,12 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-IF (LEN(Config.sIpAddress) = 0) OR (Config.nPort = 0) THEN
-    Messenger.AddWarn(eMessageCategories.Undefined, sSender := Name, sMessage := 'TCP/IP configuration is invalid');
-      myResult := FAILURE;
+IF (LEN(Config.sIpAddress) = 0) THEN
+    Messenger.AddError(eMessageCategories.Undefined, sSender := Name, sMessage := 'TCP/IP configuration is invalid');
+      myResult := ERROR;
 ELSE
       myResult := SUCCESS;
-    END_IF
+END_IF
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
@@ -155,8 +196,7 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-Update();
-    myResult:=NONE;
+myResult:=SUCCESS;
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
@@ -183,8 +223,8 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-Update();
-    myResult:=NONE;
+
+myResult:=SUCCESS;
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
@@ -211,83 +251,19 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-Update();
 
-IF fbClient.bConnected THEN
-      myResult := None;
+
+IF Connected THEN
+	Disconnect();
+	myResult := None;
 ELSE
-      myResult := SUCCESS;
-    END_IF
+	myResult := SUCCESS;
+END_IF
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
 OnShutdown := CombineResults(eParentResult,myResult);
 ]]></ST>
-      </Implementation>
-    </Method>
-    <Property Name="RxData" Id="{4a0d0f2c-27c2-4f4a-a7cf-4b0f6d7f5a11}">
-      <Declaration><![CDATA[// Start of the receive buffer, valid for nRxBytes bytes while bRxNewData is set.
-PROPERTY RxData : POINTER TO BYTE]]></Declaration>
-      <Get Name="Get" Id="{8f8a5b5e-1f22-4d2f-9b60-51f7ec7c6d22}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[RxData := ADR(fbClient.aRxData);]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Method Name="Send" Id="{ef48ac7a-3006-4248-b9fc-337133a074ce}">
-      <Declaration><![CDATA[METHOD Send : BOOL
-VAR_INPUT
-    pData : PVOID;
-    nDataSize : UDINT;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Send := FALSE;
-
-IF (pData = 0) OR (nDataSize = 0) OR (nDataSize > C_BUFFER_SIZE) OR _sendRequest OR bSendBusy THEN
-    RETURN;
-END_IF
-
-// Copy into an own buffer so the caller may reuse its data immediately.
-MEMCPY(destAddr := ADR(_txBuffer), srcAddr := pData, n := nDataSize);
-_txSize := nDataSize;
-_sendRequest := TRUE;
-Send := TRUE;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="Update" Id="{1f329bb1-c1b5-4d91-9d17-ceb7bfae8aee}">
-      <Declaration><![CDATA[METHOD Update : BOOL]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[// A reconnect drops the link first and lets the client reopen it.
-IF _ReconnectRequested AND NOT fbClient.bConnected THEN
-    _ReconnectRequested := FALSE;
-END_IF
-
-fbClient(
-    bEnable := _CommEnabled AND NOT _ReconnectRequested,
-    bReset := _resetRequest,
-    Config := Config,
-    bReceiveEnable := bReceiveEnable,
-    bSend := _sendRequest,
-    pSendData := ADR(_txBuffer),
-    nSendSize := _txSize
-);
-
-_resetRequest := FALSE;
-_sendRequest := FALSE;
-
-bReadyForSend := fbClient.bReadyForSend;
-bSendBusy := fbClient.bSendBusy;
-bSendDone := fbClient.bSendDone;
-bRxNewData := fbClient.bRxNewData;
-nRxBytes := fbClient.nRxBytes;
-bError := fbClient.bError;
-nErrorId := fbClient.nErrorId;
-sError := fbClient.sError;
-
-Update := NOT bError;]]></ST>
       </Implementation>
     </Method>
   </POU>

@@ -141,7 +141,7 @@ VAR
     // Logical EtherCAT communication state
     // ----------------------------------------------------------------
     _Connected                   : BOOL := FALSE;
-    eConnectionState             : eCommunicationState := eCommunicationState.DISCONNECTED;
+    eConnectionState             : eCommState := E_CommState.DISCONNECTED;
     _ecatRequested               : BOOL := FALSE;
     _sessionInitialized          : BOOL := FALSE;
     _localError                  : BOOL := FALSE;
@@ -278,20 +278,20 @@ END_IF
 // ============================================================
 CASE eConnectionState OF
 
-    eCommunicationState.DISCONNECTED:
+    E_CommState.DISCONNECTED:
         _Connected := FALSE;
         xOutSetPoint := FALSE;
 
         IF _ecatRequested THEN
-            eConnectionState := eCommunicationState.CONNECTING;
+            eConnectionState := E_CommState.CONNECTING;
         END_IF
 
-    eCommunicationState.CONNECTING:
+    E_CommState.CONNECTING:
         _Connected := FALSE;
         xOutSetPoint := FALSE;
 
         IF NOT _ecatRequested THEN
-            eConnectionState := eCommunicationState.DISCONNECTED;
+            eConnectionState := E_CommState.DISCONNECTED;
 
         ELSIF bCommunicationReady THEN
             // Required safe initial state for the cyclic API.
@@ -309,22 +309,22 @@ CASE eConnectionState OF
 
             _sessionInitialized := TRUE;
             _Connected := TRUE;
-            eConnectionState := eCommunicationState.CONNECTED;
+            eConnectionState := E_CommState.CONNECTED;
         END_IF
 
-    eCommunicationState.CONNECTED:
+    E_CommState.CONNECTED:
         _Connected := _ecatRequested AND bCommunicationReady;
 
         IF NOT _ecatRequested OR NOT bCommunicationReady THEN
             M_ClearEcatOutputs();
             _Connected := FALSE;
             _sessionInitialized := FALSE;
-            eConnectionState := eCommunicationState.DISCONNECTED;
+            eConnectionState := E_CommState.DISCONNECTED;
         END_IF
 
     ELSE
         _Connected := FALSE;
-        eConnectionState := eCommunicationState.DISCONNECTED;
+        eConnectionState := E_CommState.DISCONNECTED;
 END_CASE
 
 // ============================================================
@@ -483,8 +483,8 @@ END_VAR
 // This method enables the logical robot session and waits for OP state in ComMachine.
 _ecatRequested := TRUE;
 
-IF eConnectionState = eCommunicationState.DISCONNECTED THEN
-    eConnectionState := eCommunicationState.CONNECTING;
+IF eConnectionState = E_CommState.DISCONNECTED THEN
+    eConnectionState := E_CommState.CONNECTING;
 END_IF
 
 Connect := TRUE;]]></ST>
@@ -516,7 +516,7 @@ M_ClearEcatOutputs();
 _Connected := FALSE;
 _sessionInitialized := FALSE;
 _homeRequest := FALSE;
-eConnectionState := eCommunicationState.DISCONNECTED;
+eConnectionState := E_CommState.DISCONNECTED;
 
 Disconnect := TRUE;]]></ST>
       </Implementation>
@@ -1345,7 +1345,7 @@ _pendingIsCompletionCheckpoint := FALSE;
 
 M_ClearEcatOutputs();
 
-eConnectionState := eCommunicationState.DISCONNECTED;
+eConnectionState := E_CommState.DISCONNECTED;
 
 // Request a fresh logical session. ComMachine will wait for OP state.
 _ecatRequested := TRUE;

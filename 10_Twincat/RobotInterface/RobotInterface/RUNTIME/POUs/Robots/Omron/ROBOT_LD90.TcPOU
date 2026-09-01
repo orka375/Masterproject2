@@ -8,7 +8,7 @@ VAR_INPUT
 
 	sLoadDeliverReturn: Skill_LoadDeliverReturn;
 	sEyes: Skill_ROS2_Eyes;
-	ComConfig: stComm_TCPIP_Config;
+	ComConfig: stComm_UR_Config;
 END_VAR
 VAR_OUTPUT
   SocketErrorId: UDINT;
@@ -17,7 +17,7 @@ VAR
 	MissionIndex: INT;
 	oldMissionIndex: INT;
 	waitTimer: TON;
-  COMM: FB_2_Comm_TcpIp;
+  COMM: FB_2_COMM_UR;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -63,7 +63,7 @@ END_VAR
       <Implementation>
         <ST><![CDATA[// The TCP/IP connection is handled by the communication module.
 COMM.Config := ComConfig;
-COMM.CYCLIC_TCPIP();
+COMM.CYCLIC_COMM_UR();
 
 CommunicationReady := COMM.Connected;
 

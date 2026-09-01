@@ -12,8 +12,8 @@ END_VAR
   
   
 VAR_OUTPUT
-	COMM_Primary        : FB_2_Comm_TcpIp;
- 	COMM_Rtde           : FB_2_Comm_TcpIp;
+	COMM_Primary        : FB_2_COMM_UR;
+ 	COMM_Rtde           : FB_2_COMM_UR;
 
 END_VAR
 

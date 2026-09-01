@@ -8,7 +8,7 @@ VAR_INPUT
     bReset              : BOOL;
 
     // Remote endpoint.
-    Config              : stComm_TCPIP_Config;
+    Config              : stComm_UR_Config;
 
     // TRUE = continuously issue asynchronous receive requests.
     bReceiveEnable      : BOOL := TRUE;

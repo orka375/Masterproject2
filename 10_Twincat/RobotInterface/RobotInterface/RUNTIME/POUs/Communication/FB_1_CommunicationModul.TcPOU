@@ -3,28 +3,67 @@
   <POU Name="FB_1_CommunicationModul" Id="{5dfb62c0-2d47-4b53-bfa8-e561c40cbe14}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_1_CommunicationModul EXTENDS FB_0_BASE 
 // IMPLEMENTS ITF_1_Communication
+
 VAR_INPUT
-	DEBUG_COMM: DEBUG_COMM;
+    DEBUG_COMM : DEBUG_COMM;
+
+    tConnectTimeout    : TIME := T#10S;
+    tDisconnectTimeout : TIME := T#5S;
+    tReconnectDelay    : TIME := T#2S;
 END_VAR
+
+
 VAR_OUTPUT
 END_VAR
 VAR
-	_CommEnabled: BOOL;
-  	_ReconnectRequested: BOOL;
-	connectagain: BOOL;
-	_CommunicationReady: BOOL;
-END_VAR
-]]></Declaration>
+    // Desired state from Robot / lifecycle
+    _ConnectionRequested : BOOL;
+
+    // Request sent toward the child communication implementation
+    bRequestConnection : BOOL;
+
+    // Feedback supplied by the child communication implementation
+    _CommunicationConnected : BOOL;
+    _CommunicationReady     : BOOL;
+
+    // Reconnect sequencing
+    _ReconnectRequested : BOOL;
+
+    // Communication state
+    _eCommState : E_CommState := E_CommState.eDisconnected;
+
+    // Timers
+    _tonConnectTimeout    : TON;
+    _tonDisconnectTimeout : TON;
+    _tonReconnectDelay    : TON;
+END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Folder Name="Child" Id="{97165f57-2a6b-45d0-8208-1f95b60b5b3e}" />
     <Folder Name="StateControl" Id="{ee8ac4a0-f0cf-40ca-b53b-7b5d8eb3bef1}" />
+    <Property Name="CommunicationReady" Id="{cd2541e9-c446-41df-86d3-5e7de551597b}">
+      <Declaration><![CDATA[PROPERTY CommunicationReady : BOOL]]></Declaration>
+      <Get Name="Get" Id="{8777da96-80fa-4c82-8f5c-130cb7162c26}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF DEBUG_COMM.bSimConnected THEN
+    CommunicationReady := _ConnectionRequested;
+ELSE
+    CommunicationReady := _CommunicationReady;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Method Name="Connect" Id="{48cddc0e-90b0-47e7-b3f4-033f55fc4faf}">
       <Declaration><![CDATA[METHOD Connect : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_CommEnabled := TRUE;
+        <ST><![CDATA[
+_ConnectionRequested := TRUE;
+
 Connect := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -35,22 +74,242 @@ Connect := TRUE;]]></ST>
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Connected:= _CommunicationReady OR DEBUG_COMM.bSimConnected;
-]]></ST>
+          <ST><![CDATA[IF DEBUG_COMM.bSimConnected THEN
+    Connected := _ConnectionRequested;
+ELSE
+    Connected := _CommunicationConnected;
+END_IF]]></ST>
         </Implementation>
       </Get>
     </Property>
     <Action Name="CYCLIC_COMM" Id="{db736a65-6184-4548-9d87-5644861796c2}">
       <Implementation>
         <ST><![CDATA[CYCLIC_BASE();
-]]></ST>
+
+
+Busy :=
+    (_eCommState = E_CommState.eConnecting)
+    OR
+    (_eCommState = E_CommState.eDisconnecting)
+    OR
+    (_eCommState = E_CommState.eReconnectWait);
+	
+	
+	
+
+
+// --------------------------------------------------
+// Timers
+// --------------------------------------------------
+
+_tonConnectTimeout(
+    IN := _eCommState = E_CommState.eConnecting,
+    PT := tConnectTimeout
+);
+
+_tonDisconnectTimeout(
+    IN := _eCommState = E_CommState.eDisconnecting,
+    PT := tDisconnectTimeout
+);
+
+_tonReconnectDelay(
+    IN := _eCommState = E_CommState.eReconnectWait,
+    PT := tReconnectDelay
+);
+
+
+// --------------------------------------------------
+// Simulation
+// --------------------------------------------------
+
+IF DEBUG_COMM.bSimConnected THEN
+
+    // Never open real communication in simulation.
+    bRequestConnection := FALSE;
+
+    IF _ConnectionRequested THEN
+        _eCommState := E_CommState.eConnected;
+    ELSE
+        _eCommState := E_CommState.eDisconnected;
+    END_IF
+
+    RETURN;
+
+END_IF
+
+
+// --------------------------------------------------
+// Communication state machine
+// --------------------------------------------------
+
+CASE _eCommState OF
+
+
+    // ==============================================
+    // DISCONNECTED
+    // ==============================================
+    E_CommState.eDisconnected:
+
+        bRequestConnection := FALSE;
+
+        IF _ReconnectRequested
+           AND _ConnectionRequested THEN
+
+            _eCommState := E_CommState.eReconnectWait;
+
+        ELSIF _ConnectionRequested THEN
+
+            bRequestConnection := TRUE;
+            _eCommState := E_CommState.eConnecting;
+
+        END_IF
+
+
+    // ==============================================
+    // CONNECTING
+    // ==============================================
+    E_CommState.eConnecting:
+
+        bRequestConnection := TRUE;
+
+
+        // User cancelled connection request
+        IF NOT _ConnectionRequested THEN
+
+            bRequestConnection := FALSE;
+            _eCommState := E_CommState.eDisconnecting;
+
+
+        // Communication fully initialized
+        ELSIF _CommunicationReady THEN
+
+            _ReconnectRequested := FALSE;
+            _eCommState := E_CommState.eConnected;
+
+
+        // Timeout
+        ELSIF _tonConnectTimeout.Q THEN
+
+            // TODO USER:
+            // Messenger.AddError(... connection timeout ...);
+
+            bRequestConnection := FALSE;
+
+            IF _ConnectionRequested THEN
+                _ReconnectRequested := TRUE;
+            END_IF
+
+            _eCommState := E_CommState.eDisconnecting;
+
+        END_IF
+
+
+    // ==============================================
+    // CONNECTED
+    // ==============================================
+    E_CommState.eConnected:
+
+        bRequestConnection := TRUE;
+
+
+        // Explicit reconnect
+        IF _ReconnectRequested THEN
+
+            bRequestConnection := FALSE;
+            _eCommState := E_CommState.eDisconnecting;
+
+
+        // Explicit disconnect
+        ELSIF NOT _ConnectionRequested THEN
+
+            bRequestConnection := FALSE;
+            _eCommState := E_CommState.eDisconnecting;
+
+
+        // Unexpected loss of communication
+        ELSIF NOT _CommunicationConnected THEN
+
+            // TODO USER:
+            // Messenger.AddError(... communication lost ...);
+
+            bRequestConnection := FALSE;
+            _ReconnectRequested := TRUE;
+
+            _eCommState := E_CommState.eDisconnecting;
+
+        END_IF
+
+
+    // ==============================================
+    // DISCONNECTING
+    // ==============================================
+    E_CommState.eDisconnecting:
+
+        bRequestConnection := FALSE;
+
+
+        IF NOT _CommunicationConnected THEN
+
+            IF _ReconnectRequested
+               AND _ConnectionRequested THEN
+
+                _eCommState := E_CommState.eReconnectWait;
+
+            ELSE
+
+                _ReconnectRequested := FALSE;
+                _eCommState := E_CommState.eDisconnected;
+
+            END_IF
+
+
+        ELSIF _tonDisconnectTimeout.Q THEN
+
+            // TODO USER:
+            // Messenger.AddError(... disconnect timeout ...);
+
+            // Stay in Disconnecting.
+            // Do NOT falsely report Disconnected.
+
+        END_IF
+
+
+    // ==============================================
+    // RECONNECT DELAY
+    // ==============================================
+    E_CommState.eReconnectWait:
+
+        bRequestConnection := FALSE;
+
+
+        // Reconnect cancelled
+        IF NOT _ConnectionRequested THEN
+
+            _ReconnectRequested := FALSE;
+            _eCommState := E_CommState.eDisconnected;
+
+
+        // Delay complete
+        ELSIF _tonReconnectDelay.Q THEN
+
+            _ReconnectRequested := FALSE;
+
+            bRequestConnection := TRUE;
+            _eCommState := E_CommState.eConnecting;
+
+        END_IF
+
+
+END_CASE]]></ST>
       </Implementation>
     </Action>
     <Method Name="Disconnect" Id="{a755e2b5-5cce-4c7d-9a87-13d3a2190f4b}">
       <Declaration><![CDATA[METHOD Disconnect : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_CommEnabled := FALSE;
+        <ST><![CDATA[_ConnectionRequested := FALSE;
+_ReconnectRequested := FALSE;
+
 Disconnect := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -132,7 +391,7 @@ myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
 Connect();
-IF Connected THEN
+IF CommunicationReady  THEN
 	myResult:=SUCCESS;
 END_IF
 
@@ -185,34 +444,20 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
-//--------------------------------------------------
-myResult:=NONE;
-// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-Messenger.AddWarn(eMessageCategories.Undefined, sSender:=Name, sMessage:= 'OnError executing: resetting connection');
-// myResult := Reset();
+myResult := NONE;
 
-IF NOT connectagain THEN
-	Disconnect();
-	IF NOT Connected THEN
-		connectagain:=TRUE;
-	END_IF
+// ----- YOUR CODE HERE -----------------------------
+
+Reconnect();
+
+IF CommunicationReady THEN
+    myResult := SUCCESS;
 END_IF
 
+// ----- END YOUR CODE ------------------------------
 
-IF connectagain THEN
-	Connect();
-	IF Connected THEN
-		connectagain:=FALSE;
-		myResult:=SUCCESS;
-	END_IF
-END_IF
-
-
-// ----- END YOUR CODE -----------------------------
-//--------------------------------------------------
-OnError := CombineResults(eParentResult,myResult);
-]]></ST>
+OnError := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnShutdown" Id="{2f41cb60-ac89-4bad-950e-538f034a5d15}" FolderPath="StateControl\">
@@ -249,29 +494,10 @@ END_IF
       <Declaration><![CDATA[METHOD Reconnect : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_ReconnectRequested := TRUE;
-_CommEnabled := TRUE;
+        <ST><![CDATA[_ConnectionRequested := TRUE;
+_ReconnectRequested := TRUE;
+
 Reconnect := TRUE;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="Send" Id="{e18ff92a-459d-4cba-8700-b04e7043babe}">
-      <Declaration><![CDATA[METHOD Send : BOOL
-    VAR_INPUT
-        pData : PVOID;
-        nDataSize : UDINT;
-    END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Send := FALSE;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="Update" Id="{2e7c1659-d0af-4574-8a9a-95648439ae05}">
-      <Declaration><![CDATA[METHOD Update : BOOL
-VAR_INPUT
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Update := _CommEnabled;]]></ST>
       </Implementation>
     </Method>
   </POU>

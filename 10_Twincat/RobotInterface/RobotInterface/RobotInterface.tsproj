@@ -13,7 +13,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{2A46B7D0-5025-44A3-8091-A92824C85949}" Name="RUNTIME" PrjFilePath="RUNTIME\RUNTIME.plcproj" TmcFilePath="RUNTIME\RUNTIME.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{CDA473A8-63A0-7FAB-7971-AE45F27AD794}" TmcPath="RUNTIME\RUNTIME.tmc">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{194B3851-0E63-637E-7C77-5746B064EB06}" TmcPath="RUNTIME\RUNTIME.tmc">
 					<Name>RUNTIME Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Contexts>
@@ -34,49 +34,5 @@
 				</Instance>
 			</Project>
 		</Plc>
-		<Io>
-			<Device Id="2" DevType="139" AmsPort="28674" AmsNetId="192.168.1.37.3.1" RemoteName="Device 2 (TC3 EIP Adapter)">
-				<Name>Device 2 (TC3 EIP Adapter)</Name>
-				<AddressInfo>
-					<Pnp>
-						<DeviceDesc></DeviceDesc>
-						<DeviceName></DeviceName>
-						<DeviceData>000000000000</DeviceData>
-					</Pnp>
-				</AddressInfo>
-				<Image Id="1" AddrType="1" ImageType="3">
-					<Name>Image</Name>
-				</Image>
-				<Box Id="1" BoxType="9133">
-					<Name>Box 1 (TC EtherNet/IP Slave)</Name>
-					<ImageId>63</ImageId>
-					<Vars VarGrpType="1">
-						<Name>Inputs</Name>
-						<Var>
-							<Name>State</Name>
-							<Comment><![CDATA[0x8000 = Slave has no valid Assembly Object configured
-0x4000 = Slave has no valid IP Addr - pending DHCP request
-0x2000 = TCP server: unable to listen on local EtherNet/IP Port (44818)
-0x1000 = UDP server: unable to listen on local EtherNet/IP Port (44818)
-0x0XXX = reserved
-]]></Comment>
-							<Type>UINT</Type>
-						</Var>
-					</Vars>
-					<Vars VarGrpType="2">
-						<Name>Outputs</Name>
-						<Var>
-							<Name>Ctrl</Name>
-							<Type>UINT</Type>
-						</Var>
-					</Vars>
-					<EthernetIp NewSlavePara="01000000426f782031202854432045746865724e65742f495020536c61766529000000000c0000006c0000008818000003010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000100000006faa8c000ffffff01faa8c00000800001001e000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"/>
-				</Box>
-				<Ethernet/>
-				<EtherNetIPSlaveDev>
-					<Ethernet/>
-				</EtherNetIPSlaveDev>
-			</Device>
-		</Io>
 	</Project>
 </TcSmProject>

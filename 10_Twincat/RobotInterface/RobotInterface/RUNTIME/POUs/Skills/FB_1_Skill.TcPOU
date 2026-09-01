@@ -204,78 +204,58 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Method Name="ExternalAbort" Id="{5ea077b8-0ebd-4a83-b9b3-e8247c87e7de}">
-      <Declaration><![CDATA[METHOD ExternalAbort : UINT
-VAR_INPUT
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Command.eCommand:=eSkillCommandType.Start;
-ExternalAbort := aHandler.Execute();]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="ExternalRestart" Id="{c065bb09-2f4d-4870-9e20-1966c41381ef}">
-      <Declaration><![CDATA[METHOD ExternalRestart : UINT
-VAR_INPUT
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Command.eCommand:=eSkillCommandType.Abort;
-ExternalRestart := aHandler.Execute();]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="ExternalRunCheck" Id="{f42ada2e-eb45-488a-a8e4-3df2bf917d0e}">
       <Declaration><![CDATA[METHOD ExternalRunCheck : eResult
 VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// ============================================================
-// First check external state
-// ============================================================
-ExternalRunCheck := NONE;
-
-
-IF Status.eState = eState.ErrorProcessing OR Status.eResult = eResult.ERROR THEN
-    Messenger.AddError(eMessageCategories.External,'External Skill Deployment failed: ',TO_STRING(Status.nErrorID));
-    Command.eCommand := eSkillCommandType.None;
-	MyHealth:=eHealth.Dead;
-    RETURN;
-
-END_IF
-
-
-IF Status.eResult = eResult.SUCCESS AND Status.eState= eState.Inactive THEN //TODO check if inactive state check is really necessary
-
-    Command.eCommand := eSkillCommandType.None;
-	Messenger.AddHint(eMessageCategories.Positiv,Path,'External Skill ended with SUCCESS');
-	ExternalRunCheck:= SUCCESS;
-	MyHealth:=eHealth.Healty;
-    RETURN;
-
-END_IF
-
-IF Status.eResult = eResult.FAILURE THEN 
-
-//     extCommand.eCommand := eSkillCommandType.Restart;
-// 	Messenger.AddWarn(eMessageCategories.External,Path,'External Skill ended with FAILURE, retrying');
-	Messenger.AddWarn(eMessageCategories.External,Path,'External Skill ended with FAILURE');
-	ExternalRunCheck:= FAILURE;
-	MyHealth:=eHealth.Sick;
-    RETURN;
-
-END_IF
-
-IF Status.eState <> eState.Active THEN 
-
-    Command.eCommand := eSkillCommandType.None;
-	Messenger.addError(eMessageCategories.External,Path,'External Skill did something unkown, changed state unwanted');
-	ExternalRunCheck:= FAILURE;
-	MyHealth:=eHealth.Sick;
-    RETURN;
-
-END_IF
-
+        <ST><![CDATA[// // ============================================================
+// // First check external state
+// // ============================================================
+// ExternalRunCheck := NONE;
+// 
+// 
+// IF Status.eState = eState.ErrorProcessing OR Status.eResult = eResult.ERROR THEN
+//     Messenger.AddError(eMessageCategories.External,'External Skill Deployment failed: ',TO_STRING(Status.nErrorID));
+//     Command.eCommand := eSkillCommandType.None;
+// 	MyHealth:=eHealth.Dead;
+//     RETURN;
+// 
+// END_IF
+// 
+// 
+// IF Status.eResult = eResult.SUCCESS AND Status.eState= eState.Inactive THEN //TODO check if inactive state check is really necessary
+// 
+//     Command.eCommand := eSkillCommandType.None;
+// 	Messenger.AddHint(eMessageCategories.Positiv,Path,'External Skill ended with SUCCESS');
+// 	ExternalRunCheck:= SUCCESS;
+// 	MyHealth:=eHealth.Healty;
+//     RETURN;
+// 
+// END_IF
+// 
+// IF Status.eResult = eResult.FAILURE THEN 
+// 
+// //     extCommand.eCommand := eSkillCommandType.Restart;
+// // 	Messenger.AddWarn(eMessageCategories.External,Path,'External Skill ended with FAILURE, retrying');
+// 	Messenger.AddWarn(eMessageCategories.External,Path,'External Skill ended with FAILURE');
+// 	ExternalRunCheck:= FAILURE;
+// 	MyHealth:=eHealth.Sick;
+//     RETURN;
+// 
+// END_IF
+// 
+// IF Status.eState <> eState.Active THEN 
+// 
+//     Command.eCommand := eSkillCommandType.None;
+// 	Messenger.addError(eMessageCategories.External,Path,'External Skill did something unkown, changed state unwanted');
+// 	ExternalRunCheck:= FAILURE;
+// 	MyHealth:=eHealth.Sick;
+//     RETURN;
+// 
+// END_IF
+// 
 ]]></ST>
       </Implementation>
     </Method>
@@ -286,9 +266,7 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[Command.bStart:=TRUE;
-aHandler.Execute();
 
-ExternalStart:=SUCCESS;
 ]]></ST>
       </Implementation>
     </Method>
@@ -298,8 +276,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Command.eCommand:=eSkillCommandType.Stop;
-aHandler.Execute();
+        <ST><![CDATA[Command.bStop:=TRUE;
 ]]></ST>
       </Implementation>
     </Method>

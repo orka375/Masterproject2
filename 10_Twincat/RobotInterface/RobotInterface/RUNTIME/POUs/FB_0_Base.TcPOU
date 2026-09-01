@@ -132,6 +132,7 @@ END_VAR
       <Declaration><![CDATA[PROPERTY Busy : BOOL]]></Declaration>
       <Get Name="Get" Id="{19a4579d-a5c4-4a8f-b588-1cda29eef266}">
         <Declaration><![CDATA[VAR
+	
 END_VAR
 ]]></Declaration>
         <Implementation>
@@ -143,9 +144,22 @@ FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) D
 			EXIT;
 		END_IF
 	END_IF
-END_FOR]]></ST>
+END_FOR
+
+IF Busy OR bBusy THEN
+	Busy:=TRUE;
+END_IF]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{9587d98c-fad2-4b04-9a10-5f05e5d2950b}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[bBusy:=Busy;]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Method Name="Cleanup" Id="{c4819076-2442-41bd-8aa1-fe9bd8639fb5}" FolderPath="Transitions\">
       <Declaration><![CDATA[{attribute 'TcRpcEnable':='1'}
