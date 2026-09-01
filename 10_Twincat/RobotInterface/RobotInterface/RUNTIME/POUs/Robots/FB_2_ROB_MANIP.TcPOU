@@ -38,12 +38,12 @@ Tool.CYCLIC_TOOL();
 
 visStatus.State:=eStatus;
 visStatus.Mode:=eModus;
-visStatus.isMoving:=RobotMoving;
-visStatus.isReady:=RobotReady;
-visStatus.isConnected:=Comm.Connected;
+visStatus.isMoving:=IsMoving;
+visStatus.isReady:=IsReady;
+visStatus.isConnected:=Comm^.Connected;
 // 	isLocked: BOOL;
 // visStatus.isBusy:=;
-visStatus.isInCollision:=InCollision;
+visStatus.isInCollision:=IsInCollision;
 visStatus.hasError:=Messenger.HasActivError;
 visStatus.TCPPosition:=ActualTcpPose;
 ]]></ST>
@@ -244,7 +244,7 @@ PM.Configure(sPrefix:=Name,sDatabase:=CONCAT('db_',Name)); //TODO
 
 
 IF Tool.LastTransitionType = eTransitions.Configure THEN
-	IF Tool.LastTransitionResult = SUCCESS AND COMM.Connected  THEN
+	IF Tool.LastTransitionResult = SUCCESS AND COMM^.CommunicationReady  THEN
 		myResult:=SUCCESS;
 	END_IF
 ELSE
@@ -355,6 +355,22 @@ END_IF
 //--------------------------------------------------
 OnShutdown := CombineResults(eParentResult,myResult);
 ]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReadDI" Id="{c8354a35-ffdd-4948-906a-367cdcf5dddc}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD ReadDI : UINT
+VAR_INPUT
+    bPin : UINT;
+END_VAR
+
+VAR
+	Config: stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Config.Pin:=bPin;
+
+
+SetDO:= BA_Handler(Cmd:=eBA.ReadDI,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
     <Method Name="SetDO" Id="{1b1484e8-2eba-4b5a-9bc9-3e9f0cf73af2}" FolderPath="MotionControl\">

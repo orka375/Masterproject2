@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Refactors>
+  <Renames>
+    <RenamedType>
+      <Type guid="c8354a35-ffdd-4948-906a-367cdcf5dddc">SETDO_1</Type>
+      <From>SetDO_1</From>
+      <To>ReadDI</To>
+    </RenamedType>
+    <RenamedSymbol>
+      <Type guid="2b9ea1ae-8caf-40cf-8b0f-b3a375666762">FB_1_Skill</Type>
+      <From>pROB</From>
+      <To>pOwner</To>
+    </RenamedSymbol>
+  </Renames>
+</Refactors>

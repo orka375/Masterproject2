@@ -47,7 +47,7 @@ END_VAR
 
 FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
 	IF pA_Skills[j]<>0 THEN
-		pa_Skills[j]^.pROB:=pROB;
+		pa_Skills[j]^.pOwner:=pROB;
 	END_IF
 END_FOR]]></ST>
       </Implementation>

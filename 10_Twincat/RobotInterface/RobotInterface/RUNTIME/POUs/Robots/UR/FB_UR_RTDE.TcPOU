@@ -40,8 +40,8 @@ VAR_OUTPUT
 
     byOutputRecipeID : BYTE;
     byInputRecipeID  : BYTE;
-    sOutputTypes     : STRING(255);
-    sInputTypes      : STRING(255);
+    sOutputTypes     : STRING(1023);
+    sInputTypes      : STRING(1023);
 
     fTimestamp       : LREAL;
     aActualTCPPose   : ARRAY[0..5] OF LREAL;
@@ -87,8 +87,8 @@ VAR
     aTx             : ARRAY[0..1023] OF BYTE;
     nTxLen          : UDINT;
 
-    sOutputRecipe   : STRING(255) := 'timestamp,actual_TCP_pose,actual_q,robot_mode,runtime_state';
-    sInputRecipe    : STRING(511) := 'speed_slider_mask,speed_slider_fraction,standard_digital_output_mask,standard_digital_output,input_int_register_24,input_double_register_24,input_double_register_25,input_double_register_26,input_double_register_27,input_double_register_28,input_double_register_29';
+    sOutputRecipe   : STRING(1023) := 'timestamp,actual_TCP_pose,actual_q,robot_mode,runtime_state';
+    sInputRecipe    : STRING(1023) := 'speed_slider_mask,speed_slider_fraction,standard_digital_output_mask,standard_digital_output,input_int_register_24,input_double_register_24,input_double_register_25,input_double_register_26,input_double_register_27,input_double_register_28,input_double_register_29';
 
     bSendRequest    : BOOL;
     bPauseRequest   : BOOL;
@@ -98,51 +98,58 @@ VAR
     bWaitingReply   : BOOL;
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[bNewData := FALSE;
-bInputSent := FALSE;
+      <ST><![CDATA[CASE nState OF
 
-rSend(CLK := bSendInputs);
-rPause(CLK := bPause);
-rResume(CLK := bResume);
 
-IF rSend.Q THEN bSendRequest := TRUE; END_IF
-IF rPause.Q THEN bPauseRequest := TRUE; END_IF
-IF rResume.Q THEN bResumeRequest := TRUE; END_IF
+// ==========================================================
+// STATE 0
+// DISCONNECTED
+//
+// No TCP connection exists.
+// Wait here until bEnable = TRUE.
+// ==========================================================
+0:
 
-bWaitingReply := (nState = 22) OR (nState = 32) OR (nState = 42) OR
-                 (nState = 52) OR (nState = 62) OR (nState = 122) OR
-                 (nState = 142);
-tonReply(IN := bWaitingReply, PT := T#10S);
-
-IF (NOT bEnable) AND (nState <> 0) AND (nState <> 900) THEN
-    bStreaming := FALSE;
-    bReady := FALSE;
-    bCloseExecute := TRUE;
-    bCloseStarted := FALSE;
-    nState := 900;
-END_IF
-
-CASE nState OF
-
-0:  (* disconnected *)
     bConnected := FALSE;
     bReady := FALSE;
     bStreaming := FALSE;
     bBusy := FALSE;
+
     nRxState := 0;
     nRxLen := 0;
 
     IF bEnable THEN
+
         bError := FALSE;
         nErrorID := 0;
         sErrorText := '';
+
         bBusy := TRUE;
+
+        // Start FB_SocketConnect on next state.
         bConnectExecute := TRUE;
         bConnectStarted := FALSE;
+
         nState := 10;
+
     END_IF
 
-10: (* TCP connect *)
+
+
+// ==========================================================
+// STATE 10
+// TCP CONNECT
+//
+// Establish TCP connection to UR RTDE server.
+// RTDE always uses TCP port 30004.
+//
+// Successful completion only means:
+// TCP socket connected.
+//
+// RTDE is NOT configured yet.
+// ==========================================================
+10:
+
     fbConnect(
         sSrvNetId   := '',
         sRemoteHost := sRobotIP,
@@ -151,32 +158,77 @@ CASE nState OF
         tTimeout    := T#10S
     );
 
+    // Generate only one rising edge.
     IF bConnectExecute THEN
         bConnectExecute := FALSE;
         bConnectStarted := TRUE;
     END_IF
 
+    // Wait until Beckhoff socket FB has completed.
     IF bConnectStarted AND NOT fbConnect.bBusy THEN
+
         IF fbConnect.bError THEN
+
             bError := TRUE;
             nErrorID := fbConnect.nErrId;
             sErrorText := 'TCP connect failed';
+
             nState := 0;
+
         ELSE
+
             hSocket := fbConnect.hSocket;
+
+            // TCP connection now exists.
             bConnected := TRUE;
+
+            // Next: negotiate RTDE protocol version.
             nState := 20;
+
         END_IF
+
     END_IF
 
-20: (* request RTDE protocol v2 *)
+
+
+// ==========================================================
+// STATE 20
+// BUILD PROTOCOL-VERSION REQUEST
+//
+// Request RTDE protocol version 2.
+//
+// Packet:
+//   type = 86 = ASCII 'V'
+//   payload = UINT16(2)
+//
+// This state only BUILDS the packet.
+// State 21 actually sends it.
+// ==========================================================
+20:
+
     BuildProtocolV2();
+
+    // After sending, wait in state 22 for response.
     nNextState := 22;
+
     bSendExecute := TRUE;
     bSendStarted := FALSE;
+
     nState := 21;
 
-21: (* generic send *)
+
+
+// ==========================================================
+// STATE 21
+// GENERIC TCP SEND
+//
+// Used by all RTDE setup commands.
+//
+// nNextState determines where execution continues
+// after the packet has been successfully transmitted.
+// ==========================================================
+21:
+
     fbSend(
         sSrvNetId := '',
         hSocket   := hSocket,
@@ -186,203 +238,636 @@ CASE nState OF
         tTimeout  := T#5S
     );
 
+    // Make bExecute a one-cycle/rising-edge request.
     IF bSendExecute THEN
         bSendExecute := FALSE;
         bSendStarted := TRUE;
     END_IF
 
+    // Wait until FB_SocketSend has finished.
     IF bSendStarted AND NOT fbSend.bBusy THEN
+
         IF fbSend.bError THEN
+
             bError := TRUE;
             nErrorID := fbSend.nErrId;
             sErrorText := 'Socket send failed';
+
             bCloseExecute := TRUE;
             bCloseStarted := FALSE;
+
             nState := 900;
+
         ELSE
-            IF nNextState = 100 THEN bInputSent := TRUE; END_IF
-            nState := nNextState;
-        END_IF
-    END_IF
 
-22: (* protocol response *)
-    IF PollPacket() THEN
-        IF (byPacketType = BYTE#86) AND (nPacketLen >= 4) THEN
-            IF aPacket[3] = 1 THEN
-                nState := 30;
-            ELSE
-                Fail(nID := 16#E001, sText := 'RTDE protocol v2 rejected');
+            // Only normal RTDE input DATA_PACKAGE sends
+            // return directly to streaming state 100.
+            IF nNextState = 100 THEN
+                bInputSent := TRUE;
             END_IF
+
+            nState := nNextState;
+
         END_IF
-    ELSIF tonReply.Q THEN
-        Fail(nID := 16#E002, sText := 'Protocol reply timeout');
+
     END_IF
 
-30: (* controller version request *)
+
+
+// ==========================================================
+// STATE 22
+// WAIT FOR PROTOCOL-VERSION RESPONSE
+//
+// Expected packet:
+//   type = 86 ('V')
+//   accepted byte:
+//     1 = protocol v2 accepted
+//     0 = rejected
+//
+// Success -> state 30.
+// ==========================================================
+22:
+
+    IF PollPacket() THEN
+
+        IF (byPacketType = BYTE#86)
+           AND (nPacketLen >= 4) THEN
+
+            IF aPacket[3] = 1 THEN
+
+                // Protocol v2 accepted.
+                nState := 30;
+
+            ELSE
+
+                Fail(
+                    nID := 16#E001,
+                    sText := 'RTDE protocol v2 rejected'
+                );
+
+            END_IF
+
+        END_IF
+
+    ELSIF tonReply.Q THEN
+
+        Fail(
+            nID := 16#E002,
+            sText := 'Protocol reply timeout'
+        );
+
+    END_IF
+
+
+
+// ==========================================================
+// STATE 30
+// BUILD CONTROLLER-VERSION REQUEST
+//
+// Ask UR for:
+// major.minor.bugfix.build
+//
+// Packet type = 118 = ASCII 'v'.
+//
+// State 32 waits for response.
+// ==========================================================
+30:
+
     BuildGetVersion();
+
     nNextState := 32;
+
     bSendExecute := TRUE;
     bSendStarted := FALSE;
+
     nState := 21;
 
+
+
+// ==========================================================
+// STATE 32
+// WAIT FOR CONTROLLER-VERSION RESPONSE
+//
+// Response contains:
+//
+// uint32 major
+// uint32 minor
+// uint32 bugfix
+// uint32 build
+//
+// Success -> state 40.
+// ==========================================================
 32:
+
     IF PollPacket() THEN
-        IF (byPacketType = BYTE#118) AND (nPacketLen >= 19) THEN
+
+        IF (byPacketType = BYTE#118)
+           AND (nPacketLen >= 19) THEN
+
             nControllerMajor  := RxU32(3);
             nControllerMinor  := RxU32(7);
             nControllerBugfix := RxU32(11);
             nControllerBuild  := RxU32(15);
+
             nState := 40;
+
         END_IF
+
     ELSIF tonReply.Q THEN
-        Fail(nID := 16#E003, sText := 'Controller-version timeout');
+
+        Fail(
+            nID := 16#E003,
+            sText := 'Controller-version timeout'
+        );
+
     END_IF
 
-40: (* setup outputs *)
+
+
+// ==========================================================
+// STATE 40
+// BUILD OUTPUT RECIPE
+//
+// Tells UR which data TwinCAT wants to RECEIVE.
+//
+// Example:
+// timestamp,
+// actual_TCP_pose,
+// actual_q,
+// ...
+//
+// Protocol v2 also includes requested output frequency.
+//
+// State 42 waits for recipe response.
+// ==========================================================
+40:
+
     BuildSetupOutputs();
+
     nNextState := 42;
+
     bSendExecute := TRUE;
     bSendStarted := FALSE;
+
     nState := 21;
 
+
+
+// ==========================================================
+// STATE 42
+// WAIT FOR OUTPUT-RECIPE RESPONSE
+//
+// Expected packet:
+//   type = 79 ('O')
+//   byte[3] = output recipe ID
+//   remaining bytes = returned data types
+//
+// Recipe ID 0 means invalid recipe.
+//
+// IMPORTANT DEBUG STATE:
+// If connection works but streaming never starts,
+// inspect:
+//
+// byOutputRecipeID
+// sOutputTypes
+//
+// NOT_FOUND in sOutputTypes means one of the requested
+// output variables is unsupported on this robot/software.
+// ==========================================================
 42:
+
     IF PollPacket() THEN
-        IF (byPacketType = BYTE#79) AND (nPacketLen >= 4) THEN
+
+        IF (byPacketType = BYTE#79)
+           AND (nPacketLen >= 4) THEN
+
             byOutputRecipeID := aPacket[3];
-            sOutputTypes := PacketString(nStart := 4);
+
+            sOutputTypes :=
+                PacketString(nStart := 4);
+
             IF byOutputRecipeID = 0 THEN
-                Fail(nID := 16#E004, sText := 'Output recipe rejected');
+
+                Fail(
+                    nID := 16#E004,
+                    sText := 'Output recipe rejected'
+                );
+
             ELSE
+
+                // Output recipe accepted.
                 nState := 50;
+
             END_IF
+
         END_IF
+
     ELSIF tonReply.Q THEN
-        Fail(nID := 16#E005, sText := 'Output-recipe timeout');
+
+        Fail(
+            nID := 16#E005,
+            sText := 'Output-recipe timeout'
+        );
+
     END_IF
 
-50: (* setup inputs *)
+
+
+// ==========================================================
+// STATE 50
+// BUILD INPUT RECIPE
+//
+// Tells UR which values TwinCAT intends to WRITE.
+//
+// Example:
+// speed_slider_mask
+// input_int_register_24
+// input_double_register_24
+// ...
+//
+// State 52 waits for recipe response.
+// ==========================================================
+50:
+
     BuildSetupInputs();
+
     nNextState := 52;
+
     bSendExecute := TRUE;
     bSendStarted := FALSE;
+
     nState := 21;
 
+
+
+// ==========================================================
+// STATE 52
+// WAIT FOR INPUT-RECIPE RESPONSE
+//
+// Expected packet:
+//   type = 73 ('I')
+//   byte[3] = recipe ID
+//   rest = returned types
+//
+// Recipe ID = 0 means invalid.
+//
+// Possible returned problems:
+//
+// NOT_FOUND
+//     variable unsupported
+//
+// IN_USE
+//     another RTDE client already owns that input
+//
+// IMPORTANT DEBUG STATE:
+// Inspect:
+//   byInputRecipeID
+//   sInputTypes
+// ==========================================================
 52:
+
     IF PollPacket() THEN
-        IF (byPacketType = BYTE#73) AND (nPacketLen >= 4) THEN
+
+        IF (byPacketType = BYTE#73)
+           AND (nPacketLen >= 4) THEN
+
             byInputRecipeID := aPacket[3];
-            sInputTypes := PacketString(nStart := 4);
+
+            sInputTypes :=
+                PacketString(nStart := 4);
+
             IF byInputRecipeID = 0 THEN
-                Fail(nID := 16#E006, sText := 'Input recipe rejected / IN_USE / NOT_FOUND');
+
+                Fail(
+                    nID := 16#E006,
+                    sText :=
+                        'Input recipe rejected / IN_USE / NOT_FOUND'
+                );
+
             ELSE
+
+                // Recipes are now configured.
+                //
+                // NOTE:
+                // I would NOT call this fully "ready" yet.
+                // RTDE START still has to succeed.
                 bReady := TRUE;
+
                 nState := 60;
+
             END_IF
+
         END_IF
+
     ELSIF tonReply.Q THEN
-        Fail(nID := 16#E007, sText := 'Input-recipe timeout');
+
+        Fail(
+            nID := 16#E007,
+            sText := 'Input-recipe timeout'
+        );
+
     END_IF
 
-60: (* RTDE START *)
+
+
+// ==========================================================
+// STATE 60
+// BUILD RTDE START COMMAND
+//
+// Requests controller to begin synchronization.
+//
+// No payload.
+// Packet type = 83 ('S').
+//
+// State 62 waits for acknowledgement.
+// ==========================================================
+60:
+
     BuildStart();
+
     nNextState := 62;
+
     bSendExecute := TRUE;
     bSendStarted := FALSE;
+
     nState := 21;
 
+
+
+// ==========================================================
+// STATE 62
+// WAIT FOR RTDE START RESPONSE
+//
+// Expected:
+//   type = 83 ('S')
+//   byte[3]:
+//       1 = accepted
+//       0 = rejected
+//
+// On success:
+//   RTDE starts sending DATA_PACKAGE packets.
+//   state -> 100.
+//
+// IMPORTANT DEBUG STATE:
+// If you reach 62 but never reach 100,
+// inspect:
+//   byPacketType
+//   nPacketLen
+//   aPacket[3]
+// ==========================================================
 62:
+
     IF PollPacket() THEN
-        IF (byPacketType = BYTE#83) AND (nPacketLen >= 4) THEN
+
+        IF (byPacketType = BYTE#83)
+           AND (nPacketLen >= 4) THEN
+
             IF aPacket[3] = 1 THEN
+
                 bStreaming := TRUE;
                 bBusy := FALSE;
+
                 nState := 100;
+
             ELSE
-                Fail(nID := 16#E008, sText := 'RTDE START rejected');
+
+                Fail(
+                    nID := 16#E008,
+                    sText := 'RTDE START rejected'
+                );
+
             END_IF
+
         END_IF
+
     ELSIF tonReply.Q THEN
-        Fail(nID := 16#E009, sText := 'START reply timeout');
+
+        Fail(
+            nID := 16#E009,
+            sText := 'START reply timeout'
+        );
+
     END_IF
 
-100: (* streaming *)
+
+
+// ==========================================================
+// STATE 100
+// RTDE STREAMING
+//
+// Normal operating state.
+//
+// UR continuously sends RTDE_DATA_PACKAGE:
+//   type = 85 ('U')
+//
+// TwinCAT:
+//   - receives output packets
+//   - calls ParseData()
+//   - can send input DATA_PACKAGE packets
+//
+// Expected normal state:
+//
+// bConnected = TRUE
+// bReady     = TRUE
+// bStreaming = TRUE
+// ==========================================================
+100:
+
     bConnected := TRUE;
     bReady := TRUE;
     bStreaming := TRUE;
     bBusy := FALSE;
 
-    (* Never leave an FB_SocketReceive transaction half-finished. *)
+
+    // If receive FB is already active,
+    // finish that receive transaction first.
     IF nRxState <> 0 THEN
+
         IF PollPacket() THEN
-            IF byPacketType = BYTE#85 THEN ParseData(); END_IF
+
+            IF byPacketType = BYTE#85 THEN
+                ParseData();
+            END_IF
+
         END_IF
 
+
+    // Request RTDE pause.
     ELSIF bPauseRequest THEN
+
         bPauseRequest := FALSE;
+
         BuildPause();
+
         nNextState := 122;
+
         bSendExecute := TRUE;
         bSendStarted := FALSE;
+
         nState := 21;
 
+
+    // Send PLC -> UR RTDE input package.
     ELSIF bSendRequest THEN
+
         bSendRequest := FALSE;
+
         BuildInputData();
-        nNextState := 100; (* DATA_PACKAGE has no reply *)
+
+        // DATA_PACKAGE has no acknowledgement.
+        nNextState := 100;
+
         bSendExecute := TRUE;
         bSendStarted := FALSE;
+
         nState := 21;
 
+
+    // Normal receive polling.
     ELSE
+
         IF PollPacket() THEN
-            IF byPacketType = BYTE#85 THEN ParseData(); END_IF
+
+            IF byPacketType = BYTE#85 THEN
+                ParseData();
+            END_IF
+
         END_IF
+
     END_IF
 
-122: (* PAUSE reply *)
+
+
+// ==========================================================
+// STATE 122
+// WAIT FOR PAUSE ACKNOWLEDGEMENT
+//
+// Packet type = 80 ('P')
+// byte[3] = 1 when accepted.
+//
+// DATA_PACKAGE packets may still already be buffered,
+// therefore type 85 is still handled here.
+// ==========================================================
+122:
+
     IF PollPacket() THEN
-        IF (byPacketType = BYTE#80) AND (nPacketLen >= 4) THEN
+
+        IF (byPacketType = BYTE#80)
+           AND (nPacketLen >= 4) THEN
+
             IF aPacket[3] = 1 THEN
+
                 bStreaming := FALSE;
                 nState := 130;
+
             END_IF
+
         ELSIF byPacketType = BYTE#85 THEN
+
             ParseData();
+
         END_IF
+
     ELSIF tonReply.Q THEN
-        Fail(nID := 16#E00A, sText := 'PAUSE reply timeout');
+
+        Fail(
+            nID := 16#E00A,
+            sText := 'PAUSE reply timeout'
+        );
+
     END_IF
 
-130: (* paused *)
+
+
+// ==========================================================
+// STATE 130
+// RTDE PAUSED
+//
+// TCP connection exists.
+// Recipes are still configured.
+// No output synchronization is active.
+//
+// Resume request sends START again.
+// ==========================================================
+130:
+
     bConnected := TRUE;
     bReady := TRUE;
     bStreaming := FALSE;
     bBusy := FALSE;
 
     IF bResumeRequest THEN
+
         bResumeRequest := FALSE;
+
         BuildStart();
+
         nNextState := 142;
+
         bSendExecute := TRUE;
         bSendStarted := FALSE;
+
         nState := 21;
+
     END_IF
 
-142: (* START after pause *)
+
+
+// ==========================================================
+// STATE 142
+// WAIT FOR START RESPONSE AFTER PAUSE
+//
+// Same START acknowledgement as initial state 62.
+//
+// Success -> state 100.
+// ==========================================================
+142:
+
     IF PollPacket() THEN
-        IF (byPacketType = BYTE#83) AND (nPacketLen >= 4) THEN
+
+        IF (byPacketType = BYTE#83)
+           AND (nPacketLen >= 4) THEN
+
             IF aPacket[3] = 1 THEN
+
                 bStreaming := TRUE;
                 nState := 100;
+
             ELSE
-                Fail(nID := 16#E00B, sText := 'Resume rejected');
+
+                Fail(
+                    nID := 16#E00B,
+                    sText := 'Resume rejected'
+                );
+
             END_IF
+
         END_IF
+
     ELSIF tonReply.Q THEN
-        Fail(nID := 16#E00C, sText := 'Resume reply timeout');
+
+        Fail(
+            nID := 16#E00C,
+            sText := 'Resume reply timeout'
+        );
+
     END_IF
 
-900: (* close *)
+
+
+// ==========================================================
+// STATE 900
+// CLOSE TCP SOCKET
+//
+// Entered when:
+//   bEnable becomes FALSE
+//   socket error occurs
+//   RTDE initialization fails
+//
+// When close completes -> state 0.
+// ==========================================================
+900:
+
     fbClose(
         sSrvNetId := '',
         hSocket   := hSocket,
@@ -391,18 +876,25 @@ CASE nState OF
     );
 
     IF bCloseExecute THEN
+
         bCloseExecute := FALSE;
         bCloseStarted := TRUE;
+
     END_IF
 
-    IF bCloseStarted AND NOT fbClose.bBusy THEN
+    IF bCloseStarted
+       AND NOT fbClose.bBusy THEN
+
         bConnected := FALSE;
         bReady := FALSE;
         bStreaming := FALSE;
         bBusy := FALSE;
+
         nRxState := 0;
         nRxLen := 0;
+
         nState := 0;
+
     END_IF
 
 END_CASE]]></ST>
@@ -907,7 +1399,7 @@ TxLReal := TRUE;]]></ST>
     <Method Name="TxString" Id="{d45f19c2-af54-42a4-83d6-9d60c0eaffac}">
       <Declaration><![CDATA[METHOD PRIVATE TxString : BOOL
 VAR_INPUT
-    sValue : STRING(511);
+    sValue : STRING(1023);
 END_VAR
 VAR
     p : POINTER TO BYTE;
@@ -915,14 +1407,27 @@ VAR
     n : UDINT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[p := ADR(sValue);
-n := LEN(sValue);
+        <ST><![CDATA[p:= ADR(sValue);
+
+n := 0;
+
+WHILE (n < 1023)
+    AND (p[n] <> 0) DO
+
+    n := n + 1;
+
+END_WHILE
+
 IF n > 0 THEN
+
     FOR i := 0 TO n - 1 DO
         aTx[nTxLen + i] := p[i];
     END_FOR
+
 END_IF
+
 nTxLen := nTxLen + n;
+
 TxString := TRUE;]]></ST>
       </Implementation>
     </Method>

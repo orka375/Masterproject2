@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TEST1" Id="{d909d37a-32de-4aa8-89a2-7977e062b2b2}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM TEST1
+VAR
+	
+
+	//ROBOT
+	R_State: eState;
+	R_LastTrans: eTransitions;
+	R_LastTransRes: eResult;
+	RT_State: eState;
+	RT_LastTrans: eTransitions;
+	RT_LastTransRes: eResult;
+	RC_LastTransRes: eResult;
+	RC_LastTrans: eTransitions;
+	RC_State: eState;
+	
+	
+	TS_Count_State: eState;
+	TS_Count_LastTrans: eTransitions;
+	TS_Count_LastTransRes: eResult;
+	
+	TS_3p_State: eState;
+	TS_3p_LastTrans: eTransitions;
+	TS_3p_LastTransRes: eResult;
+	
+	TS_2p_State: eState;
+	TS_2p_LastTrans: eTransitions;
+	TS_2p_LastTransRes: eResult;
+	
+
+	
+	_R_S: POINTER TO DEBUG_STATE;
+	_RC_S: POINTER TO DEBUG_STATE;
+	_TS_Count_S: POINTER TO DEBUG_STATE;
+	_TS_3p_S: POINTER TO DEBUG_STATE;
+	_TS_2p_S: POINTER TO DEBUG_STATE;
+	_RC_Comm: POINTER TO DEBUG_COMM;
+
+	_TS_3p_StartStop: POINTER TO DEBUG_SKILL;
+	_TS_CountStartStop: POINTER TO DEBUG_SKILL;
+	_TS_2p_StartStop: POINTER TO DEBUG_SKILL;
+
+	TS_varP_State: eState;
+	TS_varP_LastTrans: eTransitions;
+	TS_varP_LastTransRes: eResult;
+	_TS_varP_StartStop: POINTER TO DEBUG_SKILL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[Testsetup.T_UR();
+TS_3p.pUR:=ADR(T_UR);
+TS_2p.pUR:=ADR(T_UR);
+TS_varP.pUR:=ADR(T_UR);
+
+
+_R_S:= ADR(T_UR.DEBUG_S);
+
+_RC_S:= ADR(T_UR.UR_COMM.DEBUG_S);
+_RC_Comm:= ADR(T_UR.UR_COMM.DEBUG_COMM);
+
+_TS_2p_S:= ADR(TS_2P.DEBUG_S);
+_TS_3p_S:= ADR(TS_3P.DEBUG_S);
+_TS_Count_S:= ADR(TS_Count.DEBUG_S);
+
+_TS_2p_StartStop:= ADR(TS_2P.DEBUG_SKILL);
+_TS_3p_StartStop:= ADR(TS_3P.DEBUG_SKILL);
+_TS_varP_StartStop:= ADR(TS_varP.DEBUG_SKILL);
+_TS_CountStartStop:= ADR(TS_Count.DEBUG_SKILL);
+
+
+//ROBOT
+R_State:= T_UR.State;
+R_LastTrans:=T_UR.LastTransitionType;
+R_LastTransRes:=T_UR.LastTransitionResult;
+
+//ROBOT TOOL
+RT_State:=T_UR.Tool.State;
+RT_LastTrans:=T_UR.Tool.LastTransitionType;
+RT_LastTransRes:=T_UR.Tool.LastTransitionResult;
+
+//ROBOT COMM
+RC_State:=T_UR.UR_COMM.State;
+RC_LastTrans:=T_UR.UR_COMM.LastTransitionType;
+RC_LastTransRes:=T_UR.UR_COMM.LastTransitionResult;
+
+// -------------- SKILLS --------------------------
+
+TS_Count_State:=TS_Count.State;
+TS_Count_LastTrans:=TS_Count.LastTransitionType;
+TS_Count_LastTransRes:=TS_Count.LastTransitionResult;
+
+TS_varP_State:=TS_varP.State;
+TS_varP_LastTrans:=TS_varP.LastTransitionType;
+TS_varP_LastTransRes:=TS_varP.LastTransitionResult;
+
+
+TS_3p_State:=TS_3P.State;
+TS_3p_LastTrans:=TS_3P.LastTransitionType;
+TS_3p_LastTransRes:=TS_3P.LastTransitionResult;
+
+TS_2p_State:=TS_2P.State;
+TS_2p_LastTrans:=TS_2P.LastTransitionType;
+TS_2p_LastTransRes:=TS_2P.LastTransitionResult;
+
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

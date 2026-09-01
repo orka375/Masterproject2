@@ -466,8 +466,8 @@ bBusy := xInBusy OR _cmdPending OR _motionInProgress OR (NOT xInEOM);
 
 CommunicationReady := _Connected;
 RobotEnabled := _Connected AND xInActivated;
-RobotReady := _Connected AND xInActivated AND xInHomed AND NOT bError AND NOT xInPaused AND NOT xInEStop AND NOT xInPStop2;
-RobotMoving := _motionInProgress OR (_Connected AND xInActivated AND NOT xInEOM);
+IsReady := _Connected AND xInActivated AND xInHomed AND NOT bError AND NOT xInPaused AND NOT xInEStop AND NOT xInPStop2;
+IsMoving := _motionInProgress OR (_Connected AND xInActivated AND NOT xInEOM);
 Busy := bBusy;
 
 ComMachine := TRUE;]]></ST>

@@ -3,8 +3,6 @@
   <POU Name="TEST_Skill_Counter" Id="{9cc805e9-554a-4c3c-ae9d-761e6423e9f0}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK TEST_Skill_Counter EXTENDS FB_1_Skill
 VAR_INPUT
-    bExecute : BOOL;
-    bStop    : BOOL;
     nMax     : UINT := 6;
 END_VAR
 

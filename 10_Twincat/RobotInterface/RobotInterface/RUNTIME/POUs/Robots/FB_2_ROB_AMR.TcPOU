@@ -24,12 +24,12 @@ END_VAR
 
 visStatus.State:=eStatus;
 visStatus.Mode:=eModus;
-visStatus.isMoving:=RobotMoving;
-visStatus.isReady:=RobotReady;
+visStatus.isMoving:=IsMoving;
+visStatus.isReady:=IsReady;
 visStatus.isConnected:=COMM.Connected;
 // 	isLocked: BOOL;
 // visStatus.isBusy:=;
-visStatus.isInCollision:=InCollision;
+visStatus.isInCollision:=IsInCollision;
 visStatus.hasError:=Messenger.HasActivError;
 visStatus.TCPPosition:=ActualTcpPose;
 

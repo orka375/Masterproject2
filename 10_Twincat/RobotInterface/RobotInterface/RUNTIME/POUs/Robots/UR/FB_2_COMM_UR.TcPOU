@@ -4,13 +4,14 @@
     <Declaration><![CDATA[FUNCTION_BLOCK FB_2_COMM_UR EXTENDS FB_1_CommunicationModul
 VAR_INPUT
     Config : stComm_UR_Config;
+    Dashboard : FB_UR_Dashboard;
+    RTDE      : FB_UR_RTDE;
 END_VAR
 VAR_OUTPUT
   
 END_VAR
 VAR
-    Dashboard : FB_UR_Dashboard;
-    RTDE      : FB_UR_RTDE;
+
 
     _DashboardConnected : BOOL;
 
@@ -19,16 +20,7 @@ VAR
     _RTDEStreaming : BOOL;
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[CYCLIC_COMM_UR();]]></ST>
-    </Implementation>
-    <Folder Name="StateControl" Id="{76d61647-738d-4b23-8853-f6e5794603cd}" />
-    <Action Name="CYCLIC_COMM_UR" Id="{e079c791-bd51-481e-8c49-3586c05afcb2}">
-      <Implementation>
-        <ST><![CDATA[ // ==================================================
-// 1. Generic communication state machine
-// ==================================================
-
-CYCLIC_COMM();
+      <ST><![CDATA[CYCLIC_COMM_UR();
 
 
 // ==================================================
@@ -88,6 +80,17 @@ _CommunicationReady :=
 // IF RTDE.bError THEN
 //     Messenger.AddError(...);
 // END_IF]]></ST>
+    </Implementation>
+    <Folder Name="StateControl" Id="{76d61647-738d-4b23-8853-f6e5794603cd}" />
+    <Action Name="CYCLIC_COMM_UR" Id="{e079c791-bd51-481e-8c49-3586c05afcb2}">
+      <Implementation>
+        <ST><![CDATA[ // ==================================================
+// 1. Generic communication state machine
+// ==================================================
+
+CYCLIC_COMM();
+
+]]></ST>
       </Implementation>
     </Action>
     <Method Name="OnActivate" Id="{0ed4d272-2017-43c8-8627-328b7fa74b51}" FolderPath="StateControl\">

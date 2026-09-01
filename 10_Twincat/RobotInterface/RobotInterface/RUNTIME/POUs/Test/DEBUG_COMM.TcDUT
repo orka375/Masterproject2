@@ -3,7 +3,7 @@
   <DUT Name="DEBUG_COMM" Id="{64318b13-80df-4a69-9ce1-f8e5acffed40}">
     <Declaration><![CDATA[TYPE DEBUG_COMM :
 STRUCT
-	bSimConnected: BOOL := TRUE;
+	bSimConnected: BOOL := FALSE;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

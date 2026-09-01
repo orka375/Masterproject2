@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <RecipeManager Name="RecipeManager" Id="{e25b5daa-e80d-422c-af2b-38bffbe61824}">
+    <XmlArchive>
+      <Data>
+        <o xml:space="preserve" t="RecipeManObject">
+          <o n="LMGuids" t="LanguageModelGuidHelper">
+            <d n="NamesAndGuids" t="Hashtable" />
+          </o>
+          <o n="StorageSettings" t="RecipeManagerStorageSettings">
+            <v n="StorageType">1U</v>
+            <v n="LoadType">0U</v>
+            <v n="WriteType">0U</v>
+            <v n="FileExtension">".txtrecipe"</v>
+            <v n="FilePath">""</v>
+            <v n="TokenSeparator">":="</v>
+            <v n="ColumnList">"3|0|1|2"</v>
+            <v n="AutoSaveRecipes">true</v>
+            <v n="CompareRecipes">false</v>
+            <v n="OverwriteOnDownload">true</v>
+          </o>
+          <v n="RecipesInPlc">true</v>
+          <v n="RecipesInPlcAssigned">false</v>
+        </o>
+      </Data>
+      <TypeList>
+        <Type n="Boolean">System.Boolean</Type>
+        <Type n="Hashtable">System.Collections.Hashtable</Type>
+        <Type n="LanguageModelGuidHelper">{3bce4913-f2c1-4b54-84e8-6d7ec1809176}</Type>
+        <Type n="RecipeManagerStorageSettings">{9af4bea6-fc90-45e0-8fd7-eb50506b56da}</Type>
+        <Type n="RecipeManObject">{09ecc42e-586d-4a08-932f-5bdcac20bb55}</Type>
+        <Type n="String">System.String</Type>
+        <Type n="UInt32">System.UInt32</Type>
+      </TypeList>
+    </XmlArchive>
+    <RecipeDefinition Name="Recipe_PickPlace" Id="{68cf4031-404e-4684-b1ec-192b4ea2a0a7}">
+      <XmlArchive>
+        <Data>
+          <o xml:space="preserve" t="RecipeDefinitionObject">
+            <v n="UniqueIdGenerator">"3"</v>
+            <o n="Recipes" t="RecipeList">
+              <l n="Recipes" t="ArrayList" cet="Recipe">
+                <o>
+                  <l n="Values" t="ArrayList" cet="RecipeValue">
+                    <o>
+                      <v n="Type" t="TypeClass">None</v>
+                      <v n="Value">""</v>
+                    </o>
+                  </l>
+                  <v n="Name">"PP1"</v>
+                  <v n="Id">3</v>
+                </o>
+              </l>
+            </o>
+            <o n="RecipeVariables" t="RecipeVariableList">
+              <l n="Variables" t="ArrayList" cet="RecipeVariable">
+                <o>
+                  <v n="VarName">"NewVariable"</v>
+                  <v n="VarType" t="TypeClass">None</v>
+                  <v n="VarTypeAsString">"&lt;Invalid Type&gt;"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">None</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">2</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+              </l>
+            </o>
+            <o n="LMGuids" t="LanguageModelGuidHelper">
+              <d n="NamesAndGuids" t="Hashtable" />
+            </o>
+          </o>
+        </Data>
+        <TypeList>
+          <Type n="ArrayList">System.Collections.ArrayList</Type>
+          <Type n="Hashtable">System.Collections.Hashtable</Type>
+          <Type n="Int32">System.Int32</Type>
+          <Type n="LanguageModelGuidHelper">{3bce4913-f2c1-4b54-84e8-6d7ec1809176}</Type>
+          <Type n="Recipe">{53080c72-c79f-4271-9865-791f591dcef8}</Type>
+          <Type n="RecipeDefinitionObject">{6b3dfb6a-1865-4356-a39b-1fe0ef89651c}</Type>
+          <Type n="RecipeList">{361612e3-b6f9-4397-98a8-756875b9e479}</Type>
+          <Type n="RecipeValue">{57d4d5a5-2244-4adb-b7c3-3e65da497dcc}</Type>
+          <Type n="RecipeVariable">{53eb36d9-3360-453b-901e-ca88bd8f0cba}</Type>
+          <Type n="RecipeVariableBoundaries">{27f9af88-23e7-4a13-82aa-c97c4e06a71a}</Type>
+          <Type n="RecipeVariableList">{97841042-ff4f-47b5-923e-538f1387df5a}</Type>
+          <Type n="String">System.String</Type>
+          <Type n="TypeClass">{16f7aa24-038f-444e-9d81-b001bc091d35}</Type>
+        </TypeList>
+      </XmlArchive>
+    </RecipeDefinition>
+  </RecipeManager>
+</TcPlcObject>

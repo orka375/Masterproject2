@@ -213,7 +213,7 @@
     <Compile Include="POUs\Robots\UR\FB_UR_RTDE.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Robots\UR\ROBOT_UR5.TcPOU">
+    <Compile Include="POUs\Robots\UR\ROBOT_UR.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Skills\FB_1_Skill.TcPOU">
@@ -246,7 +246,7 @@
     <Compile Include="POUs\Test\DEBUG_STATE.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Test\TEST.TcPOU">
+    <Compile Include="POUs\Test\TEST1.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Test\TESTSETUP.TcGVL">
@@ -258,7 +258,16 @@
     <Compile Include="POUs\Test\TEST_Skill.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Test\TEST_Skill_2Points.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Test\TEST_Skill_varP.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Test\TEST_Skill_Counter.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Test\TEST_Skill_3Points.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Tools\FB_1_Tool.TcPOU">
@@ -267,8 +276,16 @@
     <Compile Include="POUs\_TODO.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="RecipeManager.TcRMO">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <PlaceholderReference Include="RecipeManagement">
+      <DefaultResolution>Recipe Management, 3.3.1.0 (System)</DefaultResolution>
+      <Namespace>Recipe_Management</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+    </PlaceholderReference>
     <PlaceholderReference Include="Tc2_OpcUa">
       <DefaultResolution>Tc2_OpcUa, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_OpcUa</Namespace>
@@ -355,6 +372,12 @@
         <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
         <o>
           <v n="Name">"{192FAD59-8248-4824-A8DE-9177C94C195A}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{246001F4-279D-43AC-B241-948EB31120E1}</v>
+        <o>
+          <v n="Name">"{246001F4-279D-43AC-B241-948EB31120E1}"</v>
           <d n="SubKeys" t="Hashtable" />
           <d n="Values" t="Hashtable" />
         </o>

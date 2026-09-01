@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ROBOT_UR" Id="{7138b06d-6984-4953-8124-68042278758b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ROBOT_UR EXTENDS FB_2_ROB_MANIP 
+
+VAR_INPUT
+    sRobotIp          : T_IPv4Addr := '192.168.250.2';
+END_VAR
+  
+  
+VAR_OUTPUT
+	UR_COMM       : FB_2_COMM_UR;
+
+
+END_VAR
+
+VAR
+
+END_VAR
+
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[UR_COMM.Config.sIpAddress:=sRobotIp;
+UR_COMM();
+
+
+COMM:= ADR(UR_COMM); 		// IMPORTANT USER NEEDS TO MAKE THIS TODO
+
+CYCLIC_MANIP();
+
+]]></ST>
+    </Implementation>
+    <Method Name="BA_Handler" Id="{d7ca35aa-fd04-4db2-bc8f-94c9161e0ebc}">
+      <Declaration><![CDATA[{warning 'Override with your own Method in final FB'}
+METHOD BA_Handler : eResult
+VAR_INPUT
+	Cmd: eBA;
+	Settings: stBA_Settings;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

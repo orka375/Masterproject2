@@ -118,24 +118,7 @@ _tonReconnectDelay(
 );
 
 
-// --------------------------------------------------
-// Simulation
-// --------------------------------------------------
 
-IF DEBUG_COMM.bSimConnected THEN
-
-    // Never open real communication in simulation.
-    bRequestConnection := FALSE;
-
-    IF _ConnectionRequested THEN
-        _eCommState := E_CommState.eConnected;
-    ELSE
-        _eCommState := E_CommState.eDisconnected;
-    END_IF
-
-    RETURN;
-
-END_IF
 
 
 // --------------------------------------------------

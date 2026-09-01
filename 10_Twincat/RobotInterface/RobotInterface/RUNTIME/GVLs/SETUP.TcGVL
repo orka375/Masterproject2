@@ -5,6 +5,7 @@
 VAR_GLOBAL CONSTANT
 	MaxNrofMessages: UINT:= 30;
 	emptySkill : FB_1_Skill; //emptySkill
+	emptyCOMM: FB_1_CommunicationModul;
 END_VAR
 // 
 // 

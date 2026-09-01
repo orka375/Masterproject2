@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TEST_Skill_3Points" Id="{1042addf-5f8c-49e8-9db2-1d42e5c7b0b4}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK TEST_Skill_3Points EXTENDS FB_1_Skill
+VAR_INPUT
+	pUR		: POINTER TO ROBOT_UR;
+	PathOfURP	: STRING := '/FNA/skill_3p.urp';
+
+END_VAR
+
+VAR_OUTPUT
+
+END_VAR
+
+VAR
+
+    fbExecute   : R_TRIG;
+    sLogMessage : STRING(255);
+	phase: INT := 0;
+	WaitTimer: TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Detect start command
+fbExecute(CLK := bExecute);
+
+
+// Start / restart
+IF fbExecute.Q THEN
+	bExecute:=FALSE;
+    Busy := TRUE;
+    ExecutionDone:=FALSE;
+	ExecutionResult:= NONE;
+END_IF
+
+
+
+
+// Stop immediately
+IF bStop THEN
+    bBusy := FALSE;
+    ExecutionDone:=TRUE;
+	ExecutionResult:= FAILURE;
+	phase:=0;
+	
+	pUR^.UR_COMM.Dashboard.Stop();
+	bStop:=FALSE;
+ELSE
+
+    IF bBusy THEN
+		IF phase=0 THEN
+			pUR^.UR_COMM.Dashboard.LoadProgram(sPath:=PathOfURP);
+// 			pUR^.UR_COMM.Dashboard.GetLoadedProgram();
+			phase:=1;
+		END_IF
+		
+		IF phase=1 THEN
+			IF pUR^.UR_COMM.Dashboard.LastResponseIncludes('Loading') THEN
+				phase:=2;
+			ELSE 
+				pUR^.UR_COMM.Dashboard.GetLoadedProgram();
+				phase:=44;
+			END_IF
+		END_IF
+		
+		IF phase=44 THEN
+			IF pUR^.UR_COMM.Dashboard.LastResponseIncludes(PathOfURP) THEN
+				phase:=2;
+			ELSE
+				phase:=0;
+			END_IF
+		END_IF
+		
+		IF phase=2 THEN
+			pUR^.UR_COMM.Dashboard.Play();
+			phase:=3;
+		END_IF
+		
+		IF phase=3 THEN
+			IF pUR^.UR_COMM.Dashboard.LastResponseIncludes('Starting') THEN
+				bExecute:=FALSE;
+				phase:=4;
+			ELSE
+				phase:=2;
+			END_IF
+		END_IF
+		
+		IF phase=4 THEN
+			WaitTimer(IN:=TRUE,PT:=T#2S);
+			IF WaitTimer.Q THEN
+				phase:=5;
+				WaitTimer(IN:=FALSE);
+			END_IF
+		END_IF
+		
+		IF phase=5 THEN			
+			pUR^.UR_COMM.Dashboard.ProgramState();
+			IF pUR^.UR_COMM.Dashboard.LastResponseIncludes('STOPPED') THEN //Skill is finished
+				bExecute:=FALSE;
+				ExecutionDone:=TRUE;
+				ExecutionResult:= SUCCESS;
+				bBusy:=FALSE;
+				phase:=0;
+			END_IF
+		END_IF
+    END_IF
+END_IF]]></ST>
+    </Implementation>
+    <Folder Name="Internal" Id="{9a34602c-e0e0-4015-af38-b880dc5e747d}" />
+    <Method Name="_M_Start" Id="{a8c83ed0-37d2-48e9-b3ac-33bc02f8dfbc}" FolderPath="Internal\">
+      <Declaration><![CDATA[METHOD INTERNAL _M_Start : eResult
+
+VAR
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// !! THESE AREN'T THE METHODS YOU CALL TO START/STOP THE SKILL //
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+bExecute:=TRUE;
+
+
+// ----- END YOUR CODE -----------------------------
+ExecutionDone:=FALSE;		//IMPORTANT
+ExecutionResult:=NONE;		//IMPORTANT
+_M_Start:=SUCCESS;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_M_Stop" Id="{76f55033-7f37-409f-9377-0b1812d3eaf8}" FolderPath="Internal\">
+      <Declaration><![CDATA[METHOD INTERNAL _M_Stop : eResult
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// !! THESE AREN'T THE METHODS YOU CALL TO START/STOP THE SKILL //
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+bStop:=TRUE;
+
+// ----- END YOUR CODE -----------------------------
+_M_Stop:=SUCCESS;
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

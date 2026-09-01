@@ -5,8 +5,10 @@
 // IMPLEMENTS ITF_1_Skill
 VAR_INPUT
 	DEBUG_SKILL: DEBUG_SKILL;
-	pROB: POINTER TO FB_1_ROB;
+	pOwner: POINTER TO FB_0_BASE;
 	_runExternal : BOOL := FALSE;
+	bExecute : BOOL;
+    bStop    : BOOL;
 END_VAR
 
 VAR_INPUT
@@ -114,7 +116,7 @@ CASE State OF
 				Deactivate();
 			END_IF
 		ELSE
-			IF ExecutionDone THEN
+			IF ExecutionDone AND NOT Busy THEN
 				Deactivate();	
 			END_IF
 		END_IF
@@ -144,7 +146,7 @@ END_VAR]]></Declaration>
         <ST><![CDATA[
 
 
-pROB^.ActivSkill:= THIS;
+pOwner^.ActivSkill:= THIS;
 
 IF State = eState.Unconfigured THEN
 	Configure();
@@ -314,7 +316,7 @@ ELSE
 END_IF
 
 
-IF pROB^.State <>eState.Active AND pROB^.State <>eState.Activating  THEN
+IF pOwner^.State <>eState.Active AND pOwner^.State <>eState.Activating  THEN
 	MEssenger.AddWarn(eMessageCategories.StateMachine,Path,'On_XX not possible because _owner/pRob is not ready');
 	myResult:=FAILURE;
 END_IF
@@ -374,7 +376,7 @@ myResult:=NONE;
 
 myResult:=SUCCESS;
 
-IF pROB^.State <>eState.Inactive AND pROB^.State <>eState.Configuring  THEN
+IF pOwner^.State <>eState.Inactive AND pOwner^.State <>eState.Configuring  THEN
 	MEssenger.AddWarn(eMessageCategories.StateMachine,Path,'On_XX not possible because _owner/pRob is not ready');
 	myResult:=None;
 END_IF
@@ -512,7 +514,7 @@ VAR
 	i: INT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[pROB^.ActivSkill:= 0;
+        <ST><![CDATA[pOwner^.ActivSkill:= 0;
 
 IF State = eState.Active THEN
 	Deactivate();

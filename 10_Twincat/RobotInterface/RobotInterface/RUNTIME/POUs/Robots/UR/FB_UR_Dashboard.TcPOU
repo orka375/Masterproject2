@@ -11,7 +11,7 @@ VAR_INPUT
 
     (* Dashboard commands - rising edge triggers one command *)
     bLoadProgram          : BOOL;
-    sProgramPath          : STRING(255);
+    sProgramPath          : STRING(255) := '/FNA/skill_3p.urp';
 
     bPlay                 : BOOL;
     bStop                 : BOOL;
@@ -515,6 +515,31 @@ END_IF]]></ST>
 );]]></ST>
       </Implementation>
     </Method>
+    <Property Name="LastResponse" Id="{18ea81e5-8ea1-4170-9f6f-c6af1ee83ab0}">
+      <Declaration><![CDATA[PROPERTY LastResponse : STRING(1023)]]></Declaration>
+      <Get Name="Get" Id="{384ed8e0-9872-4770-9d1d-5461a45a838d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[LastResponse:=sLastResponse;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="LastResponseIncludes" Id="{2d94ffe6-dee2-4976-9140-e415790175de}">
+      <Declaration><![CDATA[METHOD LastResponseIncludes : BOOL
+VAR_INPUT
+	str: STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF FIND(sLastResponse,str) >0 THEN
+	LastResponseIncludes:=TRUE;
+ELSE
+	LastResponseIncludes:=FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="LoadInstallation" Id="{13d2b7d2-2cc4-4f2d-a875-eda5debde05d}">
       <Declaration><![CDATA[METHOD PUBLIC LoadInstallation : BOOL
 VAR_INPUT
@@ -536,7 +561,10 @@ END_VAR]]></Declaration>
         <ST><![CDATA[LoadProgram := QueueCommand(
     sCmd := CONCAT('load ', sPath),
     tWait := tResponseTimeout
-);]]></ST>
+);
+
+// sProgramPath:= sPath;
+// bLoadProgram:=TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="Pause" Id="{bbedd31c-4125-403c-b56e-e699cb47fdff}">
@@ -647,6 +675,13 @@ END_VAR]]></Declaration>
     sCmd := 'shutdown',
     tWait := tResponseTimeout
 );]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Stop" Id="{80677361-ea93-4a4e-a055-13a170015168}">
+      <Declaration><![CDATA[METHOD PUBLIC Stop : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Stop := QueueCommand(sCmd := 'stop', tWait := tResponseTimeout);]]></ST>
       </Implementation>
     </Method>
     <Method Name="StopProgram" Id="{306c54d8-d71e-4a1a-a0dc-b64ff8a9ea88}">

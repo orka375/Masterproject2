@@ -584,53 +584,6 @@ END_VAR
 _manualResetCalled:=FALSE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnShutdown" Id="{baf0cda2-305c-4fe2-9dcb-4d0d08ee6a48}" FolderPath="StateControl\">
-      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
-VAR_INPUT
-END_VAR
-
-VAR
-	myResult: eResult;
-	noskill: BOOL;
-	notready: BOOL;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[
-//--------------------------------------------------
-myResult:=NONE;
-// ----- YOUR CODE HERE (incl. Alarms) -------------
-
-notready:=FALSE;
-FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
-	IF pA_Skills[j]<>0 THEN
-		IF pA_Skills[j]^.State <> eState.ErrorProcessing THEN
-			pA_Skills[j]^.Shutdown();
-		ELSE
-			Messenger.AddWarn(eMessageCategories.StateMachine,Path,'OnShutdown failed, too is errorprocessing');
-			myResult:=FAILURE;
-		END_IF
-	
-		IF pA_Skills[j]^.LastSuccessfullState <> eState.ShuttingDown  THEN
-				notready:=TRUE;
-			
-		END_IF
-	END_IF
-END_FOR
-
-IF NOT notready THEN
-	myResult:=SUCCESS;
-END_IF
-
-
-
-
-// ----- END YOUR CODE -----------------------------
-//--------------------------------------------------
-OnShutdown := myResult;
-
-]]></ST>
-      </Implementation>
-    </Method>
     <Property Name="Path" Id="{459f7f21-cbfe-4701-91b3-a410fc19512e}">
       <Declaration><![CDATA[PROPERTY Path : STRING
 ]]></Declaration>

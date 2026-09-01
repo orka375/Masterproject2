@@ -205,15 +205,6 @@ manz:=0;
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="GetActivError" Id="{17a1758b-7485-4ce4-83aa-f16fb7ee4cb5}">
-      <Declaration><![CDATA[METHOD GetActivError : POINTER TO MessageDescription
-VAR_INPUT
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="GetLatestMessage" Id="{c0703a3a-c079-4dd6-8b67-7359a7b29171}">
       <Declaration><![CDATA[METHOD GetLatestMessage : POINTER TO MessageDescription
 VAR_INPUT
@@ -235,16 +226,6 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Action Name="NextMsg" Id="{b95c2674-49f7-4d97-9f4a-d84c08ec2b90}">
-      <Implementation>
-        <ST><![CDATA[IF IndexShownM<manz THEN
-	IndexShownM := IndexShownM +1;
-ELSE
-	IndexShownM := 1;
-END_IF
-]]></ST>
-      </Implementation>
-    </Action>
     <Property Name="PointerActivError" Id="{b8a52c53-ed23-425b-afa5-93be5f1426ec}">
       <Declaration><![CDATA[PROPERTY PointerActivError : POINTER TO MessageDescription]]></Declaration>
       <Get Name="Get" Id="{54390850-3822-4632-bc68-d81277c73a66}">
@@ -256,19 +237,6 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Action Name="PrevError" Id="{41490f66-6df5-4a2e-bc70-d41c0c396599}">
-      <Implementation>
-        <ST><![CDATA[IF IndexShownM <> 1 THEN
-	IndexShownM := IndexShownM-1;
-ELSE
-	IF manz=0 THEN
-		IndexShownM:= 1;
-	ELSE
-		IndexShownM :=manz;
-	END_IF
-END_IF]]></ST>
-      </Implementation>
-    </Action>
     <Method Name="Quittieren" Id="{138369ab-7406-4bc4-91c8-b967f18451de}">
       <Declaration><![CDATA[METHOD Quittieren : BOOL
 VAR_INPUT

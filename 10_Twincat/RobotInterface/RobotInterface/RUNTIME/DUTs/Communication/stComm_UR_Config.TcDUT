@@ -3,7 +3,7 @@
   <DUT Name="stComm_UR_Config" Id="{30496dbe-ef77-43fa-a92a-f084f7770640}">
     <Declaration><![CDATA[TYPE stComm_UR_Config :
 STRUCT
-    sIpAddress : T_IPv4Addr := '192.168.0.10';
+    sIpAddress : T_IPv4Addr := '192.168.250.2';
     nPort : UINT := 7171;
 	sUsername: STRING(128):= '';
     sPassword : STRING(128) := '';

@@ -11,8 +11,10 @@ END_VAR
 {attribute 'global_init_slot' := '40600'} //https://infosys.beckhoff.com/index.php?content=../content/1031/tc3_plc_intro/2529649291.html&id=
 //Skills
 VAR_GLOBAL
-	TS1: TEST_Skill_Counter := (nMax:=5);
-	TS2: TEST_Skill_Counter := (nMax:=7);
+	TS_Count: TEST_Skill_Counter := (nMax:=5);
+	TS_3P: TEST_Skill_3Points;
+	TS_2P: TEST_Skill_2Points;
+	TS_varP: TEST_Skill_varP;
 
 END_VAR
 
@@ -23,8 +25,8 @@ END_VAR
 VAR_GLOBAL
 
 
-	TR: TEST_ROBOT :=(
-		pA_Skills:= [ADR(TS1),ADR(TS2)]
+	T_UR: ROBOT_UR :=(
+		pA_Skills:= [ADR(TS_Count),ADR(TS_3P),ADR(TS_2P),ADR(TS_varP)]
 	);
 	
 
