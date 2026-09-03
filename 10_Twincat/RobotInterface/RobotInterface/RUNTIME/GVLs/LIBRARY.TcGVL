@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <GVL Name="LIBRARY" Id="{81dfd880-4bdc-475a-8ac4-f0bc27508dae}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL
+	Param_PickPlace: stParam_PickPlace;
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

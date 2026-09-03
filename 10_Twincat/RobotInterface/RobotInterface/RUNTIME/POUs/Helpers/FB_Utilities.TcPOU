@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_Utilities" Id="{dbb2bae3-284e-404d-8af4-4033a808f2cd}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Utilities
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="CombineResults" Id="{49654499-5a32-4770-953e-524c6c42196d}">
+      <Declaration><![CDATA[METHOD CombineResults : eResult
+VAR_INPUT
+	r1,r2: eResult := NONE;
+	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Precedence: ERROR > FAILURE > SUCCESS > NONE (an ERROR must never be swallowed).
+IF r1 = ERROR OR r2 = ERROR THEN
+	CombineResults := ERROR;
+ELSIF r1 = FAILURE OR r2 = FAILURE THEN
+	CombineResults := FAILURE;
+ELSIF r1 = SUCCESS AND r2 = SUCCESS THEN
+	CombineResults := SUCCESS;
+ELSE
+	CombineResults := NONE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ProposeHealth" Id="{7aa2f37d-3bc5-465a-8b0b-206f6885d607}">
+      <Declaration><![CDATA[// Returns the worse of two health levels (by severity rank, not raw enum value).
+METHOD ProposeHealth : eHealth
+VAR_INPUT
+	current  : eHealth;
+	proposed : eHealth;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF HealthRank(proposed) < HealthRank(current) THEN
+	ProposeHealth := proposed;
+ELSE
+	ProposeHealth := current;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HealthRank" Id="{7aa2f37d-3bc5-465a-8b0b-206f6885d608}">
+      <Declaration><![CDATA[// Severity order (worst -> best): Dead < Offline < Sick < Unkown < Healty.
+METHOD HealthRank : INT
+VAR_INPUT
+	H : eHealth;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE H OF
+	eHealth.Dead:    HealthRank := 0;
+	eHealth.Offline: HealthRank := 1;
+	eHealth.Sick:    HealthRank := 2;
+	eHealth.Unkown:  HealthRank := 3;
+	eHealth.Healty:  HealthRank := 4;
+ELSE
+	HealthRank := 3;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

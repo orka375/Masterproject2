@@ -1,0 +1,20 @@
+# Visual Studio
+.vs/
+
+Packages/
+# TwinCAT temporary files
+*.bak
+*.~u
+
+# Build output
+*.compiled-library-ge33
+
+# User-specific files
+*.suo
+
+# ROS 2 build files
+20_ROS/build/
+20_ROS/install/
+20_ROS/log/
+
+postgres_data/

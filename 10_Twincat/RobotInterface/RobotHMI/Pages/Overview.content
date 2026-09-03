@@ -1,0 +1,52 @@
+<div id="Overview" data-tchmi-type="TcHmi.Controls.System.TcHmiContent" data-tchmi-top="0" data-tchmi-left="0" data-tchmi-width="100" data-tchmi-height="100" data-tchmi-width-unit="%" data-tchmi-height-unit="%">
+  <!-- Cell overview: one reusable card per robot (data-robot-index pins each card). -->
+  <div id="OV_Host" data-tchmi-type="TcHmi.Controls.System.TcHmiContainer" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0">
+  <div class="ov-root">
+    <div class="ov-title">CELL OVERVIEW</div>
+
+    <div class="ov-cards">
+
+      <!-- ROBOT 1 -->
+      <div class="robot-card robot-panel">
+        <div class="robot-card-name" data-robot-name data-robot-index="1">UR5-01</div>
+        <div class="robot-card-rows">
+          <div class="ov-row"><span class="rm-lbl">Ready</span><span data-robot-index="1" data-robot-bind="HMI_ROB.bReady" data-robot-format="bool" data-robot-status="ok">--</span></div>
+          <div class="ov-row"><span class="rm-lbl">Mode</span><span data-robot-index="1" data-robot-bind="HMI_ROB.eModus" data-robot-format="mode">--</span></div>
+          <div class="ov-row"><span class="rm-lbl">Moving</span><span data-robot-index="1" data-robot-bind="HMI_ROB.bMoving" data-robot-format="bool" data-robot-status="warn">--</span></div>
+          <div class="ov-row"><span class="rm-lbl">E-Stop</span><span data-robot-index="1" data-robot-bind="HMI_ROB.bEStop" data-robot-format="bool" data-robot-status="fault">--</span></div>
+          <div class="ov-row"><span class="rm-lbl">Collision</span><span data-robot-index="1" data-robot-bind="HMI_ROB.bInCollision" data-robot-format="bool" data-robot-status="fault">--</span></div>
+          <div class="ov-row"><span class="rm-lbl">Speed</span><span data-robot-index="1" data-robot-bind="HMI_ROB._speedOverride" data-robot-format="raw">--</span></div>
+          <div class="ov-row"><span class="rm-lbl">Skill</span><span>PickPlace</span></div>
+          <div class="ov-row"><span class="rm-lbl">State</span><span data-skill-index="1" data-skill-bind="HMI_BASE.eStatus" data-skill-format="state">--</span></div>
+        </div>
+        <button type="button" class="jog-btn ov-open" data-robot-open="1">OPEN</button>
+      </div>
+
+      <!-- ROBOT 2 -->
+      <div class="robot-card robot-panel">
+        <div class="robot-card-name" data-robot-name data-robot-index="2">UR5-02</div>
+        <div class="robot-card-rows">
+          <div class="ov-row"><span class="rm-lbl">Ready</span><span data-robot-index="2" data-robot-bind="HMI_ROB.bReady" data-robot-format="bool" data-robot-status="ok">--</span></div>
+          <div class="ov-row"><span class="rm-lbl">Mode</span><span data-robot-index="2" data-robot-bind="HMI_ROB.eModus" data-robot-format="mode">--</span></div>
+          <div class="ov-row"><span class="rm-lbl">Moving</span><span data-robot-index="2" data-robot-bind="HMI_ROB.bMoving" data-robot-format="bool" data-robot-status="warn">--</span></div>
+          <div class="ov-row"><span class="rm-lbl">E-Stop</span><span data-robot-index="2" data-robot-bind="HMI_ROB.bEStop" data-robot-format="bool" data-robot-status="fault">--</span></div>
+          <div class="ov-row"><span class="rm-lbl">Collision</span><span data-robot-index="2" data-robot-bind="HMI_ROB.bInCollision" data-robot-format="bool" data-robot-status="fault">--</span></div>
+          <div class="ov-row"><span class="rm-lbl">Speed</span><span data-robot-index="2" data-robot-bind="HMI_ROB._speedOverride" data-robot-format="raw">--</span></div>
+          <div class="ov-row"><span class="rm-lbl">Skill</span><span>PickPlace</span></div>
+          <div class="ov-row"><span class="rm-lbl">State</span><span data-skill-index="2" data-skill-bind="HMI_BASE.eStatus" data-skill-format="state">--</span></div>
+        </div>
+        <button type="button" class="jog-btn ov-open" data-robot-open="2">OPEN</button>
+      </div>
+
+    </div>
+
+    <!-- CELL STATUS -->
+    <div class="ov-cell robot-panel-dark">
+      <span class="robot-section-title" style="color:#f2f4f6;">CELL STATUS</span>
+      <span class="rm-stat"><span class="rm-lbl">Comm connected</span><span data-robot-bind="PLC1.GVL_Cell.Comm._CommunicationConnected" data-robot-format="bool" data-robot-status="ok">--</span></span>
+      <span class="rm-stat"><span class="rm-lbl">Comm ready</span><span data-robot-bind="PLC1.GVL_Cell.Comm._CommunicationReady" data-robot-format="bool" data-robot-status="ok">--</span></span>
+    </div>
+
+  </div>
+  </div>
+</div>

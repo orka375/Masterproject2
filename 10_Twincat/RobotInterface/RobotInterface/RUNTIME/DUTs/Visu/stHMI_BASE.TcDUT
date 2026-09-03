@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stHMI_BASE" Id="{31768795-ce0c-4443-941b-5472a553dd53}">
+    <Declaration><![CDATA[TYPE stHMI_BASE :
+STRUCT
+	sInstanceName: STRING;
+	eStatus: eState :=eState.Unconfigured;
+	MyHealth: eHealth := eHealth.Unkown;
+	bBusy : BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

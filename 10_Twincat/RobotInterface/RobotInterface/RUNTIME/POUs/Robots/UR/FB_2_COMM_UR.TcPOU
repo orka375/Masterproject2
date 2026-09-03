@@ -1,0 +1,298 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_2_COMM_UR" Id="{e695efdc-e187-4f84-8c3d-4878e12ff71c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_2_COMM_UR EXTENDS FB_1_CommunicationModul
+VAR_INPUT
+    Config : stComm_UR_Config;
+    Dashboard : FB_UR_Dashboard;
+    Script    : FB_UR_Script;
+    RTDE      : FB_UR_RTDE;
+END_VAR
+VAR_OUTPUT
+  
+END_VAR
+VAR
+
+
+    _DashboardConnected : BOOL;
+    _ScriptReady        : BOOL;
+
+    _RTDEConnected : BOOL;
+    _RTDEReady     : BOOL;
+    _RTDEStreaming : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CYCLIC_COMM_UR();
+
+
+// ==================================================
+// 2. UR Dashboard :29999
+// ==================================================
+
+Dashboard(
+    sRobotIP         := Config.sIpAddress,
+    tResponseTimeout := Config.tTimeout,
+    bConnect         := bRequestConnection,
+
+    bConnected       => _DashboardConnected
+);
+
+
+// ==================================================
+// 3. URScript Secondary interface :30002
+//    The FB connects only while submitting a script.
+// ==================================================
+
+Script(
+    sRobotIP := Config.sIpAddress,
+    bEnable  := bRequestConnection
+);
+
+_ScriptReady := bRequestConnection AND NOT Script.bError;
+
+
+// ==================================================
+// 4. UR RTDE :30004
+// ==================================================
+
+RTDE(
+    sRobotIP   := Config.sIpAddress,
+    bEnable    := bRequestConnection,
+    fFrequency := 10.0,
+
+    bConnected => _RTDEConnected,
+    bReady     => _RTDEReady,
+    bStreaming => _RTDEStreaming
+);
+
+
+// ==================================================
+// 5. Generate feedback for FB_1
+// ==================================================
+
+HMI_COMM._CommunicationConnected :=
+    _DashboardConnected
+    AND _RTDEConnected;
+
+
+HMI_COMM._CommunicationReady :=
+    _DashboardConnected
+    AND _RTDEConnected
+    AND _RTDEReady
+    AND _RTDEStreaming;
+
+
+// ==================================================
+// 6. Communication diagnostics
+// ==================================================
+
+// Interface diagnostics are owned here (the UR comm component). De-dup + Clear
+// give a self-healing lifecycle: a message clears when the interface recovers.
+IF Dashboard.bError THEN
+    Messenger.AddError(eMessageCategories.HardwareFailure, Name, 'UR Dashboard interface error');
+ELSE
+    Messenger.Clear(Name, 'UR Dashboard interface error');
+END_IF
+
+IF Script.bError THEN
+    Messenger.AddError(eMessageCategories.HardwareFailure, Name, 'UR Script interface error');
+ELSE
+    Messenger.Clear(Name, 'UR Script interface error');
+END_IF
+
+IF RTDE.bError THEN
+    Messenger.AddError(eMessageCategories.HardwareFailure, Name, 'UR RTDE interface error');
+ELSE
+    Messenger.Clear(Name, 'UR RTDE interface error');
+END_IF]]></ST>
+    </Implementation>
+    <Folder Name="StateControl" Id="{76d61647-738d-4b23-8853-f6e5794603cd}" />
+    <Action Name="CYCLIC_COMM_UR" Id="{e079c791-bd51-481e-8c49-3586c05afcb2}">
+      <Implementation>
+        <ST><![CDATA[ // ==================================================
+// 1. Generic communication state machine
+// ==================================================
+
+CYCLIC_COMM();
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="OnActivate" Id="{0ed4d272-2017-43c8-8627-328b7fa74b51}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnActivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnActivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCleanup" Id="{67356389-b773-4afe-aa41-40842006ed91}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnCleanup();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnCleanup := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnConfigure" Id="{fe1e62cc-b3f4-4da7-9fa1-851d69b6c7d8}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnConfigure();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+IF (LEN(Config.sIpAddress) = 0) THEN
+    Messenger.AddError(eMessageCategories.Undefined, sSender := Name, sMessage := 'TCP/IP configuration is invalid');
+      myResult := ERROR;
+ELSE
+      myResult := SUCCESS;
+END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnConfigure := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{98b9db24-dd3c-4d2b-a2df-a4c02bc21178}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnDeactivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{cbca3eb3-1f59-4132-8cb6-1ba90593b065}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnError();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnError := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnShutdown" Id="{f085909e-b37c-4b4c-a9a3-f41132b1f91f}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+
+
+IF Connected THEN
+	Disconnect();
+	myResult := None;
+ELSE
+	myResult := SUCCESS;
+END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnShutdown := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

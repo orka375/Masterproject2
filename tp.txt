@@ -1,0 +1,8 @@
+target_pose = p[
+    read_input_float_register(24),
+    read_input_float_register(25),
+    read_input_float_register(26),
+    read_input_float_register(27),
+    read_input_float_register(28),
+    read_input_float_register(29)
+]

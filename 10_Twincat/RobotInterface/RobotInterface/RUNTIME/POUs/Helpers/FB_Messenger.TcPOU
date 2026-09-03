@@ -1,0 +1,410 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_Messenger" Id="{83b10ff9-5df7-47f5-bb58-80d01c25214b}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'hide_all_locals'}
+FUNCTION_BLOCK FB_Messenger
+VAR_INPUT
+	bExecuteQuittieren: BOOL;
+END_VAR
+VAR_OUTPUT
+	xMyTime		: TIME;
+
+	HMI_MESSENGER: stHMI_MESSENGER;
+END_VAR
+VAR
+	sMyTime		: STRING;
+	
+	MList	: ARRAY [1..SETUP.MaxNrOfMessages] OF MessageDescription;
+	emptyMsg: MessageDescription;
+	
+	IndexShownM 	: INT := 0;
+	
+	
+	
+	fbTime   	: FB_LocalSystemTime:=(bEnable:=TRUE, dwCycle:=1);
+	i: INT;
+// 	unread: BOOL;
+	_unreadError: BOOL;
+	nactivErrorIndex: INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fbTime();
+IF fbTime.bValid THEN
+	sMyTime := SYSTEMTIME_TO_STRING(fbTime.systemTime);
+	xMyTime:= DINT_TO_TIME(
+		WORD_TO_DINT(fbTime.systemTime.wHour) * 3600000 +
+		WORD_TO_DINT(fbTime.systemTime.wMinute) * 60000 +
+		WORD_TO_DINT(fbTime.systemTime.wSecond) * 1000 +
+    	WORD_TO_DINT(fbTime.systemTime.wMilliseconds));
+END_IF
+
+
+
+// Carousel through the currently active messages for the single-line HMI display.
+IF HMI_MESSENGER.MsgCount > 0 THEN
+	IndexShownM := IndexShownM + 1;
+	IF IndexShownM > HMI_MESSENGER.MsgCount THEN
+		IndexShownM := 1;
+	END_IF
+ELSE
+	IndexShownM := 0;
+END_IF
+
+// Reporting layer: surface the first unacknowledged error + whether any warning is live. Detection stays in the components.
+HMI_MESSENGER.bErrorActiv := FALSE;
+HMI_MESSENGER.bWarnActiv := FALSE;
+nactivErrorIndex := 0;
+FOR i := 1 TO HMI_MESSENGER.MsgCount DO
+	IF NOT MList[i].bQuit THEN
+		IF MList[i].Severity = eSeverity.Error OR MList[i].Severity = eSeverity.Critical THEN
+			IF NOT HMI_MESSENGER.bErrorActiv THEN
+				HMI_MESSENGER.bErrorActiv := TRUE;
+				HMI_MESSENGER.activError := ADR(MList[i]);
+				nactivErrorIndex := i;
+			END_IF
+		ELSIF MList[i].Severity = eSeverity.Warning THEN
+			HMI_MESSENGER.bWarnActiv := TRUE;
+		END_IF
+	END_IF
+END_FOR
+
+IF HMI_MESSENGER.MsgCount > 0 AND IndexShownM >= 1 THEN
+	HMI_MESSENGER.currentMsg := ADR(MList[IndexShownM]);
+ELSE
+	HMI_MESSENGER.currentMsg := ADR(emptyMsg);
+END_IF
+
+IF bExecuteQuittieren THEN
+	bExecuteQuittieren := FALSE;
+	IF nactivErrorIndex >= 1 THEN
+		Quittieren(nactivErrorIndex);
+	END_IF
+END_IF
+]]></ST>
+    </Implementation>
+    <Method Name="AddError" Id="{037ddfe7-b312-4cbd-8fc4-eb84b0d4e5f3}">
+      <Declaration><![CDATA[METHOD AddError : MessageDescription
+VAR_INPUT
+	Category: eMessageCategories;
+	sSender: STRING;
+	sMessage: STRING := '';
+END_VAR
+
+VAR
+	rng : DRAND;         // Random number generator function block
+    seed : INT := 12345;    // Seed value (can also be set using system time)
+    randomValue : LINT;        // Output random integer
+	index: INT;
+	ss: STRING(255);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// De-duplicate: refresh an identical live message instead of appending (safe for cyclic callers).
+index := FindActive(sSender, sMessage, eSeverity.Error);
+IF index = 0 THEN
+	IF HMI_MESSENGER.MsgCount >= SETUP.MaxNrOfMessages THEN
+		// Buffer full: drop message to avoid MList overrun. Clear via ClearMsgs/Clear.
+		RETURN;
+	END_IF
+	index := HMI_MESSENGER.MsgCount + 1;
+	HMI_MESSENGER.MsgCount := index;
+
+	MList[index].bQuit := FALSE;
+	MList[index].Severity := eSeverity.Error;
+	MList[index].Category := Category;
+	MList[index].sSender := sSender;
+	MList[index].sMessage := sMessage;
+	MList[index].ID := ComputeId(sSender, sMessage, eSeverity.Error);
+
+	ss := CONCAT(sMessage, ' : %s');
+	ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_ERROR, msgFmtStr := ss, strArg := sSender);
+END_IF
+
+MList[index].tTime := DT_TO_TIME(SYSTEMTIME_TO_DT(fbTime.systemTime));
+AddError := MList[index];]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AddHint" Id="{8902f9a6-54f8-4c1a-a645-2f7e5ef010fc}">
+      <Declaration><![CDATA[METHOD AddHint : MessageDescription
+VAR_INPUT
+	Category: eMessageCategories;
+	sSender: STRING;
+	sMessage: STRING := '';
+END_VAR
+
+VAR
+	rng : DRAND;         // Random number generator function block
+    seed : INT := 12345;    // Seed value (can also be set using system time)
+    randomValue : LINT;        // Output random integer
+	index: INT;
+	ss: Tc2_System.T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// De-duplicate: refresh an identical live message instead of appending (safe for cyclic callers).
+index := FindActive(sSender, sMessage, eSeverity.Info);
+IF index = 0 THEN
+	IF HMI_MESSENGER.MsgCount >= SETUP.MaxNrOfMessages THEN
+		// Buffer full: drop message to avoid MList overrun. Clear via ClearMsgs/Clear.
+		RETURN;
+	END_IF
+	index := HMI_MESSENGER.MsgCount + 1;
+	HMI_MESSENGER.MsgCount := index;
+
+	MList[index].bQuit := FALSE;
+	MList[index].Severity := eSeverity.Info;
+	MList[index].Category := Category;
+	MList[index].sSender := sSender;
+	MList[index].sMessage := sMessage;
+	MList[index].ID := ComputeId(sSender, sMessage, eSeverity.Info);
+
+	ss := CONCAT(sMessage, ' : %s');
+	ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_HINT, msgFmtStr := ss, strArg := sSender);
+END_IF
+
+MList[index].tTime := DT_TO_TIME(SYSTEMTIME_TO_DT(fbTime.systemTime));
+AddHint := MList[index];]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AddWarn" Id="{b24a4c33-b96b-4cdf-924e-0dc567d10727}">
+      <Declaration><![CDATA[METHOD AddWarn : MessageDescription
+VAR_INPUT
+	Category: eMessageCategories;
+	sSender: STRING;
+	sMessage: STRING := '';
+END_VAR
+
+VAR
+	rng : DRAND;         // Random number generator function block
+    seed : INT := 12345;    // Seed value (can also be set using system time)
+    randomValue : LINT;        // Output random integer
+	index: INT;
+	ss: Tc2_System.T_MaxString;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// De-duplicate: refresh an identical live message instead of appending (safe for cyclic callers).
+index := FindActive(sSender, sMessage, eSeverity.Warning);
+IF index = 0 THEN
+	IF HMI_MESSENGER.MsgCount >= SETUP.MaxNrOfMessages THEN
+		// Buffer full: drop message to avoid MList overrun. Clear via ClearMsgs/Clear.
+		RETURN;
+	END_IF
+	index := HMI_MESSENGER.MsgCount + 1;
+	HMI_MESSENGER.MsgCount := index;
+
+	MList[index].bQuit := FALSE;
+	MList[index].Severity := eSeverity.Warning;
+	MList[index].Category := Category;
+	MList[index].sSender := sSender;
+	MList[index].sMessage := sMessage;
+	MList[index].ID := ComputeId(sSender, sMessage, eSeverity.Warning);
+
+	ss := CONCAT(sMessage, ' : %s');
+	ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN, msgFmtStr := ss, strArg := sSender);
+END_IF
+
+MList[index].tTime := DT_TO_TIME(SYSTEMTIME_TO_DT(fbTime.systemTime));
+AddWarn := MList[index];]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ClearMsgs" Id="{bcb7abb8-2079-4267-a0fd-3f416f48ad8f}">
+      <Declaration><![CDATA[METHOD ClearMsgs : BOOL
+VAR_INPUT
+END_VAR
+
+VAR
+	DefaultError : MessageDescription;
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO SETUP.MaxNrOfMessages DO
+	MList[i]:= emptyMsg;
+END_FOR
+
+IndexShownM:=0;
+HMI_MESSENGER.MsgCount:=0;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetLatestMessage" Id="{c0703a3a-c079-4dd6-8b67-7359a7b29171}">
+      <Declaration><![CDATA[METHOD GetLatestMessage : POINTER TO MessageDescription
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF HMI_MESSENGER.MsgCount >= 1 THEN
+	GetLatestMessage := ADR(MList[HMI_MESSENGER.MsgCount]);
+ELSE
+	GetLatestMessage := ADR(emptyMsg);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="HasActivError" Id="{c866ca77-0858-4c7e-919c-8b318f921da8}">
+      <Declaration><![CDATA[PROPERTY HasActivError : BOOL]]></Declaration>
+      <Get Name="Get" Id="{85f3fa10-3488-4dbd-9f72-ff0fe6bce33a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HasActivError:=HMI_MESSENGER.bErrorActiv;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="HasActivWarn" Id="{c866ca77-0858-4c7e-919c-8b318f921da9}">
+      <Declaration><![CDATA[PROPERTY HasActivWarn : BOOL]]></Declaration>
+      <Get Name="Get" Id="{85f3fa10-3488-4dbd-9f72-ff0fe6bce34a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HasActivWarn := HMI_MESSENGER.bWarnActiv;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PointerActivError" Id="{b8a52c53-ed23-425b-afa5-93be5f1426ec}">
+      <Declaration><![CDATA[PROPERTY PointerActivError : POINTER TO MessageDescription]]></Declaration>
+      <Get Name="Get" Id="{54390850-3822-4632-bc68-d81277c73a66}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF nactivErrorIndex >= 1 THEN
+	PointerActivError := ADR(MList[nactivErrorIndex]);
+ELSE
+	PointerActivError := ADR(emptyMsg);
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Quittieren" Id="{138369ab-7406-4bc4-91c8-b967f18451de}">
+      <Declaration><![CDATA[METHOD Quittieren : BOOL
+VAR_INPUT
+	ind		: INT;
+END_VAR
+
+VAR
+	name		: STRING;
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ind >= 1 AND ind <= HMI_MESSENGER.MsgCount THEN
+	MList[ind].bQuit := TRUE;
+END_IF
+
+//TODO
+//QUITTIEREN DER HARDWARE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Clear" Id="{1a2b3c4d-0001-4a00-9000-000000000001}">
+      <Declaration><![CDATA[// Lifecycle Clear: remove active message(s) whose underlying condition is gone.
+// sMessage empty -> clear every message from sSender. The list is compacted.
+METHOD Clear : BOOL
+VAR_INPUT
+	sSender : STRING;
+	sMessage : STRING := '';
+END_VAR
+VAR
+	k : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[k := 1;
+WHILE k <= HMI_MESSENGER.MsgCount DO
+	IF MList[k].sSender = sSender AND (sMessage = '' OR MList[k].sMessage = sMessage) THEN
+		RemoveAt(k);
+	ELSE
+		k := k + 1;
+	END_IF
+END_WHILE
+Clear := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FindActive" Id="{1a2b3c4d-0002-4a00-9000-000000000002}">
+      <Declaration><![CDATA[// Returns the 1-based index of a matching live message, or 0 if none.
+METHOD PRIVATE FindActive : INT
+VAR_INPUT
+	sSender : STRING;
+	sMessage : STRING;
+	Severity : eSeverity;
+END_VAR
+VAR
+	k : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FindActive := 0;
+FOR k := 1 TO HMI_MESSENGER.MsgCount DO
+	IF MList[k].Severity = Severity AND MList[k].sSender = sSender AND MList[k].sMessage = sMessage THEN
+		FindActive := k;
+		RETURN;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ComputeId" Id="{1a2b3c4d-0003-4a00-9000-000000000003}">
+      <Declaration><![CDATA[// Stable, component-scoped message ID: same fault -> same ID across runs (not positional).
+// Bands: 1000 Cell/general, 2000 Robot, 3000 Skill, 4000 Recipe/DB, 5000 Communication.
+METHOD PRIVATE ComputeId : UINT
+VAR_INPUT
+	sSender : STRING;
+	sMessage : STRING;
+	Severity : eSeverity;
+END_VAR
+VAR
+	sKey : STRING(255);
+	nLen : INT;
+	k : INT;
+	nHash : UDINT;
+	nBase : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[sKey := CONCAT(sSender, sMessage);
+nLen := LEN(sKey);
+nHash := 5381;
+FOR k := 0 TO nLen - 1 DO
+	nHash := (nHash * 33 + TO_UDINT(sKey[k])) AND 16#0000FFFF;
+END_FOR
+
+IF FIND(sSender, 'COMM') > 0 OR FIND(sSender, 'Comm') > 0 THEN
+	nBase := 5000;
+ELSIF FIND(sSender, 'Skill') > 0 THEN
+	nBase := 3000;
+ELSIF FIND(sSender, 'Recipe') > 0 OR FIND(sSender, 'Point') > 0 THEN
+	nBase := 4000;
+ELSIF FIND(sSender, 'ROB') > 0 THEN
+	nBase := 2000;
+ELSE
+	nBase := 1000;
+END_IF
+
+ComputeId := TO_UINT(nBase + (nHash MOD 1000));]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveAt" Id="{1a2b3c4d-0004-4a00-9000-000000000004}">
+      <Declaration><![CDATA[// Removes the message at the 1-based index and compacts the list.
+METHOD PRIVATE RemoveAt : BOOL
+VAR_INPUT
+	ind : INT;
+END_VAR
+VAR
+	k : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ind < 1 OR ind > HMI_MESSENGER.MsgCount THEN
+	RETURN;
+END_IF
+
+FOR k := ind TO HMI_MESSENGER.MsgCount - 1 DO
+	MList[k] := MList[k + 1];
+END_FOR
+
+MList[HMI_MESSENGER.MsgCount] := emptyMsg;
+HMI_MESSENGER.MsgCount := HMI_MESSENGER.MsgCount - 1;
+
+IF IndexShownM > HMI_MESSENGER.MsgCount THEN
+	IndexShownM := HMI_MESSENGER.MsgCount;
+END_IF
+
+RemoveAt := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

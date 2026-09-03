@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_SkillHandler" Id="{d564b0b9-96bf-4626-9d61-904bd7d86173}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_SkillHandler
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	activSkill: POINTER TO FB_SKILL;
+	_finished: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF activSkill^.bDone THEN
+	_finished:=True;
+END_IF]]></ST>
+    </Implementation>
+    <Method Name="AbortActifSkill" Id="{10338084-d473-478a-aa27-fc35b9873599}">
+      <Declaration><![CDATA[METHOD AbortActifSkill : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[activSkill^.M_Stop();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ActiveSkillFinished" Id="{e768b71e-2b8c-4823-b6e5-97c90ef183b8}">
+      <Declaration><![CDATA[PROPERTY ActiveSkillFinished : BOOL]]></Declaration>
+      <Get Name="Get" Id="{8bd5e583-c1a7-40cf-800c-cc46c8f2112d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActiveSkillFinished := _finished;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CallSkill" Id="{d8fc5668-9fa7-43c2-a944-aada2bd4cb8c}">
+      <Declaration><![CDATA[METHOD CallSkill : BOOL
+VAR_INPUT
+	pSkill : POINTER TO FB_SKILL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[activSkill:= pSkill;
+
+//TODO Checks
+
+pSkill^.M_Start();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="GetActivSkill" Id="{a76ffee6-6586-41ec-827c-b1a5d3fc1e96}">
+      <Declaration><![CDATA[PROPERTY GetActivSkill : POINTER TO FB_SKILL]]></Declaration>
+      <Get Name="Get" Id="{d373d262-644a-4298-ae86-7673cc4dcfd7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[GetActivSkill := activSkill;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

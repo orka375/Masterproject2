@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ROBOT_MECA500" Id="{2f3ce915-1e6f-4cc8-9a5b-aaacdfe77a55}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ROBOT_MECA500 EXTENDS FB_2_ROB_MANIP
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CYCLIC_MANIP();
+
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_Robot" Id="{cfce4933-d5fc-4925-b85d-aea37258ed8b}">
+    <Declaration><![CDATA[TYPE ST_Robot :
+STRUCT
+    id           : DINT;
+
+    name         : STRING(255);
+    manufacturer : STRING(255);
+    model        : STRING(255);
+    robot_type   : STRING(255);
+
+    axes         : DINT;
+
+    payload      : LREAL;
+    reach        : LREAL;
+
+    controller   : STRING(255);
+
+    // Query PostgreSQL INET as ::text
+    ip_address   : STRING(63);
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

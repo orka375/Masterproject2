@@ -1,0 +1,366 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_Jog_Base" Id="{07510ab4-87e0-41b7-8fcd-b7762a6b0059}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'hide_all_locals'}
+FUNCTION_BLOCK FB_Jog_Base
+VAR_INPUT
+    // ==========================================================
+    // HMI / COMMON JOG SETTINGS
+    // These are VAR_INPUT so they can be written directly from
+    // PLC code or TwinCAT HMI without accessing local FB data.
+    // ==========================================================
+    bEnable             : BOOL := TRUE;
+
+    // Frame convention used by both derived jog FBs:
+    // 0 = Base / Map / World
+    // 1 = Local / Tool / Robot
+    // 2 = Custom
+    nFrame              : USINT := 0;
+
+    // Step values are used by the manipulator jog.
+    // SI recommendation:
+    // fLinearStep  [m]
+    // fAngularStep [rad]
+    fLinearStep         : REAL := 0.001;
+    fAngularStep        : REAL := 0.0174532925;
+
+    // Velocity values are shared settings.
+    // fLinearVelocity  [m/s]
+    // fAngularVelocity [rad/s]
+    fLinearVelocity     : REAL := 0.05;
+    fAngularVelocity    : REAL := 0.25;
+
+    // Joint jog settings (manipulator only).
+    // fJointStep      [rad] increment issued per hold-to-run cycle
+    // fJointVelocity  [rad/s]
+    fJointStep          : REAL := 0.0174532925;
+    fJointVelocity      : REAL := 0.25;
+
+    // Orientation is used for Custom-frame jogging.
+    // Manipulator: Rx/Ry/Rz is a rotation vector.
+    // AMR: Rz is interpreted as planar yaw.
+    CustomFrame         : stPoseGeneral;
+
+    // ==========================================================
+    // HMI DIRECTION BUTTONS
+    // Manipulator: rising edge = one step.
+    // AMR: TRUE = continuous dead-man velocity command.
+    // ==========================================================
+    bJogXPlus           : BOOL;
+    bJogXMinus          : BOOL;
+    bJogYPlus           : BOOL;
+    bJogYMinus          : BOOL;
+    bJogZPlus           : BOOL;
+    bJogZMinus          : BOOL;
+
+    bJogRxPlus          : BOOL;
+    bJogRxMinus         : BOOL;
+    bJogRyPlus          : BOOL;
+    bJogRyMinus         : BOOL;
+    bJogRzPlus          : BOOL;
+    bJogRzMinus         : BOOL;
+
+    // ==========================================================
+    // HMI JOINT JOG BUTTONS (manipulator only).
+    // Hold-to-run: TRUE = jog while held, FALSE = stop.
+    // ==========================================================
+    bJogJoint1Plus      : BOOL;
+    bJogJoint1Minus     : BOOL;
+    bJogJoint2Plus      : BOOL;
+    bJogJoint2Minus     : BOOL;
+    bJogJoint3Plus      : BOOL;
+    bJogJoint3Minus     : BOOL;
+    bJogJoint4Plus      : BOOL;
+    bJogJoint4Minus     : BOOL;
+    bJogJoint5Plus      : BOOL;
+    bJogJoint5Minus     : BOOL;
+    bJogJoint6Plus      : BOOL;
+    bJogJoint6Minus     : BOOL;
+END_VAR
+
+VAR_OUTPUT
+    // Common status for HMI.
+    bReady              : BOOL;
+    bMoving             : BOOL;
+    bPending            : BOOL;
+    bCommandIssued      : BOOL;
+    nLastCommandID      : UINT;
+
+    ActualPose          : stPoseGeneral;
+    ActiveFramePose     : stPoseGeneral;
+
+    // HMI can use these to show/hide unsupported axes.
+    bSupportsX          : BOOL;
+    bSupportsY          : BOOL;
+    bSupportsZ          : BOOL;
+    bSupportsRx         : BOOL;
+    bSupportsRy         : BOOL;
+    bSupportsRz         : BOOL;
+    bSupportsJoint      : BOOL;
+
+    // Indicates the intended button behavior.
+    bStepJog            : BOOL;
+    bContinuousJog      : BOOL;
+END_VAR
+
+VAR
+    // Method-generated requests.
+    // Derived FBs decide whether a request is consumed as a single
+    // step (manipulator) or remains active until StopJog() (AMR).
+    _reqXPlus           : BOOL;
+    _reqXMinus          : BOOL;
+    _reqYPlus           : BOOL;
+    _reqYMinus          : BOOL;
+    _reqZPlus           : BOOL;
+    _reqZMinus          : BOOL;
+
+    _reqRxPlus          : BOOL;
+    _reqRxMinus         : BOOL;
+    _reqRyPlus          : BOOL;
+    _reqRyMinus         : BOOL;
+    _reqRzPlus          : BOOL;
+    _reqRzMinus         : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Shared interface / request storage only.
+// Robot-specific cyclic behavior is implemented by:
+//   FB_Jog_Manipulator
+//   FB_Jog_AMR
+]]></ST>
+    </Implementation>
+    <Folder Name="JogControl" Id="{0bb8744c-dd3e-4f73-af01-358647a64a2d}" />
+    <Folder Name="Settings" Id="{cf64427a-c3e1-4c53-98a0-3f6895990465}" />
+    <Method Name="JogRxMinus" Id="{e2d6aa2d-55ce-4228-9225-2c8ab22b7e11}" FolderPath="JogControl\">
+      <Declaration><![CDATA[METHOD PUBLIC JogRxMinus : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bEnable THEN
+    _reqRxMinus := TRUE;
+    JogRxMinus := TRUE;
+ELSE
+    JogRxMinus := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="JogRxPlus" Id="{02dc0800-06ee-4f4b-92a7-598e413979fe}" FolderPath="JogControl\">
+      <Declaration><![CDATA[METHOD PUBLIC JogRxPlus : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bEnable THEN
+    _reqRxPlus := TRUE;
+    JogRxPlus := TRUE;
+ELSE
+    JogRxPlus := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="JogRyMinus" Id="{63db8402-0634-4c9b-9d2a-7b61db733ac0}" FolderPath="JogControl\">
+      <Declaration><![CDATA[METHOD PUBLIC JogRyMinus : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bEnable THEN
+    _reqRyMinus := TRUE;
+    JogRyMinus := TRUE;
+ELSE
+    JogRyMinus := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="JogRyPlus" Id="{46bdbbdb-b6c6-4a4e-adb2-587c95b5a22f}" FolderPath="JogControl\">
+      <Declaration><![CDATA[METHOD PUBLIC JogRyPlus : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bEnable THEN
+    _reqRyPlus := TRUE;
+    JogRyPlus := TRUE;
+ELSE
+    JogRyPlus := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="JogRzMinus" Id="{9e26cd54-de6a-46b2-b97e-329d761da1bb}" FolderPath="JogControl\">
+      <Declaration><![CDATA[METHOD PUBLIC JogRzMinus : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bEnable THEN
+    _reqRzMinus := TRUE;
+    JogRzMinus := TRUE;
+ELSE
+    JogRzMinus := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="JogRzPlus" Id="{34557cbc-f9f5-45c1-979f-8b5c4bfc8e06}" FolderPath="JogControl\">
+      <Declaration><![CDATA[METHOD PUBLIC JogRzPlus : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bEnable THEN
+    _reqRzPlus := TRUE;
+    JogRzPlus := TRUE;
+ELSE
+    JogRzPlus := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="JogXMinus" Id="{9cd6111c-62e0-403d-bfc0-7ca2dafc9774}" FolderPath="JogControl\">
+      <Declaration><![CDATA[METHOD PUBLIC JogXMinus : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bEnable THEN
+    _reqXMinus := TRUE;
+    JogXMinus := TRUE;
+ELSE
+    JogXMinus := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="JogXPlus" Id="{ff8ad49e-a227-41c5-837a-40e6c4432341}" FolderPath="JogControl\">
+      <Declaration><![CDATA[METHOD PUBLIC JogXPlus : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bEnable THEN
+    _reqXPlus := TRUE;
+    JogXPlus := TRUE;
+ELSE
+    JogXPlus := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="JogYMinus" Id="{218a6ec4-ab27-4a12-ac01-d0d44958de38}" FolderPath="JogControl\">
+      <Declaration><![CDATA[METHOD PUBLIC JogYMinus : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bEnable THEN
+    _reqYMinus := TRUE;
+    JogYMinus := TRUE;
+ELSE
+    JogYMinus := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="JogYPlus" Id="{bcecdc30-f4ae-43f8-8bb5-4092df02aab1}" FolderPath="JogControl\">
+      <Declaration><![CDATA[METHOD PUBLIC JogYPlus : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bEnable THEN
+    _reqYPlus := TRUE;
+    JogYPlus := TRUE;
+ELSE
+    JogYPlus := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="JogZMinus" Id="{77fd6e2b-f1ea-4c14-a76a-58e83b301aa3}" FolderPath="JogControl\">
+      <Declaration><![CDATA[METHOD PUBLIC JogZMinus : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bEnable THEN
+    _reqZMinus := TRUE;
+    JogZMinus := TRUE;
+ELSE
+    JogZMinus := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="JogZPlus" Id="{5cdb8fb6-c39d-438a-8229-9f3af3cde5cd}" FolderPath="JogControl\">
+      <Declaration><![CDATA[METHOD PUBLIC JogZPlus : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bEnable THEN
+    _reqZPlus := TRUE;
+    JogZPlus := TRUE;
+ELSE
+    JogZPlus := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetAngularStep" Id="{84a56170-4029-4cfb-afa4-08b5c93ef8fd}" FolderPath="Settings\">
+      <Declaration><![CDATA[METHOD PUBLIC SetAngularStep : BOOL
+VAR_INPUT
+    fValue : REAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF fValue > 0.0 THEN
+    fAngularStep := fValue;
+    SetAngularStep := TRUE;
+ELSE
+    SetAngularStep := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetAngularVelocity" Id="{c6348151-94f0-4b5e-a29e-41615ce90bee}" FolderPath="Settings\">
+      <Declaration><![CDATA[METHOD PUBLIC SetAngularVelocity : BOOL
+VAR_INPUT
+    fValue : REAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF fValue > 0.0 THEN
+    fAngularVelocity := fValue;
+    SetAngularVelocity := TRUE;
+ELSE
+    SetAngularVelocity := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetCustomFrame" Id="{e8d0868c-cc69-482a-a293-e92a06f0bd47}" FolderPath="Settings\">
+      <Declaration><![CDATA[METHOD PUBLIC SetCustomFrame : BOOL
+VAR_INPUT
+    Frame : stPoseGeneral;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CustomFrame := Frame;
+SetCustomFrame := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetFrame" Id="{6afaa23b-088d-47d0-b258-1bfc2c824540}" FolderPath="Settings\">
+      <Declaration><![CDATA[METHOD PUBLIC SetFrame : BOOL
+VAR_INPUT
+    nValue : USINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF nValue <= 2 THEN
+    nFrame := nValue;
+    SetFrame := TRUE;
+ELSE
+    SetFrame := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetLinearStep" Id="{d677e68d-e354-4bc6-9cb4-7fbb9eb1e97a}" FolderPath="Settings\">
+      <Declaration><![CDATA[METHOD PUBLIC SetLinearStep : BOOL
+VAR_INPUT
+    fValue : REAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF fValue > 0.0 THEN
+    fLinearStep := fValue;
+    SetLinearStep := TRUE;
+ELSE
+    SetLinearStep := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetLinearVelocity" Id="{6538d128-3263-44b0-9619-f63a274e14be}" FolderPath="Settings\">
+      <Declaration><![CDATA[METHOD PUBLIC SetLinearVelocity : BOOL
+VAR_INPUT
+    fValue : REAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF fValue > 0.0 THEN
+    fLinearVelocity := fValue;
+    SetLinearVelocity := TRUE;
+ELSE
+    SetLinearVelocity := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StopJog" Id="{275159c4-fdb9-47b2-a70b-1c291e3b6d7e}" FolderPath="JogControl\">
+      <Declaration><![CDATA[METHOD PUBLIC StopJog : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_reqXPlus := FALSE;
+_reqXMinus := FALSE;
+_reqYPlus := FALSE;
+_reqYMinus := FALSE;
+_reqZPlus := FALSE;
+_reqZMinus := FALSE;
+
+_reqRxPlus := FALSE;
+_reqRxMinus := FALSE;
+_reqRyPlus := FALSE;
+_reqRyMinus := FALSE;
+_reqRzPlus := FALSE;
+_reqRzMinus := FALSE;
+
+StopJog := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

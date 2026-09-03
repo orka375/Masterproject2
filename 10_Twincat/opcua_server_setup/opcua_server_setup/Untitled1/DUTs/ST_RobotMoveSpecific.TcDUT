@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_RobotMoveSpecific" Id="{23e4dee8-6198-4373-b4ea-cea70dc049be}">
+    <Declaration><![CDATA[{attribute 'OPC.UA.DA.StructuredType':=1}
+TYPE ST_RobotMoveSpecific :
+STRUCT
+    TargetX         : LREAL := 0.0;
+    TargetY         : LREAL := 0.0;
+    TargetZ         : LREAL := 0.0;
+
+    TargetRx        : LREAL := 0.0;
+    TargetRy        : LREAL := 0.0;
+    TargetRz        : LREAL := 0.0;
+
+    Velocity        : REAL := 0.0;
+
+    ActualX         : LREAL := 0.0;
+    ActualY         : LREAL := 0.0;
+    ActualZ         : LREAL := 0.0;
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

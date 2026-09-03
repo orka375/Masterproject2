@@ -1,0 +1,1530 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_UR_RTDE" Id="{1a7e1c9d-1f13-4118-946d-9d84d7b75db0}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_UR_RTDE
+VAR_INPUT
+    sRobotIP         : STRING(15) := '192.168.250.6';
+    bEnable          : BOOL;
+    fFrequency       : LREAL := 10.0;
+
+    (* Rising-edge commands *)
+    bSendInputs      : BOOL;
+    bPause           : BOOL;
+    bResume          : BOOL;
+
+    (* RTDE input recipe *)
+    nSpeedSliderMask       : UDINT := 0;    (* 0=no change, 1=apply fraction *)
+    fSpeedSliderFraction   : LREAL := 1.0;  (* 0.0 .. 1.0 *)
+    byStdDigitalOutputMask : BYTE := 0;     (* bits 0..7 select outputs to update *)
+    byStdDigitalOutput     : BYTE := 0;     (* desired output states *)
+    nInputInt24            : DINT;
+    aPoint24_29      : ARRAY[0..5] OF LREAL; (* X,Y,Z,Rx,Ry,Rz *)
+END_VAR
+
+VAR_OUTPUT
+    bConnected       : BOOL;
+    bReady           : BOOL;
+    bStreaming       : BOOL;
+    bBusy            : BOOL;
+    bError           : BOOL;
+    nErrorID         : UDINT;
+    sErrorText       : STRING(255);
+
+    bNewData         : BOOL;
+    bInputSent       : BOOL;
+
+    nControllerMajor : UDINT;
+    nControllerMinor : UDINT;
+    nControllerBugfix: UDINT;
+    nControllerBuild : UDINT;
+
+    byOutputRecipeID : BYTE;
+    byInputRecipeID  : BYTE;
+    sOutputTypes     : STRING(1023);
+    sInputTypes      : STRING(1023);
+
+    fTimestamp       : LREAL;
+    aActualTCPPose   : ARRAY[0..5] OF LREAL;
+    aActualQ         : ARRAY[0..5] OF LREAL;
+    nRobotMode       : DINT;
+    nRuntimeState    : UDINT;
+
+    (* Basic Action handshake written by generated URScript. *)
+    nBAExecuteID     : DINT;   (* output_int_register_24 *)
+    nBACommand       : DINT;   (* output_int_register_25 *)
+    nBAStatus        : DINT;   (* output_int_register_26: 0 idle, 1 preparing, 2 running, 3 done, 4 error *)
+    nBAResult        : DINT;   (* output_int_register_27 *)
+END_VAR
+
+VAR
+    fbConnect : FB_SocketConnect;
+    fbSend    : FB_SocketSend;
+    fbReceive : FB_SocketReceive;
+    fbClose   : FB_SocketClose;
+
+    hSocket   : T_HSOCKET;
+
+    rSend     : R_TRIG;
+    rPause    : R_TRIG;
+    rResume   : R_TRIG;
+
+    nState    : INT;
+    nNextState: INT;
+
+    bConnectExecute : BOOL;
+    bConnectStarted : BOOL;
+    bSendExecute    : BOOL;
+    bSendStarted    : BOOL;
+    bCloseExecute   : BOOL;
+    bCloseStarted   : BOOL;
+
+    (* RX polling / TCP fragmentation handling *)
+    nRxState        : INT;
+    bRxExecute      : BOOL;
+    aRxChunk        : ARRAY[0..1023] OF BYTE;
+    aRx             : ARRAY[0..4095] OF BYTE;
+    nRxLen          : UDINT;
+
+    aPacket         : ARRAY[0..1023] OF BYTE;
+    nPacketLen      : UDINT;
+    byPacketType    : BYTE;
+
+    (* TX packet *)
+    aTx             : ARRAY[0..1023] OF BYTE;
+    nTxLen          : UDINT;
+
+    sOutputRecipe   : STRING(1023) := 'timestamp,actual_TCP_pose,actual_q,robot_mode,runtime_state,output_int_register_24,output_int_register_25,output_int_register_26,output_int_register_27';
+    sInputRecipe    : STRING(1023) := 'speed_slider_mask,speed_slider_fraction,standard_digital_output_mask,standard_digital_output,input_int_register_24,input_double_register_24,input_double_register_25,input_double_register_26,input_double_register_27,input_double_register_28,input_double_register_29';
+
+    bSendRequest    : BOOL;
+    bPauseRequest   : BOOL;
+    bResumeRequest  : BOOL;
+
+    tonReply        : TON;
+    bWaitingReply   : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* One-cycle pulses and command edges. *)
+bNewData := FALSE;
+bInputSent := FALSE;
+
+rSend(CLK := bSendInputs);
+rPause(CLK := bPause);
+rResume(CLK := bResume);
+
+IF rSend.Q THEN
+    bSendRequest := TRUE;
+END_IF
+IF rPause.Q THEN
+    bPauseRequest := TRUE;
+END_IF
+IF rResume.Q THEN
+    bResumeRequest := TRUE;
+END_IF
+
+(* Setup/command response watchdog. *)
+bWaitingReply :=
+    (nState = 22)
+    OR (nState = 32)
+    OR (nState = 42)
+    OR (nState = 52)
+    OR (nState = 62)
+    OR (nState = 122)
+    OR (nState = 142);
+
+tonReply(
+    IN := bWaitingReply,
+    PT := T#10S
+);
+
+(* Maintained enable controls the lifetime of the RTDE socket. *)
+IF (NOT bEnable)
+   AND (nState <> 0)
+   AND (nState <> 900) THEN
+
+    bStreaming := FALSE;
+    bReady := FALSE;
+
+    bCloseExecute := TRUE;
+    bCloseStarted := FALSE;
+    nState := 900;
+END_IF
+
+CASE nState OF
+
+
+// ==========================================================
+// STATE 0
+// DISCONNECTED
+//
+// No TCP connection exists.
+// Wait here until bEnable = TRUE.
+// ==========================================================
+0:
+
+    bConnected := FALSE;
+    bReady := FALSE;
+    bStreaming := FALSE;
+    bBusy := FALSE;
+
+    nRxState := 0;
+    nRxLen := 0;
+
+    IF bEnable THEN
+
+        bError := FALSE;
+        nErrorID := 0;
+        sErrorText := '';
+
+        bBusy := TRUE;
+
+        // Start FB_SocketConnect on next state.
+        bConnectExecute := TRUE;
+        bConnectStarted := FALSE;
+
+        nState := 10;
+
+    END_IF
+
+
+
+// ==========================================================
+// STATE 10
+// TCP CONNECT
+//
+// Establish TCP connection to UR RTDE server.
+// RTDE always uses TCP port 30004.
+//
+// Successful completion only means:
+// TCP socket connected.
+//
+// RTDE is NOT configured yet.
+// ==========================================================
+10:
+
+    fbConnect(
+        sSrvNetId   := '',
+        sRemoteHost := sRobotIP,
+        nRemotePort := 30004,
+        bExecute    := bConnectExecute,
+        tTimeout    := T#10S
+    );
+
+    // Generate only one rising edge.
+    IF bConnectExecute THEN
+        bConnectExecute := FALSE;
+        bConnectStarted := TRUE;
+    END_IF
+
+    // Wait until Beckhoff socket FB has completed.
+    IF bConnectStarted AND NOT fbConnect.bBusy THEN
+
+        IF fbConnect.bError THEN
+
+            bError := TRUE;
+            nErrorID := fbConnect.nErrId;
+            sErrorText := 'TCP connect failed';
+
+            nState := 0;
+
+        ELSE
+
+            hSocket := fbConnect.hSocket;
+
+            // TCP connection now exists.
+            bConnected := TRUE;
+
+            // Next: negotiate RTDE protocol version.
+            nState := 20;
+
+        END_IF
+
+    END_IF
+
+
+
+// ==========================================================
+// STATE 20
+// BUILD PROTOCOL-VERSION REQUEST
+//
+// Request RTDE protocol version 2.
+//
+// Packet:
+//   type = 86 = ASCII 'V'
+//   payload = UINT16(2)
+//
+// This state only BUILDS the packet.
+// State 21 actually sends it.
+// ==========================================================
+20:
+
+    BuildProtocolV2();
+
+    // After sending, wait in state 22 for response.
+    nNextState := 22;
+
+    bSendExecute := TRUE;
+    bSendStarted := FALSE;
+
+    nState := 21;
+
+
+
+// ==========================================================
+// STATE 21
+// GENERIC TCP SEND
+//
+// Used by all RTDE setup commands.
+//
+// nNextState determines where execution continues
+// after the packet has been successfully transmitted.
+// ==========================================================
+21:
+
+    fbSend(
+        sSrvNetId := '',
+        hSocket   := hSocket,
+        cbLen     := nTxLen,
+        pSrc      := ADR(aTx),
+        bExecute  := bSendExecute,
+        tTimeout  := T#5S
+    );
+
+    // Make bExecute a one-cycle/rising-edge request.
+    IF bSendExecute THEN
+        bSendExecute := FALSE;
+        bSendStarted := TRUE;
+    END_IF
+
+    // Wait until FB_SocketSend has finished.
+    IF bSendStarted AND NOT fbSend.bBusy THEN
+
+        IF fbSend.bError THEN
+
+            bError := TRUE;
+            nErrorID := fbSend.nErrId;
+            sErrorText := 'Socket send failed';
+
+            bCloseExecute := TRUE;
+            bCloseStarted := FALSE;
+
+            nState := 900;
+
+        ELSE
+
+            // Only normal RTDE input DATA_PACKAGE sends
+            // return directly to streaming state 100.
+            IF nNextState = 100 THEN
+                bInputSent := TRUE;
+            END_IF
+
+            nState := nNextState;
+
+        END_IF
+
+    END_IF
+
+
+
+// ==========================================================
+// STATE 22
+// WAIT FOR PROTOCOL-VERSION RESPONSE
+//
+// Expected packet:
+//   type = 86 ('V')
+//   accepted byte:
+//     1 = protocol v2 accepted
+//     0 = rejected
+//
+// Success -> state 30.
+// ==========================================================
+22:
+
+    IF PollPacket() THEN
+
+        IF (byPacketType = BYTE#86)
+           AND (nPacketLen >= 4) THEN
+
+            IF aPacket[3] = 1 THEN
+
+                // Protocol v2 accepted.
+                nState := 30;
+
+            ELSE
+
+                Fail(
+                    nID := 16#E001,
+                    sText := 'RTDE protocol v2 rejected'
+                );
+
+            END_IF
+
+        END_IF
+
+    ELSIF tonReply.Q THEN
+
+        Fail(
+            nID := 16#E002,
+            sText := 'Protocol reply timeout'
+        );
+
+    END_IF
+
+
+
+// ==========================================================
+// STATE 30
+// BUILD CONTROLLER-VERSION REQUEST
+//
+// Ask UR for:
+// major.minor.bugfix.build
+//
+// Packet type = 118 = ASCII 'v'.
+//
+// State 32 waits for response.
+// ==========================================================
+30:
+
+    BuildGetVersion();
+
+    nNextState := 32;
+
+    bSendExecute := TRUE;
+    bSendStarted := FALSE;
+
+    nState := 21;
+
+
+
+// ==========================================================
+// STATE 32
+// WAIT FOR CONTROLLER-VERSION RESPONSE
+//
+// Response contains:
+//
+// uint32 major
+// uint32 minor
+// uint32 bugfix
+// uint32 build
+//
+// Success -> state 40.
+// ==========================================================
+32:
+
+    IF PollPacket() THEN
+
+        IF (byPacketType = BYTE#118)
+           AND (nPacketLen >= 19) THEN
+
+            nControllerMajor  := RxU32(3);
+            nControllerMinor  := RxU32(7);
+            nControllerBugfix := RxU32(11);
+            nControllerBuild  := RxU32(15);
+
+            nState := 40;
+
+        END_IF
+
+    ELSIF tonReply.Q THEN
+
+        Fail(
+            nID := 16#E003,
+            sText := 'Controller-version timeout'
+        );
+
+    END_IF
+
+
+
+// ==========================================================
+// STATE 40
+// BUILD OUTPUT RECIPE
+//
+// Tells UR which data TwinCAT wants to RECEIVE.
+//
+// Example:
+// timestamp,
+// actual_TCP_pose,
+// actual_q,
+// ...
+//
+// Protocol v2 also includes requested output frequency.
+//
+// State 42 waits for recipe response.
+// ==========================================================
+40:
+
+    BuildSetupOutputs();
+
+    nNextState := 42;
+
+    bSendExecute := TRUE;
+    bSendStarted := FALSE;
+
+    nState := 21;
+
+
+
+// ==========================================================
+// STATE 42
+// WAIT FOR OUTPUT-RECIPE RESPONSE
+//
+// Expected packet:
+//   type = 79 ('O')
+//   byte[3] = output recipe ID
+//   remaining bytes = returned data types
+//
+// Recipe ID 0 means invalid recipe.
+//
+// IMPORTANT DEBUG STATE:
+// If connection works but streaming never starts,
+// inspect:
+//
+// byOutputRecipeID
+// sOutputTypes
+//
+// NOT_FOUND in sOutputTypes means one of the requested
+// output variables is unsupported on this robot/software.
+// ==========================================================
+42:
+
+    IF PollPacket() THEN
+
+        IF (byPacketType = BYTE#79)
+           AND (nPacketLen >= 4) THEN
+
+            byOutputRecipeID := aPacket[3];
+
+            sOutputTypes :=
+                PacketString(nStart := 4);
+
+            IF byOutputRecipeID = 0 THEN
+
+                Fail(
+                    nID := 16#E004,
+                    sText := 'Output recipe rejected'
+                );
+
+            ELSE
+
+                // Output recipe accepted.
+                nState := 50;
+
+            END_IF
+
+        END_IF
+
+    ELSIF tonReply.Q THEN
+
+        Fail(
+            nID := 16#E005,
+            sText := 'Output-recipe timeout'
+        );
+
+    END_IF
+
+
+
+// ==========================================================
+// STATE 50
+// BUILD INPUT RECIPE
+//
+// Tells UR which values TwinCAT intends to WRITE.
+//
+// Example:
+// speed_slider_mask
+// input_int_register_24
+// input_double_register_24
+// ...
+//
+// State 52 waits for recipe response.
+// ==========================================================
+50:
+
+    BuildSetupInputs();
+
+    nNextState := 52;
+
+    bSendExecute := TRUE;
+    bSendStarted := FALSE;
+
+    nState := 21;
+
+
+
+// ==========================================================
+// STATE 52
+// WAIT FOR INPUT-RECIPE RESPONSE
+//
+// Expected packet:
+//   type = 73 ('I')
+//   byte[3] = recipe ID
+//   rest = returned types
+//
+// Recipe ID = 0 means invalid.
+//
+// Possible returned problems:
+//
+// NOT_FOUND
+//     variable unsupported
+//
+// IN_USE
+//     another RTDE client already owns that input
+//
+// IMPORTANT DEBUG STATE:
+// Inspect:
+//   byInputRecipeID
+//   sInputTypes
+// ==========================================================
+52:
+
+    IF PollPacket() THEN
+
+        IF (byPacketType = BYTE#73)
+           AND (nPacketLen >= 4) THEN
+
+            byInputRecipeID := aPacket[3];
+
+            sInputTypes :=
+                PacketString(nStart := 4);
+
+            IF byInputRecipeID = 0 THEN
+
+                Fail(
+                    nID := 16#E006,
+                    sText :=
+                        'Input recipe rejected / IN_USE / NOT_FOUND'
+                );
+
+            ELSE
+
+                // Recipes are configured. RTDE is only ready after START is accepted.
+                nState := 60;
+
+            END_IF
+
+        END_IF
+
+    ELSIF tonReply.Q THEN
+
+        Fail(
+            nID := 16#E007,
+            sText := 'Input-recipe timeout'
+        );
+
+    END_IF
+
+
+
+// ==========================================================
+// STATE 60
+// BUILD RTDE START COMMAND
+//
+// Requests controller to begin synchronization.
+//
+// No payload.
+// Packet type = 83 ('S').
+//
+// State 62 waits for acknowledgement.
+// ==========================================================
+60:
+
+    BuildStart();
+
+    nNextState := 62;
+
+    bSendExecute := TRUE;
+    bSendStarted := FALSE;
+
+    nState := 21;
+
+
+
+// ==========================================================
+// STATE 62
+// WAIT FOR RTDE START RESPONSE
+//
+// Expected:
+//   type = 83 ('S')
+//   byte[3]:
+//       1 = accepted
+//       0 = rejected
+//
+// On success:
+//   RTDE starts sending DATA_PACKAGE packets.
+//   state -> 100.
+//
+// IMPORTANT DEBUG STATE:
+// If you reach 62 but never reach 100,
+// inspect:
+//   byPacketType
+//   nPacketLen
+//   aPacket[3]
+// ==========================================================
+62:
+
+    IF PollPacket() THEN
+
+        IF (byPacketType = BYTE#83)
+           AND (nPacketLen >= 4) THEN
+
+            IF aPacket[3] = 1 THEN
+
+                bReady := TRUE;
+                bStreaming := TRUE;
+                bBusy := FALSE;
+
+                nState := 100;
+
+            ELSE
+
+                Fail(
+                    nID := 16#E008,
+                    sText := 'RTDE START rejected'
+                );
+
+            END_IF
+
+        END_IF
+
+    ELSIF tonReply.Q THEN
+
+        Fail(
+            nID := 16#E009,
+            sText := 'START reply timeout'
+        );
+
+    END_IF
+
+
+
+// ==========================================================
+// STATE 100
+// RTDE STREAMING
+//
+// Normal operating state.
+//
+// UR continuously sends RTDE_DATA_PACKAGE:
+//   type = 85 ('U')
+//
+// TwinCAT:
+//   - receives output packets
+//   - calls ParseData()
+//   - can send input DATA_PACKAGE packets
+//
+// Expected normal state:
+//
+// bConnected = TRUE
+// bReady     = TRUE
+// bStreaming = TRUE
+// ==========================================================
+100:
+
+    bConnected := TRUE;
+    bReady := TRUE;
+    bStreaming := TRUE;
+    bBusy := FALSE;
+
+
+    // If receive FB is already active,
+    // finish that receive transaction first.
+    IF nRxState <> 0 THEN
+
+        IF PollPacket() THEN
+
+            IF byPacketType = BYTE#85 THEN
+                ParseData();
+            END_IF
+
+        END_IF
+
+
+    // Request RTDE pause.
+    ELSIF bPauseRequest THEN
+
+        bPauseRequest := FALSE;
+
+        BuildPause();
+
+        nNextState := 122;
+
+        bSendExecute := TRUE;
+        bSendStarted := FALSE;
+
+        nState := 21;
+
+
+    // Send PLC -> UR RTDE input package.
+    ELSIF bSendRequest THEN
+
+        bSendRequest := FALSE;
+
+        BuildInputData();
+
+        // DATA_PACKAGE has no acknowledgement.
+        nNextState := 100;
+
+        bSendExecute := TRUE;
+        bSendStarted := FALSE;
+
+        nState := 21;
+
+
+    // Normal receive polling.
+    ELSE
+
+        IF PollPacket() THEN
+
+            IF byPacketType = BYTE#85 THEN
+                ParseData();
+            END_IF
+
+        END_IF
+
+    END_IF
+
+
+
+// ==========================================================
+// STATE 122
+// WAIT FOR PAUSE ACKNOWLEDGEMENT
+//
+// Packet type = 80 ('P')
+// byte[3] = 1 when accepted.
+//
+// DATA_PACKAGE packets may still already be buffered,
+// therefore type 85 is still handled here.
+// ==========================================================
+122:
+
+    IF PollPacket() THEN
+
+        IF (byPacketType = BYTE#80)
+           AND (nPacketLen >= 4) THEN
+
+            IF aPacket[3] = 1 THEN
+
+                bStreaming := FALSE;
+                nState := 130;
+
+            END_IF
+
+        ELSIF byPacketType = BYTE#85 THEN
+
+            ParseData();
+
+        END_IF
+
+    ELSIF tonReply.Q THEN
+
+        Fail(
+            nID := 16#E00A,
+            sText := 'PAUSE reply timeout'
+        );
+
+    END_IF
+
+
+
+// ==========================================================
+// STATE 130
+// RTDE PAUSED
+//
+// TCP connection exists.
+// Recipes are still configured.
+// No output synchronization is active.
+//
+// Resume request sends START again.
+// ==========================================================
+130:
+
+    bConnected := TRUE;
+    bReady := TRUE;
+    bStreaming := FALSE;
+    bBusy := FALSE;
+
+    IF bResumeRequest THEN
+
+        bResumeRequest := FALSE;
+
+        BuildStart();
+
+        nNextState := 142;
+
+        bSendExecute := TRUE;
+        bSendStarted := FALSE;
+
+        nState := 21;
+
+    END_IF
+
+
+
+// ==========================================================
+// STATE 142
+// WAIT FOR START RESPONSE AFTER PAUSE
+//
+// Same START acknowledgement as initial state 62.
+//
+// Success -> state 100.
+// ==========================================================
+142:
+
+    IF PollPacket() THEN
+
+        IF (byPacketType = BYTE#83)
+           AND (nPacketLen >= 4) THEN
+
+            IF aPacket[3] = 1 THEN
+
+                bStreaming := TRUE;
+                nState := 100;
+
+            ELSE
+
+                Fail(
+                    nID := 16#E00B,
+                    sText := 'Resume rejected'
+                );
+
+            END_IF
+
+        END_IF
+
+    ELSIF tonReply.Q THEN
+
+        Fail(
+            nID := 16#E00C,
+            sText := 'Resume reply timeout'
+        );
+
+    END_IF
+
+
+
+// ==========================================================
+// STATE 900
+// CLOSE TCP SOCKET
+//
+// Entered when:
+//   bEnable becomes FALSE
+//   socket error occurs
+//   RTDE initialization fails
+//
+// When close completes -> state 0.
+// ==========================================================
+900:
+
+    fbClose(
+        sSrvNetId := '',
+        hSocket   := hSocket,
+        bExecute  := bCloseExecute,
+        tTimeout  := T#5S
+    );
+
+    IF bCloseExecute THEN
+
+        bCloseExecute := FALSE;
+        bCloseStarted := TRUE;
+
+    END_IF
+
+    IF bCloseStarted
+       AND NOT fbClose.bBusy THEN
+
+        bConnected := FALSE;
+        bReady := FALSE;
+        bStreaming := FALSE;
+        bBusy := FALSE;
+
+        nRxState := 0;
+        nRxLen := 0;
+
+        nState := 0;
+
+    END_IF
+
+END_CASE]]></ST>
+    </Implementation>
+    <Method Name="BuildGetVersion" Id="{4bb4c33e-d023-481b-88dc-c2e90fb3d897}">
+      <Declaration><![CDATA[METHOD PRIVATE BuildGetVersion : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TxBegin(byType := BYTE#118);  (* v *)
+TxFinish();
+BuildGetVersion := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="BuildInputData" Id="{3d6a3304-04b8-4a95-a8fa-66cb46a7b40d}">
+      <Declaration><![CDATA[METHOD PRIVATE BuildInputData : BOOL
+VAR
+    i : INT;
+    fSlider : LREAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fSlider := fSpeedSliderFraction;
+IF fSlider < 0.0 THEN fSlider := 0.0; END_IF
+IF fSlider > 1.0 THEN fSlider := 1.0; END_IF
+
+TxBegin(byType := BYTE#85);   (* U / DATA_PACKAGE *)
+TxByte(byValue := byInputRecipeID);
+TxU32(nValue := nSpeedSliderMask);
+TxLReal(fValue := fSlider);
+TxByte(byValue := byStdDigitalOutputMask);
+TxByte(byValue := byStdDigitalOutput);
+TxDInt(nValue := nInputInt24);
+FOR i := 0 TO 5 DO
+    TxLReal(fValue := aPoint24_29[i]);
+END_FOR
+TxFinish();
+BuildInputData := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="BuildPause" Id="{c1828642-3e3c-4fa3-9a1b-ab2547b19a54}">
+      <Declaration><![CDATA[METHOD PRIVATE BuildPause : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TxBegin(byType := BYTE#80);   (* P *)
+TxFinish();
+BuildPause := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="BuildProtocolV2" Id="{63a253fc-4dc7-41cf-b039-ba570eca0b8a}">
+      <Declaration><![CDATA[METHOD PRIVATE BuildProtocolV2 : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TxBegin(byType := BYTE#86);   (* V *)
+TxU16(nValue := UINT#2);
+TxFinish();
+BuildProtocolV2 := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="BuildSetupInputs" Id="{b976b82d-87a3-4b31-bb8b-bb77be2c9d82}">
+      <Declaration><![CDATA[METHOD PRIVATE BuildSetupInputs : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TxBegin(byType := BYTE#73);   (* I *)
+TxString(sValue := sInputRecipe);
+TxFinish();
+BuildSetupInputs := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="BuildSetupOutputs" Id="{5ca77f6f-3af9-4fa0-9adf-7926f2afc090}">
+      <Declaration><![CDATA[METHOD PRIVATE BuildSetupOutputs : BOOL
+VAR
+    fHz : LREAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fHz := fFrequency;
+IF fHz < 1.0 THEN fHz := 1.0; END_IF
+IF fHz > 500.0 THEN fHz := 500.0; END_IF
+TxBegin(byType := BYTE#79);   (* O *)
+TxLReal(fValue := fHz);
+TxString(sValue := sOutputRecipe);
+TxFinish();
+BuildSetupOutputs := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="BuildStart" Id="{2bad1a9f-f346-4be7-9246-3671b20fabbc}">
+      <Declaration><![CDATA[METHOD PRIVATE BuildStart : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TxBegin(byType := BYTE#83);   (* S *)
+TxFinish();
+BuildStart := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExtractPacket" Id="{eb59557a-f458-4127-885f-26e82361766a}">
+      <Declaration><![CDATA[METHOD PRIVATE ExtractPacket : BOOL
+VAR
+    nExpected : UDINT;
+    nRemain   : UDINT;
+    i         : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ExtractPacket := FALSE;
+
+IF nRxLen < 3 THEN RETURN; END_IF
+
+nExpected := SHL(BYTE_TO_UDINT(aRx[0]), 8) + BYTE_TO_UDINT(aRx[1]);
+IF (nExpected < 3) OR (nExpected > SIZEOF(aPacket)) THEN
+    bError := TRUE;
+    nErrorID := 16#E100;
+    sErrorText := 'Invalid RTDE packet length';
+    RETURN;
+END_IF
+
+IF nRxLen < nExpected THEN RETURN; END_IF
+
+FOR i := 0 TO nExpected - 1 DO
+    aPacket[i] := aRx[i];
+END_FOR
+nPacketLen := nExpected;
+byPacketType := aPacket[2];
+
+nRemain := nRxLen - nExpected;
+IF nRemain > 0 THEN
+    FOR i := 0 TO nRemain - 1 DO
+        aRx[i] := aRx[nExpected + i];
+    END_FOR
+END_IF
+nRxLen := nRemain;
+ExtractPacket := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Fail" Id="{818dc5f9-c18e-4852-ad6a-5cff2c4a5ecd}">
+      <Declaration><![CDATA[METHOD PRIVATE Fail : BOOL
+VAR_INPUT
+    nID   : UDINT;
+    sText : STRING(255);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bError := TRUE;
+nErrorID := nID;
+sErrorText := sText;
+bStreaming := FALSE;
+bReady := FALSE;
+bCloseExecute := TRUE;
+bCloseStarted := FALSE;
+nState := 900;
+Fail := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PacketString" Id="{9b28f67f-331b-477e-a851-4d38e3f90e67}">
+      <Declaration><![CDATA[METHOD PRIVATE PacketString : STRING(1023)
+VAR_INPUT
+    nStart : UDINT;
+END_VAR
+VAR
+    sTmp : STRING(1023);
+    p    : POINTER TO BYTE;
+    n    : UDINT;
+    i    : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[sTmp := '';
+p := ADR(sTmp);
+IF nPacketLen > nStart THEN
+    n := nPacketLen - nStart;
+    IF n > 1023 THEN n := 1023; END_IF
+    IF n > 0 THEN
+        FOR i := 0 TO n - 1 DO
+            p[i] := aPacket[nStart + i];
+        END_FOR
+    END_IF
+    p[n] := 0;
+END_IF
+PacketString := sTmp;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ParseData" Id="{3ead6a1b-d7a0-478f-b5a8-cbebe605e751}">
+      <Declaration><![CDATA[METHOD PRIVATE ParseData : BOOL
+VAR
+    nIndex : UDINT;
+    i      : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ParseData := FALSE;
+
+(*
+    header 3 + recipe ID 1
+    + timestamp 8
+    + actual_TCP_pose 48
+    + actual_q 48
+    + robot_mode 4
+    + runtime_state 4
+    + output_int_register_24..27 16
+    = 132 bytes
+*)
+IF nPacketLen < 132 THEN RETURN; END_IF
+IF aPacket[3] <> byOutputRecipeID THEN RETURN; END_IF
+
+nIndex := 4;
+fTimestamp := RxLReal(nIndex := nIndex);
+nIndex := nIndex + 8;
+
+FOR i := 0 TO 5 DO
+    aActualTCPPose[i] := RxLReal(nIndex := nIndex);
+    nIndex := nIndex + 8;
+END_FOR
+
+FOR i := 0 TO 5 DO
+    aActualQ[i] := RxLReal(nIndex := nIndex);
+    nIndex := nIndex + 8;
+END_FOR
+
+nRobotMode := UDINT_TO_DINT(RxU32(nIndex := nIndex));
+nIndex := nIndex + 4;
+
+nRuntimeState := RxU32(nIndex := nIndex);
+nIndex := nIndex + 4;
+
+nBAExecuteID := UDINT_TO_DINT(RxU32(nIndex := nIndex));
+nIndex := nIndex + 4;
+
+nBACommand := UDINT_TO_DINT(RxU32(nIndex := nIndex));
+nIndex := nIndex + 4;
+
+nBAStatus := UDINT_TO_DINT(RxU32(nIndex := nIndex));
+nIndex := nIndex + 4;
+
+nBAResult := UDINT_TO_DINT(RxU32(nIndex := nIndex));
+
+bNewData := TRUE;
+ParseData := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PauseStream" Id="{5a30d2d3-6ba8-458e-b1d7-97462b77cfff}">
+      <Declaration><![CDATA[METHOD PUBLIC PauseStream : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bStreaming THEN
+    bPauseRequest := TRUE;
+    PauseStream := TRUE;
+ELSE
+    PauseStream := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PollPacket" Id="{73949e3d-d5b5-4651-b3e9-420149ae620c}">
+      <Declaration><![CDATA[METHOD PRIVATE PollPacket : BOOL
+VAR
+    nBytes : UDINT;
+    i      : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[PollPacket := FALSE;
+
+IF ExtractPacket() THEN
+    PollPacket := TRUE;
+    RETURN;
+END_IF
+
+CASE nRxState OF
+0:
+    bRxExecute := TRUE;
+    nRxState := 1;
+
+1:
+    fbReceive(
+        sSrvNetId := '',
+        hSocket   := hSocket,
+        cbLen     := SIZEOF(aRxChunk),
+        pDest     := ADR(aRxChunk),
+        bExecute  := bRxExecute,
+        tTimeout  := T#1S
+    );
+
+    IF bRxExecute THEN bRxExecute := FALSE; END_IF
+
+    IF fbReceive.bBusy THEN
+        nRxState := 2;
+    ELSE
+        IF fbReceive.bError THEN
+            Fail(nID := fbReceive.nErrId, sText := 'Socket receive failed');
+            RETURN;
+        END_IF
+
+        nBytes := fbReceive.nRecBytes;
+        IF nBytes > 0 THEN
+            IF (nRxLen + nBytes) > SIZEOF(aRx) THEN
+                Fail(nID := 16#E101, sText := 'RTDE RX buffer overflow');
+                RETURN;
+            END_IF
+            FOR i := 0 TO nBytes - 1 DO
+                aRx[nRxLen + i] := aRxChunk[i];
+            END_FOR
+            nRxLen := nRxLen + nBytes;
+        END_IF
+        nRxState := 0;
+    END_IF
+
+2:
+    fbReceive(
+        sSrvNetId := '',
+        hSocket   := hSocket,
+        cbLen     := SIZEOF(aRxChunk),
+        pDest     := ADR(aRxChunk),
+        bExecute  := FALSE,
+        tTimeout  := T#1S
+    );
+
+    IF NOT fbReceive.bBusy THEN
+        IF fbReceive.bError THEN
+            Fail(nID := fbReceive.nErrId, sText := 'Socket receive failed');
+            RETURN;
+        END_IF
+
+        nBytes := fbReceive.nRecBytes;
+        IF nBytes > 0 THEN
+            IF (nRxLen + nBytes) > SIZEOF(aRx) THEN
+                Fail(nID := 16#E101, sText := 'RTDE RX buffer overflow');
+                RETURN;
+            END_IF
+            FOR i := 0 TO nBytes - 1 DO
+                aRx[nRxLen + i] := aRxChunk[i];
+            END_FOR
+            nRxLen := nRxLen + nBytes;
+        END_IF
+        nRxState := 0;
+    END_IF
+END_CASE
+
+IF ExtractPacket() THEN PollPacket := TRUE; END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResumeStream" Id="{14e03381-e1eb-49ef-85f0-9cabee108137}">
+      <Declaration><![CDATA[METHOD PUBLIC ResumeStream : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bConnected AND bReady AND NOT bStreaming THEN
+    bResumeRequest := TRUE;
+    ResumeStream := TRUE;
+ELSE
+    ResumeStream := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RxLReal" Id="{f652cd6c-20c9-4c20-9a5c-d96d9f9d6fc5}">
+      <Declaration><![CDATA[METHOD PRIVATE RxLReal : LREAL
+VAR_INPUT
+    nIndex : UDINT;
+END_VAR
+VAR
+    fTmp : LREAL;
+    p    : POINTER TO BYTE;
+    i    : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[p := ADR(fTmp);
+FOR i := 0 TO 7 DO
+    p[7 - i] := aPacket[nIndex + INT_TO_UDINT(i)];
+END_FOR
+RxLReal := fTmp;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RxU32" Id="{21b47991-f77a-4e92-861a-b1c043c811dd}">
+      <Declaration><![CDATA[METHOD PRIVATE RxU32 : UDINT
+VAR_INPUT
+    nIndex : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RxU32 :=
+    SHL(BYTE_TO_UDINT(aPacket[nIndex]), 24) OR
+    SHL(BYTE_TO_UDINT(aPacket[nIndex + 1]), 16) OR
+    SHL(BYTE_TO_UDINT(aPacket[nIndex + 2]), 8) OR
+    BYTE_TO_UDINT(aPacket[nIndex + 3]);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SendCurrentInputs" Id="{231de603-afea-4416-9733-ba0504674400}">
+      <Declaration><![CDATA[METHOD PUBLIC SendCurrentInputs : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bStreaming THEN
+    bSendRequest := TRUE;
+    SendCurrentInputs := TRUE;
+ELSE
+    SendCurrentInputs := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetCommand" Id="{a9bb3c90-fe7d-49ba-98f9-44dedb23590f}">
+      <Declaration><![CDATA[METHOD PUBLIC SetCommand : BOOL
+VAR_INPUT
+    nCommand : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nInputInt24 := nCommand;
+bSendRequest := TRUE;
+SetCommand := bStreaming;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetPoint" Id="{97da0a9d-63c3-4fd8-8893-b9c2597e5e7b}">
+      <Declaration><![CDATA[METHOD PUBLIC SetPoint : BOOL
+VAR_INPUT
+    X  : LREAL;
+    Y  : LREAL;
+    Z  : LREAL;
+    Rx : LREAL;
+    Ry : LREAL;
+    Rz : LREAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[aPoint24_29[0] := X;
+aPoint24_29[1] := Y;
+aPoint24_29[2] := Z;
+aPoint24_29[3] := Rx;
+aPoint24_29[4] := Ry;
+aPoint24_29[5] := Rz;
+bSendRequest := TRUE;
+SetPoint := bStreaming;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetSpeedSlider" Id="{b55c73c9-11ff-44d1-9253-905241e80c36}">
+      <Declaration><![CDATA[METHOD PUBLIC SetSpeedSlider : BOOL
+VAR_INPUT
+    fFraction : LREAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF fFraction < 0.0 THEN
+    fSpeedSliderFraction := 0.0;
+ELSIF fFraction > 1.0 THEN
+    fSpeedSliderFraction := 1.0;
+ELSE
+    fSpeedSliderFraction := fFraction;
+END_IF
+nSpeedSliderMask := 1;
+bSendRequest := TRUE;
+SetSpeedSlider := bStreaming;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetStandardDigitalOutput" Id="{fb4fbeb8-830b-489a-a6ff-535bd2ff2ead}">
+      <Declaration><![CDATA[METHOD PUBLIC SetStandardDigitalOutput : BOOL
+VAR_INPUT
+    nOutput : USINT;
+    bValue  : BOOL;
+END_VAR
+VAR
+    byMask : BYTE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF nOutput > 7 THEN
+    SetStandardDigitalOutput := FALSE;
+    RETURN;
+END_IF
+byMask := SHL(BYTE#1, nOutput);
+byStdDigitalOutputMask := byMask;
+IF bValue THEN
+    byStdDigitalOutput := byStdDigitalOutput OR byMask;
+ELSE
+    byStdDigitalOutput := byStdDigitalOutput AND (NOT byMask);
+END_IF
+bSendRequest := TRUE;
+SetStandardDigitalOutput := bStreaming;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TxBegin" Id="{ada17ad9-ed91-4bcf-b8c1-e0ba7b5ef9ad}">
+      <Declaration><![CDATA[METHOD PRIVATE TxBegin : BOOL
+VAR_INPUT
+    byType : BYTE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nTxLen := 3;
+aTx[0] := 0;
+aTx[1] := 0;
+aTx[2] := byType;
+TxBegin := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TxByte" Id="{1a6642ef-1fd8-4edd-8aa7-2d1f08d63be2}">
+      <Declaration><![CDATA[METHOD PRIVATE TxByte : BOOL
+VAR_INPUT
+    byValue : BYTE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[aTx[nTxLen] := byValue;
+nTxLen := nTxLen + 1;
+TxByte := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TxDInt" Id="{69f5a183-c8f8-4c59-a1e1-e3c486981b1a}">
+      <Declaration><![CDATA[METHOD PRIVATE TxDInt : BOOL
+VAR_INPUT
+    nValue : DINT;
+END_VAR
+VAR
+    nU : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nU := DINT_TO_UDINT(nValue);
+aTx[nTxLen]     := UDINT_TO_BYTE(SHR(nU, 24));
+aTx[nTxLen + 1] := UDINT_TO_BYTE(SHR(nU, 16));
+aTx[nTxLen + 2] := UDINT_TO_BYTE(SHR(nU, 8));
+aTx[nTxLen + 3] := UDINT_TO_BYTE(nU AND 16#FF);
+nTxLen := nTxLen + 4;
+TxDInt := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TxFinish" Id="{675d70c1-cdc4-4785-8d68-b5aab9ee9e8e}">
+      <Declaration><![CDATA[METHOD PRIVATE TxFinish : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[aTx[0] := UDINT_TO_BYTE(SHR(nTxLen, 8));
+aTx[1] := UDINT_TO_BYTE(nTxLen AND 16#FF);
+TxFinish := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TxLReal" Id="{484ccb02-dd09-44d9-b6f3-b86d91a3d9e9}">
+      <Declaration><![CDATA[METHOD PRIVATE TxLReal : BOOL
+VAR_INPUT
+    fValue : LREAL;
+END_VAR
+VAR
+    fTmp : LREAL;
+    p    : POINTER TO BYTE;
+    i    : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fTmp := fValue;
+p := ADR(fTmp);
+FOR i := 0 TO 7 DO
+    aTx[nTxLen + INT_TO_UDINT(i)] := p[7 - i];
+END_FOR
+nTxLen := nTxLen + 8;
+TxLReal := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TxString" Id="{d45f19c2-af54-42a4-83d6-9d60c0eaffac}">
+      <Declaration><![CDATA[METHOD PRIVATE TxString : BOOL
+VAR_INPUT
+    sValue : STRING(1023);
+END_VAR
+VAR
+    p : POINTER TO BYTE;
+    i : UDINT;
+    n : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[p:= ADR(sValue);
+
+n := 0;
+
+WHILE (n < 1023)
+    AND (p[n] <> 0) DO
+
+    n := n + 1;
+
+END_WHILE
+
+IF n > 0 THEN
+
+    FOR i := 0 TO n - 1 DO
+        aTx[nTxLen + i] := p[i];
+    END_FOR
+
+END_IF
+
+nTxLen := nTxLen + n;
+
+TxString := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TxU16" Id="{58a4a5aa-be5d-45cb-aeb5-f40b4679cc0a}">
+      <Declaration><![CDATA[METHOD PRIVATE TxU16 : BOOL
+VAR_INPUT
+    nValue : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[aTx[nTxLen] := UINT_TO_BYTE(SHR(nValue, 8));
+aTx[nTxLen + 1] := UINT_TO_BYTE(nValue AND 16#FF);
+nTxLen := nTxLen + 2;
+TxU16 := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TxU32" Id="{0daa172d-8003-477a-85f5-fdd84ffc7c03}">
+      <Declaration><![CDATA[METHOD PRIVATE TxU32 : BOOL
+VAR_INPUT
+    nValue : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[aTx[nTxLen]     := UDINT_TO_BYTE(SHR(nValue, 24));
+aTx[nTxLen + 1] := UDINT_TO_BYTE(SHR(nValue, 16));
+aTx[nTxLen + 2] := UDINT_TO_BYTE(SHR(nValue, 8));
+aTx[nTxLen + 3] := UDINT_TO_BYTE(nValue AND 16#FF);
+nTxLen := nTxLen + 4;
+TxU32 := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

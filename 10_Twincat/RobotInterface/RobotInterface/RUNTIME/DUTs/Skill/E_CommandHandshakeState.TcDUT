@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="E_CommandHandshakeState" Id="{86697ce8-a536-49d2-9e6a-4daf2ff01b03}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE E_CommandHandshakeState :
+(
+    Idle,
+    WaitAck,
+    WaitResult,
+    Done
+);
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

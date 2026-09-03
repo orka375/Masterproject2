@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stVisStatusTool" Id="{4c567cd8-b70c-4765-a5bd-dfda644b9f3d}">
+    <Declaration><![CDATA[{attribute 'OPC.UA.DA.StructuredType' := '1'}
+{attribute 'OPC.UA.DA' := '1'}
+TYPE stVisStatusTool :
+STRUCT
+	State:  eState;
+	isMoving: BOOL;
+	isReady: BOOL;
+// 	isConnected: BOOL;
+// 	isLocked: BOOL;
+	isBusy: BOOL;
+	hasError: BOOL;
+	Position: STRING;
+	bOpen: BOOL;
+	bClosed: BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

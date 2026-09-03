@@ -1,0 +1,41 @@
+<div id="Page1" data-tchmi-type="TcHmi.Controls.System.TcHmiContent" data-tchmi-top="0" data-tchmi-left="0" data-tchmi-width="100" data-tchmi-height="100" data-tchmi-width-unit="%" data-tchmi-height-unit="%"><div id="TcHmiEventGrid_Robots_1" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiEventGrid" data-tchmi-height-unit="px" data-tchmi-left="16" data-tchmi-left-unit="px" data-tchmi-show-menu-bar="True" data-tchmi-top="16" data-tchmi-top-unit="px" data-tchmi-width-unit="px" data-tchmi-right="16" data-tchmi-bottom="16">
+<script data-tchmi-target-attribute="data-tchmi-filter" type="application/json">
+        []
+      </script>
+      <script data-tchmi-target-attribute="data-tchmi-columns" type="application/json">
+        [
+          {
+            "columnName": "type"
+          },
+          {
+            "columnName": "severity"
+          },
+          {
+            "columnName": "timeAndDateRaised"
+          },
+          {
+            "columnName": "text",
+            "width": 1,
+            "widthUnit": "factor"
+          }
+        ]
+      </script>
+      <script data-tchmi-target-attribute="data-tchmi-sorting" type="application/json">
+        [
+          {
+            "name": "timeRaised",
+            "order": "Descending"
+          }
+        ]
+      </script>
+
+      <script data-tchmi-target-attribute="data-tchmi-background-color" type="application/json">
+        {
+          "color": "None"
+        }
+      </script>
+      <script data-tchmi-target-attribute="data-tchmi-box-shadow" type="application/json">
+        []
+      </script>
+    </div>
+</div>

@@ -1,0 +1,102 @@
+<div id="SkillControl" data-tchmi-type="TcHmi.Controls.System.TcHmiContent" data-tchmi-top="0" data-tchmi-left="0" data-tchmi-width="100" data-tchmi-width-unit="%" data-tchmi-height="100" data-tchmi-height-unit="%">
+  <!--
+    Skill Control - reusable for the selected robot (RobotHmi.js).
+
+    Symbols (all real, per robot):
+      GVL_Cell.aRobot[i].HMI_ROB.bReady / .eModus / .bMoving / .bEStop   (robot status)
+      GVL_Cell.aSkillPickPlace[i].HMI_BASE.eStatus / .bBusy              (skill state)
+      GVL_Cell.aSkillPickPlace[i].ExecutionResult
+      GVL_Cell.aSkillPickPlace[i].bExecute / .bStop / .bReset            (momentary commands)
+      GVL_Cell.aSkillPickPlace[i].Param.*                                (per-robot PickPlace params)
+  -->
+  <div id="SC_Host" data-tchmi-type="TcHmi.Controls.System.TcHmiContainer" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0">
+  <div class="rm-root">
+
+    <!-- HEADER -->
+    <div class="rm-header robot-panel-dark">
+      <select class="robot-select" data-robot-selector>
+        <option value="1">UR5-01</option>
+        <option value="2">UR5-02</option>
+      </select>
+      <span class="rm-title" data-robot-name>UR5-01</span>
+      <span class="rm-stat"><span class="rm-lbl">Mode</span><span data-robot-bind="HMI_ROB.eModus" data-robot-format="mode">--</span></span>
+      <span class="rm-stat"><span class="rm-lbl">Ready</span><span data-robot-bind="HMI_ROB.bReady" data-robot-format="bool" data-robot-status="ok">--</span></span>
+    </div>
+
+    <div class="rm-body">
+
+      <!-- LEFT: SKILL + COMMANDS -->
+      <div class="rm-col robot-panel">
+        <div class="robot-section-title">SKILL</div>
+
+        <div class="param-row"><span class="param-lbl">Selected skill</span>
+          <select class="param-input"><option>PickPlace</option></select>
+        </div>
+
+        <div class="skill-state-box">
+          <span class="rm-lbl">State</span>
+          <span class="skill-state-big" data-skill-bind="HMI_BASE.eStatus" data-skill-format="state">IDLE</span>
+        </div>
+
+        <div class="param-row"><span class="param-lbl">Busy</span><span class="jog-readout" data-skill-bind="HMI_BASE.bBusy" data-skill-format="bool">--</span></div>
+        <div class="param-row"><span class="param-lbl">Result</span><span class="jog-readout" data-skill-bind="ExecutionResult">--</span></div>
+
+        <div class="skill-cmd-row">
+          <button type="button" class="cmd-btn cmd-start" data-skill-cmd="bExecute">START</button>
+          <button type="button" class="cmd-btn cmd-stop" data-skill-cmd="bStop">STOP</button>
+          <button type="button" class="cmd-btn cmd-reset" data-skill-cmd="bReset">RESET</button>
+        </div>
+      </div>
+
+      <!-- CENTER: PICKPLACE PARAMETERS -->
+      <div class="rm-col rm-col-wide robot-panel">
+        <div class="robot-section-title">PICKPLACE PARAMETERS</div>
+
+        <div class="param-group">PICK</div>
+        <div class="param-row"><span class="param-lbl">Point name</span>
+          <input type="text" class="param-input" data-skill-bind="Param.PickPositionName" data-skill-write="Param.PickPositionName" data-robot-type="string" />
+        </div>
+        <div class="param-row"><span class="param-lbl">Offset X</span><input type="number" step="0.001" class="param-input" data-skill-bind="Param.PickPositionOffset.x" data-skill-write="Param.PickPositionOffset.x" /></div>
+        <div class="param-row"><span class="param-lbl">Offset Y</span><input type="number" step="0.001" class="param-input" data-skill-bind="Param.PickPositionOffset.y" data-skill-write="Param.PickPositionOffset.y" /></div>
+        <div class="param-row"><span class="param-lbl">Offset Z</span><input type="number" step="0.001" class="param-input" data-skill-bind="Param.PickPositionOffset.z" data-skill-write="Param.PickPositionOffset.z" /></div>
+        <div class="param-row"><span class="param-lbl">Approach dir</span>
+          <select class="param-input" data-skill-bind="Param.PickApproachDirection" data-skill-write="Param.PickApproachDirection" data-robot-type="string">
+            <option>+X</option><option>-X</option><option>+Y</option><option>-Y</option><option>+Z</option><option>-Z</option>
+          </select>
+        </div>
+        <div class="param-row"><span class="param-lbl">Approach [mm]</span><input type="number" step="1" class="param-input" data-skill-bind="Param.PickApproachOffset" data-skill-write="Param.PickApproachOffset" /></div>
+
+        <div class="param-group">PLACE</div>
+        <div class="param-row"><span class="param-lbl">Point name</span>
+          <input type="text" class="param-input" data-skill-bind="Param.PlacePositionName" data-skill-write="Param.PlacePositionName" data-robot-type="string" />
+        </div>
+        <div class="param-row"><span class="param-lbl">Offset X</span><input type="number" step="0.001" class="param-input" data-skill-bind="Param.PlacePositionOffset.x" data-skill-write="Param.PlacePositionOffset.x" /></div>
+        <div class="param-row"><span class="param-lbl">Offset Y</span><input type="number" step="0.001" class="param-input" data-skill-bind="Param.PlacePositionOffset.y" data-skill-write="Param.PlacePositionOffset.y" /></div>
+        <div class="param-row"><span class="param-lbl">Offset Z</span><input type="number" step="0.001" class="param-input" data-skill-bind="Param.PlacePositionOffset.z" data-skill-write="Param.PlacePositionOffset.z" /></div>
+        <div class="param-row"><span class="param-lbl">Approach dir</span>
+          <select class="param-input" data-skill-bind="Param.PlaceApproachDirection" data-skill-write="Param.PlaceApproachDirection" data-robot-type="string">
+            <option>+X</option><option>-X</option><option>+Y</option><option>-Y</option><option>+Z</option><option>-Z</option>
+          </select>
+        </div>
+        <div class="param-row"><span class="param-lbl">Approach [mm]</span><input type="number" step="1" class="param-input" data-skill-bind="Param.PlaceApproachOffset" data-skill-write="Param.PlaceApproachOffset" /></div>
+
+        <div class="param-group">PROCESS</div>
+        <div class="param-row"><span class="param-lbl">Velocity [mm/s]</span><input type="number" step="1" class="param-input" data-skill-bind="Param.Velocity" data-skill-write="Param.Velocity" /></div>
+      </div>
+
+      <!-- RIGHT: SKILL INFORMATION -->
+      <div class="rm-col robot-panel">
+        <div class="robot-section-title">SKILL INFORMATION</div>
+        <div class="param-row"><span class="param-lbl">Robot ready</span><span class="jog-readout" data-robot-bind="HMI_ROB.bReady" data-robot-format="bool" data-robot-status="ok">--</span></div>
+        <div class="param-row"><span class="param-lbl">Robot moving</span><span class="jog-readout" data-robot-bind="HMI_ROB.bMoving" data-robot-format="bool" data-robot-status="warn">--</span></div>
+        <div class="param-row"><span class="param-lbl">E-Stop</span><span class="jog-readout" data-robot-bind="HMI_ROB.bEStop" data-robot-format="bool" data-robot-status="fault">--</span></div>
+        <div class="param-row"><span class="param-lbl">Skill busy</span><span class="jog-readout" data-skill-bind="HMI_BASE.bBusy" data-skill-format="bool">--</span></div>
+        <div class="param-row"><span class="param-lbl">Skill state</span><span class="jog-readout" data-skill-bind="HMI_BASE.eStatus" data-skill-format="state">--</span></div>
+        <div class="sc-note">Parameters are per-robot (aSkillPickPlace[i].Param). START/STOP/RESET send edge-triggered command bits; the PLC state machine remains authoritative.</div>
+      </div>
+
+    </div>
+
+  </div>
+  </div>
+</div>

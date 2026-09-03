@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="E_DBClientState" Id="{2d76c6c8-92c4-4bae-ac25-0aedd9df7e83}">
+    <Declaration><![CDATA[{attribute 'strict'}
+{attribute 'to_string'}
+TYPE E_DBClientState :
+(
+    DBCLIENT_IDLE := 0,
+
+    // ODBC configuration
+    DBCLIENT_ODBC_START := 10,
+    DBCLIENT_ODBC_WAIT := 11,
+    DBCLIENT_ODBC_RESET := 12,
+
+    // Reload TF6420 configuration
+    DBCLIENT_RELOAD_START := 20,
+    DBCLIENT_RELOAD_WAIT := 21,
+    DBCLIENT_RELOAD_RESET := 22,
+
+    // SQL connection
+    DBCLIENT_CONNECT := 30,
+    DBCLIENT_CREATE_COMMAND := 31,
+
+    // Execute SQL without return data
+    DBCLIENT_EXECUTE := 40,
+
+    // SELECT / returned data
+    DBCLIENT_QUERY_EXECUTE := 50,
+    DBCLIENT_QUERY_READ := 51,
+
+    // Disconnect
+    DBCLIENT_DISCONNECT := 60
+);
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

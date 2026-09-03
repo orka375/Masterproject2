@@ -1,0 +1,439 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_2_ROB_MANIP" Id="{21b924b4-0fb6-46ff-9fb7-f679235d19bb}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'hide_all_locals'}
+FUNCTION_BLOCK FB_2_ROB_MANIP EXTENDS FB_1_ROB 
+// IMPLEMENTS ITF_2_Manip
+
+VAR_INPUT
+	TOOL: FB_1_Tool;
+	JOG: FB_Jog_Manipulator;
+END_VAR
+
+VAR_OUTPUT
+	HMI_ROB_MANIP: stHMI_ROB_MANIP;
+END_VAR
+VAR
+
+
+	
+	//TODO What is this for?
+	_command : ST_RobotCommand;
+	_commandState : E_RobotCommandState := E_RobotCommandState.Idle;
+	_commandErrorId : UDINT;
+	_nextExecuteId : UDINT := 1;		
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="MotionControl" Id="{fc8c0aca-629b-4848-a20d-78e9ce6e9fda}" />
+    <Folder Name="StateControl" Id="{4f99cba4-d44f-4086-b21c-31fe1a3d2978}" />
+    <Action Name="CYCLIC_MANIP" Id="{c5ea77dd-14da-4015-9108-0744e50afbab}">
+      <Implementation>
+        <ST><![CDATA[CYCLIC_ROB();
+TOOL.CYCLIC_TOOL();
+JOG(pRobot:=THIS);
+
+
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="Home" Id="{332921a2-9f70-499b-943d-00519405a468}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD Home : UINT
+
+
+VAR
+	Config: stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+Home:= BA_Handler(Cmd:=eBA.Home,Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsHomePosition" Id="{0f2fd807-aeed-459c-9c2b-f2325fe045e7}">
+      <Declaration><![CDATA[{warning 'Override with your own Method in final FB'}
+  PROPERTY IsHomePosition : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{cc381350-4b9b-4a45-a9c1-b7537b47d8d7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="MoveJoint" Id="{9e0f1a2b-3c4d-4e5f-8a6b-7c8d9e0f1a2b}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD MoveJoint : UINT
+VAR_INPUT
+    Target : stTarget;
+	Velocity: REAL;
+END_VAR
+
+VAR
+	Config: stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Config.Velocity:=Velocity;
+Config.Target:=Target;
+
+
+MoveJoint := BA_Handler(Cmd:=eBA.MoveJ,Settings:=Config); //HAndler returns a UINT ID of the BA
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveJointRelative" Id="{d4d7d377-1aa7-4fc3-9e59-f55d00fe8d35}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[
+METHOD MoveJointRelative : UINT
+VAR_INPUT
+    Target : stTarget;
+	Velocity: REAL;
+END_VAR
+
+VAR
+	Config: stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Config.Velocity:=Velocity;
+Config.Target:=Target;
+
+
+MoveJointRelative:= BA_Handler(Cmd:=eBA.MoveJRelativ,Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveJointAbsolute" Id="{5b7e2c11-0d34-4f8a-9c62-7a1e4d90b3f2}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[// Move to an absolute joint configuration (joint space).
+// Used by the hold-to-run joint jog. The concrete robot FB
+// decides how the joint target is transported (e.g. UR movej).
+METHOD MoveJointAbsolute : UINT
+VAR_INPUT
+    Joints   : stJoint6;
+    Velocity : REAL;
+END_VAR
+
+VAR
+	Config: stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Config.Velocity := Velocity;
+Config.Joints := Joints;
+
+MoveJointAbsolute := BA_Handler(Cmd:=eBA.MoveJJoints, Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveLinear" Id="{af96fe73-c0fb-4331-8a41-58ccd3cdc293}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD MoveLinear : UINT
+VAR_INPUT
+	Target	: stTarget;
+	Velocity: REAL;
+END_VAR
+
+VAR
+	Config: stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Config.Velocity:=Velocity;
+Config.Target:=Target;
+
+
+MoveLinear:= BA_Handler(Cmd:=eBA.MoveL,Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveLinearRelative" Id="{bc2132e6-39c8-42b1-8dcb-1b232e67fc7a}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD MoveLinearRelative : UINT
+VAR_INPUT
+    Offset : stPoseGeneral;
+	Velocity: REAL;
+END_VAR
+
+VAR
+	Config: stBA_Settings;
+END_VAR
+
+VAR
+    Target : stTarget;
+	apos : stPoseGeneral;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Config.Velocity:=Velocity;
+Config.Pose:=Offset;
+
+MEMCPY(ADR(apos),ADR(HMI_ROB._tcppos),SIZEOF(apos));
+
+
+Target.pose.x  := apos.x  + Offset.x;
+Target.pose.y  := apos.y  + Offset.y;
+Target.pose.z  := apos.z  + Offset.z;
+Target.pose.rx := apos.rx + Offset.rx;
+Target.pose.ry := apos.ry + Offset.ry;
+Target.pose.rz := apos.rz + Offset.rz;
+
+MoveLinearRelative := MoveLinear(
+    Target   := Target,
+    Velocity := Velocity
+);
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnActivate" Id="{8545c31c-13d9-413d-a788-5dc93d08af33}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnActivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+
+IF TOOL.LastTransitionType = eTransitions.Activate THEN
+	IF TOOL.LastTransitionResult = SUCCESS THEN
+		myResult:=SUCCESS;
+	END_IF
+ELSE
+	TOOL.Activate();
+END_IF
+
+
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnActivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCleanup" Id="{bee78ada-5292-4275-9002-58d1c3177ebe}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnCleanup();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+IF TOOL.LastTransitionType = eTransitions.Cleanup THEN
+	IF TOOL.LastTransitionResult = SUCCESS THEN
+		myResult:=SUCCESS;
+	END_IF
+ELSE
+	TOOL.Cleanup();
+END_IF
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnCleanup := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnConfigure" Id="{c4c1f796-20a8-4791-af0e-0e2d378d2ded}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnConfigure();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+PM.Configure(sPrefix:=Name,sDatabase:=CONCAT('db_',Name)); //TODO
+
+
+IF TOOL.LastTransitionType = eTransitions.Configure THEN
+	IF TOOL.LastTransitionResult = SUCCESS AND COMM^.CommunicationReady  THEN
+		myResult:=SUCCESS;
+	END_IF
+ELSE
+	TOOL.Configure();
+END_IF
+
+
+
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnConfigure := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{a6d9797f-7816-4343-988a-e3311ba5d69a}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+IF TOOL.LastTransitionType = eTransitions.Deactivate THEN
+	IF TOOL.LastTransitionResult = SUCCESS THEN
+		myResult:=SUCCESS;
+	END_IF
+ELSE
+	TOOL.Deactivate();
+END_IF
+
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnDeactivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{70cb8b10-ead7-4574-b102-c006cadaaa08}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnError();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnError := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnShutdown" Id="{33fd0fdb-eda0-4636-921c-64c45a1b7fdc}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+IF TOOL.LastTransitionType = eTransitions.Shutdown THEN
+	IF TOOL.LastTransitionResult = SUCCESS THEN
+		myResult:=SUCCESS;
+	END_IF
+ELSE
+	TOOL.Shutdown();
+END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnShutdown := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReadDI" Id="{c8354a35-ffdd-4948-906a-367cdcf5dddc}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD ReadDI : UINT
+VAR_INPUT
+    bPin : UINT;
+END_VAR
+
+VAR
+	Config: stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Config.Pin:=bPin;
+
+
+ReadDI:= BA_Handler(Cmd:=eBA.ReadDI,Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetDO" Id="{1b1484e8-2eba-4b5a-9bc9-3e9f0cf73af2}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD SetDO : UINT
+VAR_INPUT
+    nOutput : UINT;
+    bValue : BOOL;
+END_VAR
+
+VAR
+	Config: stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Config.Pin:=nOutput;
+Config.bValue:=bValue;
+
+
+SetDO:= BA_Handler(Cmd:=eBA.SetDO,Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="TargetReached" Id="{2237dc56-6e31-4e2f-87fb-158a23ca2344}">
+      <Declaration><![CDATA[{warning 'Override with your own Method in final FB'}
+PROPERTY TargetReached : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{fa9b9558-e97e-4d6d-afa4-8757f8a89ab1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TargetReached := _commandState = E_RobotCommandState.Done;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

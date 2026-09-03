@@ -1,0 +1,101 @@
+<div id="SkillRecipes" data-tchmi-type="TcHmi.Controls.System.TcHmiContent" data-tchmi-top="0" data-tchmi-left="0" data-tchmi-width="100" data-tchmi-width-unit="%" data-tchmi-height="100" data-tchmi-height-unit="%">
+  <!--
+    Recipes = the per-robot point/pose library (FB_PointManager "PM").
+
+    Symbols used:
+      REAL today (read):
+        GVL_Cell.aRobot[i].PM.nPointCount
+        GVL_Cell.aRobot[i].PM.aPoints[k].short_name
+        GVL_Cell.aRobot[i].PM.xPoint.short_name / .x / .y / .z / .rx / .ry / .rz   (loaded point)
+        GVL_Cell.aRobot[i].PM.bBusy / .bError / .sLastOperation
+      Convention (now implemented in FB_PointManager - command interface consumed
+      rising-edge to call Load/Create3D/Delete/Rename/Retouch3D):
+        GVL_Cell.aRobot[i].PM.sCmdName / .sCmdNewName
+        GVL_Cell.aRobot[i].PM.bCmdNew / bCmdLoad / bCmdSave / bCmdDelete / bCmdRename / bCmdTeach
+  -->
+  <div id="SR_Host" data-tchmi-type="TcHmi.Controls.System.TcHmiContainer" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0">
+  <div class="rm-root">
+
+    <!-- HEADER -->
+    <div class="rm-header robot-panel-dark">
+      <select class="robot-select" data-robot-selector>
+        <option value="1">UR5-01</option>
+        <option value="2">UR5-02</option>
+      </select>
+      <span class="rm-title" data-robot-name>UR5-01</span>
+      <span class="rm-stat"><span class="rm-lbl">Points</span><span data-robot-bind="PM.nPointCount">--</span></span>
+      <span class="rm-stat"><span class="rm-lbl">Last op</span><span data-robot-bind="PM.sLastOperation">--</span></span>
+      <span class="rm-stat"><span class="rm-lbl">Error</span><span data-robot-bind="PM.bError" data-robot-format="bool" data-robot-status="fault">--</span></span>
+    </div>
+
+    <div class="rm-body">
+
+      <!-- LEFT: POINT LIST -->
+      <div class="rm-col robot-panel">
+        <div class="robot-section-title">POINTS</div>
+        <div class="pt-list">
+          <div class="pt-row" data-robot-bind="PM.aPoints[1].short_name"></div>
+          <div class="pt-row" data-robot-bind="PM.aPoints[2].short_name"></div>
+          <div class="pt-row" data-robot-bind="PM.aPoints[3].short_name"></div>
+          <div class="pt-row" data-robot-bind="PM.aPoints[4].short_name"></div>
+          <div class="pt-row" data-robot-bind="PM.aPoints[5].short_name"></div>
+          <div class="pt-row" data-robot-bind="PM.aPoints[6].short_name"></div>
+          <div class="pt-row" data-robot-bind="PM.aPoints[7].short_name"></div>
+          <div class="pt-row" data-robot-bind="PM.aPoints[8].short_name"></div>
+          <div class="pt-row" data-robot-bind="PM.aPoints[9].short_name"></div>
+          <div class="pt-row" data-robot-bind="PM.aPoints[10].short_name"></div>
+          <div class="pt-row" data-robot-bind="PM.aPoints[11].short_name"></div>
+          <div class="pt-row" data-robot-bind="PM.aPoints[12].short_name"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: POINT EDITOR -->
+      <div class="rm-col rm-col-wide robot-panel">
+        <div class="robot-section-title">POINT / POSE</div>
+
+        <div class="param-row"><span class="param-lbl">Name</span>
+          <input type="text" class="param-input" data-robot-bind="PM.sCmdName" data-robot-write="PM.sCmdName" data-robot-type="string" />
+        </div>
+        <div class="param-row"><span class="param-lbl">New name</span>
+          <input type="text" class="param-input" data-robot-write="PM.sCmdNewName" data-robot-type="string" />
+        </div>
+
+        <div class="param-group">POSITION [mm]</div>
+        <div class="param-row"><span class="param-lbl">X</span><input type="number" step="0.001" class="param-input" data-robot-bind="PM.xPoint.x" data-robot-write="PM.xPoint.x" /></div>
+        <div class="param-row"><span class="param-lbl">Y</span><input type="number" step="0.001" class="param-input" data-robot-bind="PM.xPoint.y" data-robot-write="PM.xPoint.y" /></div>
+        <div class="param-row"><span class="param-lbl">Z</span><input type="number" step="0.001" class="param-input" data-robot-bind="PM.xPoint.z" data-robot-write="PM.xPoint.z" /></div>
+
+        <div class="param-group">ORIENTATION [rad]</div>
+        <div class="param-row"><span class="param-lbl">Rx</span><input type="number" step="0.0001" class="param-input" data-robot-bind="PM.xPoint.rx" data-robot-write="PM.xPoint.rx" /></div>
+        <div class="param-row"><span class="param-lbl">Ry</span><input type="number" step="0.0001" class="param-input" data-robot-bind="PM.xPoint.ry" data-robot-write="PM.xPoint.ry" /></div>
+        <div class="param-row"><span class="param-lbl">Rz</span><input type="number" step="0.0001" class="param-input" data-robot-bind="PM.xPoint.rz" data-robot-write="PM.xPoint.rz" /></div>
+
+        <div class="sc-note">Teach copies the robot's current TCP into this point (PLC Retouch3D). Editing writes to the loaded point buffer.</div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER: RECIPE OPERATIONS -->
+    <div class="rm-footer robot-panel-dark">
+      <button type="button" class="cmd-btn" data-jog-symbol="PM.bCmdNew">NEW</button>
+      <button type="button" class="cmd-btn cmd-start" data-jog-symbol="PM.bCmdLoad">LOAD</button>
+      <button type="button" class="cmd-btn" data-jog-symbol="PM.bCmdSave">SAVE</button>
+      <button type="button" class="cmd-btn" data-jog-symbol="PM.bCmdRename">RENAME</button>
+      <button type="button" class="cmd-btn" data-jog-symbol="PM.bCmdTeach">TEACH</button>
+      <button type="button" class="cmd-btn cmd-stop" data-confirm-toggle="SR_DelConfirm">DELETE</button>
+    </div>
+
+    <!-- DELETE CONFIRM -->
+    <div id="SR_DelConfirm" class="confirm-dialog">
+      <div class="confirm-box">
+        <div class="confirm-text">Delete the selected point?</div>
+        <div class="confirm-actions">
+          <button type="button" class="cmd-btn" data-confirm-toggle="SR_DelConfirm">CANCEL</button>
+          <button type="button" class="cmd-btn cmd-stop" data-jog-symbol="PM.bCmdDelete" data-confirm-toggle="SR_DelConfirm">DELETE</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </div>
+</div>

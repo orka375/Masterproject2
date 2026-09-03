@@ -1,0 +1,336 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="ROBOT_LD90" Id="{fac74160-c2b3-4f77-bd69-eddf1970c653}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ROBOT_LD90 EXTENDS FB_2_ROB_AMR
+VAR_INPUT
+	
+
+
+	sLoadDeliverReturn: Skill_LoadDeliverReturn;
+	sEyes: Skill_ROS2_Eyes;
+	ComConfig: stComm_UR_Config;
+END_VAR
+VAR_OUTPUT
+  SocketErrorId: UDINT;
+END_VAR
+VAR
+	MissionIndex: INT;
+	oldMissionIndex: INT;
+	waitTimer: TON;
+  COMM: FB_2_COMM_UR;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CYCLIC_AMR();
+
+ComMachine();
+
+//-------- SKILL SETUP ---------
+
+
+pA_Skills[1]:=ADR(sLoadDeliverReturn);
+pA_Skills[2]:=ADR(sEyes);
+
+sEyes();
+sLoadDeliverReturn(Rob:=ADR(THIS^));
+
+
+//------------------------------------
+
+IF MissionIndex<>oldMissionIndex THEN
+	waitTimer(IN:=TRUE, PT:=T#4S);
+	oldMissionIndex:=MissionIndex;
+END_IF
+waitTimer();
+IF waitTimer.Q THEN
+	waitTimer(IN:=FALSE);
+	TargetReached:=TRUE;
+	ADSLOGSTR(
+    msgCtrlMask := ADSLOG_MSGTYPE_HINT,
+    msgFmtStr   := 'Simulated target reached!',
+    strArg      := ''
+);
+	
+END_IF]]></ST>
+    </Implementation>
+    <Folder Name="Communication" Id="{2a9c337e-719c-4121-a5a9-4ddfd8584a43}" />
+    <Folder Name="StateControl" Id="{67994def-610e-4a0b-a6c8-85df31e22884}" />
+    <Method Name="ComMachine" Id="{040d86b8-c78e-42d4-a5c1-25c0270b6e14}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD ComMachine : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// The TCP/IP connection is handled by the communication module.
+COMM.Config := ComConfig;
+COMM.CYCLIC_COMM_UR();
+
+CommunicationReady := COMM.Connected;
+
+bError := COMM.bError;
+SocketErrorId := COMM.nErrorId;
+nErrorId := TO_UINT(COMM.nErrorId);
+
+ComMachine := NOT bError;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Connect" Id="{70fa978a-67c6-43be-99fb-d03c8689cf07}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD Connect : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+Connect := FALSE;
+
+// Validate address
+IF LEN(ComConfig.sIpAddress) = 0 THEN
+    bError := TRUE;
+    RETURN;
+END_IF;
+
+// Validate port
+IF ComConfig.nPort = 0 THEN
+    bError := TRUE;
+    RETURN;
+END_IF;
+
+// Clear previous error
+bError := FALSE;
+nErrorId := 0;
+
+Connect := COMM.Connect();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Connected" Id="{e71d8962-d52b-46f4-b79d-88e001b39f65}" FolderPath="Communication\">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY Connected : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{1724321d-02c7-40cd-942a-414eba41ba06}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Connected:=COMM.Connected;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Disconnect" Id="{c75c2374-9ebb-4dd8-a5bc-f61f0a69c931}" FolderPath="Communication\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD Disconnect : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF COMM.Connected THEN
+      Disconnect := TRUE;
+      RETURN;
+    END_IF
+
+    Disconnect := COMM.Disconnect();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnActivate" Id="{7fa92802-2ede-4193-9973-ad7754d17239}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnActivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+IF bError THEN
+    myResult := ERROR;
+    ELSIF Connected THEN
+      myResult := SUCCESS;
+ELSE
+      myResult := None;
+END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnActivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCleanup" Id="{7747948a-f8e1-4cdb-8a20-610ab536a0ef}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnCleanup();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+Disconnect();
+
+    IF COMM.Connected THEN
+      myResult := None;
+    ELSE
+      myResult := SUCCESS;
+    END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnCleanup := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnConfigure" Id="{c568c508-6321-435c-b7c4-683ad73a8f42}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnConfigure();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+Connect();
+
+    IF bError THEN
+      myResult := ERROR;
+    ELSIF Connected THEN
+      myResult := SUCCESS;
+    ELSE
+      myResult := None;
+    END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnConfigure := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{57ce1156-6b80-40b7-8fff-100660e6e779}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+IF bError THEN
+    myResult := ERROR;
+ELSE
+    myResult := SUCCESS;
+END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnDeactivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{74c0a508-94ea-4785-a0ea-1af2639ff5e5}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnError();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+myResult := SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnError := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnShutdown" Id="{f496723a-9c1c-413c-b4ed-4d78c56c0863}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+Disconnect();
+
+    IF COMM.Connected THEN
+      myResult := None;
+    ELSIF bError THEN
+      myResult := ERROR;
+    ELSE
+      myResult := SUCCESS;
+    END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnShutdown := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetConnection" Id="{1a6fc39d-923f-4cb8-bc55-cd413f8ec29d}" FolderPath="Communication\">
+      <Declaration><![CDATA[METHOD ResetConnection : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bError := FALSE;
+nErrorId := 0;
+SocketErrorId := 0;
+
+COMM.Reset();
+ResetConnection := COMM.Reconnect();]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>
