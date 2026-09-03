@@ -39,7 +39,7 @@ END_IF
 
 // Stop immediately
 IF bStop THEN
-    bBusy := FALSE;
+    HMI_BASE.bBusy := FALSE;
     ExecutionDone:=TRUE;
 	ExecutionResult:= FAILURE;
 	phase:=0;
@@ -48,7 +48,7 @@ IF bStop THEN
 	bStop:=FALSE;
 ELSE
 
-    IF bBusy THEN
+    IF HMI_BASE.bBusy THEN
 		IF phase=0 THEN
 			pUR^.UR_COMM.Dashboard.LoadProgram(sPath:=PathOfURP);
 // 			pUR^.UR_COMM.Dashboard.GetLoadedProgram();
@@ -114,7 +114,7 @@ ELSE
 				bExecute:=FALSE;
 				ExecutionDone:=TRUE;
 				ExecutionResult:= SUCCESS;
-				bBusy:=FALSE;
+				HMI_BASE.bBusy:=FALSE;
 				phase:=0;
 			END_IF
 		END_IF

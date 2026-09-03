@@ -1,0 +1,258 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_UR_Script" Id="{815662db-63a8-4acc-b050-d6e39a0a6888}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_UR_Script
+VAR_INPUT
+    sRobotIP        : STRING(15) := '192.168.250.6';
+    bEnable         : BOOL;
+    tConnectTimeout : TIME := T#5S;
+    tSendTimeout    : TIME := T#5S;
+END_VAR
+
+VAR_OUTPUT
+    bConnected      : BOOL;
+    bReady          : BOOL;
+    bBusy           : BOOL;
+    bError          : BOOL;
+    nErrorID        : UDINT;
+    sErrorText      : STRING(255);
+
+    (* One-cycle pulse after the complete script buffer was handed to TCP successfully. *)
+    bScriptSent     : BOOL;
+    nLastSentBytes  : UDINT;
+END_VAR
+
+VAR
+    fbConnect : FB_SocketConnect;
+    fbSend    : FB_SocketSend;
+    fbClose   : FB_SocketClose;
+    hSocket   : T_HSOCKET;
+
+    nState : INT := 0;
+
+    bConnectExecute : BOOL;
+    bConnectStarted : BOOL;
+    bSendExecute    : BOOL;
+    bSendStarted    : BOOL;
+    bCloseExecute   : BOOL;
+    bCloseStarted   : BOOL;
+
+    (* The script is built line-by-line so it is not limited by CONCAT's STRING(255) result. *)
+    aScript    : ARRAY[0..4095] OF BYTE;
+    nScriptLen : UDINT;
+    bSendRequest : BOOL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*
+    URScript transport for the Universal Robots Secondary client interface (TCP 30002).
+
+    This FB deliberately uses one TCP connection per submitted script:
+      connect -> send complete program -> close
+
+    Port 30002 continuously publishes robot-state data to connected clients. Since this FB only
+    needs to transmit scripts, closing after each script avoids maintaining/draining an unused
+    receive stream.
+
+    Build a program with ClearScript()/AppendLine(), then call SendBuffered().
+    AppendLine() always adds LF (16#0A). The final "end" line therefore also ends with LF.
+*)
+
+bScriptSent := FALSE;
+bReady := bEnable AND (nState = 0) AND NOT bSendRequest;
+
+CASE nState OF
+
+0: // idle / disconnected
+    bConnected := FALSE;
+    bBusy := FALSE;
+
+    IF bSendRequest THEN
+        IF NOT bEnable THEN
+            bError := TRUE;
+            nErrorID := 16#E201;
+            sErrorText := 'URScript interface disabled';
+            bSendRequest := FALSE;
+            nScriptLen := 0;
+        ELSE
+            bError := FALSE;
+            nErrorID := 0;
+            sErrorText := '';
+            bBusy := TRUE;
+            bConnectExecute := TRUE;
+            bConnectStarted := FALSE;
+            nState := 10;
+        END_IF
+    END_IF
+
+10: // connect to Secondary interface :30002
+    fbConnect(
+        sSrvNetId   := '',
+        sRemoteHost := sRobotIP,
+        nRemotePort := 30002,
+        bExecute    := bConnectExecute,
+        tTimeout    := tConnectTimeout
+    );
+
+    IF bConnectExecute THEN
+        bConnectExecute := FALSE;
+        bConnectStarted := TRUE;
+    END_IF
+
+    IF bConnectStarted AND NOT fbConnect.bBusy THEN
+        IF fbConnect.bError THEN
+            bError := TRUE;
+            nErrorID := fbConnect.nErrId;
+            sErrorText := 'URScript TCP connect failed';
+            bSendRequest := FALSE;
+            nScriptLen := 0;
+            bBusy := FALSE;
+            nState := 0;
+        ELSE
+            hSocket := fbConnect.hSocket;
+            bConnected := TRUE;
+            bSendExecute := TRUE;
+            bSendStarted := FALSE;
+            nState := 20;
+        END_IF
+    END_IF
+
+20: // send complete script buffer
+    fbSend(
+        sSrvNetId := '',
+        hSocket   := hSocket,
+        cbLen     := nScriptLen,
+        pSrc      := ADR(aScript),
+        bExecute  := bSendExecute,
+        tTimeout  := tSendTimeout
+    );
+
+    IF bSendExecute THEN
+        bSendExecute := FALSE;
+        bSendStarted := TRUE;
+    END_IF
+
+    IF bSendStarted AND NOT fbSend.bBusy THEN
+        IF fbSend.bError THEN
+            bError := TRUE;
+            nErrorID := fbSend.nErrId;
+            sErrorText := 'URScript TCP send failed';
+        ELSE
+            nLastSentBytes := nScriptLen;
+            bScriptSent := TRUE;
+        END_IF
+
+        bCloseExecute := TRUE;
+        bCloseStarted := FALSE;
+        nState := 30;
+    END_IF
+
+30: // close local socket after send
+    fbClose(
+        sSrvNetId := '',
+        hSocket   := hSocket,
+        bExecute  := bCloseExecute,
+        tTimeout  := T#5S
+    );
+
+    IF bCloseExecute THEN
+        bCloseExecute := FALSE;
+        bCloseStarted := TRUE;
+    END_IF
+
+    IF bCloseStarted AND NOT fbClose.bBusy THEN
+        IF fbClose.bError AND NOT bError THEN
+            bError := TRUE;
+            nErrorID := fbClose.nErrId;
+            sErrorText := 'URScript TCP close failed';
+        END_IF
+
+        bConnected := FALSE;
+        bBusy := FALSE;
+        bSendRequest := FALSE;
+        nScriptLen := 0;
+        nState := 0;
+    END_IF
+
+END_CASE]]></ST>
+    </Implementation>
+    <Method Name="AppendLine" Id="{96288889-f2c6-4974-a9e3-cb65215067af}">
+      <Declaration><![CDATA[METHOD PUBLIC AppendLine : BOOL
+VAR_INPUT
+    sLine : STRING(255);
+END_VAR
+VAR
+    p : POINTER TO BYTE;
+    n : UDINT;
+    i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[AppendLine := FALSE;
+
+IF (nState <> 0) OR bSendRequest THEN
+    RETURN;
+END_IF
+
+p := ADR(sLine);
+n := 0;
+WHILE (n < 255) AND (p[n] <> 0) DO
+    n := n + 1;
+END_WHILE
+
+(* +1 for LF *)
+IF (nScriptLen + n + 1) > SIZEOF(aScript) THEN
+    bError := TRUE;
+    nErrorID := 16#E202;
+    sErrorText := 'URScript buffer overflow';
+    RETURN;
+END_IF
+
+IF n > 0 THEN
+    FOR i := 0 TO n - 1 DO
+        aScript[nScriptLen + i] := p[i];
+    END_FOR
+END_IF
+
+nScriptLen := nScriptLen + n;
+aScript[nScriptLen] := 16#0A;
+nScriptLen := nScriptLen + 1;
+AppendLine := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="BufferedBytes" Id="{8b67f460-482d-48b0-90b5-88db7da15853}">
+      <Declaration><![CDATA[PROPERTY BufferedBytes : UDINT]]></Declaration>
+      <Get Name="Get" Id="{0adb1d01-845e-41f3-b304-964669c64aac}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[BufferedBytes := nScriptLen;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="ClearScript" Id="{2b54b569-991f-4776-882d-b35332061016}">
+      <Declaration><![CDATA[METHOD PUBLIC ClearScript : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (nState = 0) AND NOT bSendRequest THEN
+    nScriptLen := 0;
+    ClearScript := TRUE;
+ELSE
+    ClearScript := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SendBuffered" Id="{3a704fbd-bb09-47e7-b166-990dafb2645c}">
+      <Declaration><![CDATA[METHOD PUBLIC SendBuffered : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bEnable
+   AND (nState = 0)
+   AND NOT bSendRequest
+   AND (nScriptLen > 0) THEN
+
+    bSendRequest := TRUE;
+    SendBuffered := TRUE;
+ELSE
+    SendBuffered := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

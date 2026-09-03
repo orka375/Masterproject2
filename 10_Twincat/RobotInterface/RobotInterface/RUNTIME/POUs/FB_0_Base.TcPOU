@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+<TcPlcObject Version="1.2.0.0" ProductVersion="3.1.4026.18">
   <POU Name="FB_0_Base" Id="{ccfcc891-ed7a-48a9-bb43-020f08aa1f30}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'reflection'} 
+{attribute 'hide_all_locals'}
 FUNCTION_BLOCK ABSTRACT FB_0_Base EXTENDS FB_Utilities  
 // IMPLEMENTS ITF_0_BaseComponent
 
@@ -18,17 +19,9 @@ VAR_OUTPUT
 	{attribute 'instance-path'} 
     {attribute 'noinit'} 
     sPath : STRING(255); 
-	{attribute 'instance-name'}
-	{attribute 'noinit'} 
-	sInstanceName: STRING;
-	{attribute 'OPC.UA.DA' := '1'}
-	eStatus: eState :=eState.Unconfigured;
-	{attribute 'OPC.UA.DA' := '1'}
-	MyHealth: eHealth := eHealth.Unkown;
-	{attribute 'OPC.UA.DA' := '1'}
 	MyHeartBeat: BOOL;
 	{attribute 'OPC.UA.DA' := '1'}
-	bBusy : BOOL;
+	HMI_BASE: stHMI_BASE;
 END_VAR
 	
 VAR
@@ -146,7 +139,7 @@ FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) D
 	END_IF
 END_FOR
 
-IF Busy OR bBusy THEN
+IF Busy OR HMI_BASE.bBusy THEN
 	Busy:=TRUE;
 END_IF]]></ST>
         </Implementation>
@@ -157,7 +150,7 @@ VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[bBusy:=Busy;]]></ST>
+          <ST><![CDATA[HMI_BASE.bBusy:=Busy;]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -201,7 +194,7 @@ END_IF
 
 StateMachine();
 MESSENGER();
-// xCurrentMessage:=MESSENGER.HasActivError();
+// xCurrentMessage:=Messenger.HasActivError();
 MyHeartBeat:=HeartBeat();
 SlowDownTimer();
 
@@ -213,7 +206,7 @@ END_FOR
 
 
 IF MESSENGER.HasActivError THEN
-	MyHealth:= eHealth.Dead;
+	HMI_BASE.MyHealth:= eHealth.Dead;
 END_IF
 
 IF prevFail<>lastFail THEN //Reset by Success
@@ -410,7 +403,7 @@ END_VAR
         <Implementation>
           <ST><![CDATA[
 
-Name:=sInstanceName;]]></ST>
+Name:=HMI_BASE.sInstanceName;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -584,6 +577,53 @@ END_VAR
 _manualResetCalled:=FALSE;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="OnShutdown" Id="{baf0cda2-305c-4fe2-9dcb-4d0d08ee6a48}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	myResult: eResult;
+	noskill: BOOL;
+	notready: BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+notready:=FALSE;
+FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
+	IF pA_Skills[j]<>0 THEN
+		IF pA_Skills[j]^.State <> eState.ErrorProcessing THEN
+			pA_Skills[j]^.Shutdown();
+		ELSE
+			Messenger.AddWarn(eMessageCategories.StateMachine,Path,'OnShutdown failed, too is errorprocessing');
+			myResult:=FAILURE;
+		END_IF
+	
+		IF pA_Skills[j]^.LastSuccessfullState <> eState.ShuttingDown  THEN
+				notready:=TRUE;
+			
+		END_IF
+	END_IF
+END_FOR
+
+IF NOT notready THEN
+	myResult:=SUCCESS;
+END_IF
+
+
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnShutdown := myResult;
+
+]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="Path" Id="{459f7f21-cbfe-4701-91b3-a410fc19512e}">
       <Declaration><![CDATA[PROPERTY Path : STRING
 ]]></Declaration>
@@ -665,7 +705,7 @@ END_IF]]></ST>
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[State:=eStatus;]]></ST>
+          <ST><![CDATA[State:=HMI_BASE.eStatus;]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{f2b0cb44-bade-4a8a-80d6-a1f37ebc07e9}">
@@ -673,7 +713,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[eStatus:=State;]]></ST>
+          <ST><![CDATA[HMI_BASE.eStatus:=State;]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -689,7 +729,7 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF NOT _initialized THEN
-    sInstanceName := GetInstanceName();
+    HMI_BASE.sInstanceName := GetInstanceName();
     _initialized := TRUE;
 END_IF
 
@@ -700,7 +740,7 @@ IF NOT Messenger.HasActivError AND NOT _ShutOffStateMachine THEN
 		SlowDownTimer(IN:=FALSE);
 		SlowDownTimer(IN:=TRUE);
 	
-		CASE eStatus OF
+		CASE HMI_BASE.eStatus OF
 			eState.Unconfigured:
 				IF bAutoConfigure THEN
 					Configure();
@@ -724,14 +764,14 @@ IF NOT Messenger.HasActivError AND NOT _ShutOffStateMachine THEN
 					SUCCESS:
 						LastSuccessfullState:= eState.Configuring;
 						TimeStateMachine.RESET1:=TRUE;
-						eStatus := eState.Inactive;
+						HMI_BASE.eStatus := eState.Inactive;
 					FAILURE:
 						LastFail := Now();
-						eStatus := eState.Unconfigured;
+						HMI_BASE.eStatus := eState.Unconfigured;
 					ERROR:
 						LastError := Now();
 						prevStatus := eState.Configuring;
-						eStatus := eState.ErrorProcessing;
+						HMI_BASE.eStatus := eState.ErrorProcessing;
 				END_CASE;
 		
 		
@@ -743,14 +783,14 @@ IF NOT Messenger.HasActivError AND NOT _ShutOffStateMachine THEN
 					SUCCESS:
 						LastSuccessfullState:= eState.Activating;
 						TimeStateMachine.RESET1:=TRUE;
-						eStatus := eState.Active;
+						HMI_BASE.eStatus := eState.Active;
 					FAILURE:
 						LastFail := Now();
-						eStatus := eState.Inactive;
+						HMI_BASE.eStatus := eState.Inactive;
 					ERROR:
 						LastError := Now();
 						prevStatus := eState.Activating;
-						eStatus := eState.ErrorProcessing;
+						HMI_BASE.eStatus := eState.ErrorProcessing;
 				END_CASE;
 		
 		
@@ -761,14 +801,14 @@ IF NOT Messenger.HasActivError AND NOT _ShutOffStateMachine THEN
 					SUCCESS:
 						LastSuccessfullState:= eState.Deactivating;
 						TimeStateMachine.RESET1:=TRUE;
-						eStatus := eState.Inactive;
+						HMI_BASE.eStatus := eState.Inactive;
 					FAILURE:
 						LastFail := Now();
-						eStatus := eState.Inactive;
+						HMI_BASE.eStatus := eState.Inactive;
 					ERROR:
 						LastError := Now();
 						prevStatus := eState.Deactivating;
-						eStatus := eState.ErrorProcessing;
+						HMI_BASE.eStatus := eState.ErrorProcessing;
 				END_CASE;
 		
 		
@@ -785,14 +825,14 @@ IF NOT Messenger.HasActivError AND NOT _ShutOffStateMachine THEN
 					SUCCESS:
 						LastSuccessfullState:= eState.ErrorProcessing;
 						TimeStateMachine.RESET1:=TRUE;
-						eStatus := eState.Unconfigured;
+						HMI_BASE.eStatus := eState.Unconfigured;
 					FAILURE:
 						LastFail := Now();
-						eStatus := eState.Finalized;
+						HMI_BASE.eStatus := eState.Finalized;
 					ERROR:
 						LastError := Now();
 						prevStatus := eState.ErrorProcessing;
-						eStatus := eState.ErrorProcessing;
+						HMI_BASE.eStatus := eState.ErrorProcessing;
 				END_CASE;
 		
 		
@@ -803,14 +843,14 @@ IF NOT Messenger.HasActivError AND NOT _ShutOffStateMachine THEN
 					SUCCESS:
 						LastSuccessfullState:= eState.CleaningUp;
 						TimeStateMachine.RESET1:=TRUE;
-						eStatus := eState.Unconfigured;
+						HMI_BASE.eStatus := eState.Unconfigured;
 					FAILURE:
 						LastFail := Now();
-						eStatus := eState.Unconfigured;
+						HMI_BASE.eStatus := eState.Unconfigured;
 					ERROR:
 						LastError := Now();
 						prevStatus := eState.CleaningUp;
-						eStatus := eState.ErrorProcessing;
+						HMI_BASE.eStatus := eState.ErrorProcessing;
 				END_CASE;
 		
 		
@@ -821,19 +861,19 @@ IF NOT Messenger.HasActivError AND NOT _ShutOffStateMachine THEN
 					SUCCESS:
 						LastSuccessfullState:= eState.ShuttingDown;
 						TimeStateMachine.RESET1:=TRUE;
-						eStatus := eState.Finalized;
+						HMI_BASE.eStatus := eState.Finalized;
 					FAILURE:
 						LastFail := Now();
-						eStatus := eState.Finalized;
+						HMI_BASE.eStatus := eState.Finalized;
 					ERROR:
 						LastError := Now();
 						prevStatus := eState.ShuttingDown;
-						eStatus := eState.ErrorProcessing;
+						HMI_BASE.eStatus := eState.ErrorProcessing;
 				END_CASE;
 		END_CASE
 	END_IF
 ELSE
-	MyHealth := eHealth.Dead;
+	HMI_BASE.MyHealth := eHealth.Dead;
 	//IF bError
 	//Hold StateMachine, await Reset of Error
 END_IF

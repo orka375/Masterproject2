@@ -106,7 +106,7 @@ END_IF
 
 CASE State OF
 	eState.Inactive:
-		 bBusy := FALSE;
+		 HMI_BASE.bBusy := FALSE;
    		 _executionDone := FALSE;
 	
 	eState.Active:

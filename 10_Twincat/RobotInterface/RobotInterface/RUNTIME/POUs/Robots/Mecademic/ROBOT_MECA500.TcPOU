@@ -462,13 +462,13 @@ IF _Connected THEN
     END_IF
 END_IF
 
-bBusy := xInBusy OR _cmdPending OR _motionInProgress OR (NOT xInEOM);
+HMI_BASE.bBusy := xInBusy OR _cmdPending OR _motionInProgress OR (NOT xInEOM);
 
 CommunicationReady := _Connected;
 RobotEnabled := _Connected AND xInActivated;
 IsReady := _Connected AND xInActivated AND xInHomed AND NOT bError AND NOT xInPaused AND NOT xInEStop AND NOT xInPStop2;
 IsMoving := _motionInProgress OR (_Connected AND xInActivated AND NOT xInEOM);
-Busy := bBusy;
+Busy := HMI_BASE.bBusy;
 
 ComMachine := TRUE;]]></ST>
       </Implementation>
@@ -601,12 +601,12 @@ M_ClearEcatOutputs := TRUE;]]></ST>
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF _actualJointPosValid THEN
-    _jointpos.joint1 := REAL_TO_LREAL(_actualJointPos[1]);
-    _jointpos.joint2 := REAL_TO_LREAL(_actualJointPos[2]);
-    _jointpos.joint3 := REAL_TO_LREAL(_actualJointPos[3]);
-    _jointpos.joint4 := REAL_TO_LREAL(_actualJointPos[4]);
-    _jointpos.joint5 := REAL_TO_LREAL(_actualJointPos[5]);
-    _jointpos.joint6 := REAL_TO_LREAL(_actualJointPos[6]);
+    HMI_ROB._jointpos.joint1 := REAL_TO_LREAL(_actualJointPos[1]);
+    HMI_ROB._jointpos.joint2 := REAL_TO_LREAL(_actualJointPos[2]);
+    HMI_ROB._jointpos.joint3 := REAL_TO_LREAL(_actualJointPos[3]);
+    HMI_ROB._jointpos.joint4 := REAL_TO_LREAL(_actualJointPos[4]);
+    HMI_ROB._jointpos.joint5 := REAL_TO_LREAL(_actualJointPos[5]);
+    HMI_ROB._jointpos.joint6 := REAL_TO_LREAL(_actualJointPos[6]);
 END_IF
 
 IF _actualJointVelValid THEN
@@ -619,12 +619,12 @@ IF _actualJointVelValid THEN
 END_IF
 
 IF _actualTcpPoseValid THEN
-    _tcppos.x := REAL_TO_LREAL(_actualTcpPose[1]);
-    _tcppos.y := REAL_TO_LREAL(_actualTcpPose[2]);
-    _tcppos.z := REAL_TO_LREAL(_actualTcpPose[3]);
-    _tcppos.rx := REAL_TO_LREAL(_actualTcpPose[4]);
-    _tcppos.ry := REAL_TO_LREAL(_actualTcpPose[5]);
-    _tcppos.rz := REAL_TO_LREAL(_actualTcpPose[6]);
+    HMI_ROB._tcppos.x := REAL_TO_LREAL(_actualTcpPose[1]);
+    HMI_ROB._tcppos.y := REAL_TO_LREAL(_actualTcpPose[2]);
+    HMI_ROB._tcppos.z := REAL_TO_LREAL(_actualTcpPose[3]);
+    HMI_ROB._tcppos.rx := REAL_TO_LREAL(_actualTcpPose[4]);
+    HMI_ROB._tcppos.ry := REAL_TO_LREAL(_actualTcpPose[5]);
+    HMI_ROB._tcppos.rz := REAL_TO_LREAL(_actualTcpPose[6]);
 END_IF
 
 IF _actualTcpVelValid THEN
@@ -957,7 +957,7 @@ myResult:=NONE;
 
 _transitionresult := None;
 
-eModus := eMode.Manual;
+HMI_ROB.eModus := eMode.Manual;
 Disconnect();
 
 IF NOT Connected THEN
@@ -995,7 +995,7 @@ myResult:=NONE;
 _transitionresult := None;
 
 // ---- Change ----
-eModus := eMode.Manual;
+HMI_ROB.eModus := eMode.Manual;
 Connect();
 PM.Configure(sPrefix:=Name,sDatabase:=CONCAT('db_',Name));
 
@@ -1036,7 +1036,7 @@ myResult:=NONE;
 
 // ---- Init ----
 _transitionresult := None;
-eModus := eMode.Manual;
+HMI_ROB.eModus := eMode.Manual;
 
 // Stop posting commands immediately.
 _cmdPending := FALSE;
@@ -1097,7 +1097,7 @@ myResult:=NONE;
 
 _transitionresult := None;
 
-eModus := eMode.Manual;
+HMI_ROB.eModus := eMode.Manual;
 
 _cmdPending := FALSE;
 _motionInProgress := FALSE;
@@ -1153,7 +1153,7 @@ myResult:=NONE;
 
 _transitionresult := None;
 
-eModus := eMode.Manual;
+HMI_ROB.eModus := eMode.Manual;
 Disconnect();
 
 IF NOT Connected THEN

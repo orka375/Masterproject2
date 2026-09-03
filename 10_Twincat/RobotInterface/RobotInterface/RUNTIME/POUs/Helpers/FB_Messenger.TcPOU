@@ -1,31 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_Messenger" Id="{83b10ff9-5df7-47f5-bb58-80d01c25214b}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_Messenger
+    <Declaration><![CDATA[{attribute 'hide_all_locals'}
+FUNCTION_BLOCK FB_Messenger
 VAR_INPUT
 	bExecuteQuittieren: BOOL;
 END_VAR
 VAR_OUTPUT
-// 	newMAvail: BOOL;
-	currentMsg: POINTER TO MessageDescription;
-	activError: POINTER TO MessageDescription;
-	bErrorActiv: BOOL;
-	sMyTime		: STRING;
 	xMyTime		: TIME;
+
+	HMI_MESSENGER: stHMI_MESSENGER;
 END_VAR
 VAR
+	sMyTime		: STRING;
+	
 	MList	: ARRAY [1..SETUP.MaxNrOfMessages] OF MessageDescription;
 	emptyMsg: MessageDescription;
 	
 	IndexShownM 	: INT := 0;
-	manz		: INT := 0;
+	
 	
 	
 	fbTime   	: FB_LocalSystemTime:=(bEnable:=TRUE, dwCycle:=1);
 	i: INT;
 // 	unread: BOOL;
 	_unreadError: BOOL;
-	nActivErrorIndex: INT;
+	nactivErrorIndex: INT;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -48,13 +48,13 @@ END_IF
 
 
 
-bErrorActiv:= FALSE;
-IF manz>0 THEN
-	FOR i:=1 TO manz DO
+HMI_MESSENGER.bErrorActiv:= FALSE;
+IF HMI_MESSENGER.MsgCount>0 THEN
+	FOR i:=1 TO HMI_MESSENGER.MsgCount DO
 		IF NOT MList[i].bQuit AND MList[i].Severity=eSeverity.ERROR THEN
-			bErrorActiv:=TRUE;
-			activError := ADR(MList[i]);
-			nActivErrorIndex:=i;
+			HMI_MESSENGER.bErrorActiv:=TRUE;
+			HMI_MESSENGER.activError := ADR(MList[i]);
+			nactivErrorIndex:=i;
 			EXIT;
 		END_IF
 	END_FOR
@@ -62,15 +62,15 @@ END_IF
 
 
 
-IF manz>0 THEN
-	currentMsg:=ADR(MList[IndexShownM]);
+IF HMI_MESSENGER.MsgCount>0 THEN
+	HMI_MESSENGER.currentMsg:=ADR(MList[IndexShownM]);
 ELSE
-	currentMsg:=ADR(emptyMsg);
+	HMI_MESSENGER.currentMsg:=ADR(emptyMsg);
 END_IF
 
 IF bExecuteQuittieren THEN
 	bExecuteQuittieren:=FALSE;
-	Quittieren(nActivErrorIndex);
+	Quittieren(nactivErrorIndex);
 END_IF
 ]]></ST>
     </Implementation>
@@ -91,7 +91,7 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IndexShownM:= IndexShownM+1;
-index := manz + 1;
+index := HMI_MESSENGER.MsgCount + 1;
 
 MList[index].Severity := eMessageTypes.ERROR;
 MList[index].Category:=Category;
@@ -105,7 +105,7 @@ MList[index].ID:=TO_UINT(1000+index);
 ss := CONCAT(sMessage, ' : %s');
 ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_ERROR, msgFmtStr := ss,strArg := sSender);
 
-manz:=index;
+HMI_MESSENGER.MsgCount:=index;
 
 AddError := MList[index];]]></ST>
       </Implementation>
@@ -128,7 +128,7 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IndexShownM:= IndexShownM+1;
 
-index := manz + 1;
+index := HMI_MESSENGER.MsgCount + 1;
 
 MList[index].Severity := eMessageTypes.HINT;
 MList[index].Category:=Category;
@@ -142,7 +142,7 @@ MList[index].ID:=TO_UINT(1000+index);
 ss := CONCAT(sMessage, ' : %s');
 ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_HINT, msgFmtStr := ss,strArg := sSender);
 
-manz:=index;
+HMI_MESSENGER.MsgCount:=index;
 
 AddHint := MList[index];]]></ST>
       </Implementation>
@@ -165,7 +165,7 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IndexShownM:= IndexShownM+1;
 
-index := manz + 1;
+index := HMI_MESSENGER.MsgCount + 1;
 
 MList[index].Severity := eMessageTypes.WARN;
 MList[index].Category:=Category;
@@ -181,7 +181,7 @@ MList[index].ID:=TO_UINT(1000+index);
 ss := CONCAT(sMessage, ' : %s');
 ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN, msgFmtStr := ss,strArg := sSender);
 
-manz:=index;
+HMI_MESSENGER.MsgCount:=index;
 
 AddWarn := MList[index];]]></ST>
       </Implementation>
@@ -201,7 +201,7 @@ END_VAR]]></Declaration>
 END_FOR
 
 IndexShownM:=0;
-manz:=0;
+HMI_MESSENGER.MsgCount:=0;
 ]]></ST>
       </Implementation>
     </Method>
@@ -211,7 +211,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[GetLatestMessage := ADR(MList[manz]);]]></ST>
+        <ST><![CDATA[GetLatestMessage := ADR(MList[HMI_MESSENGER.MsgCount]);]]></ST>
       </Implementation>
     </Method>
     <Property Name="HasActivError" Id="{c866ca77-0858-4c7e-919c-8b318f921da8}">
@@ -221,7 +221,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[HasActivError:=bErrorActiv;
+          <ST><![CDATA[HasActivError:=HMI_MESSENGER.bErrorActiv;
 ]]></ST>
         </Implementation>
       </Get>
@@ -233,7 +233,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[PointerActivError := ADR(MList[nActivErrorIndex]);]]></ST>
+          <ST><![CDATA[PointerActivError := ADR(MList[nactivErrorIndex]);]]></ST>
         </Implementation>
       </Get>
     </Property>

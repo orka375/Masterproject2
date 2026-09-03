@@ -27,7 +27,7 @@ fbExecute(CLK := bExecute);
 IF fbExecute.Q THEN
 	bExecute:=FALSE;
     nCounter := 0;
-    bBusy := TRUE;
+    HMI_BASE.bBusy := TRUE;
     ExecutionDone:=FALSE;
 	ExecutionResult:= NONE;
 
@@ -38,7 +38,7 @@ END_IF
 
 // Stop immediately
 IF bStop THEN
-    bBusy := FALSE;
+    HMI_BASE.bBusy := FALSE;
     ExecutionDone:=TRUE;
 	ExecutionResult:= FAILURE;
 
@@ -46,7 +46,7 @@ IF bStop THEN
 	bStop:=FALSE;
 ELSE
 
-    IF bBusy THEN
+    IF HMI_BASE.bBusy THEN
 
         // 1 second timer
         fbTimer(
@@ -78,7 +78,7 @@ ELSE
 
             // Maximum reached
             IF nCounter >= nMax THEN
-                bBusy := FALSE;
+                HMI_BASE.bBusy := FALSE;
 				ExecutionDone:=TRUE;
 				ExecutionResult:= SUCCESS;
             END_IF

@@ -33,38 +33,444 @@
         <Type n="UInt32">System.UInt32</Type>
       </TypeList>
     </XmlArchive>
-    <RecipeDefinition Name="Recipe_PickPlace" Id="{68cf4031-404e-4684-b1ec-192b4ea2a0a7}">
+    <RecipeDefinition Name="PickPlace" Id="{68cf4031-404e-4684-b1ec-192b4ea2a0a7}">
       <XmlArchive>
         <Data>
           <o xml:space="preserve" t="RecipeDefinitionObject">
-            <v n="UniqueIdGenerator">"3"</v>
+            <v n="UniqueIdGenerator">"48"</v>
             <o n="Recipes" t="RecipeList">
               <l n="Recipes" t="ArrayList" cet="Recipe">
                 <o>
                   <l n="Values" t="ArrayList" cet="RecipeValue">
                     <o>
-                      <v n="Type" t="TypeClass">None</v>
-                      <v n="Value">""</v>
+                      <v n="Type" t="TypeClass">String</v>
+                      <v n="Value">"'Pick'"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">String</v>
+                      <v n="Value">"'Place'"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">String</v>
+                      <v n="Value">"'+Z'"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">Real</v>
+                      <v n="Value">"50"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">String</v>
+                      <v n="Value">"'+Z'"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">Real</v>
+                      <v n="Value">"50"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">Real</v>
+                      <v n="Value">"10"</v>
                     </o>
                   </l>
-                  <v n="Name">"PP1"</v>
-                  <v n="Id">3</v>
+                  <v n="Name">"Station_1"</v>
+                  <v n="Id">46</v>
+                </o>
+                <o>
+                  <l n="Values" t="ArrayList" cet="RecipeValue">
+                    <o>
+                      <v n="Type" t="TypeClass">String</v>
+                      <v n="Value">"'Pick'"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"50"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"50"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">String</v>
+                      <v n="Value">"'Place'"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">LReal</v>
+                      <v n="Value">"0"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">String</v>
+                      <v n="Value">"'+Z'"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">Real</v>
+                      <v n="Value">"50"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">String</v>
+                      <v n="Value">"'+Z'"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">Real</v>
+                      <v n="Value">"50"</v>
+                    </o>
+                    <o>
+                      <v n="Type" t="TypeClass">Real</v>
+                      <v n="Value">"20"</v>
+                    </o>
+                  </l>
+                  <v n="Name">"Station_2"</v>
+                  <v n="Id">47</v>
                 </o>
               </l>
             </o>
             <o n="RecipeVariables" t="RecipeVariableList">
               <l n="Variables" t="ArrayList" cet="RecipeVariable">
                 <o>
-                  <v n="VarName">"NewVariable"</v>
-                  <v n="VarType" t="TypeClass">None</v>
-                  <v n="VarTypeAsString">"&lt;Invalid Type&gt;"</v>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PickPositionName"</v>
+                  <v n="VarType" t="TypeClass">String</v>
+                  <v n="VarTypeAsString">"STRING"</v>
                   <v n="Name">""</v>
                   <o n="Boundaries" t="RecipeVariableBoundaries">
-                    <v n="Type" t="TypeClass">None</v>
+                    <v n="Type" t="TypeClass">String</v>
                     <v n="LowerBound">""</v>
                     <v n="UpperBound">""</v>
                   </o>
-                  <v n="Id">2</v>
+                  <v n="Id">4</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"STRING"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PickPositionOffset.x"</v>
+                  <v n="VarType" t="TypeClass">LReal</v>
+                  <v n="VarTypeAsString">"LREAL"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">LReal</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">25</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PickPositionOffset.y"</v>
+                  <v n="VarType" t="TypeClass">LReal</v>
+                  <v n="VarTypeAsString">"LREAL"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">LReal</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">27</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PickPositionOffset.z"</v>
+                  <v n="VarType" t="TypeClass">LReal</v>
+                  <v n="VarTypeAsString">"LREAL"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">LReal</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">29</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PickPositionOffset.rx"</v>
+                  <v n="VarType" t="TypeClass">LReal</v>
+                  <v n="VarTypeAsString">"LREAL"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">LReal</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">31</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PickPositionOffset.ry"</v>
+                  <v n="VarType" t="TypeClass">LReal</v>
+                  <v n="VarTypeAsString">"LREAL"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">LReal</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">33</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PickPositionOffset.rz"</v>
+                  <v n="VarType" t="TypeClass">LReal</v>
+                  <v n="VarTypeAsString">"LREAL"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">LReal</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">35</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PlacePositionName"</v>
+                  <v n="VarType" t="TypeClass">String</v>
+                  <v n="VarTypeAsString">"STRING"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">String</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">11</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"STRING"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PlacePositionOffset.x"</v>
+                  <v n="VarType" t="TypeClass">LReal</v>
+                  <v n="VarTypeAsString">"LREAL"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">LReal</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">36</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PlacePositionOffset.y"</v>
+                  <v n="VarType" t="TypeClass">LReal</v>
+                  <v n="VarTypeAsString">"LREAL"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">LReal</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">37</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PlacePositionOffset.z"</v>
+                  <v n="VarType" t="TypeClass">LReal</v>
+                  <v n="VarTypeAsString">"LREAL"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">LReal</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">38</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PlacePositionOffset.rx"</v>
+                  <v n="VarType" t="TypeClass">LReal</v>
+                  <v n="VarTypeAsString">"LREAL"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">LReal</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">39</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PlacePositionOffset.ry"</v>
+                  <v n="VarType" t="TypeClass">LReal</v>
+                  <v n="VarTypeAsString">"LREAL"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">LReal</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">40</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PlacePositionOffset.rz"</v>
+                  <v n="VarType" t="TypeClass">LReal</v>
+                  <v n="VarTypeAsString">"LREAL"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">LReal</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">41</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PickApproachDirection"</v>
+                  <v n="VarType" t="TypeClass">String</v>
+                  <v n="VarTypeAsString">"STRING"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">String</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">42</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PickApproachOffset"</v>
+                  <v n="VarType" t="TypeClass">Real</v>
+                  <v n="VarTypeAsString">"REAL"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">Real</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">43</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PlaceApproachDirection"</v>
+                  <v n="VarType" t="TypeClass">String</v>
+                  <v n="VarTypeAsString">"STRING"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">String</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">44</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.PlaceApproachOffset"</v>
+                  <v n="VarType" t="TypeClass">Real</v>
+                  <v n="VarTypeAsString">"REAL"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">Real</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">45</v>
+                  <v n="Comment">""</v>
+                  <v n="VarUserDefTypeAsString">"Invalid Type"</v>
+                </o>
+                <o>
+                  <v n="VarName">"LIBRARY.Param_PickPlace.Velocity"</v>
+                  <v n="VarType" t="TypeClass">Real</v>
+                  <v n="VarTypeAsString">"REAL"</v>
+                  <v n="Name">""</v>
+                  <o n="Boundaries" t="RecipeVariableBoundaries">
+                    <v n="Type" t="TypeClass">Real</v>
+                    <v n="LowerBound">""</v>
+                    <v n="UpperBound">""</v>
+                  </o>
+                  <v n="Id">48</v>
                   <v n="Comment">""</v>
                   <v n="VarUserDefTypeAsString">"Invalid Type"</v>
                 </o>

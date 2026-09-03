@@ -1,16 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_2_ROB_MANIP" Id="{21b924b4-0fb6-46ff-9fb7-f679235d19bb}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_2_ROB_MANIP EXTENDS FB_1_ROB 
+    <Declaration><![CDATA[{attribute 'hide_all_locals'}
+FUNCTION_BLOCK FB_2_ROB_MANIP EXTENDS FB_1_ROB 
 // IMPLEMENTS ITF_2_Manip
 
 VAR_INPUT
-	Tool: FB_1_Tool;
-	bEnableCommunication : BOOL := TRUE;
+	TOOL: FB_1_Tool;
+	JOG: FB_Jog_Manipulator;
 END_VAR
 
 VAR_OUTPUT
-	visStatus: stVisStatusManip;
+	HMI_ROB_MANIP: stHMI_ROB_MANIP;
 END_VAR
 VAR
 
@@ -32,20 +33,11 @@ END_VAR
     <Action Name="CYCLIC_MANIP" Id="{c5ea77dd-14da-4015-9108-0744e50afbab}">
       <Implementation>
         <ST><![CDATA[CYCLIC_ROB();
-Tool.CYCLIC_TOOL();
+TOOL.CYCLIC_TOOL();
+JOG(pRobot:=THIS);
 
 
 
-visStatus.State:=eStatus;
-visStatus.Mode:=eModus;
-visStatus.isMoving:=IsMoving;
-visStatus.isReady:=IsReady;
-visStatus.isConnected:=Comm^.Connected;
-// 	isLocked: BOOL;
-// visStatus.isBusy:=;
-visStatus.isInCollision:=IsInCollision;
-visStatus.hasError:=Messenger.HasActivError;
-visStatus.TCPPosition:=ActualTcpPose;
 ]]></ST>
       </Implementation>
     </Action>
@@ -141,13 +133,32 @@ END_VAR
 
 VAR
 	Config: stBA_Settings;
+END_VAR
+
+VAR
+    Target : stTarget;
+	apos : stPoseGeneral;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[Config.Velocity:=Velocity;
 Config.Pose:=Offset;
 
+MEMCPY(ADR(apos),ADR(HMI_ROB._tcppos),SIZEOF(apos));
 
-MoveLinearRelative:= BA_Handler(Cmd:=eBA.MoveL,Settings:=Config);]]></ST>
+
+Target.pose.x  := apos.x  + Offset.x;
+Target.pose.y  := apos.y  + Offset.y;
+Target.pose.z  := apos.z  + Offset.z;
+Target.pose.rx := apos.rx + Offset.rx;
+Target.pose.ry := apos.ry + Offset.ry;
+Target.pose.rz := apos.rz + Offset.rz;
+
+MoveLinearRelative := MoveLinear(
+    Target   := Target,
+    Velocity := Velocity
+);
+
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnActivate" Id="{8545c31c-13d9-413d-a788-5dc93d08af33}" FolderPath="StateControl\">
@@ -170,12 +181,12 @@ myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
 
-IF Tool.LastTransitionType = eTransitions.Activate THEN
-	IF Tool.LastTransitionResult = SUCCESS THEN
+IF TOOL.LastTransitionType = eTransitions.Activate THEN
+	IF TOOL.LastTransitionResult = SUCCESS THEN
 		myResult:=SUCCESS;
 	END_IF
 ELSE
-	Tool.Activate();
+	TOOL.Activate();
 END_IF
 
 
@@ -206,12 +217,12 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-IF Tool.LastTransitionType = eTransitions.Cleanup THEN
-	IF Tool.LastTransitionResult = SUCCESS THEN
+IF TOOL.LastTransitionType = eTransitions.Cleanup THEN
+	IF TOOL.LastTransitionResult = SUCCESS THEN
 		myResult:=SUCCESS;
 	END_IF
 ELSE
-	Tool.Cleanup();
+	TOOL.Cleanup();
 END_IF
 
 
@@ -243,12 +254,12 @@ myResult:=NONE;
 PM.Configure(sPrefix:=Name,sDatabase:=CONCAT('db_',Name)); //TODO
 
 
-IF Tool.LastTransitionType = eTransitions.Configure THEN
-	IF Tool.LastTransitionResult = SUCCESS AND COMM^.CommunicationReady  THEN
+IF TOOL.LastTransitionType = eTransitions.Configure THEN
+	IF TOOL.LastTransitionResult = SUCCESS AND COMM^.CommunicationReady  THEN
 		myResult:=SUCCESS;
 	END_IF
 ELSE
-	Tool.Configure();
+	TOOL.Configure();
 END_IF
 
 
@@ -280,12 +291,12 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-IF Tool.LastTransitionType = eTransitions.Deactivate THEN
-	IF Tool.LastTransitionResult = SUCCESS THEN
+IF TOOL.LastTransitionType = eTransitions.Deactivate THEN
+	IF TOOL.LastTransitionResult = SUCCESS THEN
 		myResult:=SUCCESS;
 	END_IF
 ELSE
-	Tool.Deactivate();
+	TOOL.Deactivate();
 END_IF
 
 
@@ -343,12 +354,12 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-IF Tool.LastTransitionType = eTransitions.Shutdown THEN
-	IF Tool.LastTransitionResult = SUCCESS THEN
+IF TOOL.LastTransitionType = eTransitions.Shutdown THEN
+	IF TOOL.LastTransitionResult = SUCCESS THEN
 		myResult:=SUCCESS;
 	END_IF
 ELSE
-	Tool.Shutdown();
+	TOOL.Shutdown();
 END_IF
 
 // ----- END YOUR CODE -----------------------------
@@ -370,7 +381,7 @@ END_VAR]]></Declaration>
         <ST><![CDATA[Config.Pin:=bPin;
 
 
-SetDO:= BA_Handler(Cmd:=eBA.ReadDI,Settings:=Config);]]></ST>
+ReadDI:= BA_Handler(Cmd:=eBA.ReadDI,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
     <Method Name="SetDO" Id="{1b1484e8-2eba-4b5a-9bc9-3e9f0cf73af2}" FolderPath="MotionControl\">

@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_2_ROB_AMR" Id="{cf71feff-3eb8-4d62-9de2-ec89e7c3ba43}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_2_ROB_AMR EXTENDS FB_1_ROB IMPLEMENTS ITF_2_AMR
+    <Declaration><![CDATA[{attribute 'hide_all_locals'}
+FUNCTION_BLOCK FB_2_ROB_AMR EXTENDS FB_1_ROB 
+// IMPLEMENTS ITF_2_AMR
 VAR_INPUT
+	JOG: FB_Jog_AMR;
 END_VAR
 VAR_OUTPUT
-	visStatus: stVisStatusAMR;
-	bTargetreached: BOOL;
+	HMI_ROB_AMR: stHMI_ROB_AMR;
 END_VAR
 VAR
-	_tcppos, _tcpvel : stPoseGeneral;
-	_jointpos, _jointvel: stJoint2;
-	
+
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -21,20 +21,22 @@ END_VAR
     <Action Name="CYCLIC_AMR" Id="{ebcfe1a2-a428-4cd0-a9d1-512be0cd10b6}">
       <Implementation>
         <ST><![CDATA[CYCLIC_ROB();
+JOG(pStatusRobot:=THIS);
 
-visStatus.State:=eStatus;
-visStatus.Mode:=eModus;
-visStatus.isMoving:=IsMoving;
-visStatus.isReady:=IsReady;
-visStatus.isConnected:=COMM.Connected;
+
+HMI_ROB_AMR.State:=HMI_BASE.eStatus;
+HMI_ROB_AMR.Mode:=HMI_ROB.eModus;
+HMI_ROB_AMR.isMoving:=IsMoving;
+HMI_ROB_AMR.isReady:=IsReady;
+HMI_ROB_AMR.isConnected:=COMM^.Connected;
 // 	isLocked: BOOL;
 // visStatus.isBusy:=;
-visStatus.isInCollision:=IsInCollision;
-visStatus.hasError:=Messenger.HasActivError;
-visStatus.TCPPosition:=ActualTcpPose;
+HMI_ROB_AMR.isInCollision:=IsInCollision;
+HMI_ROB_AMR.hasError:=Messenger.HasActivError;
+HMI_ROB_AMR.TCPPosition:=ActualTcpPose;
 
-visStatus.isDocked:=IsDocked;
-visStatus.TargetReached:=TargetReached;]]></ST>
+HMI_ROB_AMR.isDocked:=IsDocked;
+HMI_ROB_AMR.TargetReached:=TargetReached;]]></ST>
       </Implementation>
     </Action>
     <Method Name="Dock" Id="{7a2cbcfa-840f-4b61-9db6-42db4be3c502}" FolderPath="MotionControl\">
@@ -118,7 +120,7 @@ NavigateToPoint:= BA_Handler(Cmd:=eBA.NavigateToPoint,Settings:=Config);]]></ST>
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[TargetReached:=bTargetreached;]]></ST>
+          <ST><![CDATA[TargetReached:=HMI_ROB_AMR.TargetReached;]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{942b15fc-f5de-4bca-9fdf-4d667e329064}">
@@ -127,7 +129,7 @@ VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[bTargetreached:=TargetReached;]]></ST>
+          <ST><![CDATA[HMI_ROB_AMR.TargetReached:=TargetReached;]]></ST>
         </Implementation>
       </Set>
     </Property>

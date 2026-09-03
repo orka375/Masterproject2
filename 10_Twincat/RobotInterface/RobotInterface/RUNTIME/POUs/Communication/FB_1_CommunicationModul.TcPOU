@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_1_CommunicationModul" Id="{5dfb62c0-2d47-4b53-bfa8-e561c40cbe14}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_1_CommunicationModul EXTENDS FB_0_BASE 
+    <Declaration><![CDATA[{attribute 'hide_all_locals'}
+FUNCTION_BLOCK FB_1_CommunicationModul EXTENDS FB_0_BASE 
 // IMPLEMENTS ITF_1_Communication
 
 VAR_INPUT
@@ -14,6 +15,8 @@ END_VAR
 
 
 VAR_OUTPUT
+	{attribute 'OPC.UA.DA' := '1'}
+	HMI_COMM: stHMI_COMM;
 END_VAR
 VAR
     // Desired state from Robot / lifecycle
@@ -23,8 +26,7 @@ VAR
     bRequestConnection : BOOL;
 
     // Feedback supplied by the child communication implementation
-    _CommunicationConnected : BOOL;
-    _CommunicationReady     : BOOL;
+    
 
     // Reconnect sequencing
     _ReconnectRequested : BOOL;
@@ -52,7 +54,7 @@ END_VAR
           <ST><![CDATA[IF DEBUG_COMM.bSimConnected THEN
     CommunicationReady := _ConnectionRequested;
 ELSE
-    CommunicationReady := _CommunicationReady;
+    CommunicationReady := HMI_COMM._CommunicationReady;
 END_IF]]></ST>
         </Implementation>
       </Get>
@@ -77,7 +79,7 @@ END_VAR
           <ST><![CDATA[IF DEBUG_COMM.bSimConnected THEN
     Connected := _ConnectionRequested;
 ELSE
-    Connected := _CommunicationConnected;
+    Connected := HMI_COMM._CommunicationConnected;
 END_IF]]></ST>
         </Implementation>
       </Get>
@@ -164,7 +166,7 @@ CASE _eCommState OF
 
 
         // Communication fully initialized
-        ELSIF _CommunicationReady THEN
+        ELSIF HMI_COMM._CommunicationReady THEN
 
             _ReconnectRequested := FALSE;
             _eCommState := E_CommState.eConnected;
@@ -210,7 +212,7 @@ CASE _eCommState OF
 
 
         // Unexpected loss of communication
-        ELSIF NOT _CommunicationConnected THEN
+        ELSIF NOT HMI_COMM._CommunicationConnected THEN
 
             // TODO USER:
             // Messenger.AddError(... communication lost ...);
@@ -231,7 +233,7 @@ CASE _eCommState OF
         bRequestConnection := FALSE;
 
 
-        IF NOT _CommunicationConnected THEN
+        IF NOT HMI_COMM._CommunicationConnected THEN
 
             IF _ReconnectRequested
                AND _ConnectionRequested THEN

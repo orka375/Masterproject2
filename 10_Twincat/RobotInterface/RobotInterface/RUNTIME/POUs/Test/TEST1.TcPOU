@@ -46,10 +46,14 @@ VAR
 	TS_varP_LastTrans: eTransitions;
 	TS_varP_LastTransRes: eResult;
 	_TS_varP_StartStop: POINTER TO DEBUG_SKILL;
+	_once: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[Testsetup.T_UR();
+      <ST><![CDATA[
+
+
+Testsetup.T_UR();
 TS_3p.pUR:=ADR(T_UR);
 TS_2p.pUR:=ADR(T_UR);
 TS_varP.pUR:=ADR(T_UR);
@@ -76,9 +80,9 @@ R_LastTrans:=T_UR.LastTransitionType;
 R_LastTransRes:=T_UR.LastTransitionResult;
 
 //ROBOT TOOL
-RT_State:=T_UR.Tool.State;
-RT_LastTrans:=T_UR.Tool.LastTransitionType;
-RT_LastTransRes:=T_UR.Tool.LastTransitionResult;
+RT_State:=T_UR.TOOL.State;
+RT_LastTrans:=T_UR.TOOL.LastTransitionType;
+RT_LastTransRes:=T_UR.TOOL.LastTransitionResult;
 
 //ROBOT COMM
 RC_State:=T_UR.UR_COMM.State;
@@ -104,6 +108,11 @@ TS_2p_State:=TS_2P.State;
 TS_2p_LastTrans:=TS_2P.LastTransitionType;
 TS_2p_LastTransRes:=TS_2P.LastTransitionResult;
 
+
+IF NOT _once THEN
+	_R_S^.bActivate:=TRUE;
+	_once:=TRUE;
+END_IF
 ]]></ST>
     </Implementation>
   </POU>

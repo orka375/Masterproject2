@@ -138,14 +138,33 @@
     <Compile Include="DUTs\StateMachine\eTransitions.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Visu\stVisStatusAMR.TcDUT">
+    <Compile Include="DUTs\Visu\stHMI_BASE.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Visu\stVisStatusManip.TcDUT">
+    <Compile Include="DUTs\Visu\stHMI_ROB.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Visu\stHMI_COMM.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Visu\stHMI_MESSENGER.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Visu\stHMI_TOOL.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Visu\stHMI_ROB_AMR.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Visu\stHMI_ROB_MANIP.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Visu\stVisStatusTool.TcDUT">
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\LIBRARY.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
     </Compile>
     <Compile Include="GVLs\SETUP.TcGVL">
       <SubType>Code</SubType>
@@ -174,16 +193,22 @@
     <Compile Include="POUs\FB_0_Base.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\FB_ROS2Connector.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="POUs\Helpers\FB_Messenger.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Helpers\FB_TcpIpClient.TcPOU">
+    <Compile Include="POUs\Helpers\FB_Utilities.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Helpers\FB_Utilities.TcPOU">
+    <Compile Include="POUs\Jog\E_JogFrame.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Jog\FB_Jog_AMR.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Jog\FB_Jog_Base.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Jog\FB_Jog_Manipulator.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\MAIN.TcPOU">
@@ -213,6 +238,9 @@
     <Compile Include="POUs\Robots\UR\FB_UR_RTDE.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Robots\UR\FB_UR_Script.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Robots\UR\ROBOT_UR.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -228,7 +256,10 @@
     <Compile Include="POUs\Skills\Skill_LoadDeliverReturn.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Skills\Skill_PickPlace.TcPOU">
+    <Compile Include="POUs\Skills\Skill_PickAndPlace\Skill_PickPlace.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Skills\Skill_PickAndPlace\stParam_PickPlace.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Skills\Skill_ROS2_Eyes.TcPOU">
@@ -247,6 +278,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Test\TEST1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Test\TEST2.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Test\TESTSETUP.TcGVL">
@@ -350,6 +384,7 @@
     <Folder Include="POUs\Communication" />
     <Folder Include="POUs\DB" />
     <Folder Include="POUs\Helpers" />
+    <Folder Include="POUs\Jog" />
     <Folder Include="POUs\Test" />
     <Folder Include="POUs\Robots" />
     <Folder Include="POUs\Robots\Mecademic" />
@@ -357,7 +392,7 @@
     <Folder Include="POUs\Robots\Stäubli" />
     <Folder Include="POUs\Robots\UR" />
     <Folder Include="POUs\Skills" />
-    <Folder Include="POUs\Skills\Skill_Greifer_open" />
+    <Folder Include="POUs\Skills\Skill_PickAndPlace" />
     <Folder Include="POUs\Templates" />
     <Folder Include="POUs\Tools" />
     <Folder Include="VISUs" />

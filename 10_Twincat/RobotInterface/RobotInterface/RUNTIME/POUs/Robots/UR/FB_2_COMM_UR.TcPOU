@@ -5,6 +5,7 @@
 VAR_INPUT
     Config : stComm_UR_Config;
     Dashboard : FB_UR_Dashboard;
+    Script    : FB_UR_Script;
     RTDE      : FB_UR_RTDE;
 END_VAR
 VAR_OUTPUT
@@ -14,6 +15,7 @@ VAR
 
 
     _DashboardConnected : BOOL;
+    _ScriptReady        : BOOL;
 
     _RTDEConnected : BOOL;
     _RTDEReady     : BOOL;
@@ -37,7 +39,20 @@ Dashboard(
 
 
 // ==================================================
-// 3. UR RTDE :30004
+// 3. URScript Secondary interface :30002
+//    The FB connects only while submitting a script.
+// ==================================================
+
+Script(
+    sRobotIP := Config.sIpAddress,
+    bEnable  := bRequestConnection
+);
+
+_ScriptReady := bRequestConnection AND NOT Script.bError;
+
+
+// ==================================================
+// 4. UR RTDE :30004
 // ==================================================
 
 RTDE(
@@ -52,15 +67,15 @@ RTDE(
 
 
 // ==================================================
-// 4. Generate feedback for FB_1
+// 5. Generate feedback for FB_1
 // ==================================================
 
-_CommunicationConnected :=
+HMI_COMM._CommunicationConnected :=
     _DashboardConnected
     AND _RTDEConnected;
 
 
-_CommunicationReady :=
+HMI_COMM._CommunicationReady :=
     _DashboardConnected
     AND _RTDEConnected
     AND _RTDEReady
@@ -68,11 +83,16 @@ _CommunicationReady :=
 
 
 // ==================================================
-// 5. Communication diagnostics
+// 6. Communication diagnostics
 // ==================================================
 
 // TODO USER:
 // IF Dashboard.bError THEN
+//     Messenger.AddError(...);
+// END_IF
+
+// TODO USER:
+// IF Script.bError THEN
 //     Messenger.AddError(...);
 // END_IF
 
