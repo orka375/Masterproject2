@@ -1,0 +1,39 @@
+{
+  "$schema": "./../../Packages/Beckhoff.TwinCAT.HMI.Framework.14.6.3/runtimes/native1.12-tchmi/Schema/UserControlConfig.Schema.json",
+  "parameters": [
+    {
+      "allowSymbolExpressionsInObject": false,
+      "requiredOnCompile": false,
+      "bindable": true,
+      "propertySetterName": "setJ",
+      "propertyGetterName": "getJ",
+      "refTo": "",
+      "name": "data-tchmi-j",
+      "displayName": "J",
+      "visible": true,
+      "type": "tchmi:server#/definitions/ADS-PLC1.FB_Jog_Manipulator",
+      "category": "",
+      "description": "Manipulator jog controller",
+      "readOnly": false,
+      "heritable": true,
+      "propertyName": "J"
+    },
+    {
+      "allowSymbolExpressionsInObject": false,
+      "requiredOnCompile": false,
+      "bindable": true,
+      "propertySetterName": "setR",
+      "propertyGetterName": "getR",
+      "refTo": "",
+      "name": "data-tchmi-r",
+      "displayName": "R",
+      "visible": true,
+      "type": "tchmi:server#/definitions/ADS-PLC1.stHMI_ROB",
+      "category": "",
+      "description": "Manipulator robot status",
+      "readOnly": false,
+      "heritable": true,
+      "propertyName": "R"
+    }
+  ]
+}

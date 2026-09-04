@@ -1,0 +1,35 @@
+<div id="TopBar_RobotSelection" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControl" data-tchmi-top="0" data-tchmi-left="0" data-tchmi-creator-viewport-width="500" data-tchmi-creator-viewport-height="500" data-tchmi-right="0" data-tchmi-bottom="0">
+	<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">
+[
+  "background-container",
+  "usercontrol-surface"
+]
+</script>
+	<div id="TopBarRobotSelectionGrid" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0">
+		<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-header"]</script>
+		<script data-tchmi-target-attribute="data-tchmi-column-options" type="application/json">
+[
+  {
+    "width": 1.0,
+    "widthMode": "Value",
+    "widthUnit": "factor"
+  },
+  {
+    "width": 0.1,
+    "widthMode": "Value",
+    "widthUnit": "factor"
+  },
+  {
+    "width": 2.0,
+    "widthMode": "Value",
+    "widthUnit": "factor"
+  }
+]
+</script>
+		<div id="TopBarRobotLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="Selected Robot" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center"><script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-header-title"]</script></div>
+		<div id="TopBarRobotSelector" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiCombobox" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="10" data-tchmi-right="8" data-tchmi-bottom="6" data-tchmi-selected-value="%i%SelectedRobot%/i%">
+	<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-cell-surface"]</script>
+			<script data-tchmi-target-attribute="data-tchmi-src-data" type="application/json">[{"id":1,"text":"%s%R1.HMI_BASE::sInstanceName%/s%","value":1},{"id":2,"text":"%s%R2.HMI_BASE::sInstanceName%/s%","value":2}]</script>
+		</div>
+	</div>
+</div>

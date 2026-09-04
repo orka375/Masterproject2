@@ -38,6 +38,32 @@ END_VAR]]></Declaration>
     <Folder Name="Generic Control" Id="{d269719e-4481-455b-8abd-a0a346547cd3}" />
     <Folder Name="Generic Status" Id="{c1e8e35a-1828-4d72-a2cb-3aa1cc7ab721}" />
     <Folder Name="StateControl" Id="{306f9b72-2cb2-4dec-88a3-0a1776eb8cb9}" />
+    <Method Name="FB_Init" Id="{7b302bc2-af12-4e54-8aa2-dca07a2dd5cc}">
+      <Declaration><![CDATA[METHOD FB_Init : BOOL
+  VAR_INPUT
+    bInitRetains : BOOL;
+    bInCopyCode : BOOL;
+  END_VAR
+  VAR
+    iRobot : UINT;
+  END_VAR]]></Declaration>
+      <Implementation>
+      <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
+
+  FOR iRobot := 1 TO SETUP.nRobCount DO
+    IF SETUP.apRobot[iRobot] = THIS THEN
+      FB_Init := TRUE;
+      RETURN;
+    END_IF
+  END_FOR
+
+  IF SETUP.nRobCount < SETUP.MaxNrofRobots THEN
+    SETUP.nRobCount := SETUP.nRobCount + 1;
+    SETUP.apRobot[SETUP.nRobCount] := THIS;
+    FB_Init := TRUE;
+  END_IF]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="ActualJointPosition" Id="{c68b9d82-514b-4e83-b58e-69cf77564b19}" FolderPath="Generic Status\">
       <Declaration><![CDATA[{warning 'Add property implementation'}
 PROPERTY ActualJointPosition : stJoint6
@@ -111,6 +137,7 @@ BA_Handler := 0;
 
 // Adopt communication faults + health so the robot reflects its comm child.
 IF COMM <> 0 AND COMM <> ADR(emptyCOMM) THEN
+  COMM^.MESSENGER.ParentMessenger := ADR(MESSENGER);
 	IF COMM^.State = eState.ErrorProcessing OR COMM^.MESSENGER.HasActivError THEN
 		Messenger.AddError(eMessageCategories.ParentFailed,Path,'Communication module in error');
 	ELSE

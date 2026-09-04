@@ -3,22 +3,22 @@
     Skill Control - reusable for the selected robot (RobotHmi.js).
 
     Symbols (all real, per robot):
-      GVL_Cell.aRobot[i].HMI_ROB.bReady / .eModus / .bMoving / .bEStop   (robot status)
-      GVL_Cell.aSkillPickPlace[i].HMI_BASE.eStatus / .bBusy              (skill state)
-      GVL_Cell.aSkillPickPlace[i].ExecutionResult
-      GVL_Cell.aSkillPickPlace[i].bExecute / .bStop / .bReset            (momentary commands)
-      GVL_Cell.aSkillPickPlace[i].Param.*                                (per-robot PickPlace params)
+      SETUP.UR_ALPHA / SETUP.UR_BRAVO.HMI_ROB.*                         (robot status)
+      SETUP.R1_PP / SETUP.R2_PP.HMI_BASE.eStatus / .bBusy                (skill state)
+      SETUP.R1_PP / SETUP.R2_PP.ExecutionResult
+      SETUP.R1_PP / SETUP.R2_PP.bExecute / .bStop / .bReset              (momentary commands)
+      SETUP.R1_PP / SETUP.R2_PP.Param.*                                 (per-robot PickPlace params)
   -->
-  <div id="SC_Host" data-tchmi-type="TcHmi.Controls.System.TcHmiContainer" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0">
+  <div id="SC_Host" data-tchmi-type="TcHmi.Controls.System.TcHmiHtmlHost" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0">
   <div class="rm-root">
 
     <!-- HEADER -->
     <div class="rm-header robot-panel-dark">
       <select class="robot-select" data-robot-selector>
-        <option value="1">UR5-01</option>
-        <option value="2">UR5-02</option>
+        <option value="1" data-robot-bind="HMI_BASE.sInstanceName" data-robot-index="1"></option>
+        <option value="2" data-robot-bind="HMI_BASE.sInstanceName" data-robot-index="2"></option>
       </select>
-      <span class="rm-title" data-robot-name>UR5-01</span>
+      <span class="rm-title" data-robot-name data-robot-bind="HMI_BASE.sInstanceName"></span>
       <span class="rm-stat"><span class="rm-lbl">Mode</span><span data-robot-bind="HMI_ROB.eModus" data-robot-format="mode">--</span></span>
       <span class="rm-stat"><span class="rm-lbl">Ready</span><span data-robot-bind="HMI_ROB.bReady" data-robot-format="bool" data-robot-status="ok">--</span></span>
     </div>

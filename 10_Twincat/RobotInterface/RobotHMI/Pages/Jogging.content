@@ -1,0 +1,20 @@
+<div id="RobotMove" data-tchmi-type="TcHmi.Controls.System.TcHmiContent" data-tchmi-top="0" data-tchmi-left="0" data-tchmi-creator-visibility="Visible" data-tchmi-right="0" data-tchmi-bottom="0">
+	<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["overview-surface"]</script>
+	<script data-tchmi-target-attribute="data-tchmi-trigger" type="application/json">[{"event":"%ctx%owner::Id|EventRegistrationMode=Resolve%/ctx%.onInitialized","actions":[{"objectType":"JavaScript","active":true,"sourceLines":["var r1Jog = TcHmi.Controls.get('RobotMoveJogR1');","var r2Jog = TcHmi.Controls.get('RobotMoveJogR2');","var unavailable = TcHmi.Controls.get('RobotMoveJogUnavailable');","var selectedRobot = new TcHmi.Symbol('%i%SelectedRobot%/i%');","selectedRobot.watch(function (data) {","  var selected = data ? Number(data.value) : 0;","  var valid = selected === 1 || selected === 2;","  if (r1Jog) { r1Jog.setVisibility(selected === 1 ? 'Visible' : 'Collapsed'); }","  if (r2Jog) { r2Jog.setVisibility(selected === 2 ? 'Visible' : 'Collapsed'); }","  if (unavailable) { unavailable.setVisibility(valid ? 'Collapsed' : 'Visible'); }","});"]}]}]</script>
+	<div id="RobotMoveGrid" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0">
+		<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-layout"]</script>
+		<script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">[{"height":64,"heightMode":"Value","heightUnit":"px"},{"height":1,"heightMode":"Value","heightUnit":"factor"}]</script>
+		<div id="RobotMoveRobotSelection" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-row-index="0" data-tchmi-left="8" data-tchmi-top="8" data-tchmi-right="8" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/TopBar_RobotSelection.usercontrol">
+	<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-dark-header"]</script>
+		</div>
+		<div id="RobotMoveJogR1" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-row-index="1" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/UC_Jog_Manip.usercontrol" data-tchmi-j="%s%R1.JOG%/s%" data-tchmi-r="%s%R1.HMI_ROB%/s%">
+	<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-panel-surface"]</script>
+		</div>
+		<div id="RobotMoveJogR2" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-row-index="1" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/UC_Jog_Manip.usercontrol" data-tchmi-j="%s%R2.JOG%/s%" data-tchmi-r="%s%R2.HMI_ROB%/s%" data-tchmi-visibility="Collapsed">
+	<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-panel-surface"]</script>
+		</div>
+		<div id="RobotMoveJogUnavailable" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="1" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="No robot selected" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center" data-tchmi-visibility="Collapsed">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-unavailable"]</script>
+		</div>
+	</div>
+</div>

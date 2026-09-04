@@ -123,6 +123,88 @@
   <Target Name="Clean" DependsOnTargets="$(CleanDependsOn)" />
   <Target Name="ReBuild" DependsOnTargets="Clean; Build" />
   <ItemGroup>
+    <Content Include="UserControl\Status_Base - Copy (1).usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\Status_Base.usercontrol</DependentUpon>
+    </Content>
+    <Content Include="UserControl\Status_Base - Copy - Copy.usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\Status_Base.usercontrol</DependentUpon>
+    </Content>
+    <Content Include="UserControl\Status_Base - Copy.usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\Status_Base.usercontrol</DependentUpon>
+    </Content>
+    <Content Include="UserControl\Status_Cell.usercontrol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="UserControl\Status_Cell.usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\Status_Cell.usercontrol</DependentUpon>
+    </Content>
+    <Content Include="UserControl\Status_Comm.usercontrol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="UserControl\Status_Comm.usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\Status_Comm.usercontrol</DependentUpon>
+    </Content>
+    <Content Include="UserControl\Status_Skill.usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\Status_Skill.usercontrol</DependentUpon>
+    </Content>
+    <Content Include="UserControl\Status_Skill.usercontrol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="UserControl\Status_Manip.usercontrol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="UserControl\Status_Manip.usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\Status_Manip.usercontrol</DependentUpon>
+    </Content>
+    <Content Include="UserControl\Status_Rob.usercontrol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="UserControl\Status_Rob.usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\Status_Rob.usercontrol</DependentUpon>
+    </Content>
+    <Content Include="UserControl\Status_Base.usercontrol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="UserControl\Status_Base.usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\Status_Base.usercontrol</DependentUpon>
+    </Content>
+    <Content Include="UserControl\TopBar_RobotSelection.usercontrol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="UserControl\TopBar_RobotSelection.usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\TopBar_RobotSelection.usercontrol</DependentUpon>
+    </Content>
+    <Content Include="UserControl\UC_Jog_Manip.usercontrol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="UserControl\UC_Jog_Manip.usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\UC_Jog_Manip.usercontrol</DependentUpon>
+    </Content>
+    <Content Include="UserControl\UC_MANIPULATOR.usercontrol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="UserControl\UC_MANIPULATOR.usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\UC_MANIPULATOR.usercontrol</DependentUpon>
+    </Content>
+    <Content Include="UserControl\UC_Skills_Overview.usercontrol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="UserControl\UC_Skills_Overview.usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\UC_Skills_Overview.usercontrol</DependentUpon>
+    </Content>
     <Folder Include="Fonts\" />
     <Folder Include="Images" />
     <Folder Include="Images\Manifest" />
@@ -131,6 +213,7 @@
     <Folder Include="Imports\Videos" />
     <Folder Include="KeyboardLayouts\" />
     <Folder Include="Localization" />
+    <Folder Include="UserControl" />
     <Folder Include="Pages\" />
     <Folder Include="Pages\Diagnostics\" />
     <Folder Include="Pages\Skills\" />
@@ -174,13 +257,7 @@
     <Content Include="Pages\Page1.content">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Pages\Recipe.content">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Pages\Robots.content">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Pages\RobotMove.content">
+    <Content Include="Pages\Jogging.content">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Pages\SkillControl.content">
@@ -201,7 +278,7 @@
     <Content Include="Pages\Skills.content">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Pages\Skills\Page2.content">
+    <Content Include="Pages\Skills\SkillsOverview.content">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Server\ADS\ADS.Config.default.json">
@@ -555,9 +632,6 @@
     <Content Include="Images\Manifest\launcher-icon-4x.png">
       <SubType>Content</SubType>
       <Visible>true</Visible>
-    </Content>
-    <Content Include="Pages\LoginPage.html">
-      <SubType>Content</SubType>
     </Content>
     <Content Include="Desktop.view">
       <SubType>Content</SubType>

@@ -5,7 +5,9 @@
  *
  * One page serves every robot. All robot-scoped elements are annotated
  * with data-* hooks that this module resolves against the currently
- * selected robot (GVL_Cell.aRobot[<selected>]). An element may override
+ * selected robot (SETUP.apRobot[<selected>]). The PLC pointer array is
+ * dispatched to stable named instances because ADS does not expose the
+ * members of a pointer element as a browsable HMI path. An element may override
  * the robot with data-robot-index (used by the overview cards).
  *
  *   data-jog-symbol="JOG.bJogXPlus"          hold-to-run jog button
@@ -13,11 +15,11 @@
  *   data-robot-write="JOG.fLinearVelocity"   writable input (range/checkbox)
  *   data-robot-format="deg|mm|mode|bool|raw" display formatting
  *   data-robot-status="ok|warn|fault"        colour a boolean indicator
- *   data-robot-name                          shows "UR5-0<index>"
+ *   data-robot-name                          fallback name when no PLC binding is present
  *   data-robot-selector                      <select> that sets the robot
  *   data-robot-index="2"                     pin an element to a fixed robot
  *
- * Skill hooks (resolved against GVL_Cell.aSkillPickPlace[<selected>]):
+ * Skill hooks (resolved against SETUP.R1_PP / SETUP.R2_PP for the selected robot):
  *   data-skill-bind="HMI_BASE.eStatus"       live read (data-skill-format="state")
  *   data-skill-cmd="bExecute"                momentary command button (press TRUE / release FALSE)
  *   data-skill-index="2"                     pin a skill element to a fixed robot
@@ -33,9 +35,21 @@
 
     var ROBOT_COUNT = 2;
     var selected = 1;
+    var ROBOT_SYMBOLS = {
+        1: 'SETUP.UR_ALPHA',
+        2: 'SETUP.UR_BRAVO'
+    };
+    var SKILL_SYMBOLS = {
+        1: 'SETUP.R1_PP',
+        2: 'SETUP.R2_PP'
+    };
 
     function base(index) {
-        return 'PLC1.GVL_Cell.aRobot[' + index + '].';
+        return 'ADS.PLC1.' + ROBOT_SYMBOLS[index] + '.';
+    }
+
+    function objectPath(suffix) {
+        return suffix.replace(/\./g, '::');
     }
 
     function resolve(el, suffix) {
@@ -47,14 +61,11 @@
         }
         var idxAttr = el.getAttribute('data-robot-index');
         var idx = idxAttr ? parseInt(idxAttr, 10) : selected;
-        return base(idx) + suffix;
+        return base(idx) + objectPath(suffix);
     }
 
-    // Per-robot skill instances (PLC convention - see file header / SkillControl).
-    var SKILL_ARRAY = 'GVL_Cell.aSkillPickPlace';
-
     function skillBase(index) {
-        return 'PLC1.' + SKILL_ARRAY + '[' + index + '].';
+        return 'ADS.PLC1.' + SKILL_SYMBOLS[index] + '.';
     }
 
     function skillResolve(el, suffix) {
@@ -66,7 +77,7 @@
         }
         var idxAttr = el.getAttribute('data-skill-index');
         var idx = idxAttr ? parseInt(idxAttr, 10) : selected;
-        return skillBase(idx) + suffix;
+        return skillBase(idx) + objectPath(suffix);
     }
 
     function getFormat(el) {
@@ -347,11 +358,21 @@
     // ==============================================================
     // Names / selection
     // ==============================================================
-    function updateNames() {
-        var els = document.querySelectorAll('[data-robot-name]');
-        for (var i = 0; i < els.length; i++) {
-            var idxAttr = els[i].getAttribute('data-robot-index');
-            els[i].textContent = 'UR5-0' + (idxAttr ? parseInt(idxAttr, 10) : selected);
+    function updateRecipeControls() {
+        var recipeType = 'PickPlace';
+        var allowedTypes = [recipeType];
+        var recipeSelect = TcHmi.Controls.get('TcHmiRecipeSelect_1');
+        var recipeEdit = TcHmi.Controls.get('TcHmiRecipeEdit_1');
+        if (recipeSelect && typeof recipeSelect.setAllowedRecipeTypes === 'function') {
+            recipeSelect.setAllowedRecipeTypes(allowedTypes);
+        }
+        if (recipeEdit) {
+            if (typeof recipeEdit.setAllowedRecipeTypes === 'function') {
+                recipeEdit.setAllowedRecipeTypes(allowedTypes);
+            }
+            if (typeof recipeEdit.setPreselectedRecipeType === 'function') {
+                recipeEdit.setPreselectedRecipeType(recipeType);
+            }
         }
     }
 
@@ -363,7 +384,7 @@
         stopAllPresses();
         selected = index;
         rebindDynamicReads();
-        updateNames();
+        updateRecipeControls();
         var selectors = document.querySelectorAll('[data-robot-selector]');
         for (var i = 0; i < selectors.length; i++) {
             if (selectors[i].value !== String(index)) {
@@ -429,7 +450,7 @@
             }
             selectors[s].value = String(selected);
         }
-        updateNames();
+        updateRecipeControls();
     }
 
     function removeBindingsIn(node) {

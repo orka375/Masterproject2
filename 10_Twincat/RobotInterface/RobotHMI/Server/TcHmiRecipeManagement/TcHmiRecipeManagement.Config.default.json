@@ -1,5 +1,265 @@
 {
-    "recipeList": {},
-    "recipeTypeList": {},
+    "recipeList": {
+        "PP1": {
+            "recipeTypeName": "PickPlace",
+            "values": {
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickApproachDirection": "Z+",
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickApproachOffset": 30.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionName": "PickMe",
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.rx": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.ry": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.rz": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.x": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.y": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.z": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlaceApproachDirection": "Z+",
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlaceApproachOffset": 30.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionName": "Place",
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.rx": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.ry": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.rz": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.x": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.y": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.z": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.Velocity": 30.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.WrittenFor": "DUMMY_ROBOT"
+            }
+        },
+        "TTT": {
+            "recipeTypeName": "PickPlace",
+            "values": {
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickApproachDirection": "Z+",
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickApproachOffset": 30.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionName": "PickMe",
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.rx": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.ry": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.rz": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.x": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.y": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.z": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlaceApproachDirection": "Z+",
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlaceApproachOffset": 30.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionName": "Placey",
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.rx": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.ry": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.rz": 44.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.x": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.y": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.z": 0.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.Velocity": 30.0,
+                "ADS.PLC1.LIBRARY.Param_PickPlace.WrittenFor": "ALPHA"
+            }
+        }
+    },
+    "recipeTypeList": {
+        "PickPlace": {
+            "members": {
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickApproachDirection": {
+                    "defaultValue": "Z+",
+                    "enabled": true,
+                    "group": "",
+                    "order": 0,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PickApproachDirection",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickApproachOffset": {
+                    "defaultValue": 30.0,
+                    "enabled": true,
+                    "group": "",
+                    "order": 1,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PickApproachOffset",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionName": {
+                    "defaultValue": "Pick",
+                    "enabled": true,
+                    "group": "",
+                    "order": 2,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionName",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.rx": {
+                    "defaultValue": 0.0,
+                    "enabled": true,
+                    "group": "",
+                    "order": 3,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.rx",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.ry": {
+                    "defaultValue": 0.0,
+                    "enabled": true,
+                    "group": "",
+                    "order": 4,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.ry",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.rz": {
+                    "defaultValue": 0.0,
+                    "enabled": true,
+                    "group": "",
+                    "order": 5,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.rz",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.x": {
+                    "defaultValue": 0.0,
+                    "enabled": true,
+                    "group": "",
+                    "order": 6,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.x",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.y": {
+                    "defaultValue": 0.0,
+                    "enabled": true,
+                    "group": "",
+                    "order": 7,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.y",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.z": {
+                    "defaultValue": 0.0,
+                    "enabled": true,
+                    "group": "",
+                    "order": 8,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PickPositionOffset.z",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlaceApproachDirection": {
+                    "defaultValue": "Z+",
+                    "enabled": true,
+                    "group": "",
+                    "order": 9,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PlaceApproachDirection",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlaceApproachOffset": {
+                    "defaultValue": 30.0,
+                    "enabled": true,
+                    "group": "",
+                    "order": 10,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PlaceApproachOffset",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionName": {
+                    "defaultValue": "Place",
+                    "enabled": true,
+                    "group": "",
+                    "order": 11,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionName",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.rx": {
+                    "defaultValue": 0.0,
+                    "enabled": true,
+                    "group": "",
+                    "order": 12,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.rx",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.ry": {
+                    "defaultValue": 0.0,
+                    "enabled": true,
+                    "group": "",
+                    "order": 13,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.ry",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.rz": {
+                    "defaultValue": 0.0,
+                    "enabled": true,
+                    "group": "",
+                    "order": 14,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.rz",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.x": {
+                    "defaultValue": 0.0,
+                    "enabled": true,
+                    "group": "",
+                    "order": 15,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.x",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.y": {
+                    "defaultValue": 0.0,
+                    "enabled": true,
+                    "group": "",
+                    "order": 16,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.y",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.z": {
+                    "defaultValue": 0.0,
+                    "enabled": true,
+                    "group": "",
+                    "order": 17,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.z",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.Velocity": {
+                    "defaultValue": 30.0,
+                    "enabled": true,
+                    "group": "",
+                    "order": 18,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.Velocity",
+                    "unit": "",
+                    "version": 1.0
+                },
+                "ADS.PLC1.LIBRARY.Param_PickPlace.WrittenFor": {
+                    "defaultValue": "DUMMY_ROBOT",
+                    "enabled": true,
+                    "group": "",
+                    "order": 19,
+                    "schema": {},
+                    "symbol": "ADS.PLC1.LIBRARY.Param_PickPlace.WrittenFor",
+                    "unit": "",
+                    "version": 1.0
+                }
+            },
+            "options": {
+                "enabled": "None"
+            },
+            "recipeTypeNames": []
+        }
+    },
     "recipeVersioningEnabled": false
 }

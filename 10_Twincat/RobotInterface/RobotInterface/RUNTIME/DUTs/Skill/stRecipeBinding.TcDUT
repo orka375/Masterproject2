@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stRecipeBinding" Id="{a47f1b8e-640a-4c52-9429-392be8496ac4}">
+    <Declaration><![CDATA[TYPE stRecipeBinding :
+STRUCT
+	sName: STRING(80);
+	pSource: PVOID;
+	cbSize: UDINT;
+	pWrittenFor: POINTER TO STRING;
+	nDestinationCount: INT;
+	aDestination: ARRAY[1..6] OF stRecipeDestination;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

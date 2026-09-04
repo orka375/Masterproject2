@@ -23,12 +23,12 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[// Detect start command
-fbExecute(CLK := bExecute);
+fbExecute(CLK := HMI_SKILL.bExecute);
 
 
 // Start / restart
 IF fbExecute.Q THEN
-	bExecute:=FALSE;
+	HMI_SKILL.bExecute:=FALSE;
     Busy := TRUE;
     ExecutionDone:=FALSE;
 	ExecutionResult:= NONE;
@@ -38,14 +38,14 @@ END_IF
 
 
 // Stop immediately
-IF bStop THEN
+IF HMI_SKILL.bStop THEN
     HMI_BASE.bBusy := FALSE;
     ExecutionDone:=TRUE;
 	ExecutionResult:= FAILURE;
 	phase:=0;
 	
 	pUR^.UR_COMM.Dashboard.Stop();
-	bStop:=FALSE;
+	HMI_SKILL.bStop:=FALSE;
 ELSE
 
     IF HMI_BASE.bBusy THEN
@@ -93,7 +93,7 @@ ELSE
 		
 		IF phase=3 THEN
 			IF pUR^.UR_COMM.Dashboard.LastResponseIncludes('Starting') THEN
-				bExecute:=FALSE;
+				HMI_SKILL.bExecute:=FALSE;
 				phase:=4;
 			ELSE
 				phase:=2;
@@ -111,7 +111,7 @@ ELSE
 		IF phase=5 THEN			
 			pUR^.UR_COMM.Dashboard.ProgramState();
 			IF pUR^.UR_COMM.Dashboard.LastResponseIncludes('STOPPED') THEN //Skill is finished
-				bExecute:=FALSE;
+				HMI_SKILL.bExecute:=FALSE;
 				ExecutionDone:=TRUE;
 				ExecutionResult:= SUCCESS;
 				HMI_BASE.bBusy:=FALSE;
@@ -131,7 +131,7 @@ END_VAR]]></Declaration>
         <ST><![CDATA[// !! THESE AREN'T THE METHODS YOU CALL TO START/STOP THE SKILL //
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-bExecute:=TRUE;
+HMI_SKILL.bExecute:=TRUE;
 
 
 // ----- END YOUR CODE -----------------------------
@@ -148,7 +148,7 @@ _M_Start:=SUCCESS;
         <ST><![CDATA[// !! THESE AREN'T THE METHODS YOU CALL TO START/STOP THE SKILL //
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-bStop:=TRUE;
+HMI_SKILL.bStop:=TRUE;
 
 // ----- END YOUR CODE -----------------------------
 _M_Stop:=SUCCESS;

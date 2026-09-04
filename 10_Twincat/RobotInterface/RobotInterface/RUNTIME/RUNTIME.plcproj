@@ -111,6 +111,12 @@
     <Compile Include="DUTs\Skill\eSkillCommandType.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\Skill\stRecipeDestination.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Skill\stRecipeBinding.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\Skill\stExternalCommand.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -138,6 +144,9 @@
     <Compile Include="DUTs\Visu\stHMI_BASE.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\Visu\stHMI_SKILL.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\Visu\stHMI_ROB.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -159,9 +168,6 @@
     <Compile Include="DUTs\Visu\stVisStatusTool.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="GVLs\GVL_Cell.TcGVL">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="GVLs\LIBRARY.TcGVL">
       <SubType>Code</SubType>
       <LinkAlways>true</LinkAlways>
@@ -170,6 +176,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PlcTask.TcTTO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Archiv\FB_ExternalHandshake.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Archiv\FB_Helper.TcPOU">
@@ -247,10 +256,10 @@
     <Compile Include="POUs\Skills\FB_1_Skill.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Skills\FB_ExternalHandshake.TcPOU">
+    <Compile Include="POUs\Skills\Skill_Counter\stParam_Counter.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Skills\FB_ROS2Skill.TcPOU">
+    <Compile Include="POUs\Skills\Skill_Counter\Skill_Counter.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Skills\Skill_LoadDeliverReturn.TcPOU">
@@ -296,9 +305,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Test\TEST_Skill_varP.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Test\TEST_Skill_Counter.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Test\TEST_Skill_3Points.TcPOU">
@@ -385,6 +391,7 @@
     <Folder Include="POUs\DB" />
     <Folder Include="POUs\Helpers" />
     <Folder Include="POUs\Jog" />
+    <Folder Include="POUs\Skills\Skill_Counter" />
     <Folder Include="POUs\Test" />
     <Folder Include="POUs\Robots" />
     <Folder Include="POUs\Robots\Mecademic" />

@@ -3,6 +3,9 @@
   <DUT Name="stParam_PickPlace" Id="{ab4d2358-cf6f-47ea-b510-aa1d3f4fa553}">
     <Declaration><![CDATA[TYPE stParam_PickPlace :
 STRUCT
+	WrittenFor: STRING := '';
+	
+	
 	PickPositionName: STRING;
 	PickPositionOffset: stPoseGeneral;
 	

@@ -1,309 +1,357 @@
 {
-    "$schema": "./../../../Packages/Beckhoff.TwinCAT.HMI.Framework.14.6.3/runtimes/native1.12-tchmi/Schema/ThemeDescription.Schema.json",
-    "controlClassValues":
-    {
-        "background-container":
-        {
-            "attributes":
-            {
-                "BackgroundColor": {
-                    "color": "#f6f7f8"
-                },
-                "TextColor": {
-                    "color": "#4c6374"
-                },
-                "BoxShadow":
-                [
-                    {
-                        "color":
-                        {
-                            "color": "rgba(0, 0, 0, 0.3)"
-                        },
-                        "offsetX": 0.0,
-                        "offsetXUnit": "px",
-                        "offsetY": 1.0,
-                        "offsetYUnit": "px",
-                        "inset": false,
-                        "blur": 4.0,
-                        "blurUnit": "px",
-                        "spread": 0.0,
-                        "spreadUnit": "px"
-                    }
-                ]
+  "controlTypeValues": {},
+  "controlClassValues": {
+    "background-container": {
+      "attributes": {
+        "BackgroundColor": {
+          "color": "#F8FAFB"
+        },
+        "TextColor": {
+          "color": "#16344A"
+        },
+        "BorderColor": {
+          "color": "#C3CDD5"
+        },
+        "BorderWidth": {
+          "left": 1,
+          "right": 1,
+          "top": 1,
+          "bottom": 1,
+          "leftUnit": "px",
+          "rightUnit": "px",
+          "topUnit": "px",
+          "bottomUnit": "px"
+        },
+        "BorderStyle": {
+          "left": "Solid",
+          "right": "Solid",
+          "top": "Solid",
+          "bottom": "Solid"
+        },
+        "BoxShadow": [
+          {
+            "color": {
+              "color": "rgba(22, 52, 74, 0.14)"
             },
-            "themedResources":
-            {
-            }
-        },
-        "divider":
-        {
-            "attributes":
-            {
-                "BorderColor":
-                {
-                    "color": "#a3b0bb"
-                }
-            }
-        },
-        "divider-bottom":
-        {
-            "attributes":
-            {
-                "BorderWidth":
-                {
-                    "left": 0,
-                    "right": 0,
-                    "top": 1,
-                    "bottom": 0,
-                    "leftUnit": "px",
-                    "rightUnit": "px",
-                    "topUnit": "px",
-                    "bottomUnit": "px"
-                },
-                "BorderStyle":
-                {
-                    "left": "None",
-                    "right": "None",
-                    "top": "Solid",
-                    "bottom": "None"
-                },
-                "BoxShadow":
-                [
-                    {
-                        "color":
-                        {
-                            "color": "rgba(0, 0, 0, 0.2)"
-                        },
-                        "offsetX": 0.0,
-                        "offsetXUnit": "px",
-                        "offsetY": -1.0,
-                        "offsetYUnit": "px",
-                        "inset": false,
-                        "blur": 8.0,
-                        "blurUnit": "px",
-                        "spread": 1.0,
-                        "spreadUnit": "px"
-                    }
-                ]
-            },
-            "themedResources":
-            {
-            }
-        },
-        "divider-top":
-        {
-            "attributes":
-            {
-                "BorderWidth":
-                {
-                    "left": 0,
-                    "right": 0,
-                    "top": 0,
-                    "bottom": 1,
-                    "leftUnit": "px",
-                    "rightUnit": "px",
-                    "topUnit": "px",
-                    "bottomUnit": "px"
-                },
-                "BorderStyle":
-                {
-                    "left": "None",
-                    "right": "None",
-                    "top": "None",
-                    "bottom": "Solid"
-                },
-                "BoxShadow":
-                [
-                    {
-                        "color":
-                        {
-                            "color": "rgba(0, 0, 0, 0.2)"
-                        },
-                        "offsetX": 0.0,
-                        "offsetXUnit": "px",
-                        "offsetY": 1.0,
-                        "offsetYUnit": "px",
-                        "inset": false,
-                        "blur": 8.0,
-                        "blurUnit": "px",
-                        "spread": 1.0,
-                        "spreadUnit": "px"
-                    }
-                ]
-            },
-            "themedResources":
-            {
-            }
-        },
-        "divider-right":
-        {
-            "attributes":
-            {
-                "BorderWidth":
-                {
-                    "left": 1,
-                    "right": 0,
-                    "top": 0,
-                    "bottom": 0,
-                    "leftUnit": "px",
-                    "rightUnit": "px",
-                    "topUnit": "px",
-                    "bottomUnit": "px"
-                },
-                "BorderStyle":
-                {
-                    "left": "Solid",
-                    "right": "None",
-                    "top": "None",
-                    "bottom": "None"
-                },
-                "BorderColor":
-                {
-                    "color": "#a3b0bb"
-                },
-                "BoxShadow":
-                [
-                    {
-                        "color":
-                        {
-                            "color": "rgba(0, 0, 0, 0.2)"
-                        },
-                        "offsetX": -1.0,
-                        "offsetXUnit": "px",
-                        "offsetY": 0.0,
-                        "offsetYUnit": "px",
-                        "inset": false,
-                        "blur": 8.0,
-                        "blurUnit": "px",
-                        "spread": 1.0,
-                        "spreadUnit": "px"
-                    }
-                ]
-            },
-            "themedResources":
-            {
-            }
-        },
-        "divider-left":
-        {
-            "attributes":
-            {
-                "BorderColor":
-                {
-                    "color": "#A3b0bb"
-                },
-                "BorderWidth":
-                {
-                    "left": 0,
-                    "right": 1,
-                    "top": 0,
-                    "bottom": 0,
-                    "leftUnit": "px",
-                    "rightUnit": "px",
-                    "topUnit": "px",
-                    "bottomUnit": "px"
-                },
-                "BorderStyle":
-                {
-                    "left": "None",
-                    "right": "Solid",
-                    "top": "None",
-                    "bottom": "None"
-                },
-                "BoxShadow":
-                [
-                    {
-                        "color":
-                        {
-                            "color": "rgba(0, 0, 0, 0.2)"
-                        },
-                        "offsetX": 1.0,
-                        "offsetXUnit": "px",
-                        "offsetY": 0.0,
-                        "offsetYUnit": "px",
-                        "inset": false,
-                        "blur": 8.0,
-                        "blurUnit": "px",
-                        "spread": 1.0,
-                        "spreadUnit": "px"
-                    }
-                ]
-            }
-        },
-        "headline-1":
-        {
-            "attributes":
-            {
-                "TextFontSize": 26.0
-            },
-            "themedResources":
-            {
-            }
-        },
-        "headline-2":
-        {
-            "attributes":
-            {
-                "TextFontSize": 22.0
-            },
-            "themedResources":
-            {
-            }
-        },
-        "headline-3":
-        {
-            "attributes":
-            {
-                "TextFontSize": 18.0
-            },
-            "themedResources":
-            {
-            }
-        },
-        "text-centered":
-        {
-            "attributes":
-            {
-                "TextHorizontalAlignment": "Center",
-                "TextVerticalAlignment": "Center",
-                "TextPadding":
-                {
-                    "left": 8,
-                    "right": 8,
-                    "top": 0,
-                    "bottom": 0,
-                    "leftUnit": "px",
-                    "rightUnit": "px",
-                    "topUnit": "px",
-                    "bottomUnit": "px"
-                }
-            },
-            "themedResources":
-            {
-            }
-        },
-        "text-color-container":
-        {
-            "attributes":
-            {
-                "TextColor": {
-                    "color": "#4c6374"
-                }
-            },
-            "themedResources":
-            {
-            }
-        },
-        "text-size-default":
-        {
-            "attributes":
-            {
-                "TextFontSize": 16.0,
-                "TextFontSizeUnit": "px"
-            },
-            "themedResources":
-            {
-            }
+            "offsetX": 0.0,
+            "offsetXUnit": "px",
+            "offsetY": 2.0,
+            "offsetYUnit": "px",
+            "inset": false,
+            "blur": 6.0,
+            "blurUnit": "px",
+            "spread": 0.0,
+            "spreadUnit": "px"
+          }
+        ]
+      },
+      "themedResources": {}
+    },
+    "divider": {
+      "attributes": {
+        "BorderColor": {
+          "color": "#a3b0bb"
         }
+      },
+      "themedResources": {}
+    },
+    "divider-bottom": {
+      "attributes": {},
+      "themedResources": {}
+    },
+    "divider-left": {
+      "attributes": {
+        "BorderColor": {
+          "color": "#A3b0bb"
+        },
+        "BorderWidth": {
+          "left": 0,
+          "right": 1,
+          "top": 0,
+          "bottom": 0,
+          "leftUnit": "px",
+          "rightUnit": "px",
+          "topUnit": "px",
+          "bottomUnit": "px"
+        },
+        "BorderStyle": {
+          "left": "None",
+          "right": "Solid",
+          "top": "None",
+          "bottom": "None"
+        },
+        "BoxShadow": [
+          {
+            "color": {
+              "color": "rgba(0, 0, 0, 0.2)"
+            },
+            "offsetX": 1.0,
+            "offsetXUnit": "px",
+            "offsetY": 0.0,
+            "offsetYUnit": "px",
+            "inset": false,
+            "blur": 8.0,
+            "blurUnit": "px",
+            "spread": 1.0,
+            "spreadUnit": "px"
+          }
+        ]
+      },
+      "themedResources": {}
+    },
+    "divider-right": {
+      "attributes": {},
+      "themedResources": {}
+    },
+    "divider-top": {
+      "attributes": {
+        "BorderWidth": {
+          "left": 0,
+          "right": 0,
+          "top": 0,
+          "bottom": 1,
+          "leftUnit": "px",
+          "rightUnit": "px",
+          "topUnit": "px",
+          "bottomUnit": "px"
+        },
+        "BorderStyle": {
+          "left": "None",
+          "right": "None",
+          "top": "None",
+          "bottom": "Solid"
+        },
+        "BoxShadow": [
+          {
+            "color": {
+              "color": "rgba(0, 0, 0, 0.2)"
+            },
+            "offsetX": 0.0,
+            "offsetXUnit": "px",
+            "offsetY": 1.0,
+            "offsetYUnit": "px",
+            "inset": false,
+            "blur": 8.0,
+            "blurUnit": "px",
+            "spread": 1.0,
+            "spreadUnit": "px"
+          }
+        ]
+      },
+      "themedResources": {}
+    },
+    "headline-1": {
+      "attributes": {},
+      "themedResources": {}
+    },
+    "headline-2": {
+      "attributes": {
+        "TextFontSize": 22.0
+      },
+      "themedResources": {}
+    },
+    "headline-3": {
+      "attributes": {
+        "TextFontSize": 18.0
+      },
+      "themedResources": {}
+    },
+    "hmi-cell-surface": {
+      "attributes": {
+        "BackgroundColor": {
+          "color": "#E9EEF2"
+        },
+        "TextColor": {
+          "color": "#16344A"
+        },
+        "BorderColor": {
+          "color": "#CBD4DB"
+        },
+        "BorderWidth": {
+          "left": 1,
+          "right": 1,
+          "top": 1,
+          "bottom": 1,
+          "leftUnit": "px",
+          "rightUnit": "px",
+          "topUnit": "px",
+          "bottomUnit": "px"
+        },
+        "BorderStyle": {
+          "left": "Solid",
+          "right": "Solid",
+          "top": "Solid",
+          "bottom": "Solid"
+        },
+        "BoxShadow": [
+          {
+            "color": {
+              "color": "rgba(22, 52, 74, 0.08)"
+            },
+            "offsetX": 0.0,
+            "offsetXUnit": "px",
+            "offsetY": 1.0,
+            "offsetYUnit": "px",
+            "inset": false,
+            "blur": 3.0,
+            "blurUnit": "px",
+            "spread": 0.0,
+            "spreadUnit": "px"
+          }
+        ]
+      },
+      "themedResources": {}
+    },
+    "hmi-dark-header": {
+      "attributes": {
+        "BackgroundColor": {
+          "color": "#263746"
+        },
+        "TextColor": {
+          "color": "#FFFFFF"
+        },
+        "BorderColor": {
+          "color": "#1D2D39"
+        },
+        "BorderWidth": {
+          "left": 1,
+          "right": 1,
+          "top": 1,
+          "bottom": 1,
+          "leftUnit": "px",
+          "rightUnit": "px",
+          "topUnit": "px",
+          "bottomUnit": "px"
+        },
+        "BorderStyle": {
+          "left": "Solid",
+          "right": "Solid",
+          "top": "Solid",
+          "bottom": "Solid"
+        },
+        "BoxShadow": [
+          {
+            "color": {
+              "color": "rgba(18, 35, 48, 0.18)"
+            },
+            "offsetX": 0.0,
+            "offsetXUnit": "px",
+            "offsetY": 3.0,
+            "offsetYUnit": "px",
+            "inset": false,
+            "blur": 8.0,
+            "blurUnit": "px",
+            "spread": 0.0,
+            "spreadUnit": "px"
+          }
+        ]
+      },
+      "themedResources": {}
+    },
+    "hmi-panel-surface": {
+      "attributes": {
+        "BackgroundColor": {
+          "color": "#F8FAFB"
+        },
+        "TextColor": {
+          "color": "#16344A"
+        },
+        "BorderColor": {
+          "color": "#C3CDD5"
+        },
+        "BorderWidth": {
+          "left": 1,
+          "right": 1,
+          "top": 1,
+          "bottom": 1,
+          "leftUnit": "px",
+          "rightUnit": "px",
+          "topUnit": "px",
+          "bottomUnit": "px"
+        },
+        "BorderStyle": {
+          "left": "Solid",
+          "right": "Solid",
+          "top": "Solid",
+          "bottom": "Solid"
+        },
+        "BoxShadow": [
+          {
+            "color": {
+              "color": "rgba(22, 52, 74, 0.12)"
+            },
+            "offsetX": 0.0,
+            "offsetXUnit": "px",
+            "offsetY": 2.0,
+            "offsetYUnit": "px",
+            "inset": false,
+            "blur": 6.0,
+            "blurUnit": "px",
+            "spread": 0.0,
+            "spreadUnit": "px"
+          }
+        ]
+      },
+      "themedResources": {}
+    },
+    "text-centered": {
+      "attributes": {},
+      "themedResources": {}
+    },
+    "text-color-container": {
+      "attributes": {},
+      "themedResources": {}
+    },
+    "text-size-default": {
+      "attributes": {},
+      "themedResources": {}
+    },
+    "background-container_dark": {
+      "attributes": {
+        "BackgroundColor": {
+          "color": "rgba(214, 214, 214, 1)"
+        },
+        "TextColor": {
+          "color": "#16344A"
+        },
+        "BorderColor": {
+          "color": "rgba(148, 151, 154, 1)"
+        },
+        "BorderWidth": {
+          "left": 1,
+          "right": 1,
+          "top": 1,
+          "bottom": 1,
+          "leftUnit": "px",
+          "rightUnit": "px",
+          "topUnit": "px",
+          "bottomUnit": "px"
+        },
+        "BorderStyle": {
+          "left": "Solid",
+          "right": "Solid",
+          "top": "Solid",
+          "bottom": "Solid"
+        },
+        "BoxShadow": [
+          {
+            "color": {
+              "color": "rgba(22, 52, 74, 0.14)"
+            },
+            "offsetX": 0.0,
+            "offsetXUnit": "px",
+            "offsetY": 2.0,
+            "offsetYUnit": "px",
+            "inset": false,
+            "blur": 6.0,
+            "blurUnit": "px",
+            "spread": 0.0,
+            "spreadUnit": "px"
+          }
+        ]
+      },
+      "themedResources": {}
     }
+  },
+  "$schema": "./../../../Packages/Beckhoff.TwinCAT.HMI.Framework.14.6.3/runtimes/native1.12-tchmi/Schema/ThemeDescription.Schema.json"
 }

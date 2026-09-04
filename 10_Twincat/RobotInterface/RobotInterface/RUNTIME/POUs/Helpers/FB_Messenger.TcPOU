@@ -5,6 +5,7 @@
 FUNCTION_BLOCK FB_Messenger
 VAR_INPUT
 	bExecuteQuittieren: BOOL;
+	ParentMessenger: POINTER TO FB_Messenger;
 END_VAR
 VAR_OUTPUT
 	xMyTime		: TIME;
@@ -121,7 +122,11 @@ IF index = 0 THEN
 END_IF
 
 MList[index].tTime := DT_TO_TIME(SYSTEMTIME_TO_DT(fbTime.systemTime));
-AddError := MList[index];]]></ST>
+AddError := MList[index];
+
+IF ParentMessenger <> 0 AND ParentMessenger <> ADR(THIS^) THEN
+	ParentMessenger^.AddError(Category, sSender, sMessage);
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="AddHint" Id="{8902f9a6-54f8-4c1a-a645-2f7e5ef010fc}">
@@ -315,6 +320,10 @@ WHILE k <= HMI_MESSENGER.MsgCount DO
 		k := k + 1;
 	END_IF
 END_WHILE
+
+IF ParentMessenger <> 0 AND ParentMessenger <> ADR(THIS^) THEN
+	ParentMessenger^.Clear(sSender, sMessage);
+END_IF
 Clear := TRUE;]]></ST>
       </Implementation>
     </Method>

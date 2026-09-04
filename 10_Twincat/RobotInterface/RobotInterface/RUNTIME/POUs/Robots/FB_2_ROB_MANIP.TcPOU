@@ -30,6 +30,32 @@ END_VAR
     </Implementation>
     <Folder Name="MotionControl" Id="{fc8c0aca-629b-4848-a20d-78e9ce6e9fda}" />
     <Folder Name="StateControl" Id="{4f99cba4-d44f-4086-b21c-31fe1a3d2978}" />
+    <Method Name="FB_Init" Id="{59b2ccf3-d1a8-4248-bdb8-48f7cd1360d5}">
+      <Declaration><![CDATA[METHOD FB_Init : BOOL
+  VAR_INPUT
+    bInitRetains : BOOL;
+    bInCopyCode : BOOL;
+  END_VAR
+  VAR
+    iManip : UINT;
+  END_VAR]]></Declaration>
+      <Implementation>
+      <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
+
+  FOR iManip := 1 TO SETUP.nManipCount DO
+    IF SETUP.apManip[iManip] = THIS THEN
+      FB_Init := TRUE;
+      RETURN;
+    END_IF
+  END_FOR
+
+  IF SETUP.nManipCount < SETUP.MaxNrofManipulators THEN
+    SETUP.nManipCount := SETUP.nManipCount + 1;
+    SETUP.apManip[SETUP.nManipCount] := THIS;
+    FB_Init := TRUE;
+  END_IF]]></ST>
+      </Implementation>
+    </Method>
     <Action Name="CYCLIC_MANIP" Id="{c5ea77dd-14da-4015-9108-0744e50afbab}">
       <Implementation>
         <ST><![CDATA[CYCLIC_ROB();

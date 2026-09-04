@@ -6,22 +6,17 @@
 VAR_INPUT
 	DEBUG_SKILL: DEBUG_SKILL;
 	pOwner: POINTER TO FB_0_BASE;
-	_runExternal : BOOL := FALSE;
-	bExecute : BOOL;
-    bStop    : BOOL;
-    bReset   : BOOL;
+	
+	
 END_VAR
 
 VAR_INPUT
-	{attribute 'OPC.UA.DA.StructuredType':=1}
-	{attribute 'OPC.UA.DA' := '1'}
-    Status    : stExternalStatus;
+	
 END_VAR
 
 VAR_OUTPUT
-	{attribute 'OPC.UA.DA.StructuredType':=1}
-	{attribute 'OPC.UA.DA' := '1'}
-    Command   : stExternalCommand;
+	HMI_SKILL : stHMI_SKILL;
+	
 
  	
 
@@ -55,6 +50,32 @@ END_VAR]]></Declaration>
     <Folder Name="Internal" Id="{96dbd9e8-6c39-4ccb-8b32-e843cad33cc5}" />
     <Folder Name="Public" Id="{8eeb3120-c4f5-4dff-98ca-2143f9392787}" />
     <Folder Name="StateControl" Id="{71a3cf00-e64f-49c4-a480-600b201a90b4}" />
+    <Method Name="FB_Init" Id="{69f9f497-1b72-4d80-aee2-459cc303c27d}">
+      <Declaration><![CDATA[METHOD FB_Init : BOOL
+  VAR_INPUT
+    bInitRetains : BOOL;
+    bInCopyCode : BOOL;
+  END_VAR
+  VAR
+    iSkill : UINT;
+  END_VAR]]></Declaration>
+      <Implementation>
+      <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
+
+  FOR iSkill := 1 TO SETUP.nSkillCount DO
+    IF SETUP.apSkill[iSkill] = THIS THEN
+      FB_Init := TRUE;
+      RETURN;
+    END_IF
+  END_FOR
+
+  IF SETUP.nSkillCount < SETUP.MaxNrofSkills THEN
+    SETUP.nSkillCount := SETUP.nSkillCount + 1;
+    SETUP.apSkill[SETUP.nSkillCount] := THIS;
+    FB_Init := TRUE;
+  END_IF]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="_M_Start" Id="{be1a62f7-3d1f-44a1-b23c-14be160cd3f9}" FolderPath="Internal\">
       <Declaration><![CDATA[{warning 'Add method implementation '}
 METHOD INTERNAL _M_Start : eResult
@@ -94,14 +115,14 @@ _M_Stop:=SUCCESS;
         <ST><![CDATA[
 CYCLIC_BASE();
 RUN_DEBUG_SKILL();
-aHandler(Cmd:=ADR(Command),Stat:=ADR(Status));
+aHandler(Cmd:=ADR(HMI_SKILL.Command),Stat:=ADR(HMI_SKILL.Status));
 
 // HMI command bits. Start is latched and driven until the skill is
 // Active (the state machine needs several cycles to progress);
 // Stop/Reset act on the rising edge.
-_rExec(CLK := bExecute);
-_rStopCmd(CLK := bStop);
-_rReset(CLK := bReset);
+_rExec(CLK := HMI_SKILL.bExecute);
+_rStopCmd(CLK := HMI_SKILL.bStop);
+_rReset(CLK := HMI_SKILL.bReset);
 
 IF _rExec.Q THEN
 	_startReq := TRUE;
@@ -124,10 +145,10 @@ IF _startReq THEN
 END_IF
 
 
-IF _runExternal THEN
-	ExecutionDone:=Status.ExecutionDone;
-	Busy:=Status.ExecutionBusy;
-	ExecutionResult:= Status.ExecutionResult;
+IF HMI_SKILL.ExternalImplementation THEN
+	ExecutionDone:=HMI_SKILL.Status.ExecutionDone;
+	Busy:=HMI_SKILL.Status.ExecutionBusy;
+	ExecutionResult:= HMI_SKILL.Status.ExecutionResult;
 	
 	IF ExecutionResult = ERROR THEN
 		MEssenger.AddError(eMessageCategories.External,Path,'External Execution failed');
@@ -235,7 +256,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Command.bStart:=TRUE;
+        <ST><![CDATA[HMI_SKILL.Command.bStart:=TRUE;
 
 ]]></ST>
       </Implementation>
@@ -246,7 +267,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Command.bStop:=TRUE;
+        <ST><![CDATA[HMI_SKILL.Command.bStop:=TRUE;
 ]]></ST>
       </Implementation>
     </Method>
@@ -272,7 +293,7 @@ myResult:=NONE;
 
 
 IF State>=eState.Inactive AND State<>eState.Active THEN
-	IF _runExternal THEN
+	IF HMI_SKILL.ExternalImplementation THEN
 		myResult:= ExternalStart();
 	ELSE
 		myResult:=_M_Start();
@@ -376,7 +397,7 @@ myResult:=NONE;
 
 
 IF State>=eState.Deactivating THEN
-	IF _runExternal THEN
+	IF HMI_SKILL.ExternalImplementation THEN
 		myResult:= ExternalStop();
 	ELSE
 		myResult:= _M_Stop();

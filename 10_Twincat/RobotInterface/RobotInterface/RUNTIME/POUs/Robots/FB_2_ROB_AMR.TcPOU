@@ -24,11 +24,10 @@ END_VAR
 JOG(pStatusRobot:=THIS);
 
 
-HMI_ROB_AMR.State:=HMI_BASE.eStatus;
-HMI_ROB_AMR.Mode:=HMI_ROB.eModus;
-HMI_ROB_AMR.isMoving:=IsMoving;
-HMI_ROB_AMR.isReady:=IsReady;
-HMI_ROB_AMR.isConnected:=COMM^.Connected;
+
+// HMI_ROB_AMR.isMoving:=IsMoving;
+// HMI_ROB_AMR.isReady:=IsReady;
+
 // 	isLocked: BOOL;
 // visStatus.isBusy:=;
 HMI_ROB_AMR.isInCollision:=IsInCollision;
@@ -52,6 +51,32 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[Config.Name:=NameDockingStation;
 Dock := BA_Handler(Cmd:=eBA.Dock,Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{b8e06504-a9fb-4b69-a42c-c37e4e2687bc}">
+      <Declaration><![CDATA[METHOD FB_Init : BOOL
+  VAR_INPUT
+    bInitRetains : BOOL;
+    bInCopyCode : BOOL;
+  END_VAR
+  VAR
+    iAMR : UINT;
+  END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
+
+  FOR iAMR := 1 TO SETUP.nAMRCount DO
+    IF SETUP.apAMR[iAMR] = THIS THEN
+      FB_Init := TRUE;
+      RETURN;
+    END_IF
+  END_FOR
+
+  IF SETUP.nAMRCount < SETUP.MaxNrofAMRs THEN
+    SETUP.nAMRCount := SETUP.nAMRCount + 1;
+    SETUP.apAMR[SETUP.nAMRCount] := THIS;
+    FB_Init := TRUE;
+  END_IF]]></ST>
       </Implementation>
     </Method>
     <Property Name="IsDocked" Id="{b1223d7e-f467-499a-a850-c3753fbde900}">

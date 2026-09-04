@@ -1,4 +1,37 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "definitions": {}
+  "definitions": {
+    "Status_Skill": {
+      "frameworkControlNamespace": "TcHmi.Controls.Beckhoff",
+      "frameworkControlType": "TcHmi.Controls.System.TcHmiUserControl",
+      "frameworkInstanceOf": "TcHmi.Controls.System.TcHmiControl",
+      "frameworkUserControlConfig": "UserControl\\Status_Skill.usercontrol.json",
+      "type": "object",
+      "id": "tchmi:project#/definitions/Status_Skill"
+    },
+    "Status_Rob": {
+      "frameworkControlNamespace": "TcHmi.Controls.Beckhoff",
+      "frameworkControlType": "TcHmi.Controls.System.TcHmiUserControl",
+      "frameworkInstanceOf": "TcHmi.Controls.System.TcHmiControl",
+      "frameworkUserControlConfig": "UserControl\\Status_Rob.usercontrol.json",
+      "type": "object",
+      "id": "tchmi:project#/definitions/Status_Rob"
+    },
+    "Status_Manip": {
+      "frameworkControlNamespace": "TcHmi.Controls.Beckhoff",
+      "frameworkControlType": "TcHmi.Controls.System.TcHmiUserControl",
+      "frameworkInstanceOf": "TcHmi.Controls.System.TcHmiControl",
+      "frameworkUserControlConfig": "UserControl\\Status_Manip.usercontrol.json",
+      "type": "object",
+      "id": "tchmi:project#/definitions/Status_Manip"
+    },
+    "UC_MANIPULATOR": {
+      "frameworkControlNamespace": "TcHmi.Controls.Beckhoff",
+      "frameworkControlType": "TcHmi.Controls.System.TcHmiUserControl",
+      "frameworkInstanceOf": "TcHmi.Controls.System.TcHmiControl",
+      "frameworkUserControlConfig": "UserControl\\UC_MANIPULATOR.usercontrol.json",
+      "type": "object",
+      "id": "tchmi:project#/definitions/UC_MANIPULATOR"
+    }
+  }
 }

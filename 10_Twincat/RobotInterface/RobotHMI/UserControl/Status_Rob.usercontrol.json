@@ -1,0 +1,58 @@
+{
+  "parameters": [
+    {
+      "allowSymbolExpressionsInObject": false,
+      "requiredOnCompile": false,
+      "bindable": true,
+      "propertySetterName": "setR",
+      "propertyGetterName": "getR",
+      "refTo": "",
+      "name": "data-tchmi-r",
+      "displayName": "R",
+      "visible": true,
+      "type": "tchmi:server#/definitions/ADS-PLC1.stHMI_ROB",
+      "category": "",
+      "description": "",
+      "readOnly": false,
+      "heritable": true,
+      "propertyName": "R"
+    },
+    {
+      "allowSymbolExpressionsInObject": false,
+      "requiredOnCompile": false,
+      "bindable": true,
+      "propertySetterName": "setB",
+      "propertyGetterName": "getB",
+      "refTo": "",
+      "name": "data-tchmi-b",
+      "displayName": "B",
+      "visible": true,
+      "type": "tchmi:server#/definitions/ADS-PLC1.stHMI_BASE",
+      "category": "",
+      "description": "Communication module base status",
+      "readOnly": false,
+      "heritable": true,
+      "propertyName": "B"
+    },
+    {
+      "allowSymbolExpressionsInObject": false,
+      "requiredOnCompile": false,
+      "bindable": true,
+      "propertySetterName": "setC",
+      "propertyGetterName": "getC",
+      "refTo": "",
+      "name": "data-tchmi-c",
+      "displayName": "C",
+      "visible": true,
+      "type": "tchmi:server#/definitions/ADS-PLC1.stHMI_COMM",
+      "category": "",
+      "description": "Communication status",
+      "readOnly": false,
+      "heritable": true,
+      "propertyName": "C"
+    }
+  ],
+  "virtualRights": [],
+  "$schema": "./../../Packages/Beckhoff.TwinCAT.HMI.Framework.14.6.3/runtimes/native1.12-tchmi/Schema/UserControlConfig.Schema.json",
+  "description": ""
+}

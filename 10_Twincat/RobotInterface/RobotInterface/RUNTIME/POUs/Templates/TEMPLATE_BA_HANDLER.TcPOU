@@ -18,58 +18,58 @@ VAR //ON FB_1_ROB
 	Path: String;
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[//Checks
-
-//Check if prev BA ended
-IF BA_STATUS=eProgress.INIT OR BA_STATUS=eProgress.FINALIZED THEN
-	IF State=eState.Active THEN
-		Idcounter:= Idcounter+1;
-		BA_HANDLER:=Idcounter;
-	ELSE
-		Messenger.AddError(eMessageCategories.NotAllowed,Path,'State not Active');
-		RETURN;
-	END_IF
-ELSE
-	Messenger.AddError(eMessageCategories.NotAllowed,Path,'Prev BA not finished correctly');
-	RETURN;
-END_IF
-
-//Deploy
-CASE Cmd OF
-	eBA.MoveL:
-		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA MoveL');
-	
-	eBA.MoveLRelativ:
-		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA MoveLRel');
-	
-	eBA.MoveJ:
-		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA MoveJ');
-	
-	eBA.MoveJRelativ:
-		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA MoveJRel');
-	
-	eBA.SetDO:
-		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA SetDO');
-	
-	eBA.ReadDI:
-		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA ReadDI');
-	
-	eBA.Home:
-		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA Home');
-		
-	eBA.Dock:
-		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA Dock');
-		
-	eBA.Undock:
-		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA Undock');
-	
-	eBA.NavigateToPoint:
-		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA NavToPoint');
-	
-	eBA.NavigateToGoal:
-		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA NavToGoal');
-		
-END_CASE]]></ST>
+      <ST><![CDATA[// //Checks
+// 
+// //Check if prev BA ended
+// IF BA_STATUS=eProgress.INIT OR BA_STATUS=eProgress.FINALIZED THEN
+// 	IF State=eState.Active THEN
+// 		Idcounter:= Idcounter+1;
+// 		BA_HANDLER:=Idcounter;
+// 	ELSE
+// 		Messenger.AddError(eMessageCategories.NotAllowed,Path,'State not Active');
+// 		RETURN;
+// 	END_IF
+// ELSE
+// 	Messenger.AddError(eMessageCategories.NotAllowed,Path,'Prev BA not finished correctly');
+// 	RETURN;
+// END_IF
+// 
+// //Deploy
+// CASE Cmd OF
+// 	eBA.MoveL:
+// 		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA MoveL');
+// 	
+// 	eBA.MoveLRelativ:
+// 		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA MoveLRel');
+// 	
+// 	eBA.MoveJ:
+// 		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA MoveJ');
+// 	
+// 	eBA.MoveJRelativ:
+// 		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA MoveJRel');
+// 	
+// 	eBA.SetDO:
+// 		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA SetDO');
+// 	
+// 	eBA.ReadDI:
+// 		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA ReadDI');
+// 	
+// 	eBA.Home:
+// 		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA Home');
+// 		
+// 	eBA.Dock:
+// 		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA Dock');
+// 		
+// 	eBA.Undock:
+// 		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA Undock');
+// 	
+// 	eBA.NavigateToPoint:
+// 		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA NavToPoint');
+// 	
+// 	eBA.NavigateToGoal:
+// 		Messenger.AddError(eMessageCategories.NotImplemented,Path,'BA NavToGoal');
+// 		
+// END_CASE]]></ST>
     </Implementation>
     <Method Name="BA_Handler" Id="{77c7676a-e428-44cf-8f0c-c5e4f4d4ce5f}">
       <Declaration><![CDATA[METHOD BA_Handler : eResult

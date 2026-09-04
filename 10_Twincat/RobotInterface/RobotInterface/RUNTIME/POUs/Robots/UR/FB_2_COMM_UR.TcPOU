@@ -20,9 +20,17 @@ VAR
     _RTDEConnected : BOOL;
     _RTDEReady     : BOOL;
     _RTDEStreaming : BOOL;
+    _EnableDashboard : BOOL;
+    _EnableRTDE      : BOOL;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[CYCLIC_COMM_UR();
+
+_EnableDashboard := bRequestConnection
+    AND ((HMI_BASE.eStatus = eState.Configuring) OR _DashboardConnected);
+
+_EnableRTDE := bRequestConnection
+    AND ((HMI_BASE.eStatus = eState.Configuring) OR _RTDEConnected);
 
 
 // ==================================================
@@ -32,7 +40,7 @@ END_VAR]]></Declaration>
 Dashboard(
     sRobotIP         := Config.sIpAddress,
     tResponseTimeout := Config.tTimeout,
-    bConnect         := bRequestConnection,
+  bConnect         := _EnableDashboard,
 
     bConnected       => _DashboardConnected
 );
@@ -57,7 +65,7 @@ _ScriptReady := bRequestConnection AND NOT Script.bError;
 
 RTDE(
     sRobotIP   := Config.sIpAddress,
-    bEnable    := bRequestConnection,
+  bEnable    := _EnableRTDE,
     fFrequency := 10.0,
 
     bConnected => _RTDEConnected,
@@ -88,11 +96,7 @@ HMI_COMM._CommunicationReady :=
 
 // Interface diagnostics are owned here (the UR comm component). De-dup + Clear
 // give a self-healing lifecycle: a message clears when the interface recovers.
-IF Dashboard.bError THEN
-    Messenger.AddError(eMessageCategories.HardwareFailure, Name, 'UR Dashboard interface error');
-ELSE
-    Messenger.Clear(Name, 'UR Dashboard interface error');
-END_IF
+
 
 IF Script.bError THEN
     Messenger.AddError(eMessageCategories.HardwareFailure, Name, 'UR Script interface error');
@@ -100,11 +104,7 @@ ELSE
     Messenger.Clear(Name, 'UR Script interface error');
 END_IF
 
-IF RTDE.bError THEN
-    Messenger.AddError(eMessageCategories.HardwareFailure, Name, 'UR RTDE interface error');
-ELSE
-    Messenger.Clear(Name, 'UR RTDE interface error');
-END_IF]]></ST>
+]]></ST>
     </Implementation>
     <Folder Name="StateControl" Id="{76d61647-738d-4b23-8853-f6e5794603cd}" />
     <Action Name="CYCLIC_COMM_UR" Id="{e079c791-bd51-481e-8c49-3586c05afcb2}">
@@ -194,9 +194,19 @@ myResult:=NONE;
 
 IF (LEN(Config.sIpAddress) = 0) THEN
     Messenger.AddError(eMessageCategories.Undefined, sSender := Name, sMessage := 'TCP/IP configuration is invalid');
-      myResult := ERROR;
+    myResult := ERROR;
+ELSIF _EnableDashboard AND Dashboard.bError THEN
+    Messenger.AddError(eMessageCategories.HardwareFailure, Name, 'UR Dashboard interface error');
+    myResult := ERROR;
+ELSIF _EnableRTDE AND RTDE.bError THEN
+    Messenger.AddError(eMessageCategories.HardwareFailure, Name, 'UR RTDE interface error');
+    myResult := ERROR;
+ELSIF CommunicationReady THEN
+    Messenger.Clear(Name, 'UR Dashboard interface error');
+    Messenger.Clear(Name, 'UR RTDE interface error');
+    myResult := SUCCESS;
 ELSE
-      myResult := SUCCESS;
+    myResult := NONE;
 END_IF
 
 // ----- END YOUR CODE -----------------------------

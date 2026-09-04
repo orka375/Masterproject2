@@ -9,11 +9,13 @@ VAR
     _state_LD90_sLDR : eState;
     _state_LD90_sEyes : eState;
 
-	i: INT;
-	testcreate: BOOL;
-
 	// Cell robot loop index.
 	iRobot : INT;
+	iRecipe : INT;
+	iDestination : INT;
+	iDestinationMatch : INT;
+	bRecipePending : BOOL;
+	rApplyRecipe: R_TRIG;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -21,66 +23,78 @@ END_VAR
 // Cell robots (UR5-01 / UR5-02). Each ROBOT_UR call runs its
 // own communication + CYCLIC_MANIP (incl. JOG) internally.
 // ----------------------------------------------------------
-FOR iRobot := 1 TO GVL_Cell.nRobotCount DO
-    // Attach each robot's PickPlace skill instance (HMI binds to it).
-    GVL_Cell.aRobot[iRobot].pA_Skills[1] := ADR(GVL_Cell.aSkillPickPlace[iRobot]);
-    GVL_Cell.aRobot[iRobot]();
+
+
+FOR iRobot := 1 TO TO_INT(SETUP.nRobCount) DO
+	IF SETUP.apRobot[iRobot] <> 0 THEN
+		SETUP.apRobot[iRobot]^.MESSENGER.ParentMessenger := ADR(SETUP.CELL_MESSENGER);
+		SETUP.apRobot[iRobot]^();
+	END_IF
 END_FOR
 
-// Cell communication summary: connected/ready only when every
-// robot link is up (authoritative comm state stays in the PLC).
-GVL_Cell.Comm._CommunicationConnected := TRUE;
-GVL_Cell.Comm._CommunicationReady := TRUE;
-FOR iRobot := 1 TO GVL_Cell.nRobotCount DO
-    IF GVL_Cell.aRobot[iRobot].COMM = 0 THEN
-        GVL_Cell.Comm._CommunicationConnected := FALSE;
-        GVL_Cell.Comm._CommunicationReady := FALSE;
-    ELSIF NOT GVL_Cell.aRobot[iRobot].COMM^.Connected THEN
-        GVL_Cell.Comm._CommunicationConnected := FALSE;
-        GVL_Cell.Comm._CommunicationReady := FALSE;
-    END_IF
-END_FOR
+SETUP.CELL_MESSENGER();
 
-// // Demo1();
-// 
-// 
-// // BFH_RobLab_UR5(
-// // 	sRobotIp:='192.168.250.4');
-// // BFH_RobLab_UR5e(sRobotIp:='192.168.100.1');
-// ETA_Ausb_UR5();
-// 
-// 
-// // fbUR5MotionDemo(
-// //   bStart := bRunUR5MotionDemo,
-// //   bReset := FALSE,
-// //   MoveLTarget := stDemoMoveLTarget,
-// //   MoveJJoints := stDemoMoveJJoints,
-// //   nDigitalOutput := 0,
-// //   bDigitalOutputValue := TRUE,
-// //   Rob := ETA_Ausb_UR5
-// // );
-// 
-// // ETA_TechCenter_LD90();
-// // 
-// // P(Rob := ADR(ETA_TechCenter_LD90));
-// // 
-// // // currPos := BFH_RobLab_UR5.ActualTcpPose;
-// // // currJoints := BFH_RobLab_UR5.ActualJointPosition;
-// // 
-// // currPos := ETA_Ausb_UR5.ActualTcpPose;
-// // currJoints := ETA_Ausb_UR5.ActualJointPosition;
-// // 
-// // _state_LD90 := ETA_TechCenter_LD90.State;
-// // _state_LD90_sLDR := ETA_TechCenter_LD90.sLoadDeliverReturn.State;
-// // _state_LD90_sEyes := ETA_TechCenter_LD90.sEyes.State;
-// 
-// 
-// 
-// IF testcreate THEN
-// 	ETA_Ausb_UR5.PM.Create3D(sName:='Test',pose:=ETA_Ausb_UR5.ActualTcpPose,1);
-// 	testcreate:=FALSE;
-// END_IF
-]]></ST>
+rApplyRecipe(CLK := SETUP.bApplyRecipe);
+
+SETUP.bRecipeApplied := FALSE;
+SETUP.bRecipeApplyError := FALSE;
+
+IF rApplyRecipe.Q THEN
+	bRecipePending := FALSE;
+
+	FOR iRecipe := 1 TO SETUP.nRecipeBindingCount DO
+		IF SETUP.aRecipeBinding[iRecipe].pWrittenFor <> 0 THEN
+			IF SETUP.aRecipeBinding[iRecipe].pWrittenFor^ <> '' THEN
+				bRecipePending := TRUE;
+				iDestinationMatch := 0;
+
+				FOR iDestination := 1 TO SETUP.aRecipeBinding[iRecipe].nDestinationCount DO
+					IF FIND(
+						SETUP.aRecipeBinding[iRecipe].aDestination[iDestination].sRobotName,
+						SETUP.aRecipeBinding[iRecipe].pWrittenFor^) <> 0
+						OR FIND(
+							SETUP.aRecipeBinding[iRecipe].pWrittenFor^,
+							SETUP.aRecipeBinding[iRecipe].aDestination[iDestination].sRobotName) <> 0 THEN
+						iDestinationMatch := iDestination;
+						EXIT;
+					END_IF
+				END_FOR
+
+				IF iDestinationMatch = 0 THEN
+					SETUP.bRecipeApplyError := TRUE;
+				ELSIF SETUP.aRecipeBinding[iRecipe].pSource = 0
+					OR SETUP.aRecipeBinding[iRecipe].cbSize = 0
+					OR SETUP.aRecipeBinding[iRecipe].aDestination[iDestinationMatch].pSkillParameter = 0 THEN
+					SETUP.bRecipeApplyError := TRUE;
+				ELSE
+					MEMCPY(
+						SETUP.aRecipeBinding[iRecipe].aDestination[iDestinationMatch].pSkillParameter,
+						SETUP.aRecipeBinding[iRecipe].pSource,
+						SETUP.aRecipeBinding[iRecipe].cbSize);
+// 					SETUP.aRecipeBinding[iRecipe].pWrittenFor^ := '';
+					SETUP.bRecipeApplied := TRUE;
+				END_IF
+			END_IF
+		ELSE
+			SETUP.bRecipeApplyError := TRUE;
+		END_IF
+	END_FOR
+
+	IF NOT bRecipePending THEN
+		SETUP.bRecipeApplyError := TRUE;
+		SETUP.CELL_MESSENGER.AddError(
+			eMessageCategories.Undefined,
+			'MAIN.Recipe',
+			'No recipe buffer is pending');
+	ELSIF SETUP.bRecipeApplyError THEN
+		SETUP.CELL_MESSENGER.AddError(
+			eMessageCategories.Undefined,
+			'MAIN.Recipe',
+			'Recipe binding or WrittenFor robot not found');
+	ELSE
+		SETUP.CELL_MESSENGER.Clear('MAIN.Recipe');
+	END_IF
+END_IF]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

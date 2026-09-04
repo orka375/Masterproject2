@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stRecipeDestination" Id="{ec442209-9869-47db-bccd-b7092a78ce4c}">
+    <Declaration><![CDATA[TYPE stRecipeDestination :
+STRUCT
+	sRobotName: STRING(80);
+	pSkillParameter: PVOID;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

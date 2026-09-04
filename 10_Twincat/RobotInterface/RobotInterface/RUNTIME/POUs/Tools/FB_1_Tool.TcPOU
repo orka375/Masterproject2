@@ -37,19 +37,25 @@ VAR_INPUT
 	(* TRUE: the instance will be copied to the copy code afterward (online change)   *)
 	bInCopyCode	: BOOL;
 END_VAR
+VAR
+  iTool : UINT;
+END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// Explicitly initialize the base FB
-// SUPER^.FB_Init(
-//     bInitRetains := bInitRetains,
-//     bInCopyCode  := bInCopyCode
-// );
+  <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
 
-FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
-	IF pA_Skills[j]<>0 THEN
-		pa_Skills[j]^.pOwner:=pROB;
-	END_IF
-END_FOR]]></ST>
+FOR iTool := 1 TO SETUP.nToolCount DO
+  IF SETUP.apTool[iTool] = THIS THEN
+    FB_Init := TRUE;
+    RETURN;
+  END_IF
+END_FOR
+
+IF SETUP.nToolCount < SETUP.MaxNrofTools THEN
+  SETUP.nToolCount := SETUP.nToolCount + 1;
+  SETUP.apTool[SETUP.nToolCount] := THIS;
+  FB_Init := TRUE;
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="onActivate" Id="{f08f7dc1-202a-4da9-a3e3-b4c98ccb8fdb}" FolderPath="StateControl\">

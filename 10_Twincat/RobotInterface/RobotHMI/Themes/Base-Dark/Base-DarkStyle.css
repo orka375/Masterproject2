@@ -356,6 +356,120 @@ div[data-tchmi-type="TcHmi.Controls.System.TcHmiView"] {
     padding-right: 32px;
 }
 
+/* ---------- Robot HMI shared surfaces ---------- */
+div[data-tchmi-type="TcHmi.Controls.System.TcHmiContent"] {
+    box-sizing: border-box;
+    background: #242b31;
+}
+
+.usercontrol-surface {
+    box-sizing: border-box;
+    background: #2c353c;
+}
+
+.background-container,
+.status-panel,
+.overview-manipulator,
+.jog-panel {
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #53616b;
+    border-radius: 6px;
+    background: #38434b;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.24);
+}
+
+.overview-surface,
+.overview-manipulator-grid,
+.status-composite,
+.status-grid,
+.jog-layout,
+.skills-overview-scroll {
+    box-sizing: border-box;
+    background: #2c353c;
+}
+
+.jog-unavailable {
+    box-sizing: border-box;
+    background: rgba(20, 27, 32, 0.82);
+    color: #d9e4eb;
+    font-size: 18px;
+    font-weight: 700;
+    pointer-events: auto;
+}
+
+.overview-cell-status-slot {
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #53616b;
+    border-bottom: 2px solid #4d8fbe;
+    border-radius: 6px;
+    background: #38434b;
+}
+
+.status-info-label,
+.jog-label,
+.jog-section-title {
+    box-sizing: border-box;
+    color: #e0e7eb;
+}
+
+.status-info-value,
+.jog-readout-native,
+.jog-slider {
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #60707b;
+    border-radius: 4px;
+    background: #20282e;
+    color: #f2f5f7;
+}
+
+.status-info-title {
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #60707b;
+    border-radius: 4px;
+    background: #45535d;
+    color: #ffffff;
+}
+
+.status-action,
+.jog-button,
+.jog-stop-button {
+    box-sizing: border-box;
+    border: 1px solid #3e78a1;
+    border-radius: 4px;
+    background: #286da8;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.jog-stop-button {
+    border-color: #a83d30;
+    background: #b9493c;
+}
+
+.jog-header,
+.jog-footer {
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #161d22;
+    border-radius: 6px;
+    background: #1e2a33;
+}
+
+.jog-header-title {
+    box-sizing: border-box;
+    color: #ffffff;
+}
+
+.jog-header-status,
+.jog-footer-label {
+    box-sizing: border-box;
+    color: #d9e4eb;
+}
+
 .TcHmi_Controls_BaseTemplate_TcHmiNavigation-Template.horizontal .TcHmi_Controls_BaseTemplate_TcHmiNavigation-Static {
     border-color: #a3b0bb;
     border-width: 0 1px 0 0;

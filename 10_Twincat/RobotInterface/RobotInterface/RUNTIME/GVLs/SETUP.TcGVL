@@ -1,56 +1,128 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <GVL Name="SETUP" Id="{c749aa94-77ca-4d45-832d-ac09e2bd2780}">
-    <Declaration><![CDATA[// {attribute 'global_init_slot' := '40500'} //https://infosys.beckhoff.com/index.php?content=../content/1031/tc3_plc_intro/2529649291.html&id=
+    <Declaration><![CDATA[{attribute 'global_init_slot' := '40500'} //https://infosys.beckhoff.com/index.php?content=../content/1031/tc3_plc_intro/2529649291.html&id=
 VAR_GLOBAL CONSTANT
 	MaxNrofMessages: UINT:= 30;
+	MaxNrofSkills: UINT:= 8;
+	MaxNrofRobots: UINT := 16;
+	MaxNrofManipulators: UINT := 16;
+	MaxNrofAMRs: UINT := 16;
+	MaxNrofTools: UINT := 16;
 	emptySkill : FB_1_Skill; //emptySkill
 	emptyCOMM: FB_1_CommunicationModul;
 END_VAR
-// 
-// 
-// {attribute 'global_init_slot' := '40600'} //https://infosys.beckhoff.com/index.php?content=../content/1031/tc3_plc_intro/2529649291.html&id=
-// //Skills
-// VAR_GLOBAL
-// 	skPP: Skill_PickPlace := (
-// 		sPickName:='P1',
-// 		sPlaceName:='P2'
-// 	);
-// 	skEy: Skill_ROS2_Eyes;	
-// 
-// END_VAR
-// 
-// 
+
+{attribute 'global_init_slot' := '40400'} //https://infosys.beckhoff.com/index.php?content=../content/1031/tc3_plc_intro/2529649291.html&id=
 VAR_GLOBAL
 	next_ID: UINT:= 100;
+	nRobCount: UINT := 0;
+	nManipCount: UINT := 0;
+	nAMRCount: UINT := 0;
+	nSkillCount: UINT := 0;
+	nToolCount: UINT := 0;
+	apRobot: ARRAY[1..MaxNrofRobots] OF POINTER TO FB_1_ROB;
+	apManip: ARRAY[1..MaxNrofManipulators] OF POINTER TO FB_2_ROB_MANIP;
+	apAMR: ARRAY[1..MaxNrofAMRs] OF POINTER TO FB_2_ROB_AMR;
+	apSkill: ARRAY[1..MaxNrofSkills] OF POINTER TO FB_1_Skill;
+	apTool: ARRAY[1..MaxNrofTools] OF POINTER TO FB_1_Tool;
+
+    bApplyRecipe : BOOL;
+    bRecipeApplied : BOOL;
+    bRecipeApplyError : BOOL;
 END_VAR
-// 
-// {attribute 'global_init_slot' := '40700'} //https://infosys.beckhoff.com/index.php?content=../content/1031/tc3_plc_intro/2529649291.html&id=
-// //Robots
-// VAR_GLOBAL
-// 	// 	BFH_RobLab_UR5: ROBOT_UR5 :=(
-// // 		sRobotIp:='192.168.250.2',
-// // 		pA_Skills:= [ADR(skPP),ADR(skEy)]
-// // 	);
-// // 	BFH_RobLab_UR5e: ROBOT_UR5 :=(
-// // 		sRobotIp:='192.168.250.2',
-// // 		pA_Skills:= [ADR(skPP),ADR(skEy)]
-// // 	);
+
+
+
+{attribute 'global_init_slot' := '40600'} //https://infosys.beckhoff.com/index.php?content=../content/1031/tc3_plc_intro/2529649291.html&id=
+//Skills
+VAR_GLOBAL
+	
+	R1_PP_para : stParam_PickPlace:= (PickPositionName:='Picky'); //INIT
+	R1_PP: Skill_PickPlace := (Param:=R1_PP_para);
+	
+	R1_Counter_para: stParam_Counter:= (nMax:= 2);
+	R1_Counter: Skill_Counter := (Param:=R1_Counter_para);
+	
+	
+	
+	R2_PP_para : stParam_PickPlace := (PickPositionName:='Pick'); //INIT
+	R2_PP: Skill_PickPlace := (Param:=R2_PP_para);
+	
+	R2_Counter_para: stParam_Counter:= (nMax:= 8);
+	R2_Counter: Skill_Counter := (Param:=R2_Counter_para);
+	
+
+END_VAR
+
+
+
+{attribute 'global_init_slot' := '40700'} //https://infosys.beckhoff.com/index.php?content=../content/1031/tc3_plc_intro/2529649291.html&id=
+//Robots
+VAR_GLOBAL
+	UR_ALPHA: ROBOT_UR :=(
+		sRobotIp:='192.168.250.2',
+		pA_Skills:= [ADR(R1_PP),ADR(R1_Counter)]
+	);
+
+	UR_BRAVO: ROBOT_UR :=(
+		sRobotIp:='192.168.250.2',
+		pA_Skills:= [ADR(R2_PP),ADR(R2_Counter)]
+	);
+
+
+// 	BFH_RobLab_UR5: ROBOT_UR5 :=(
+// 		sRobotIp:='192.168.250.2',
+// 		pA_Skills:= [ADR(skPP),ADR(skEy)]
+// 	);
+// 	BFH_RobLab_UR5e: ROBOT_UR5 :=(
+// 		sRobotIp:='192.168.250.2',
+// 		pA_Skills:= [ADR(skPP),ADR(skEy)]
+// 	);
 // 
 // 	ETA_Ausb_UR5: ROBOT_UR5 :=(
 // 		sRobotIp:='192.168.250.2',
 // 		pA_Skills:= [ADR(skPP),ADR(skEy)]
 // 	);
-// 	
-// // 	ETA_TechCenter_LD90: FB_OmronLD90;
-// // 	ETA_Meca500: FB_Meca500;
-// END_VAR
-// 
-// 
-// VAR_GLOBAL
-// // 	PLC: FB_0_Base;
-// END_VAR
-// 
+	
+// 	ETA_TechCenter_LD90: FB_OmronLD90;
+// 	ETA_Meca500: FB_Meca500;
+END_VAR
+
+{attribute 'global_init_slot' := '40800'} //https://infosys.beckhoff.com/index.php?content=../content/1031/tc3_plc_intro/2529649291.html&id=
+VAR_GLOBAL
+	CELL_MESSENGER: FB_Messenger;
+END_VAR
+
+{attribute 'global_init_slot' := '40900'}
+VAR_GLOBAL
+	nRecipeBindingCount: INT := 2;
+	aRecipeBinding: ARRAY[1..2] OF stRecipeBinding := [
+		(
+			sName := 'PickPlace',
+			pSource := ADR(LIBRARY.Param_PickPlace),
+			cbSize := SIZEOF(LIBRARY.Param_PickPlace),
+			pWrittenFor := ADR(LIBRARY.Param_PickPlace.WrittenFor),
+			nDestinationCount := 2,
+			aDestination := [
+				(sRobotName := 'UR_ALPHA', pSkillParameter := ADR(R1_PP.Param)),
+				(sRobotName := 'UR_BRAVO', pSkillParameter := ADR(R2_PP.Param))
+			]
+		),
+		(
+			sName := 'Counter',
+			pSource := ADR(LIBRARY.Param_Counter),
+			cbSize := SIZEOF(LIBRARY.Param_Counter),
+			pWrittenFor := ADR(LIBRARY.Param_Counter.WrittenFor),
+			nDestinationCount := 2,
+			aDestination := [
+				(sRobotName := 'UR_ALPHA', pSkillParameter := ADR(R1_Counter.Param)),
+				(sRobotName := 'UR_BRAVO', pSkillParameter := ADR(R2_Counter.Param))
+			]
+		)
+	];
+END_VAR
+
 ]]></Declaration>
   </GVL>
 </TcPlcObject>

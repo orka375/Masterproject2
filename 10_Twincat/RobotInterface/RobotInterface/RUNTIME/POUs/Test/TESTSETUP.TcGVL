@@ -11,7 +11,7 @@ END_VAR
 {attribute 'global_init_slot' := '40600'} //https://infosys.beckhoff.com/index.php?content=../content/1031/tc3_plc_intro/2529649291.html&id=
 //Skills
 VAR_GLOBAL
-	TS_Count: TEST_Skill_Counter := (nMax:=5);
+	TS_Count: Skill_Counter;
 	TS_3P: TEST_Skill_3Points;
 	TS_2P: TEST_Skill_2Points;
 	TS_varP: TEST_Skill_varP;

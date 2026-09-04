@@ -173,105 +173,102 @@
 "divider",
 "divider-left"
 ]
-</script><script data-tchmi-target-attribute="data-tchmi-navigation-items" type="application/json">[
-{
- "id": "Overview",
- "name": "%l%L_Overview%/l%",
- "content": "Pages/Overview.content",
- "icon": "%tr%TR_Icon_Overview_normal%/tr%",
- "iconActive": "%tr%TR_Icon_Overview_active%/tr%",
- "iconPressed": "%tr%TR_Icon_Overview_pressed%/tr%"},
-{
- "id": "Robots",
- "name": "%l%L_Robots%/l%",
- "content": "Pages/Robots.content",
- "icon": "%tr%TR_Icon_Robots_normal%/tr%",
- "iconActive": "%tr%TR_Icon_Robots_active%/tr%",
- "iconPressed": "%tr%TR_Icon_Robots_pressed%/tr%"},
-{
- "id": "RobotMove",
- "name": "Robot",
- "content": "Pages/RobotMove.content",
- "icon": "%tr%TR_Icon_Robots_normal%/tr%",
- "iconActive": "%tr%TR_Icon_Robots_active%/tr%",
- "iconPressed": "%tr%TR_Icon_Robots_pressed%/tr%"},
-{
- "id": "Skills",
- "name": "%l%L_Skills%/l%",
- "content": "Pages/Skills.content",
- "icon": "%tr%TR_Icon_Skills_normal%/tr%",
- "iconActive": "%tr%TR_Icon_Skills_active%/tr%",
- "iconPressed": "%tr%TR_Icon_Skills_pressed%/tr%",
- "subItems": [
- {
- "id": "SkillControl",
- "name": "Skill Control",
- "content": "Pages/SkillControl.content",
- "icon": "%tr%TR_Icon_Skills_normal%/tr%",
- "iconActive": "%tr%TR_Icon_Skills_active%/tr%",
- "iconPressed": "%tr%TR_Icon_Skills_pressed%/tr%"},
- {
- "id": "SkillRecipes",
- "name": "Recipes",
- "content": "Pages/SkillRecipes.content",
- "icon": "%tr%TR_Icon_Skills_normal%/tr%",
- "iconActive": "%tr%TR_Icon_Skills_active%/tr%",
- "iconPressed": "%tr%TR_Icon_Skills_pressed%/tr%"},
- {
- "id": "Page2",
- "name": "%l%L_Page2%/l%",
- "content": "Pages/Skills/Page2.content",
- "icon": "%tr%TR_Icon_Page2_normal%/tr%",
- "iconActive": "%tr%TR_Icon_Page2_active%/tr%",
- "iconPressed": "%tr%TR_Icon_Page2_pressed%/tr%"}
+</script><script data-tchmi-target-attribute="data-tchmi-navigation-items" type="application/json">
+[
+  {
+    "content": "Pages/Overview.content",
+    "icon": "%tr%TR_Icon_Overview_normal%/tr%",
+    "iconActive": "%tr%TR_Icon_Overview_active%/tr%",
+    "iconPressed": "%tr%TR_Icon_Overview_pressed%/tr%",
+    "id": "Overview",
+    "name": "%l%L_Overview%/l%"
+  },
+  {
+    "content": "Pages/RobotMove.content",
+    "icon": "%tr%TR_Icon_Robots_normal%/tr%",
+    "iconActive": "%tr%TR_Icon_Robots_active%/tr%",
+    "iconPressed": "%tr%TR_Icon_Robots_pressed%/tr%",
+    "id": "Robots",
+    "name": "Jogging"
+  },
+  {
+    "content": "Pages/Skills.content",
+    "icon": "%tr%TR_Icon_Skills_normal%/tr%",
+    "iconActive": "%tr%TR_Icon_Skills_active%/tr%",
+    "iconPressed": "%tr%TR_Icon_Skills_pressed%/tr%",
+    "id": "Skills",
+    "name": "%l%L_Skills%/l%",
+    "subItems": [
+      {
+        "id": "SkillControl",
+        "name": "Skill Control",
+        "content": "Pages/SkillControl.content",
+        "icon": "%tr%TR_Icon_Skills_normal%/tr%",
+        "iconActive": "%tr%TR_Icon_Skills_active%/tr%",
+        "iconPressed": "%tr%TR_Icon_Skills_pressed%/tr%"
+      },
+      {
+        "id": "SkillsOverview",
+        "name": "Skills Overview",
+        "content": "Pages/Skills/SkillsOverview.content",
+        "icon": "%tr%TR_Icon_Skills_normal%/tr%",
+        "iconActive": "%tr%TR_Icon_Skills_active%/tr%",
+        "iconPressed": "%tr%TR_Icon_Skills_pressed%/tr%"
+      }
+    ]
+  },
+  {
+    "content": "Pages/SkillRecipes.content",
+    "icon": "%tr%TR_Icon_Recipe_normal%/tr%",
+    "iconActive": "%tr%TR_Icon_Recipe_active%/tr%",
+    "iconPressed": "%tr%TR_Icon_Recipe_pressed%/tr%",
+    "id": "Recipe",
+    "name": "%l%L_Recipe%/l%"
+  },
+  {
+    "content": "Pages/Diagnostics.content",
+    "icon": "%tr%TR_Icon_Diagnostics_normal%/tr%",
+    "iconActive": "%tr%TR_Icon_Diagnostics_active%/tr%",
+    "iconPressed": "%tr%TR_Icon_Diagnostics_pressed%/tr%",
+    "id": "Diagnostics",
+    "name": "%l%L_Diagnostics%/l%",
+    "subItems": [
+      {
+        "id": "EtherCAT",
+        "name": "%l%L_EtherCAT%/l%",
+        "content": "Pages/Diagnostics/EtherCAT.content",
+        "icon": "%tr%TR_Icon_EtherCAT_normal%/tr%",
+        "iconActive": "%tr%TR_Icon_EtherCAT_active%/tr%",
+        "iconPressed": "%tr%TR_Icon_EtherCAT_pressed%/tr%"
+      },
+      {
+        "id": "Page",
+        "name": "%l%L_Page%/l%",
+        "content": "Pages/Diagnostics/Page.content",
+        "icon": "%tr%TR_Icon_Page_normal%/tr%",
+        "iconActive": "%tr%TR_Icon_Page_active%/tr%",
+        "iconPressed": "%tr%TR_Icon_Page_pressed%/tr%"
+      }
+    ]
+  },
+  {
+    "content": "Pages/Settings.content",
+    "icon": "%tr%TR_Icon_Settings_normal%/tr%",
+    "iconActive": "%tr%TR_Icon_Settings_active%/tr%",
+    "iconPressed": "%tr%TR_Icon_Settings_pressed%/tr%",
+    "id": "Settings",
+    "name": "%l%L_Settings%/l%"
+  },
+  {
+    "content": "Pages/Page1.content",
+    "icon": "%tr%TR_Icon_Page1_normal%/tr%",
+    "iconActive": "%tr%TR_Icon_Page1_active%/tr%",
+    "iconPressed": "%tr%TR_Icon_Page1_pressed%/tr%",
+    "id": "Page1",
+    "name": "%l%L_Page1%/l%"
+  }
 ]
-},
-{
- "id": "Recipe",
- "name": "%l%L_Recipe%/l%",
- "content": "Pages/Recipe.content",
- "icon": "%tr%TR_Icon_Recipe_normal%/tr%",
- "iconActive": "%tr%TR_Icon_Recipe_active%/tr%",
- "iconPressed": "%tr%TR_Icon_Recipe_pressed%/tr%"},
-{
- "id": "Diagnostics",
- "name": "%l%L_Diagnostics%/l%",
- "content": "Pages/Diagnostics.content",
- "icon": "%tr%TR_Icon_Diagnostics_normal%/tr%",
- "iconActive": "%tr%TR_Icon_Diagnostics_active%/tr%",
- "iconPressed": "%tr%TR_Icon_Diagnostics_pressed%/tr%",
- "subItems": [
- {
- "id": "EtherCAT",
- "name": "%l%L_EtherCAT%/l%",
- "content": "Pages/Diagnostics/EtherCAT.content",
- "icon": "%tr%TR_Icon_EtherCAT_normal%/tr%",
- "iconActive": "%tr%TR_Icon_EtherCAT_active%/tr%",
- "iconPressed": "%tr%TR_Icon_EtherCAT_pressed%/tr%"},
-{
- "id": "Page",
- "name": "%l%L_Page%/l%",
- "content": "Pages/Diagnostics/Page.content",
- "icon": "%tr%TR_Icon_Page_normal%/tr%",
- "iconActive": "%tr%TR_Icon_Page_active%/tr%",
- "iconPressed": "%tr%TR_Icon_Page_pressed%/tr%"}
-]
-},
-{
- "id": "Settings",
- "name": "%l%L_Settings%/l%",
- "content": "Pages/Settings.content",
- "icon": "%tr%TR_Icon_Settings_normal%/tr%",
- "iconActive": "%tr%TR_Icon_Settings_active%/tr%",
- "iconPressed": "%tr%TR_Icon_Settings_pressed%/tr%"},
-{
- "id": "Page1",
- "name": "%l%L_Page1%/l%",
- "content": "Pages/Page1.content",
- "icon": "%tr%TR_Icon_Page1_normal%/tr%",
- "iconActive": "%tr%TR_Icon_Page1_active%/tr%",
- "iconPressed": "%tr%TR_Icon_Page1_pressed%/tr%"}
-]</script></div><div id="Region_Center" data-tchmi-type="TcHmi.Controls.System.TcHmiRegion" data-tchmi-left="%ctrl%Accordion_Navigation_Left::Width%/ctrl%" data-tchmi-top="%f%%ctrl%Header_Top::Height%/ctrl%+ 64%/f%" data-tchmi-scrolling="Yes" data-tchmi-bottom="0" data-tchmi-right="0">
+</script></div><div id="Region_Center" data-tchmi-type="TcHmi.Controls.System.TcHmiRegion" data-tchmi-left="%ctrl%Accordion_Navigation_Left::Width%/ctrl%" data-tchmi-top="%f%%ctrl%Header_Top::Height%/ctrl% +64%/f%" data-tchmi-scrolling="Yes" data-tchmi-bottom="0" data-tchmi-right="0">
 
 <script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json"></script></div><div id="Breadcrumb" data-tchmi-type="TcHmi.Controls.BaseTemplate.TcHmiBreadcrumb" data-tchmi-height="32" data-tchmi-left="%f%%ctrl%Region_Center::Left%/ctrl%+ 16%/f%" data-tchmi-top="%f%%ctrl%Header_Top::Height%/ctrl%+ 16%/f%" data-tchmi-right="%f%%ctrl%Region_Center::Right%/ctrl%+ 16%/f%">
 

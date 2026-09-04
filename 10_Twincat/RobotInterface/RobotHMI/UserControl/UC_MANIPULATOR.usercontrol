@@ -1,0 +1,86 @@
+<div id="UserControl1_4" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControl" data-tchmi-top="0" data-tchmi-left="0" data-tchmi-width="100" data-tchmi-height="100" data-tchmi-width-unit="%" data-tchmi-height-unit="%" data-tchmi-creator-viewport-width="500" data-tchmi-creator-viewport-height="1200">
+	<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">
+[
+  "background-container",
+  "usercontrol-surface"
+]
+</script>
+	<div id="UCManipulatorGrid" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-left="10" data-tchmi-top="10" data-tchmi-right="10" data-tchmi-bottom="10">
+		<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-composite"]</script>
+		<script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">
+[
+  {
+    "height": 1.0,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 2.0,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 5.0,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 4.0,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  }
+]
+</script>
+		<div id="UserControl1_5" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-row-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/Status_Base.usercontrol" data-tchmi-b="%pp%B%/pp%">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-panel"]</script>
+		</div>
+		<div id="UserControl1_6" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-row-index="4" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/Status_Rob.usercontrol" data-tchmi-r="%pp%R%/pp%" data-tchmi-b="%pp%B%/pp%">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-panel"]</script>
+		</div>
+		<div id="UserControl1_7" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-row-index="6" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/Status_Manip.usercontrol" data-tchmi-m="%pp%M%/pp%">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-panel"]</script>
+		</div>
+		<div id="UCManipulatorSkillsButton" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-grid-row-index="8" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="select">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-action"]</script>
+			<script data-tchmi-target-attribute="data-tchmi-trigger" type="application/json">[{"event":"%ctx%owner::Id|EventRegistrationMode=Resolve%/ctx%.onPressed","actions":[{"objectType":"WriteToSymbol","active":true,"symbolExpression":"%i%SelectedRobot%/i%","value":{"objectType":"Symbol","valueType":"tchmi:general#/definitions/Number","symbolExpression":"%pp%RobotIndex%/pp%"},"asyncWait":true},{"objectType":"Condition","active":true,"parts":[{"if":{"compare1":{"objectType":"Symbol","valueType":"tchmi:general#/definitions/Number","symbolExpression":"%pp%RobotIndex%/pp%"},"compare2":{"objectType":"StaticValue","valueType":"tchmi:general#/definitions/Number","value":1},"compareOperator":"==","logic":null},"then":[{"objectType":"WriteToSymbol","active":true,"symbolExpression":"%i%SelectedRobotAlphaActive%/i%","value":{"objectType":"StaticValue","valueType":"tchmi:general#/definitions/Boolean","value":true},"asyncWait":true},{"objectType":"WriteToSymbol","active":true,"symbolExpression":"%i%SelectedRobotBravoActive%/i%","value":{"objectType":"StaticValue","valueType":"tchmi:general#/definitions/Boolean","value":false},"asyncWait":true}]},{"else":[{"objectType":"WriteToSymbol","active":true,"symbolExpression":"%i%SelectedRobotAlphaActive%/i%","value":{"objectType":"StaticValue","valueType":"tchmi:general#/definitions/Boolean","value":false},"asyncWait":true},{"objectType":"WriteToSymbol","active":true,"symbolExpression":"%i%SelectedRobotBravoActive%/i%","value":{"objectType":"StaticValue","valueType":"tchmi:general#/definitions/Boolean","value":true},"asyncWait":true}]}]}]}]</script>
+		</div>
+	<div id="TcHmiTextblock_1" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-text="%pp%B::sInstanceName%/pp%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-word-wrap="True" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
+
+<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">
+[
+  "headline-2"
+]
+</script>
+</div>
+</div>
+</div>

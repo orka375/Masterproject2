@@ -180,6 +180,220 @@ html {
 .status-info { color: #2f6fb0; font-weight: 700; }
 .status-idle { color: #9aa0a6; font-weight: 700; }
 
+/* ---------- native status usercontrols ---------- */
+.status-grid {
+    box-sizing: border-box;
+    overflow: hidden;
+    background: #e8edf1;
+}
+
+.status-info-label {
+    box-sizing: border-box;
+    padding: 5px 8px;
+    color: #43505b;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status-info-value {
+    box-sizing: border-box;
+    padding: 5px 8px;
+    overflow: hidden;
+    border: 1px solid #c8d0d7;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #16344a;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.status-info-title {
+    box-sizing: border-box;
+    padding: 6px 8px;
+    overflow: hidden;
+    border: 1px solid #b8c5cf;
+    border-radius: 4px;
+    background: #dbe4ea;
+    color: #16344a;
+    font-size: 15px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.status-panel {
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #b8c5cf;
+    border-radius: 6px;
+    background: #e8edf1;
+    box-shadow: 0 1px 3px rgba(27, 43, 58, 0.12);
+}
+
+.status-composite {
+    box-sizing: border-box;
+    overflow: hidden;
+    background: #dbe4ea;
+}
+
+.skills-overview-scroll {
+    box-sizing: border-box;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    background: #d7e0e6;
+}
+
+.status-action {
+    box-sizing: border-box;
+    padding: 8px 14px;
+    border: 1px solid #1f5b91;
+    border-radius: 4px;
+    background: #286da8;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.overview-manipulator {
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #b8c0c8;
+    border-radius: 8px;
+    background: #f8fafb;
+    box-shadow: 0 2px 6px rgba(27, 43, 58, 0.14);
+}
+
+.overview-surface {
+    box-sizing: border-box;
+    overflow: hidden;
+    background: #d7e0e6;
+}
+
+.overview-manipulator-grid {
+    box-sizing: border-box;
+    background: #cfd9e0;
+}
+
+.overview-cell-status-slot {
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #b8c5cf;
+    border-bottom: 2px solid #2f6fb0;
+    border-radius: 6px;
+    background: #edf2f5;
+}
+
+/* ---------- native jog usercontrol ---------- */
+.jog-layout {
+    box-sizing: border-box;
+    overflow: hidden;
+    background: #d7e0e6;
+}
+
+.jog-unavailable {
+    box-sizing: border-box;
+    background: rgba(93, 105, 114, 0.78);
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    pointer-events: auto;
+}
+
+.jog-header,
+.jog-footer {
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #263746;
+    border-radius: 6px;
+    background: #2b3d4d;
+}
+
+.jog-body {
+    box-sizing: border-box;
+}
+
+.jog-panel {
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #b8c5cf;
+    border-radius: 6px;
+    background: #edf2f5;
+    box-shadow: 0 1px 3px rgba(27, 43, 58, 0.12);
+}
+
+.jog-header-title,
+.jog-section-title {
+    box-sizing: border-box;
+    color: #16344a;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.jog-header-title {
+    color: #ffffff;
+    font-size: 18px;
+}
+
+.jog-header-status,
+.jog-footer-label {
+    box-sizing: border-box;
+    color: #d9e4eb;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.jog-label {
+    box-sizing: border-box;
+    color: #43505b;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.jog-readout-native {
+    box-sizing: border-box;
+    padding: 5px 8px;
+    overflow: hidden;
+    border: 1px solid #c8d0d7;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #16344a;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.jog-button,
+.jog-stop-button {
+    box-sizing: border-box;
+    border: 1px solid #1f5b91;
+    border-radius: 4px;
+    background: #286da8;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.jog-stop-button {
+    border-color: #a83d30;
+    background: #cb5142;
+}
+
+.jog-slider {
+    box-sizing: border-box;
+    overflow: hidden;
+    border-radius: 4px;
+    background: #ffffff;
+}
+
+.jog-enable-switch {
+    box-sizing: border-box;
+}
+
 /* ---------- Skill control / recipes ---------- */
 .rm-col-wide { flex: 1.6 1 0; }
 .param-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
@@ -215,6 +429,68 @@ html {
 }
 .pt-row:empty { background: #f8f9fa; min-height: 30px; }
 
+/* Skill recipe workspace */
+.skill-recipes-grid {
+    background-color: #e8ecef;
+    background-image: linear-gradient(rgba(31, 49, 64, 0.035) 1px, transparent 1px);
+    background-size: 100% 32px;
+}
+
+.skill-recipes-header.rm-root {
+    padding: 10px 12px 0;
+    box-sizing: border-box;
+}
+
+.skill-recipes-header .rm-header {
+    min-height: 100%;
+    border-left: 4px solid #2f9d73;
+    box-shadow: 0 5px 14px rgba(18, 35, 48, 0.16);
+}
+
+.skill-recipes-header .rm-title {
+    min-width: 180px;
+}
+
+.skill-recipes-header .rm-stat:last-child {
+    margin-left: auto;
+}
+
+#TcHmiRecipeSelect_1,
+#TcHmiRecipeEdit_1 {
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #c4cdd4;
+    background: #ffffff;
+    box-shadow: 0 3px 10px rgba(24, 43, 57, 0.1);
+}
+
+#TcHmiRecipeSelect_1 {
+    border-top: 3px solid #347aa5;
+}
+
+#TcHmiRecipeEdit_1 {
+    border-top: 3px solid #2f9d73;
+}
+
+#TcHmiRecipeSelect_1 .tchmi-button,
+#TcHmiRecipeEdit_1 .tchmi-button {
+    min-width: 38px;
+}
+
+@media screen and (max-width: 900px) {
+    .skill-recipes-header .rm-header {
+        gap: 8px;
+    }
+
+    .skill-recipes-header .rm-title {
+        min-width: 120px;
+    }
+
+    .skill-recipes-header .rm-stat {
+        padding: 0 8px;
+    }
+}
+
 /* confirm dialog */
 .confirm-dialog {
     display: none; position: absolute; inset: 0; z-index: 50;
@@ -225,6 +501,26 @@ html {
 .confirm-text { font-size: 18px; font-weight: 600; color: #1b2b3a; margin-bottom: 20px; }
 .confirm-actions { display: flex; gap: 12px; justify-content: center; }
 .confirm-actions .cmd-btn { min-width: 130px; flex: 0 0 auto; }
+
+/* ---------- shared native page surfaces ---------- */
+div[data-tchmi-type="TcHmi.Controls.System.TcHmiContent"] {
+    box-sizing: border-box;
+    background: #d7e0e6;
+}
+
+.usercontrol-surface {
+    box-sizing: border-box;
+    background: #d7e0e6;
+}
+
+.background-container {
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #b8c5cf;
+    border-radius: 6px;
+    background: #f8fafb;
+    box-shadow: 0 1px 3px rgba(27, 43, 58, 0.12);
+}
 
 /* Is defined in body tag of runtime html only. */
 .tchmi-body-runtime {
@@ -567,4 +863,267 @@ div[data-tchmi-type="TcHmi.Controls.System.TcHmiView"] {
     border-width: 0 1px 0 0;
     border-style: none solid none none;
     box-shadow: var(--tchmi-shadow-color-1) 0 32px 32px 0;
+}
+/* ==========================================================
+   2026 HMI VISUAL REFRESH
+   Modern industrial hierarchy: canvas > panel > cell > value
+   Added as an override layer to preserve existing project classes.
+   ========================================================== */
+
+:root {
+    --hmi-bg: #D6DEE4;
+    --hmi-panel: #F8FAFB;
+    --hmi-cell: #E9EEF2;
+    --hmi-cell-strong: #E2E9EE;
+    --hmi-value: #FFFFFF;
+    --hmi-text: #16344A;
+    --hmi-text-secondary: #596875;
+    --hmi-header: #263746;
+    --hmi-header-soft: #2B3D4D;
+    --hmi-border: #C4CDD4;
+    --hmi-border-strong: #B5C0C8;
+    --hmi-primary: #2F6FB0;
+    --hmi-primary-hover: #3A7CC0;
+    --hmi-ok: #2EA043;
+    --hmi-warn: #D6A400;
+    --hmi-fault: #CB5142;
+    --hmi-idle: #87939D;
+    --hmi-shadow-panel: 0 2px 6px rgba(24, 43, 57, 0.12);
+    --hmi-shadow-cell: 0 1px 3px rgba(24, 43, 57, 0.09);
+    --hmi-shadow-float: 0 6px 18px rgba(24, 43, 57, 0.18);
+}
+
+html {
+    font-size: 14px;
+    color: var(--hmi-text);
+    background: var(--hmi-bg);
+}
+
+/* Main application canvas */
+div[data-tchmi-type="TcHmi.Controls.System.TcHmiContent"],
+div[data-tchmi-type="TcHmi.Controls.System.TcHmiView"],
+.usercontrol-surface,
+.overview-surface,
+.skills-overview-scroll,
+.jog-layout {
+    background: var(--hmi-bg);
+}
+
+/* Reusable application-level surface class */
+.hmi-app-surface {
+    box-sizing: border-box;
+    background: var(--hmi-bg);
+    color: var(--hmi-text);
+}
+
+/* Primary card/panel. Apply to the outer container of a logical section. */
+.hmi-panel,
+.hmi-panel-surface,
+.background-container,
+.robot-panel,
+.overview-manipulator,
+.status-panel,
+.jog-panel {
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid var(--hmi-border);
+    border-radius: 8px;
+    background: var(--hmi-panel);
+    color: var(--hmi-text);
+    box-shadow: var(--hmi-shadow-panel);
+}
+
+/* Grid cell / grouped content surface. Gives nested content visual separation. */
+.hmi-cell,
+.hmi-cell-surface,
+.overview-cell-status-slot,
+.status-grid,
+.status-composite,
+.overview-manipulator-grid {
+    box-sizing: border-box;
+    border: 1px solid var(--hmi-border);
+    border-radius: 6px;
+    background: var(--hmi-cell);
+    color: var(--hmi-text);
+    box-shadow: var(--hmi-shadow-cell);
+}
+
+/* Optional stronger nested cell for important grouped content. */
+.hmi-cell-strong {
+    box-sizing: border-box;
+    border: 1px solid var(--hmi-border-strong);
+    border-radius: 6px;
+    background: var(--hmi-cell-strong);
+    color: var(--hmi-text);
+    box-shadow: var(--hmi-shadow-cell);
+}
+
+/* Consistent dark section header */
+.hmi-panel-header,
+.hmi-dark-header,
+.jog-header,
+.jog-footer,
+.robot-panel-dark {
+    box-sizing: border-box;
+    border: 1px solid var(--hmi-header);
+    border-radius: 6px;
+    background: var(--hmi-header);
+    color: #FFFFFF;
+    box-shadow: 0 2px 5px rgba(18, 35, 48, 0.16);
+}
+
+.hmi-panel-title {
+    box-sizing: border-box;
+    color: var(--hmi-text);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.hmi-panel-header .hmi-panel-title,
+.hmi-dark-header .hmi-panel-title {
+    color: #FFFFFF;
+}
+
+/* Small accent strips for semantic grouping without flooding the panel with color. */
+.hmi-accent-primary { border-top: 3px solid var(--hmi-primary); }
+.hmi-accent-ok { border-top: 3px solid var(--hmi-ok); }
+.hmi-accent-warn { border-top: 3px solid var(--hmi-warn); }
+.hmi-accent-fault { border-top: 3px solid var(--hmi-fault); }
+
+/* Readouts / values behave like instrumentation. */
+.hmi-value,
+.status-info-value,
+.jog-readout-native,
+.param-input,
+.jog-slider {
+    box-sizing: border-box;
+    border: 1px solid var(--hmi-border);
+    border-radius: 5px;
+    background: var(--hmi-value);
+    color: var(--hmi-text);
+    font-variant-numeric: tabular-nums;
+    box-shadow: inset 0 1px 2px rgba(24, 43, 57, 0.04);
+}
+
+.status-info-label,
+.jog-label,
+.param-lbl {
+    color: var(--hmi-text-secondary);
+}
+
+.status-info-title,
+.robot-section-title,
+.jog-section-title {
+    color: var(--hmi-text);
+    font-weight: 700;
+}
+
+/* Standard action treatment */
+.status-action,
+.jog-button,
+.cmd-btn {
+    border-color: #255A90;
+    background: var(--hmi-primary);
+    color: #FFFFFF;
+    box-shadow: 0 1px 2px rgba(24, 43, 57, 0.16);
+}
+
+.status-action:hover,
+.jog-button:hover,
+.cmd-btn:hover {
+    background: var(--hmi-primary-hover);
+}
+
+.jog-stop-button,
+.cmd-stop,
+.stop-btn {
+    border-color: #A83D30;
+    background: var(--hmi-fault);
+}
+
+.cmd-start { background: var(--hmi-ok); border-color: #248536; }
+.cmd-reset { background: var(--hmi-warn); border-color: #B08600; }
+
+/* Compact status badges. Use on text/status controls where supported. */
+.hmi-status-badge {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 24px;
+    padding: 3px 9px;
+    border: 1px solid var(--hmi-border);
+    border-radius: 999px;
+    background: var(--hmi-cell);
+    color: var(--hmi-text);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+
+.hmi-status-ok {
+    border-color: rgba(46, 160, 67, 0.40);
+    background: rgba(46, 160, 67, 0.12);
+    color: #237A34;
+}
+
+.hmi-status-info {
+    border-color: rgba(47, 111, 176, 0.40);
+    background: rgba(47, 111, 176, 0.12);
+    color: #255A90;
+}
+
+.hmi-status-warn {
+    border-color: rgba(214, 164, 0, 0.45);
+    background: rgba(214, 164, 0, 0.14);
+    color: #8E6D00;
+}
+
+.hmi-status-fault {
+    border-color: rgba(203, 81, 66, 0.42);
+    background: rgba(203, 81, 66, 0.13);
+    color: #A23F33;
+}
+
+.hmi-status-idle {
+    border-color: rgba(135, 147, 157, 0.42);
+    background: rgba(135, 147, 157, 0.13);
+    color: #65717B;
+}
+
+.status-ok { color: var(--hmi-ok); }
+.status-info { color: var(--hmi-primary); }
+.status-warn { color: var(--hmi-warn); }
+.status-fault { color: var(--hmi-fault); }
+.status-idle { color: var(--hmi-idle); }
+
+/* Optional elevated surface for dialogs or especially important cards. */
+.hmi-elevated {
+    box-sizing: border-box;
+    border: 1px solid var(--hmi-border);
+    border-radius: 10px;
+    background: var(--hmi-panel);
+    color: var(--hmi-text);
+    box-shadow: var(--hmi-shadow-float);
+}
+
+.confirm-box {
+    border: 1px solid var(--hmi-border);
+    background: var(--hmi-panel);
+    color: var(--hmi-text);
+    box-shadow: var(--hmi-shadow-float);
+}
+
+/* Keep recipe workspace visually aligned with the refreshed canvas. */
+.skill-recipes-grid {
+    background-color: var(--hmi-bg);
+    background-image: linear-gradient(rgba(31, 49, 64, 0.035) 1px, transparent 1px);
+}
+
+#TcHmiRecipeSelect_1,
+#TcHmiRecipeEdit_1 {
+    border-color: var(--hmi-border);
+    background: var(--hmi-panel);
+    box-shadow: var(--hmi-shadow-panel);
 }

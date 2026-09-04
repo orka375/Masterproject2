@@ -1,0 +1,13 @@
+<div id="SkillsOverview" data-tchmi-type="TcHmi.Controls.System.TcHmiContent" data-tchmi-top="0" data-tchmi-left="0" data-tchmi-width="100" data-tchmi-height="100" data-tchmi-width-unit="%" data-tchmi-height-unit="%">
+	<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["overview-surface"]</script>
+	<div id="SkillsOverviewGrid" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0">
+		<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["overview-surface"]</script>
+		<script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">[{"height":64,"heightMode":"Value","heightUnit":"px"},{"height":1,"heightMode":"Value","heightUnit":"factor"}]</script>
+		<div id="SkillsOverviewRobotSelection" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-row-index="0" data-tchmi-left="8" data-tchmi-top="8" data-tchmi-right="8" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/TopBar_RobotSelection.usercontrol">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-dark-header"]</script>
+		</div>
+		<div id="SkillsOverviewContent" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-row-index="1" data-tchmi-left="8" data-tchmi-top="8" data-tchmi-right="8" data-tchmi-bottom="8" data-tchmi-target-user-control="UserControl/UC_Skills_Overview.usercontrol">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-panel-surface"]</script>
+		</div>
+	</div>
+</div>

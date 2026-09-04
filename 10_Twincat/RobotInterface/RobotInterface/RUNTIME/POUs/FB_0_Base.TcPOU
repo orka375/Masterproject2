@@ -10,8 +10,8 @@ VAR_INPUT
 	DEBUG_S : DEBUG_STATE;
 	{attribute 'OPC.UA.DA.StructuredType':=1}
 	{attribute 'OPC.UA.DA' := '1'}
-	pA_Skills : ARRAY[1..8] OF POINTER TO FB_1_Skill;
-	bAutoConfigure: BOOL:=TRUE;		//If True, StateMachine trys automatic to reach State "INACTIV" otherwise each transition must be called manually
+	pA_Skills : ARRAY[1..MaxNrofSkills] OF POINTER TO FB_1_Skill;
+	bAutoConfigure: BOOL:=FALSE;		//If True, StateMachine trys automatic to reach State "INACTIV" otherwise each transition must be called manually
 	MESSENGER: FB_Messenger;
 END_VAR
 
@@ -47,6 +47,8 @@ VAR
 	ErrDif: TIME;
 	_ShutOffStateMachine: BOOL;
 	_lsfs: eState;
+	_once: BOOL;
+	i: INT;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -190,7 +192,17 @@ END_IF
     </Method>
     <Action Name="CYCLIC_BASE" Id="{77b136d9-dc44-439e-b8b2-7b3315db320c}">
       <Implementation>
-        <ST><![CDATA[RUN_DEBUG_STATE();
+        <ST><![CDATA[IF NOT _once THEN
+	SETUP_BASE();
+END_IF
+
+
+
+
+
+
+
+RUN_DEBUG_STATE();
 
 StateMachine();
 MESSENGER();
@@ -201,9 +213,13 @@ SlowDownTimer();
 // Single writer of MyHealth: own condition this scan, then rolled up with the worst child.
 HMI_BASE.MyHealth := DeriveSelfHealth();
 
+HMI_BASE.nSkillCount := 0;
 FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
 	IF pA_Skills[j]<>0 THEN
+    pA_Skills[j]^.MESSENGER.ParentMessenger := ADR(MESSENGER);
 		pA_Skills[j]^();
+    HMI_BASE.nSkillCount := HMI_BASE.nSkillCount + 1;
+    HMI_BASE.aSkills[HMI_BASE.nSkillCount] := pA_Skills[j]^.HMI_SKILL;
 		// Adopt child skill faults so this component also escalates into ErrorProcessing (…and so on up the tree).
 		IF pA_Skills[j]^.State = eState.ErrorProcessing OR pA_Skills[j]^.MESSENGER.HasActivError THEN
 			Messenger.AddError(eMessageCategories.ParentFailed,Path,CONCAT('Child skill fault: ',pA_Skills[j]^.Name));
@@ -264,6 +280,27 @@ END_IF
 
 
 ]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="DeriveSelfHealth" Id="{3a7c1b20-5e44-4c81-ab13-9d2e3f405161}" FolderPath="Error\">
+      <Declaration><![CDATA[// Own health for this scan (never latched). CYCLIC_BASE rolls this up with the children.
+METHOD PROTECTED DeriveSelfHealth : eHealth
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _initialized THEN
+	DeriveSelfHealth := eHealth.Unkown;
+ELSIF Messenger.HasActivError OR _ShutOffStateMachine OR HMI_BASE.eStatus = eState.ErrorProcessing THEN
+	DeriveSelfHealth := eHealth.Dead;
+ELSIF HMI_BASE.eStatus = eState.Unconfigured OR HMI_BASE.eStatus = eState.Finalized THEN
+	DeriveSelfHealth := eHealth.Offline;
+ELSIF Messenger.HasActivWarn OR SlowDownTimer.Q
+	OR HMI_BASE.eStatus = eState.Configuring OR HMI_BASE.eStatus = eState.Activating
+	OR HMI_BASE.eStatus = eState.Deactivating OR HMI_BASE.eStatus = eState.CleaningUp
+	OR HMI_BASE.eStatus = eState.ShuttingDown THEN
+	DeriveSelfHealth := eHealth.Sick;
+ELSE
+	DeriveSelfHealth := eHealth.Healty;
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="Destroy" Id="{84232af5-24cf-43e3-b44a-0f85cd0c58bf}" FolderPath="Transitions\">
@@ -341,27 +378,6 @@ ELSE
 	HeartBeat:=FALSE;
 END_IF
 ]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="DeriveSelfHealth" Id="{3a7c1b20-5e44-4c81-ab13-9d2e3f405161}" FolderPath="Error\">
-      <Declaration><![CDATA[// Own health for this scan (never latched). CYCLIC_BASE rolls this up with the children.
-METHOD PROTECTED DeriveSelfHealth : eHealth
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[IF NOT _initialized THEN
-	DeriveSelfHealth := eHealth.Unkown;
-ELSIF Messenger.HasActivError OR _ShutOffStateMachine OR HMI_BASE.eStatus = eState.ErrorProcessing THEN
-	DeriveSelfHealth := eHealth.Dead;
-ELSIF HMI_BASE.eStatus = eState.Unconfigured OR HMI_BASE.eStatus = eState.Finalized THEN
-	DeriveSelfHealth := eHealth.Offline;
-ELSIF Messenger.HasActivWarn OR SlowDownTimer.Q
-	OR HMI_BASE.eStatus = eState.Configuring OR HMI_BASE.eStatus = eState.Activating
-	OR HMI_BASE.eStatus = eState.Deactivating OR HMI_BASE.eStatus = eState.CleaningUp
-	OR HMI_BASE.eStatus = eState.ShuttingDown THEN
-	DeriveSelfHealth := eHealth.Sick;
-ELSE
-	DeriveSelfHealth := eHealth.Healty;
-END_IF]]></ST>
       </Implementation>
     </Method>
     <Property Name="ID" Id="{56e403f3-8552-4f82-8f86-af916d784dec}">
@@ -726,6 +742,15 @@ IF DEBUG_S.bReset THEN
 	Reset();
 	DEBUG_S.bReset := FALSE;
 END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="SETUP_BASE" Id="{82f4cfae-8451-4824-9463-c5c5b9849031}">
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO TO_INT(UPPER_BOUND(pA_Skills,1)) DO
+	IF pA_Skills[i]<>0 THEN
+		HMI_BASE.aNameOfSkills[i]:= pA_Skills[i]^.Name;
+	END_IF
+END_FOR]]></ST>
       </Implementation>
     </Action>
     <Method Name="Shutdown" Id="{a12b67df-13c4-4acd-81a2-259afa6359fe}" FolderPath="Transitions\">
