@@ -1,0 +1,288 @@
+<div id="UC_PointManager" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControl" data-tchmi-top="0" data-tchmi-left="0" data-tchmi-width="100" data-tchmi-height="100" data-tchmi-width-unit="%" data-tchmi-height-unit="%" data-tchmi-creator-viewport-width="1200" data-tchmi-creator-viewport-height="800">
+  <script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["usercontrol-surface", "background-container"]</script>
+  <script data-tchmi-target-attribute="data-tchmi-trigger" type="application/json">[{"event":"%ctx%owner::Id|EventRegistrationMode=Resolve%/ctx%.onInitialized","actions":[{"objectType":"JavaScript","active":true,"sourceLines":["var owner = TcHmi.Controls.get('%ctx%owner::Id%/ctx%');","var root = owner ? owner.getElement() : null;","var element = root ? root.find('[id$=\"PointManagerPointSelector\"]') : null;","var selector = element \u0026\u0026 element.length ? TcHmi.Controls.get(element.attr('id')) : null;","var names = [];","var count = 0;","function updateItems() {","  if (!selector) { return; }","  selector.setSrcData(names.slice(0, count).filter(function (name) { return name !== ''; }));","}","new TcHmi.Symbol('%pp%PM::aPointNames%/pp%').watch(function (data) {","  names = data \u0026\u0026 Array.isArray(data.value) ? data.value : [];","  updateItems();","});","new TcHmi.Symbol('%pp%PM::nPointNameCount%/pp%').watch(function (data) {","  count = data ? Number(data.value) : 0;","  updateItems();","});"]}]}]</script>
+
+  <div id="PointManagerGrid" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-left="-1" data-tchmi-top="-1" data-tchmi-right="1" data-tchmi-bottom="0">
+    <script data-tchmi-target-attribute="data-tchmi-column-options" type="application/json">
+    [
+      { "width": 1.0, "widthMode": "Value", "widthUnit": "factor" },
+      { "width": 0.1, "widthMode": "Value", "widthUnit": "factor" },
+      { "width": 1.6, "widthMode": "Value", "widthUnit": "factor" },
+      { "width": 0.1, "widthMode": "Value", "widthUnit": "factor" },
+      { "width": 1.5, "widthMode": "Value", "widthUnit": "factor" },
+      { "width": 0.1, "widthMode": "Value", "widthUnit": "factor" },
+      { "width": 1.5, "widthMode": "Value", "widthUnit": "factor" },
+      { "width": 0.1, "widthMode": "Value", "widthUnit": "factor" },
+      { "width": 1.5, "widthMode": "Value", "widthUnit": "factor" },
+      { "width": 0.1, "widthMode": "Value", "widthUnit": "factor" }
+    ]
+    </script>
+    <script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">
+[
+  {
+    "height": 0.5,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.8,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 4.2,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.8,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.8,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  }
+]
+</script>
+
+    <div id="PointManagerTitle" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="POINT MANAGER" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center">
+      <script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-header-title"]</script>
+    </div>
+
+    <div id="PointManagerRobotSelection" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-column-index="2" data-tchmi-grid-row-index="0" data-tchmi-grid-column-span="5" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/TopBar_RobotSelection.usercontrol"></div>
+
+    
+    
+    
+    
+    
+    
+    
+    <div id="PointManagerPointLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-grid-row-index="4" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="SELECTED POINT" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center"></div>
+
+    <div id="PointManagerPointGrid" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-grid-column-index="2" data-tchmi-grid-row-index="4" data-tchmi-grid-column-span="7" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0">
+      <script data-tchmi-target-attribute="data-tchmi-column-options" type="application/json">
+[
+  {
+    "width": 0.4,
+    "widthMode": "Value",
+    "widthUnit": "factor"
+  },
+  {
+    "width": 1.0,
+    "widthMode": "Value",
+    "widthUnit": "factor"
+  }
+]
+</script>
+      <script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">
+[
+  {
+    "height": 1.0,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 1.0,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 1.0,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  }
+]
+</script>
+
+      <div id="PointManagerXLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="X" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center"></div>
+      <div id="PointManagerXInput" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiNumericInput" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-value="%pp%PM::xPoint::x|BindingMode=TwoWay%/pp%" data-tchmi-decimal-digits="3"></div>
+                        
+                                    
+                <div id="PointManagerRxLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-grid-row-index="8" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="Rx" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center">
+</div>
+<div id="PointManagerRxInput" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiNumericInput" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="8" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-value="%pp%PM::xPoint::rx|BindingMode=TwoWay%/pp%" data-tchmi-decimal-digits="3">
+</div>
+<div id="PointManagerYInput" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiNumericInput" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-value="%pp%PM::xPoint::y|BindingMode=TwoWay%/pp%" data-tchmi-decimal-digits="3">
+</div>
+<div id="PointManagerYLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-grid-row-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="Y" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center">
+</div>
+<div id="PointManagerZLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-grid-row-index="4" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="Z" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center">
+</div>
+<div id="PointManagerZInput" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiNumericInput" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="4" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-value="%pp%PM::xPoint::z|BindingMode=TwoWay%/pp%" data-tchmi-decimal-digits="3">
+</div>
+<div id="PointManagerRyInput" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiNumericInput" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="10" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-value="%pp%PM::xPoint::ry|BindingMode=TwoWay%/pp%" data-tchmi-decimal-digits="3">
+</div>
+<div id="PointManagerRzInput" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiNumericInput" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="12" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-value="%pp%PM::xPoint::rz|BindingMode=TwoWay%/pp%" data-tchmi-decimal-digits="3">
+</div>
+<div id="PointManagerRyLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-grid-row-index="10" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="Ry" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center">
+</div>
+<div id="PointManagerRzLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-grid-row-index="12" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="Rz" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center">
+</div>
+</div>
+
+    <div id="PointManagerDeleteButton" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-grid-column-index="0" data-tchmi-grid-row-index="6" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="DELETE" data-tchmi-state-symbol="%pp%PM::bCmdDelete%/pp%"></div>
+
+    <div id="PointManagerRetouchButton" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-grid-column-index="2" data-tchmi-grid-row-index="6" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="RETOUCH FROM ROBOT" data-tchmi-state-symbol="%pp%PM::bCmdTeach%/pp%"></div>
+
+    
+    
+    
+        
+    <div id="PointManagerNewNameLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="4" data-tchmi-grid-row-index="8" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="New name" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center"></div>
+    <div id="PointManagerNewNameInput" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiInput" data-tchmi-grid-column-index="6" data-tchmi-grid-row-index="8" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="%pp%PM::sCmdNewName|BindingMode=TwoWay%/pp%" data-tchmi-input-processing-point="InteractionFinished"></div>
+
+        
+  <div id="PointManagerPointSelectorLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-grid-row-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="Stored points" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center">
+</div>
+<div id="PointManagerPointSelector" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiCombobox" data-tchmi-grid-column-index="2" data-tchmi-grid-row-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-selected-index="%pp%PM::nSelectedPointIndex|BindingMode=TwoWay%/pp%">
+</div>
+<div id="PointManagerLoadPointButton" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-grid-column-index="8" data-tchmi-grid-row-index="4" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="LOAD" data-tchmi-state-symbol="%pp%PM::bCmdLoad%/pp%">
+</div>
+<div id="PointManagerSavePointButton" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-grid-column-index="8" data-tchmi-grid-row-index="6" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="SAVE POINT" data-tchmi-state-symbol="%pp%PM::bCmdSave%/pp%">
+</div>
+<div id="PointManagerRenameButton" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-grid-column-index="4" data-tchmi-grid-row-index="6" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="RENAME" data-tchmi-state-symbol="%pp%PM::bCmdRename%/pp%">
+</div>
+<div id="PointManagerCreateButton" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-grid-column-index="4" data-tchmi-grid-row-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="CREATE" data-tchmi-state-symbol="%pp%PM::bCmdNew%/pp%">
+</div>
+<div id="PointManagerLoadFileButton" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-grid-column-index="6" data-tchmi-grid-row-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="READ FILE" data-tchmi-state-symbol="%pp%PM::bCmdLoadFile%/pp%">
+</div>
+<div id="PointManagerSaveAllButton" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-grid-column-index="8" data-tchmi-grid-row-index="8" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="SAVE TO FILE" data-tchmi-state-symbol="%pp%PM::bCmdSaveFile%/pp%">
+</div>
+<div id="TcHmiGrid_2" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-grid-column-index="4" data-tchmi-grid-row-index="4" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-top="-1" data-tchmi-top-unit="px" data-tchmi-right="0" data-tchmi-bottom="1">
+
+<script data-tchmi-target-attribute="data-tchmi-column-options" type="application/json">
+[
+  {
+    "overflow": false,
+    "width": 0.4,
+    "widthMode": "Value",
+    "widthUnit": "factor"
+  },
+  {
+    "width": 1,
+    "widthMode": "Value",
+    "widthUnit": "factor"
+  }
+]
+</script>
+
+<script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">
+[
+  {
+    "height": 1,
+    "heightMode": "Value",
+    "heightUnit": "factor",
+    "overflow": false
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 0.1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  },
+  {
+    "height": 4.4,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  }
+]
+</script>
+<div id="PointManagerStatus" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="0" data-tchmi-grid-column-span="7" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="%pp%PM::sLastOperation%/pp%" data-tchmi-text-horizontal-alignment="Left" data-tchmi-text-vertical-alignment="Center">
+</div>
+<div id="PointManagerStatusLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="Status" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center">
+</div>
+</div>
+</div>
+</div>

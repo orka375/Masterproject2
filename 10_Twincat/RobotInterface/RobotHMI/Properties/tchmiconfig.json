@@ -91,6 +91,12 @@
       "url": "UserControl/UC_MANIPULATOR.usercontrol"
     },
     {
+      "url": "UserControl/UC_PointManager.usercontrol"
+    },
+    {
+      "url": "UserControl/UC_SkillControl.usercontrol"
+    },
+    {
       "url": "UserControl/UC_Skills_Overview.usercontrol"
     }
   ],

@@ -4,11 +4,15 @@
     <Declaration><![CDATA[FUNCTION_BLOCK FB_1_Tool EXTENDS FB_0_Base
 VAR_INPUT
 	pROB: POINTER TO FB_1_ROB;
+  MountingPose: stPoseGeneral;
+  bFrameValid: BOOL := TRUE;
 END_VAR
 VAR_OUTPUT
 	visStatus: stVisStatusTool;
 END_VAR
 VAR
+	_tcpoffset: stPoseGeneral;
+	_mounted: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -19,9 +23,19 @@ END_VAR
       <Implementation>
         <ST><![CDATA[CYCLIC_BASE();
 
+    visStatus.State := State;
+    visStatus.isBusy := Busy;
+    visStatus.isReady := State = eState.Active;
+    visStatus.isMoving := FALSE;
+    visStatus.hasError := State = eState.ErrorProcessing;
+    visStatus.bOpen := FALSE;
+    visStatus.bClosed := FALSE;
 
-//VISSTATUS
-//TODO
+    IF _mounted THEN
+      visStatus.Position := 'Mounted';
+    ELSE
+      visStatus.Position := 'Unmounted';
+    END_IF
 ]]></ST>
       </Implementation>
     </Action>
@@ -42,7 +56,7 @@ VAR
 END_VAR
 ]]></Declaration>
       <Implementation>
-  <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
+        <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
 
 FOR iTool := 1 TO SETUP.nToolCount DO
   IF SETUP.apTool[iTool] = THIS THEN
@@ -58,6 +72,27 @@ IF SETUP.nToolCount < SETUP.MaxNrofTools THEN
 END_IF]]></ST>
       </Implementation>
     </Method>
+    <Method Name="Mount" Id="{9841653f-1fe3-4f46-893d-a32680152253}">
+      <Declaration><![CDATA[METHOD Mount : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_mounted := TRUE;
+      Mount := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Mounted" Id="{67364a27-71c7-4ed2-b024-58abaace377b}">
+      <Declaration><![CDATA[PROPERTY Mounted : BOOL]]></Declaration>
+      <Get Name="Get" Id="{a3302d2d-ceba-42df-acfc-0b00da5af4c8}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Mounted:=_mounted;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Method Name="onActivate" Id="{f08f7dc1-202a-4da9-a3e3-b4c98ccb8fdb}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED onActivate : eResult
 VAR_INPUT
@@ -221,6 +256,83 @@ myResult:=SUCCESS;
 //--------------------------------------------------
 onShutdown := CombineResults(eParentResult,myResult);
 ]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TargetPositionWithToolOffset" Id="{47faa6d6-4e1d-4c32-a622-b5aa7432a7c5}">
+      <Declaration><![CDATA[METHOD TargetPositionWithToolOffset : stPoseGeneral
+VAR_INPUT
+	currPos: stPoseGeneral;
+END_VAR
+  VAR
+    crx : LREAL;
+    srx : LREAL;
+    cry : LREAL;
+    sry : LREAL;
+    crz : LREAL;
+    srz : LREAL;
+    offsetX : LREAL;
+    offsetY : LREAL;
+    offsetZ : LREAL;
+  END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _mounted THEN
+    crx := COS(currPos.rx);
+    srx := SIN(currPos.rx);
+    cry := COS(currPos.ry);
+    sry := SIN(currPos.ry);
+    crz := COS(currPos.rz);
+    srz := SIN(currPos.rz);
+
+    (* Rz * Ry * Rx: rotate the tool-frame offset into the base frame. *)
+    offsetX := (cry * crz) * _tcpoffset.x
+      + (crz * srx * sry - crx * srz) * _tcpoffset.y
+      + (srx * srz + crx * crz * sry) * _tcpoffset.z;
+    offsetY := (cry * srz) * _tcpoffset.x
+      + (crx * crz + srx * sry * srz) * _tcpoffset.y
+      + (crx * sry * srz - crz * srx) * _tcpoffset.z;
+    offsetZ := (-sry) * _tcpoffset.x
+      + (cry * srx) * _tcpoffset.y
+      + (crx * cry) * _tcpoffset.z;
+
+    TargetPositionWithToolOffset.x := currPos.x + offsetX;
+    TargetPositionWithToolOffset.y := currPos.y + offsetY;
+    TargetPositionWithToolOffset.z := currPos.z + offsetZ;
+    TargetPositionWithToolOffset.rx := currPos.rx + _tcpoffset.rx;
+    TargetPositionWithToolOffset.ry := currPos.ry + _tcpoffset.ry;
+    TargetPositionWithToolOffset.rz := currPos.rz + _tcpoffset.rz;
+ELSE
+    TargetPositionWithToolOffset := currPos;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ToolTCPOffset" Id="{e0b49844-92df-4ecd-a4dd-cf580748e257}">
+      <Declaration><![CDATA[PROPERTY ToolTCPOffset : stPoseGeneral]]></Declaration>
+      <Get Name="Get" Id="{e3c27ee2-288c-4d73-95fb-cfba1b3a20ce}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ToolTCPOffset:= _tcpoffset;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{7dc90ed2-9d77-4d8d-aa71-078dc4371482}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_tcpoffset:= ToolTCPOffset;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Unmount" Id="{c0d7d9fa-164b-431f-9214-cc51690578b8}">
+      <Declaration><![CDATA[METHOD Unmount : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_mounted := FALSE;
+      Unmount := TRUE;]]></ST>
       </Implementation>
     </Method>
   </POU>

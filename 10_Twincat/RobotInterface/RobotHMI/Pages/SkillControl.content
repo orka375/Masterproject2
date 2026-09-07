@@ -1,102 +1,13 @@
-<div id="SkillControl" data-tchmi-type="TcHmi.Controls.System.TcHmiContent" data-tchmi-top="0" data-tchmi-left="0" data-tchmi-width="100" data-tchmi-width-unit="%" data-tchmi-height="100" data-tchmi-height-unit="%">
-  <!--
-    Skill Control - reusable for the selected robot (RobotHmi.js).
-
-    Symbols (all real, per robot):
-      SETUP.UR_ALPHA / SETUP.UR_BRAVO.HMI_ROB.*                         (robot status)
-      SETUP.R1_PP / SETUP.R2_PP.HMI_BASE.eStatus / .bBusy                (skill state)
-      SETUP.R1_PP / SETUP.R2_PP.ExecutionResult
-      SETUP.R1_PP / SETUP.R2_PP.bExecute / .bStop / .bReset              (momentary commands)
-      SETUP.R1_PP / SETUP.R2_PP.Param.*                                 (per-robot PickPlace params)
-  -->
-  <div id="SC_Host" data-tchmi-type="TcHmi.Controls.System.TcHmiHtmlHost" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0">
-  <div class="rm-root">
-
-    <!-- HEADER -->
-    <div class="rm-header robot-panel-dark">
-      <select class="robot-select" data-robot-selector>
-        <option value="1" data-robot-bind="HMI_BASE.sInstanceName" data-robot-index="1"></option>
-        <option value="2" data-robot-bind="HMI_BASE.sInstanceName" data-robot-index="2"></option>
-      </select>
-      <span class="rm-title" data-robot-name data-robot-bind="HMI_BASE.sInstanceName"></span>
-      <span class="rm-stat"><span class="rm-lbl">Mode</span><span data-robot-bind="HMI_ROB.eModus" data-robot-format="mode">--</span></span>
-      <span class="rm-stat"><span class="rm-lbl">Ready</span><span data-robot-bind="HMI_ROB.bReady" data-robot-format="bool" data-robot-status="ok">--</span></span>
-    </div>
-
-    <div class="rm-body">
-
-      <!-- LEFT: SKILL + COMMANDS -->
-      <div class="rm-col robot-panel">
-        <div class="robot-section-title">SKILL</div>
-
-        <div class="param-row"><span class="param-lbl">Selected skill</span>
-          <select class="param-input"><option>PickPlace</option></select>
-        </div>
-
-        <div class="skill-state-box">
-          <span class="rm-lbl">State</span>
-          <span class="skill-state-big" data-skill-bind="HMI_BASE.eStatus" data-skill-format="state">IDLE</span>
-        </div>
-
-        <div class="param-row"><span class="param-lbl">Busy</span><span class="jog-readout" data-skill-bind="HMI_BASE.bBusy" data-skill-format="bool">--</span></div>
-        <div class="param-row"><span class="param-lbl">Result</span><span class="jog-readout" data-skill-bind="ExecutionResult">--</span></div>
-
-        <div class="skill-cmd-row">
-          <button type="button" class="cmd-btn cmd-start" data-skill-cmd="bExecute">START</button>
-          <button type="button" class="cmd-btn cmd-stop" data-skill-cmd="bStop">STOP</button>
-          <button type="button" class="cmd-btn cmd-reset" data-skill-cmd="bReset">RESET</button>
-        </div>
-      </div>
-
-      <!-- CENTER: PICKPLACE PARAMETERS -->
-      <div class="rm-col rm-col-wide robot-panel">
-        <div class="robot-section-title">PICKPLACE PARAMETERS</div>
-
-        <div class="param-group">PICK</div>
-        <div class="param-row"><span class="param-lbl">Point name</span>
-          <input type="text" class="param-input" data-skill-bind="Param.PickPositionName" data-skill-write="Param.PickPositionName" data-robot-type="string" />
-        </div>
-        <div class="param-row"><span class="param-lbl">Offset X</span><input type="number" step="0.001" class="param-input" data-skill-bind="Param.PickPositionOffset.x" data-skill-write="Param.PickPositionOffset.x" /></div>
-        <div class="param-row"><span class="param-lbl">Offset Y</span><input type="number" step="0.001" class="param-input" data-skill-bind="Param.PickPositionOffset.y" data-skill-write="Param.PickPositionOffset.y" /></div>
-        <div class="param-row"><span class="param-lbl">Offset Z</span><input type="number" step="0.001" class="param-input" data-skill-bind="Param.PickPositionOffset.z" data-skill-write="Param.PickPositionOffset.z" /></div>
-        <div class="param-row"><span class="param-lbl">Approach dir</span>
-          <select class="param-input" data-skill-bind="Param.PickApproachDirection" data-skill-write="Param.PickApproachDirection" data-robot-type="string">
-            <option>+X</option><option>-X</option><option>+Y</option><option>-Y</option><option>+Z</option><option>-Z</option>
-          </select>
-        </div>
-        <div class="param-row"><span class="param-lbl">Approach [mm]</span><input type="number" step="1" class="param-input" data-skill-bind="Param.PickApproachOffset" data-skill-write="Param.PickApproachOffset" /></div>
-
-        <div class="param-group">PLACE</div>
-        <div class="param-row"><span class="param-lbl">Point name</span>
-          <input type="text" class="param-input" data-skill-bind="Param.PlacePositionName" data-skill-write="Param.PlacePositionName" data-robot-type="string" />
-        </div>
-        <div class="param-row"><span class="param-lbl">Offset X</span><input type="number" step="0.001" class="param-input" data-skill-bind="Param.PlacePositionOffset.x" data-skill-write="Param.PlacePositionOffset.x" /></div>
-        <div class="param-row"><span class="param-lbl">Offset Y</span><input type="number" step="0.001" class="param-input" data-skill-bind="Param.PlacePositionOffset.y" data-skill-write="Param.PlacePositionOffset.y" /></div>
-        <div class="param-row"><span class="param-lbl">Offset Z</span><input type="number" step="0.001" class="param-input" data-skill-bind="Param.PlacePositionOffset.z" data-skill-write="Param.PlacePositionOffset.z" /></div>
-        <div class="param-row"><span class="param-lbl">Approach dir</span>
-          <select class="param-input" data-skill-bind="Param.PlaceApproachDirection" data-skill-write="Param.PlaceApproachDirection" data-robot-type="string">
-            <option>+X</option><option>-X</option><option>+Y</option><option>-Y</option><option>+Z</option><option>-Z</option>
-          </select>
-        </div>
-        <div class="param-row"><span class="param-lbl">Approach [mm]</span><input type="number" step="1" class="param-input" data-skill-bind="Param.PlaceApproachOffset" data-skill-write="Param.PlaceApproachOffset" /></div>
-
-        <div class="param-group">PROCESS</div>
-        <div class="param-row"><span class="param-lbl">Velocity [mm/s]</span><input type="number" step="1" class="param-input" data-skill-bind="Param.Velocity" data-skill-write="Param.Velocity" /></div>
-      </div>
-
-      <!-- RIGHT: SKILL INFORMATION -->
-      <div class="rm-col robot-panel">
-        <div class="robot-section-title">SKILL INFORMATION</div>
-        <div class="param-row"><span class="param-lbl">Robot ready</span><span class="jog-readout" data-robot-bind="HMI_ROB.bReady" data-robot-format="bool" data-robot-status="ok">--</span></div>
-        <div class="param-row"><span class="param-lbl">Robot moving</span><span class="jog-readout" data-robot-bind="HMI_ROB.bMoving" data-robot-format="bool" data-robot-status="warn">--</span></div>
-        <div class="param-row"><span class="param-lbl">E-Stop</span><span class="jog-readout" data-robot-bind="HMI_ROB.bEStop" data-robot-format="bool" data-robot-status="fault">--</span></div>
-        <div class="param-row"><span class="param-lbl">Skill busy</span><span class="jog-readout" data-skill-bind="HMI_BASE.bBusy" data-skill-format="bool">--</span></div>
-        <div class="param-row"><span class="param-lbl">Skill state</span><span class="jog-readout" data-skill-bind="HMI_BASE.eStatus" data-skill-format="state">--</span></div>
-        <div class="sc-note">Parameters are per-robot (aSkillPickPlace[i].Param). START/STOP/RESET send edge-triggered command bits; the PLC state machine remains authoritative.</div>
-      </div>
-
-    </div>
-
-  </div>
-  </div>
+<div id="SkillControl" data-tchmi-type="TcHmi.Controls.System.TcHmiContent" data-tchmi-top="0" data-tchmi-left="0" data-tchmi-right="0" data-tchmi-bottom="0">
+	<script data-tchmi-target-attribute="data-tchmi-trigger" type="application/json">[{"event":"%ctx%owner::Id|EventRegistrationMode=Resolve%/ctx%.onInitialized","actions":[{"objectType":"JavaScript","active":true,"sourceLines":["var robot1 = TcHmi.Controls.get('SkillControlR1');","var robot2 = TcHmi.Controls.get('SkillControlR2');","var unavailable = TcHmi.Controls.get('SkillControlUnavailable');","var selectedRobot = new TcHmi.Symbol('%i%SelectedRobot%/i%');","selectedRobot.watch(function (data) {","  var selected = data ? Number(data.value) : 0;","  var valid = selected === 1 || selected === 2;","  if (robot1) { robot1.setVisibility(selected === 1 ? 'Visible' : 'Collapsed'); }","  if (robot2) { robot2.setVisibility(selected === 2 ? 'Visible' : 'Collapsed'); }","  if (unavailable) { unavailable.setVisibility(valid ? 'Collapsed' : 'Visible'); }","});"]}]}]</script>
+	<div id="SkillControlPageGrid" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0">
+		<script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">[{"height":64,"heightMode":"Value","heightUnit":"px"},{"height":10,"heightMode":"Value","heightUnit":"px"},{"height":1,"heightMode":"Value","heightUnit":"factor"}]</script>
+		<div id="SkillControlRobotSelection" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-row-index="0" data-tchmi-left="10" data-tchmi-top="0" data-tchmi-bottom="0" data-tchmi-width="30" data-tchmi-width-unit="%" data-tchmi-target-user-control="UserControl/TopBar_RobotSelection.usercontrol"></div>
+		<div id="SkillControlHostGrid" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-grid-row-index="2" data-tchmi-left="10" data-tchmi-top="0" data-tchmi-right="10" data-tchmi-bottom="10">
+			<script data-tchmi-target-attribute="data-tchmi-column-options" type="application/json">[{"width":0.1,"widthMode":"Value","widthUnit":"factor"},{"width":1,"widthMode":"Value","widthUnit":"factor"},{"width":0.1,"widthMode":"Value","widthUnit":"factor"}]</script>
+			<div id="SkillControlR1" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-column-index="1" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/UC_SkillControl.usercontrol" data-tchmi-b="%s%ADS.PLC1.SETUP.R1_PP.HMI_BASE%/s%" data-tchmi-p="%s%ADS.PLC1.SETUP.R1_PP.Param%/s%" data-tchmi-r="%s%R1.HMI_ROB%/s%" data-tchmi-rb="%s%R1.HMI_BASE%/s%" data-tchmi-result="%s%ADS.PLC1.SETUP.R1_PP.ExecutionResult%/s%" data-tchmi-execute="%s%ADS.PLC1.SETUP.R1_PP.bExecute%/s%" data-tchmi-stop="%s%ADS.PLC1.SETUP.R1_PP.bStop%/s%" data-tchmi-reset="%s%ADS.PLC1.SETUP.R1_PP.bReset%/s%"></div>
+			<div id="SkillControlR2" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-column-index="1" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/UC_SkillControl.usercontrol" data-tchmi-b="%s%ADS.PLC1.SETUP.R2_PP.HMI_BASE%/s%" data-tchmi-p="%s%ADS.PLC1.SETUP.R2_PP.Param%/s%" data-tchmi-r="%s%R2.HMI_ROB%/s%" data-tchmi-rb="%s%R2.HMI_BASE%/s%" data-tchmi-result="%s%ADS.PLC1.SETUP.R2_PP.ExecutionResult%/s%" data-tchmi-execute="%s%ADS.PLC1.SETUP.R2_PP.bExecute%/s%" data-tchmi-stop="%s%ADS.PLC1.SETUP.R2_PP.bStop%/s%" data-tchmi-reset="%s%ADS.PLC1.SETUP.R2_PP.bReset%/s%" data-tchmi-visibility="Collapsed"></div>
+			<div id="SkillControlUnavailable" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="1" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="No robot selected" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center" data-tchmi-visibility="Collapsed"></div>
+		</div>
+	</div>
 </div>

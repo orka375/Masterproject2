@@ -12,7 +12,7 @@
     <HmiTitle>RobotHMI</HmiTitle>
     <HmiVerboseLevel>2</HmiVerboseLevel>
     <HmiVersion>1.0.0.0</HmiVersion>
-    <HmiCommunicationServerPort>3002</HmiCommunicationServerPort>
+    <HmiCommunicationServerPort>3004</HmiCommunicationServerPort>
     <HmiLogTcHmiServerMessages>false</HmiLogTcHmiServerMessages>
     <HmiLogDesignerModeComMessages>false</HmiLogDesignerModeComMessages>
     <HmiDefaultLanguage>client</HmiDefaultLanguage>
@@ -190,6 +190,20 @@
     <Content Include="UserControl\UC_Jog_Manip.usercontrol.json">
       <SubType>Content</SubType>
       <DependentUpon>UserControl\UC_Jog_Manip.usercontrol</DependentUpon>
+    </Content>
+    <Content Include="UserControl\UC_PointManager.usercontrol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="UserControl\UC_PointManager.usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\UC_PointManager.usercontrol</DependentUpon>
+    </Content>
+    <Content Include="UserControl\UC_SkillControl.usercontrol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="UserControl\UC_SkillControl.usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\UC_SkillControl.usercontrol</DependentUpon>
     </Content>
     <Content Include="UserControl\UC_MANIPULATOR.usercontrol">
       <SubType>Content</SubType>

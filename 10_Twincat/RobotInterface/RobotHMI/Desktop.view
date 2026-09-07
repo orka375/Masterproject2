@@ -184,7 +184,7 @@
     "name": "%l%L_Overview%/l%"
   },
   {
-    "content": "Pages/RobotMove.content",
+    "content": "Pages/Jogging.content",
     "icon": "%tr%TR_Icon_Robots_normal%/tr%",
     "iconActive": "%tr%TR_Icon_Robots_active%/tr%",
     "iconPressed": "%tr%TR_Icon_Robots_pressed%/tr%",

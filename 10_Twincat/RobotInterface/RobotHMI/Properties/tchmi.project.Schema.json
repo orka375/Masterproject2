@@ -32,6 +32,22 @@
       "frameworkUserControlConfig": "UserControl\\UC_MANIPULATOR.usercontrol.json",
       "type": "object",
       "id": "tchmi:project#/definitions/UC_MANIPULATOR"
+    },
+    "UC_SkillControl": {
+      "frameworkControlNamespace": "TcHmi.Controls.Beckhoff",
+      "frameworkControlType": "TcHmi.Controls.System.TcHmiUserControl",
+      "frameworkInstanceOf": "TcHmi.Controls.System.TcHmiControl",
+      "frameworkUserControlConfig": "UserControl\\UC_SkillControl.usercontrol.json",
+      "type": "object",
+      "id": "tchmi:project#/definitions/UC_SkillControl"
+    },
+    "UC_PointManager": {
+      "frameworkControlNamespace": "TcHmi.Controls.Beckhoff",
+      "frameworkControlType": "TcHmi.Controls.System.TcHmiUserControl",
+      "frameworkInstanceOf": "TcHmi.Controls.System.TcHmiControl",
+      "frameworkUserControlConfig": "UserControl\\UC_PointManager.usercontrol.json",
+      "type": "object",
+      "id": "tchmi:project#/definitions/UC_PointManager"
     }
   }
 }

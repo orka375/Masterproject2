@@ -1,5 +1,1492 @@
 <?xml version="1.0"?>
 <TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.24">
+	<DataTypes>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-000000000035}" TcBaseType="true" HideType="true">UINTARR2</Name>
+			<BitSize>32</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000005}">UINT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>2</Elements>
+			</ArrayInfo>
+			<Format Name="ArrayView" Preview="[%u, %u]">
+				<Printf>[%u, %u]</Printf>
+				<Parameter>[0]</Parameter>
+				<Parameter>[1]</Parameter>
+			</Format>
+			<Format Name="MixedView" Preview="%x [%u, %u]">
+				<Printf>0x%08x [%u, %u]</Printf>
+				<Parameter>.</Parameter>
+				<Parameter>[0]</Parameter>
+				<Parameter>[1]</Parameter>
+			</Format>
+			<Format Name="32bitView" Preview="%x (%u)">
+				<Printf>0x%08x (%u)</Printf>
+				<Parameter>.</Parameter>
+				<Parameter>.</Parameter>
+			</Format>
+		</DataType>
+		<DataType>
+			<Name GUID="{901C2423-655B-45CE-B7E3-21F174F0F99F}" Namespace="MC" TcBaseType="true">NCENCODERSTRUCT_IN2B</Name>
+			<BitSize>320</BitSize>
+			<SubItem>
+				<Name>nDataIn1</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataIn2</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>32</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nState1</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nState2</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>72</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nState3</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>80</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nState4</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<Comment><![CDATA[Encoder Status 4 (automatically linked):
+0x01 (Bit 0) = IO data invalid (e.g. EtherCAT 'WcState')
+0x02 (Bit 1) = IO data input toggle (e.g. EtherCAT 'InputToggle')
+]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>88</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataIn3</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>96</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataIn4</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>128</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataIn5</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>160</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataIn6</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>192</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nState5</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>224</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nState6</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>232</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nState7</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>240</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nState8</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>248</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDcInputTime</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000009}">DINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>256</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataIn7</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<Comment><![CDATA[Drive Velocity Actual Value
+]]></Comment>
+				<BitSize>32</BitSize>
+				<BitOffs>288</BitOffs>
+			</SubItem>
+			<Relations>
+				<Relation>
+					<Type GUID="{55728D3F-7B02-4448-8096-580617CECBA3}">NCENCODERSTRUCT_IN</Type>
+					<MapEntry>
+						<BitSize>96</BitSize>
+					</MapEntry>
+				</Relation>
+			</Relations>
+		</DataType>
+		<DataType>
+			<Name GUID="{9CC50AB2-5D79-4869-A3C2-1FA7761BAFEA}" Namespace="MC" TcBaseType="true">NCENCODERSTRUCT_OUT2</Name>
+			<BitSize>320</BitSize>
+			<SubItem>
+				<Name>nDataOut1</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataOut2</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>32</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nCtrl1</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nCtrl2</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>72</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nCtrl3</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>80</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nCtrl4</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>88</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataOut3</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>96</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataOut4</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>128</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataOut5</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>160</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataOut6</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>192</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nCtrl5</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>224</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nCtrl6</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>232</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nCtrl7</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>240</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nCtrl8</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>248</BitOffs>
+			</SubItem>
+			<Relations>
+				<Relation>
+					<Type GUID="{5FE34D39-3B85-4458-8264-8C4874D8985C}">NCENCODERSTRUCT_OUT</Type>
+					<MapEntry>
+						<BitSize>96</BitSize>
+					</MapEntry>
+				</Relation>
+			</Relations>
+		</DataType>
+		<DataType>
+			<Name GUID="{F95C7C69-0C87-46C4-9559-1285CCA5B23A}" Namespace="MC" TcBaseType="true">NCDRIVESTRUCT_IN2</Name>
+			<BitSize>320</BitSize>
+			<SubItem>
+				<Name>nDataIn1</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataIn2</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>32</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nState1</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nState2</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>72</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nState3</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>80</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nState4</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<Comment><![CDATA[Drive Status 4 (automatically linked):
+0x01 (0000 0001) = IO data invalid (e.g. EtherCAT 'WcState')
+0x02 (0000 0010) = IO data input toggle (e.g. EtherCAT 'InputToggle')
+
+Drive Status 4 (manually linked):
+0x80 (1000 0000) = Fast axis stop (digital IO interrupt)
+]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>88</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataIn3</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>96</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataIn4</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>128</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataIn5</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>160</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataIn6</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>192</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nState5</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>224</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nState6</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>232</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nState7</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>240</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nState8</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<Comment><![CDATA[Digital Inputs 1..8
+]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>248</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDcOutputTime</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000009}">DINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>256</BitOffs>
+			</SubItem>
+			<Relations>
+				<Relation>
+					<Type GUID="{9AC463DC-3417-4DEA-AD2A-5FBD4C9C15AA}">NCDRIVESTRUCT_IN</Type>
+					<MapEntry>
+						<BitSize>96</BitSize>
+					</MapEntry>
+				</Relation>
+			</Relations>
+		</DataType>
+		<DataType>
+			<Name GUID="{644DC4BD-3D15-4DCB-94C7-24F3A5D579AA}" Namespace="MC" TcBaseType="true">NCDRIVESTRUCT_OUT2</Name>
+			<BitSize>320</BitSize>
+			<SubItem>
+				<Name>nDataOut1</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataOut2</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>32</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nCtrl1</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nCtrl2</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>72</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nCtrl3</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>80</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nCtrl4</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>88</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataOut3</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>96</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataOut4</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>128</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataOut5</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>160</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDataOut6</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000035}">UINTARR2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>192</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nCtrl5</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>224</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nCtrl6</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>232</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nCtrl7</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>240</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nCtrl8</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>248</BitOffs>
+			</SubItem>
+			<Relations>
+				<Relation>
+					<Type GUID="{595E16A9-7783-4B1C-A30C-48BA6EFCC859}">NCDRIVESTRUCT_OUT</Type>
+					<MapEntry>
+						<BitSize>96</BitSize>
+					</MapEntry>
+				</Relation>
+			</Relations>
+		</DataType>
+		<DataType>
+			<Name GUID="{875D2B22-B7EB-497E-B933-0C004593CCF3}" Namespace="MC" HideType="true" IecDeclaration="DWORD;">PLCTONC_AXIS_REF_CTRL</Name>
+			<BitSize>32</BitSize>
+			<SubItem>
+				<Name>Enable</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>FeedEnablePlus</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>1</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>FeedEnableMinus</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>2</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>HomingSensor</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>5</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>AcceptBlockedDrive</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>8</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>PlcDebugFlag</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>30</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>NcDebugFlag</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>31</BitOffs>
+			</SubItem>
+			<Format Name="Short">
+				<Printf>%08x</Printf>
+			</Format>
+			<Format Name="Cpp">
+				<Printf>0x%08x</Printf>
+			</Format>
+			<Format Name="IEC">
+				<Printf>16#%08X</Printf>
+			</Format>
+		</DataType>
+		<DataType>
+			<Name GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC" TcBaseType="true">PLCTONC_AXIS_REF</Name>
+			<BitSize>1024</BitSize>
+			<SubItem>
+				<Name>ControlDWord</Name>
+				<Type GUID="{875D2B22-B7EB-497E-B933-0C004593CCF3}" Namespace="MC">PLCTONC_AXIS_REF_CTRL</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Override</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>32</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>AxisModeRequest</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>AxisModeDWord</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>96</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>AxisModeLReal</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>128</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>PositionCorrection</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>192</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ExtSetPos</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>256</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ExtSetVelo</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>320</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ExtSetAcc</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>384</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ExtSetDirection</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000009}">DINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>448</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ExtControllerOutput</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>512</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>GearRatio1</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>576</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>GearRatio2</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>640</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>GearRatio3</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>704</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>GearRatio4</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>768</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>MapState</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>832</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>PlcCycleControl</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>840</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>PlcCycleCount</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>848</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ExtTorque</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>896</BitOffs>
+			</SubItem>
+			<Properties>
+				<Property>
+					<Name>NcStructType</Name>
+					<Value>1</Value>
+				</Property>
+			</Properties>
+			<Relations>
+				<Relation Priority="100">
+					<Type GUID="{60392271-8688-4F4C-B404-618DF106325D}"></Type>
+				</Relation>
+				<Relation Priority="100">
+					<Type GUID="{63A84524-72E3-41C8-BEAB-4CCE44690A13}"></Type>
+				</Relation>
+			</Relations>
+		</DataType>
+		<DataType>
+			<Name GUID="{CBC83B73-B816-4597-A9E5-2B03263CA131}" Namespace="MC" HideType="true" IecDeclaration="DWORD;">NCTOPLC_AXIS_REF_STATE</Name>
+			<BitSize>32</BitSize>
+			<SubItem>
+				<Name>Operational</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Homed</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>1</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>NotMoving</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>2</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>InPositionArea</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>3</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>InTargetPosition</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>4</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Protected</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>5</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ErrorPropagationDelayed</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>6</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>HasBeenStopped</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>7</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>HasJob</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>8</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>PositiveDirection</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>9</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>NegativeDirection</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>10</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>HomingBusy</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>11</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ConstantVelocity</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>12</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Compensating</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>13</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ExtSetPointGenEnabled</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>14</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>PhasingActive</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>15</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ExternalLatchValid</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>16</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>NewTargetPos</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>17</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>IsDriveLimitActive</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>18</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ContinuousMotion</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>19</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ControlLoopClosed</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>20</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>CamTableQueued</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>21</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>CamDataQueued</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>22</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>CamScalingPending</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>23</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>CmdBuffered</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>24</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>PTPmode</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>25</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>SoftLimitMinExceeded</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>26</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>SoftLimitMaxExceeded</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>27</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>DriveDeviceError</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>28</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>MotionCommandsLocked</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>29</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>IoDataInvalid</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>30</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Error</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>31</BitOffs>
+			</SubItem>
+			<Format Name="Short">
+				<Printf>%08x</Printf>
+			</Format>
+			<Format Name="Cpp">
+				<Printf>0x%08x</Printf>
+			</Format>
+			<Format Name="IEC">
+				<Printf>16#%08X</Printf>
+			</Format>
+			<Relations>
+				<Relation Priority="100">
+					<Type>{4C3FC5AC-D5AA-44C6-AC5A-159774BA0F6D}</Type>
+				</Relation>
+			</Relations>
+		</DataType>
+		<DataType>
+			<Name GUID="{6BDEED54-7268-405F-A18B-665A0AE0FEE9}" Namespace="MC" HideType="true" IecDeclaration="DWORD;">NCTOPLC_AXIS_REF_OPMODE</Name>
+			<BitSize>32</BitSize>
+			<SubItem>
+				<Name>OpModePosAreaMonitoring</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModeTargetPosMonitoring</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>1</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModeLoop</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>2</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModeMotionMonitoring</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>3</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModePEHTimeMonitoring</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>4</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModeBacklashCompensation</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>5</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModeDelayedErrorReaction</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>6</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModeModulo</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>7</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModeSimulationAxis</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>8</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModeStopMonitoring</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>12</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModeOutputSmoothingFilter</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>13</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModePosLagMonitoring</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>16</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModeVeloLagMonitoring</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>17</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModeSoftLimitMinMonitoring</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>18</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModeSoftLimitMaxMonitoring</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>19</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModePosCorrection</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>20</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModeAllowSlaveCommands</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>21</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModeAllowExtSetAxisCommands</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>22</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ApplicationRequest</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>23</BitOffs>
+			</SubItem>
+		</DataType>
+		<DataType>
+			<Name GUID="{303D9411-849C-467F-8A4C-5C8CD0F3DD46}" Namespace="MC" HideType="true">NCTOPLC_AXIS_REF_STATE2_FLAGS</Name>
+			<BitSize>32</BitSize>
+			<SubItem>
+				<Name>AvoidingCollision</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<Format Name="Short">
+				<Printf>%08x</Printf>
+			</Format>
+			<Format Name="Cpp">
+				<Printf>0x%08x</Printf>
+			</Format>
+			<Format Name="IEC">
+				<Printf>16#%08X</Printf>
+			</Format>
+		</DataType>
+		<DataType>
+			<Name GUID="{669F3788-48FD-42CF-8A59-2DA946853FB6}" Namespace="MC" HideType="true">NCTOPLC_AXIS_REF_STATE2</Name>
+			<BitSize>32</BitSize>
+			<SubItem>
+				<Name>Value</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000007}">DWORD</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Flags</Name>
+				<Type GUID="{303D9411-849C-467F-8A4C-5C8CD0F3DD46}" Namespace="MC">NCTOPLC_AXIS_REF_STATE2_FLAGS</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<Format Name="Short">
+				<Printf>%08x</Printf>
+			</Format>
+			<Format Name="Cpp">
+				<Printf>0x%08x</Printf>
+			</Format>
+			<Format Name="IEC">
+				<Printf>16#%08X</Printf>
+			</Format>
+		</DataType>
+		<DataType>
+			<Name GUID="{F7B9FC50-054E-4547-B468-83A9E72D8064}" Namespace="MC" HideType="true">NCTOPLC_AXIS_REF_STATE3_FLAGS</Name>
+			<BitSize>32</BitSize>
+			<SubItem>
+				<Name>TouchProbe1InputState</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>TouchProbe2InputState</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>1</BitOffs>
+			</SubItem>
+			<Format Name="Short">
+				<Printf>%08x</Printf>
+			</Format>
+			<Format Name="Cpp">
+				<Printf>0x%08x</Printf>
+			</Format>
+			<Format Name="IEC">
+				<Printf>16#%08X</Printf>
+			</Format>
+		</DataType>
+		<DataType>
+			<Name GUID="{60E203BA-3CEE-4BB0-8728-643B1F529592}" Namespace="MC" HideType="true">NCTOPLC_AXIS_REF_STATE3</Name>
+			<BitSize>32</BitSize>
+			<SubItem>
+				<Name>Value</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000007}">DWORD</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>Flags</Name>
+				<Type GUID="{F7B9FC50-054E-4547-B468-83A9E72D8064}" Namespace="MC">NCTOPLC_AXIS_REF_STATE3_FLAGS</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<Format Name="Short">
+				<Printf>%08x</Printf>
+			</Format>
+			<Format Name="Cpp">
+				<Printf>0x%08x</Printf>
+			</Format>
+			<Format Name="IEC">
+				<Printf>16#%08X</Printf>
+			</Format>
+		</DataType>
+		<DataType>
+			<Name GUID="{BA9D9D0F-1A4A-4A27-A19F-3032626A8491}" Namespace="MC" HideType="true">NCTOPLC_AXIS_REF_CAMCOUPLINGSTATE</Name>
+			<BitSize>8</BitSize>
+			<SubItem>
+				<Name>CamActivationPending</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>CamDeactivationPending</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>1</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>CamActive</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>2</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>CamDataQueued</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>6</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>CamScalingPending</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<BitSize>1</BitSize>
+				<BitOffs>7</BitOffs>
+			</SubItem>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-000000000039}" TcBaseType="true" HideType="true">UINTARR8</Name>
+			<BitSize>128</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000005}">UINT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>8</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC" TcBaseType="true">NCTOPLC_AXIS_REF</Name>
+			<BitSize>2048</BitSize>
+			<SubItem>
+				<Name>StateDWord</Name>
+				<Type GUID="{CBC83B73-B816-4597-A9E5-2B03263CA131}" Namespace="MC">NCTOPLC_AXIS_REF_STATE</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ErrorCode</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>32</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>AxisState</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<Comment><![CDATA[Present State Of The Axis Movement (continuous axis):
+0  = INACTIVE:		axis has no job
+1  = RUNNING:		axis is executing a motion job
+2  = OVERRIDE_ZERO:	axis is executing a job but override is zero
+3  = PHASE_VELOCONST:	axis is moving at constant velocity
+4  = PHASE_ACCPOS:	axis is accelerating
+5  = PHASE_ACCNEG:	axis is decelerating
+Slaves only:
+11 = PREPHASE:		slave axis is in a motion pre-phase
+12 = SYNCHRONIZING:	slave axis is synchronizing
+13 = SYNCHRONOUS:	slave axis is moving synchronously
+External Setpoint Generation:
+41 = EXTSETGEN_MODE1:	external setpoint generation active
+42 = EXTSETGEN_MODE2:	internal and external setpoint gen. active
+]]></Comment>
+				<BitSize>32</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>AxisModeConfirmation</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>96</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>HomingState</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<Comment><![CDATA[Axis Homing Status:
+0: idle
+1: start homing
+2: searching home switch
+3: stopping on home switch
+4: moving off home switch
+5: searching sync pulse
+6: stopping after homing
+]]></Comment>
+				<BitSize>32</BitSize>
+				<BitOffs>128</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>CoupleState</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<Comment><![CDATA[Axis Coupling Status:
+0: axis is a single axis (not coupled)
+1: axis is a master axis
+2: axis is master and slave
+3: axis is a slave axis
+]]></Comment>
+				<BitSize>32</BitSize>
+				<BitOffs>160</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>SvbEntries</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>192</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>SafEntries</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>224</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>AxisId</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>256</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>OpModeDWord</Name>
+				<Type GUID="{6BDEED54-7268-405F-A18B-665A0AE0FEE9}" Namespace="MC">NCTOPLC_AXIS_REF_OPMODE</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>288</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ActPos</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>320</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ModuloActPos</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>384</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ActiveControlLoopIndex</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+				<BitSize>16</BitSize>
+				<BitOffs>448</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ControlLoopIndex</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+				<BitSize>16</BitSize>
+				<BitOffs>464</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ModuloActTurns</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000009}">DINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>480</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ActVelo</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>512</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>PosDiff</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>576</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>SetPos</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>640</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>SetVelo</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>704</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>SetAcc</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>768</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>TargetPos</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>832</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ModuloSetPos</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>896</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ModuloSetTurns</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000009}">DINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>960</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>CmdNo</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+				<BitSize>16</BitSize>
+				<BitOffs>992</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>CmdState</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+				<BitSize>16</BitSize>
+				<BitOffs>1008</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>SetJerk</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>1024</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>SetTorque</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>1088</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ActTorque</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>1152</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>StateDWord2</Name>
+				<Type GUID="{669F3788-48FD-42CF-8A59-2DA946853FB6}" Namespace="MC">NCTOPLC_AXIS_REF_STATE2</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>1216</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>StateDWord3</Name>
+				<Type GUID="{60E203BA-3CEE-4BB0-8728-643B1F529592}" Namespace="MC">NCTOPLC_AXIS_REF_STATE3</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>1248</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>TouchProbeState</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000007}">DWORD</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>1280</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>TouchProbeCounter</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000007}">DWORD</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>1312</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>CamCouplingState</Name>
+				<Type GUID="{BA9D9D0F-1A4A-4A27-A19F-3032626A8491}" Namespace="MC">NCTOPLC_AXIS_REF_CAMCOUPLINGSTATE</Type>
+				<ArrayInfo>
+					<LBound>0</LBound>
+					<Elements>8</Elements>
+				</ArrayInfo>
+				<BitSize>64</BitSize>
+				<BitOffs>1344</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>CamCouplingTableID</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000039}">UINTARR8</Type>
+				<BitSize>128</BitSize>
+				<BitOffs>1408</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ActTorqueDerivative</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>1536</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>SetTorqueDerivative</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>1600</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>AbsPhasingPos</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>1664</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>TorqueOffset</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>1728</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ActPosWithoutPosCorrection</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>1792</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>ActAcc</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>1856</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>DcTimeStamp</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>1920</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>UserData</Name>
+				<Type GUID="{18071995-0000-0000-0000-00000000000E}">LREAL</Type>
+				<BitSize>64</BitSize>
+				<BitOffs>1984</BitOffs>
+			</SubItem>
+			<Properties>
+				<Property>
+					<Name>NcStructType</Name>
+					<Value>2</Value>
+				</Property>
+			</Properties>
+			<Relations>
+				<Relation Priority="100">
+					<Type GUID="{429B767E-373B-40AE-BFA5-E1C08B444DF3}">NCAXLESTRUCT_TOPLC</Type>
+				</Relation>
+				<Relation Priority="100">
+					<Type GUID="{E8DA524A-605F-4879-82E6-B86EF6986572}">NCAXLESTRUCT_TOPLC2</Type>
+				</Relation>
+				<Relation Priority="100">
+					<Type GUID="{B507963E-69F3-4B64-BB8C-2BD7A560976D}">NCAXLESTRUCT_TOPLC3</Type>
+				</Relation>
+				<Relation Priority="100">
+					<Type GUID="{F794B740-82D7-4637-848E-4F74A711D038}">NCAXLESTRUCT_TOPLC4</Type>
+				</Relation>
+				<Relation Priority="100">
+					<Type GUID="{40BD39B0-C3EA-4F74-9F4F-5F1982786F7C}"></Type>
+				</Relation>
+				<Relation Priority="100">
+					<Type GUID="{40BD39B2-C3EA-4F74-9F4F-5F1982786F7C}"></Type>
+				</Relation>
+				<Relation Priority="100">
+					<Type GUID="{8CDE0C45-AB9D-42DB-BC94-1CF7521AB268}"></Type>
+				</Relation>
+				<Relation Priority="100">
+					<Type GUID="{6A65C767-34E5-42BF-AD87-E1A503EAC7BE}"></Type>
+				</Relation>
+				<Relation Priority="100">
+					<Type GUID="{72F5AAAA-16DF-4ED3-8367-F6C8C3ADAE99}"></Type>
+				</Relation>
+				<Relation Priority="100">
+					<Type GUID="{10036166-C9D3-404B-BDD3-323034AAA7F4}"></Type>
+				</Relation>
+			</Relations>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-002000000007}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..6] OF BIT</Name>
+			<BitSize>7</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>7</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-00200000000A}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..9] OF BIT</Name>
+			<BitSize>10</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>10</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-002000000002}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..1] OF BIT</Name>
+			<BitSize>2</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>2</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-002000000008}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..0] OF BYTE</Name>
+			<BitSize>8</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>1</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-002000000019}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..24] OF BIT</Name>
+			<BitSize>25</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>25</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-00200000000C}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..11] OF BIT</Name>
+			<BitSize>12</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>12</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-00200000001E}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..29] OF BIT</Name>
+			<BitSize>30</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>30</Elements>
+			</ArrayInfo>
+		</DataType>
+	</DataTypes>
 	<Project ProjectGUID="{C2A5BCD8-9187-4B62-B358-2BB7D90503F4}" Target64Bit="true" ShowHideConfigurations="#x6">
 		<System>
 			<Licenses>
@@ -18,11 +1505,449 @@
 				</Task>
 			</Tasks>
 		</System>
+		<Motion>
+			<NC>
+				<SafTask Priority="4" CycleTime="20000" AmsPort="501" IoAtBegin="true" SafTaskInfo="256" HighPrioAds="true">
+					<Name>NC-Task 1 SAF</Name>
+					<Vars VarGrpType="1" InsertType="1">
+						<Name>Inputs</Name>
+					</Vars>
+					<Vars VarGrpType="2" InsertType="1">
+						<Name>Outputs</Name>
+					</Vars>
+					<Image Id="3" AddrType="1" ImageType="1">
+						<Name>Image</Name>
+					</Image>
+				</SafTask>
+				<SvbTask Priority="8" CycleTime="100000" AmsPort="511">
+					<Name>NC-Task 1 SVB</Name>
+				</SvbTask>
+				<Axis Id="1" CreateSymbols="true" AxisType="1">
+					<Name>Axis 1</Name>
+					<AxisPara>
+						<OtherSettings AllowMotionCmdToSlave="true"/>
+					</AxisPara>
+					<Encoder Name="Enc" EncType="1">
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{901C2423-655B-45CE-B7E3-21F174F0F99F}" Namespace="MC">NCENCODERSTRUCT_IN2B</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn7</Name>
+									<Comment><![CDATA[Drive Velocity Actual Value
+]]></Comment>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{9CC50AB2-5D79-4869-A3C2-1FA7761BAFEA}" Namespace="MC">NCENCODERSTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Encoder>
+					<Drive Name="Drive" DrvType="5">
+						<DrvPara>
+							<Analog TorqueSetpointScale="10" ScaleFactorActTorque="0.1"/>
+						</DrvPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{F95C7C69-0C87-46C4-9559-1285CCA5B23A}" Namespace="MC">NCDRIVESTRUCT_IN2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{644DC4BD-3D15-4DCB-94C7-24F3A5D579AA}" Namespace="MC">NCDRIVESTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar>
+									<Name>nCtrl2</Name>
+									<Comment><![CDATA[Digital Outputs Setpoint Generator:
+0x41 (0100 0001) = Minus (0x42 for inverse motor polarity)
+0x42 (0100 0010) = Plus (0x41 for inverse motor polarity)
+0x80 (1000 0000) = Stop
+]]></Comment>
+								</SubVar>
+								<SubVar>
+									<Name>nCtrl3</Name>
+									<Comment><![CDATA[Digital Outputs (Setpoint Generator + Position Controller):
+0x41 (0100 0001) = Minus (0x42 for inverse motor polarity)
+0x42 (0100 0010) = Plus (0x41 for inverse motor polarity)
+0x80 (1000 0000) = Stop
+]]></Comment>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Drive>
+					<Controller Name="Ctrl" CtrType="1">
+						<CtrPara PriorControlFactor="1">
+							<Observer BandWidth="20"/>
+						</CtrPara>
+					</Controller>
+					<Vars VarGrpType="1" InsertType="1">
+						<Name>Inputs</Name>
+						<Var>
+							<Name>FromPlc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2" InsertType="1">
+						<Name>Outputs</Name>
+						<Var>
+							<Name>ToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+				</Axis>
+			</NC>
+		</Motion>
 		<Plc>
 			<Project GUID="{2A46B7D0-5025-44A3-8091-A92824C85949}" Name="RUNTIME" PrjFilePath="RUNTIME\RUNTIME.plcproj" TmcFilePath="RUNTIME\RUNTIME.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{0A1D9962-660E-8793-885D-B4BA141F9C76}" TmcPath="RUNTIME\RUNTIME.tmc">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{478D133F-EFE2-3D81-7678-BEF228480CA2}" TmcPath="RUNTIME\RUNTIME.tmc">
 					<Name>RUNTIME Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+					<Vars VarGrpType="2" AreaNo="1">
+						<Name>PlcTask Outputs</Name>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bOutDeactivate</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bOutActivate</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bOutHome</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bOutResetError</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bOutSimMode</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bOutRecoveryMode</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bOutDisableEtherCAT</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.nOutMoveId</Name>
+							<Type>UINT</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bOutSetPoint</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bOutPause</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bOutClearMove</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bOutResume</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bOutUseVariables</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.nOutMotionCommand</Name>
+							<Type>UDINT</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument1</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument2</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument3</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument4</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument5</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument6</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.nOutHostTime</Name>
+							<Type>UDINT</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bOutBrakesControlAllowed</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bOutBrakesEngaged</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.nOutDynamicType0</Name>
+							<Type>UDINT</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.nOutDynamicType1</Name>
+							<Type>UDINT</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.nOutDynamicType2</Name>
+							<Type>UDINT</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.nOutDynamicType3</Name>
+							<Type>UDINT</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="1">
+						<Name>PlcTask Inputs</Name>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInProcessDataValid</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInBusy</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInActivated</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInHomed</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInCollision</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInWorkZone</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInMonitoringMode</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.nInErrorCode</Name>
+							<Type>UINT</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.nInCheckpointReached</Name>
+							<Type>UINT</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.nInCheckpointDiscarded</Name>
+							<Type>UINT</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.nInMoveId</Name>
+							<Type>UINT</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.nInFifoSpace</Name>
+							<Type>UINT</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInPaused</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInEob</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInEom</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInCleared</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInExcessiveTorque</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rInJoint1</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rInJoint2</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rInJoint3</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rInJoint4</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rInJoint5</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rInJoint6</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rInTcpX</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rInTcpY</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rInTcpZ</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rInTcpRx</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rInTcpRy</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.rInTcpRz</Name>
+							<Type>REAL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInEStop</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInPStop2</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInConnectionDropped</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInResetReady</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInVMotorOn</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.nInDynamicType0</Name>
+							<Type>UDINT</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.nInDynamicType1</Name>
+							<Type>UDINT</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.nInDynamicType2</Name>
+							<Type>UDINT</Type>
+						</Var>
+						<Var>
+							<Name>SETUP.MECA_CHARLIE.MECA_COMM.nInDynamicType3</Name>
+							<Type>UDINT</Type>
+						</Var>
+					</Vars>
 					<Contexts>
 						<Context>
 							<Id>0</Id>
@@ -41,5 +1966,715 @@
 				</Instance>
 			</Project>
 		</Plc>
+		<Io>
+			<Device Id="1" DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="192.168.250.37.2.1" RemoteName="Device 1 (EtherCAT)" InfoImageId="2" SimulationMode="true">
+				<Name>Device 1 (EtherCAT)</Name>
+				<AddressInfo>
+					<Pnp>
+						<DeviceDesc></DeviceDesc>
+						<DeviceName></DeviceName>
+						<DeviceData>000000000000</DeviceData>
+					</Pnp>
+				</AddressInfo>
+				<Image Id="1" AddrType="9" ImageType="3">
+					<Name>Image</Name>
+				</Image>
+				<Box Id="1" BoxType="9099" BoxFlags="#x00000020">
+					<Name>Box 1 (Meca500)</Name>
+					<ImageId>547</ImageId>
+					<EtherCAT SlaveType="2" PdiType="#x0e80" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="39" VendorId="#x00ecade1" ProductCode="#x0004d500" RevisionNo="#x00000001" InfoDataAddr="true" TimeoutStateChange1="2000" TimeoutStateChange2="9000" TimeoutMailbox2="2000" PortPhys="17" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="Meca500" Desc="Meca500" PortABoxInfo="#x00ffffff">
+						<SyncMan>001080002600010001000000240080008000001026010000</SyncMan>
+						<SyncMan>801080002200010002000000240080008000801022010000</SyncMan>
+						<SyncMan>00113c006400010003000000000000003c00001164010000</SyncMan>
+						<SyncMan>0014fc00200001000400000000000000fc00001420010000</SyncMan>
+						<Fmmu>0000000000000000001100020100000001000000000000000000000000000000</Fmmu>
+						<Fmmu>0000000000000000001400010100000002000000000000000000000000000000</Fmmu>
+						<Fmmu>00000000000000000d0800010100000003000000000000000000000000000000</Fmmu>
+						<DcMode>53796e6368726f6e0000000000000000534d2d53796e6368726f6e000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000</DcMode>
+						<DcMode>4443000000000000000000000000000044432d53796e6368726f6e000000000000000000000000000000000000000000000000000000000000000000000000030100000000000000000000000000000000000000000000000000000000000000</DcMode>
+						<Pdo Name="Robot Status" Index="#x1a00" Flags="#x0011" SyncMan="3">
+							<Entry Name="Busy" Index="#x6010" Sub="#x02">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Activated" Index="#x6010" Sub="#x03">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Homed" Index="#x6010" Sub="#x04">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="SimActivated" Index="#x6010" Sub="#x05">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="BrakesEngaged" Index="#x6010" Sub="#x06">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="RecoveryMode" Index="#x6010" Sub="#x07">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Estop" Index="#x6010" Sub="#x08">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="CollisionStatus" Index="#x6010" Sub="#x09">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="WorkZoneStatus" Index="#x6010" Sub="#x0a">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry>
+								<Type GUID="{18071995-0000-0000-0000-002000000007}">ARRAY [0..6] OF BIT</Type>
+							</Entry>
+							<Entry Name="Error" Index="#x6010" Sub="#x01">
+								<Type>UINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Motion Status" Index="#x1a01" Flags="#x0011" SyncMan="3">
+							<Entry Name="ReachedCheckPointId" Index="#x6015" Sub="#x01">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="DiscardedCheckpointId" Index="#x6015" Sub="#x02">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Move ID" Index="#x6015" Sub="#x03">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="FIFO Space" Index="#x6015" Sub="#x04">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Paused" Index="#x6015" Sub="#x06">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="EOB" Index="#x6015" Sub="#x07">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="EOM" Index="#x6015" Sub="#x08">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="FIFO Cleared" Index="#x6015" Sub="#x09">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="PStop2" Index="#x6015" Sub="#x0a">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Excessive torque" Index="#x6015" Sub="#x0b">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry>
+								<Type GUID="{18071995-0000-0000-0000-00200000000A}">ARRAY [0..9] OF BIT</Type>
+							</Entry>
+							<Entry Name="Offline Program ID" Index="#x6015" Sub="#x05">
+								<Type>UINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Joint Set" Index="#x1a02" Flags="#x0010" SyncMan="3">
+							<Entry Name="SubIndex 001" Index="#x6030" Sub="#x01">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 002" Index="#x6030" Sub="#x02">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 003" Index="#x6030" Sub="#x03">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 004" Index="#x6030" Sub="#x04">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 005" Index="#x6030" Sub="#x05">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 006" Index="#x6030" Sub="#x06">
+								<Type>REAL</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="End-Effector Pose" Index="#x1a03" Flags="#x0010" SyncMan="3">
+							<Entry Name="SubIndex 001" Index="#x6031" Sub="#x01">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 002" Index="#x6031" Sub="#x02">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 003" Index="#x6031" Sub="#x03">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 004" Index="#x6031" Sub="#x04">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 005" Index="#x6031" Sub="#x05">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 006" Index="#x6031" Sub="#x06">
+								<Type>REAL</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Configurations" Index="#x1a08" Flags="#x0010" SyncMan="3">
+							<Entry Name="Shoulder" Index="#x6046" Sub="#x01">
+								<Type>SINT</Type>
+							</Entry>
+							<Entry Name="Elbow" Index="#x6046" Sub="#x02">
+								<Type>SINT</Type>
+							</Entry>
+							<Entry Name="Wrist" Index="#x6046" Sub="#x03">
+								<Type>SINT</Type>
+							</Entry>
+							<Entry Name="Turn" Index="#x6046" Sub="#x04">
+								<Type>SINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="WRF" Index="#x1a09" Flags="#x0010" SyncMan="3">
+							<Entry Name="SubIndex 001" Index="#x6050" Sub="#x01">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 002" Index="#x6050" Sub="#x02">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 003" Index="#x6050" Sub="#x03">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 004" Index="#x6050" Sub="#x04">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 005" Index="#x6050" Sub="#x05">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 006" Index="#x6050" Sub="#x06">
+								<Type>REAL</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="TRF" Index="#x1a0a" Flags="#x0010" SyncMan="3">
+							<Entry Name="SubIndex 001" Index="#x6051" Sub="#x01">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 002" Index="#x6051" Sub="#x02">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 003" Index="#x6051" Sub="#x03">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 004" Index="#x6051" Sub="#x04">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 005" Index="#x6051" Sub="#x05">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 006" Index="#x6051" Sub="#x06">
+								<Type>REAL</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Robot Timestamp" Index="#x1a10" Flags="#x0010" SyncMan="3">
+							<Entry Name="Timestamp Seconds" Index="#x6060" Sub="#x01">
+								<Type>UDINT</Type>
+							</Entry>
+							<Entry Name="Timestamp Microseconds" Index="#x6060" Sub="#x02">
+								<Type>UDINT</Type>
+							</Entry>
+							<Entry Name="Dynamic Data Cycles" Index="#x6060" Sub="#x03">
+								<Type>UDINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Safety Status" Index="#x1a11" Flags="#x0010" SyncMan="3">
+							<Entry Name="Estop" Index="#x6065" Sub="#x01">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused2" Index="#x6065" Sub="#x02">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="PStop2" Index="#x6065" Sub="#x03">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused4" Index="#x6065" Sub="#x04">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused5" Index="#x6065" Sub="#x05">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused6" Index="#x6065" Sub="#x06">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused7" Index="#x6065" Sub="#x07">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Reboot" Index="#x6065" Sub="#x08">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused9" Index="#x6065" Sub="#x09">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused10" Index="#x6065" Sub="#x0a">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Connection Dropped" Index="#x6065" Sub="#x0b">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused12" Index="#x6065" Sub="#x0c">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused13" Index="#x6065" Sub="#x0d">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused14" Index="#x6065" Sub="#x0e">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused15" Index="#x6065" Sub="#x0f">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused16" Index="#x6065" Sub="#x10">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused17" Index="#x6065" Sub="#x11">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused18" Index="#x6065" Sub="#x12">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused19" Index="#x6065" Sub="#x13">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused20" Index="#x6065" Sub="#x14">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused21" Index="#x6065" Sub="#x15">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused22" Index="#x6065" Sub="#x16">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused23" Index="#x6065" Sub="#x17">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused24" Index="#x6065" Sub="#x18">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused25" Index="#x6065" Sub="#x19">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused26" Index="#x6065" Sub="#x1a">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused27" Index="#x6065" Sub="#x1b">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused28" Index="#x6065" Sub="#x1c">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused29" Index="#x6065" Sub="#x1d">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused30" Index="#x6065" Sub="#x1e">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused31" Index="#x6065" Sub="#x1f">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused32" Index="#x6065" Sub="#x20">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Estop Resettable" Index="#x6065" Sub="#x21">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused34" Index="#x6065" Sub="#x22">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="PStop2 Resettable" Index="#x6065" Sub="#x23">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused36" Index="#x6065" Sub="#x24">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused37" Index="#x6065" Sub="#x25">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused38" Index="#x6065" Sub="#x26">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused39" Index="#x6065" Sub="#x27">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Reboot Resettable" Index="#x6065" Sub="#x28">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused41" Index="#x6065" Sub="#x29">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused42" Index="#x6065" Sub="#x2a">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Connection Dropped Resettable" Index="#x6065" Sub="#x2b">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused44" Index="#x6065" Sub="#x2c">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused45" Index="#x6065" Sub="#x2d">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused46" Index="#x6065" Sub="#x2e">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused47" Index="#x6065" Sub="#x2f">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused48" Index="#x6065" Sub="#x30">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused49" Index="#x6065" Sub="#x31">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused50" Index="#x6065" Sub="#x32">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused51" Index="#x6065" Sub="#x33">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused52" Index="#x6065" Sub="#x34">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused53" Index="#x6065" Sub="#x35">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused54" Index="#x6065" Sub="#x36">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused55" Index="#x6065" Sub="#x37">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused56" Index="#x6065" Sub="#x38">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused57" Index="#x6065" Sub="#x39">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused58" Index="#x6065" Sub="#x3a">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused59" Index="#x6065" Sub="#x3b">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused60" Index="#x6065" Sub="#x3c">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused61" Index="#x6065" Sub="#x3d">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused62" Index="#x6065" Sub="#x3e">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused63" Index="#x6065" Sub="#x3f">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused64" Index="#x6065" Sub="#x40">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused65" Index="#x6065" Sub="#x41">
+								<Type>USINT</Type>
+							</Entry>
+							<Entry Name="Reset Ready" Index="#x6065" Sub="#x42">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Vmotor on" Index="#x6065" Sub="#x43">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused68" Index="#x6065" Sub="#x44">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused69" Index="#x6065" Sub="#x45">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused70" Index="#x6065" Sub="#x46">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused71" Index="#x6065" Sub="#x47">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused72" Index="#x6065" Sub="#x48">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused73" Index="#x6065" Sub="#x49">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused74" Index="#x6065" Sub="#x4a">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused75" Index="#x6065" Sub="#x4b">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused76" Index="#x6065" Sub="#x4c">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused77" Index="#x6065" Sub="#x4d">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused78" Index="#x6065" Sub="#x4e">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Unused79" Index="#x6065" Sub="#x4f">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry>
+								<Type GUID="{18071995-0000-0000-0000-002000000002}">ARRAY [0..1] OF BIT</Type>
+							</Entry>
+							<Entry>
+								<Type GUID="{18071995-0000-0000-0000-002000000008}">ARRAY [0..0] OF BYTE</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Dynamic Data 0" Index="#x1a20" Flags="#x0010" SyncMan="3">
+							<Entry Name="Dynamic Type" Index="#x6070" Sub="#x01">
+								<Type>UDINT</Type>
+							</Entry>
+							<Entry Name="Value 0" Index="#x6070" Sub="#x02">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 1" Index="#x6070" Sub="#x03">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 2" Index="#x6070" Sub="#x04">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 3" Index="#x6070" Sub="#x05">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 4" Index="#x6070" Sub="#x06">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 5" Index="#x6070" Sub="#x07">
+								<Type>REAL</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Dynamic Data 1" Index="#x1a21" Flags="#x0010" SyncMan="3">
+							<Entry Name="Dynamic Type" Index="#x6071" Sub="#x01">
+								<Type>UDINT</Type>
+							</Entry>
+							<Entry Name="Value 0" Index="#x6071" Sub="#x02">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 1" Index="#x6071" Sub="#x03">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 2" Index="#x6071" Sub="#x04">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 3" Index="#x6071" Sub="#x05">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 4" Index="#x6071" Sub="#x06">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 5" Index="#x6071" Sub="#x07">
+								<Type>REAL</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Dynamic Data 2" Index="#x1a22" Flags="#x0010" SyncMan="3">
+							<Entry Name="Dynamic Type" Index="#x6072" Sub="#x01">
+								<Type>UDINT</Type>
+							</Entry>
+							<Entry Name="Value 0" Index="#x6072" Sub="#x02">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 1" Index="#x6072" Sub="#x03">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 2" Index="#x6072" Sub="#x04">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 3" Index="#x6072" Sub="#x05">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 4" Index="#x6072" Sub="#x06">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 5" Index="#x6072" Sub="#x07">
+								<Type>REAL</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Dynamic Data 3" Index="#x1a23" Flags="#x0010" SyncMan="3">
+							<Entry Name="Dynamic Type" Index="#x6073" Sub="#x01">
+								<Type>UDINT</Type>
+							</Entry>
+							<Entry Name="Value 0" Index="#x6073" Sub="#x02">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 1" Index="#x6073" Sub="#x03">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 2" Index="#x6073" Sub="#x04">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 3" Index="#x6073" Sub="#x05">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 4" Index="#x6073" Sub="#x06">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="Value 5" Index="#x6073" Sub="#x07">
+								<Type>REAL</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Robot Control" Index="#x1600" InOut="1" Flags="#x0011" SyncMan="2">
+							<Entry Name="Deactivate" Index="#x7200" Sub="#x01">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Activate" Index="#x7200" Sub="#x02">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Home" Index="#x7200" Sub="#x03">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Reset Error" Index="#x7200" Sub="#x04">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Sim Mode" Index="#x7200" Sub="#x05">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Recovery Mode" Index="#x7200" Sub="#x06">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="DisableEtherCAT" Index="#x7200" Sub="#x07">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry>
+								<Type GUID="{18071995-0000-0000-0000-002000000019}">ARRAY [0..24] OF BIT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Motion Control" Index="#x1601" InOut="1" Flags="#x0011" SyncMan="2">
+							<Entry Name="Move ID" Index="#x7310" Sub="#x01">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="SetPoint" Index="#x7310" Sub="#x02">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Pause" Index="#x7310" Sub="#x03">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Clear Move" Index="#x7310" Sub="#x04">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="Resume Motion" Index="#x7310" Sub="#x05">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry>
+								<Type GUID="{18071995-0000-0000-0000-00200000000C}">ARRAY [0..11] OF BIT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Move" Index="#x1602" InOut="1" Flags="#x0011" SyncMan="2">
+							<Entry Name="Move Command" Index="#x7305">
+								<Type>UDINT</Type>
+							</Entry>
+							<Entry Name="SubIndex 001" Index="#x7306" Sub="#x01">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 002" Index="#x7306" Sub="#x02">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 003" Index="#x7306" Sub="#x03">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 004" Index="#x7306" Sub="#x04">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 005" Index="#x7306" Sub="#x05">
+								<Type>REAL</Type>
+							</Entry>
+							<Entry Name="SubIndex 006" Index="#x7306" Sub="#x06">
+								<Type>REAL</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Host Time" Index="#x1610" InOut="1" Flags="#x0011" SyncMan="2">
+							<Entry Name="Host Time" Index="#x7400">
+								<Type>UDINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Brakes Control" Index="#x1611" InOut="1" Flags="#x0011" SyncMan="2">
+							<Entry Name="BrakesControlAllowed" Index="#x7410" Sub="#x01">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry Name="BrakesEngaged" Index="#x7410" Sub="#x02">
+								<Type>BIT</Type>
+							</Entry>
+							<Entry>
+								<Type GUID="{18071995-0000-0000-0000-00200000001E}">ARRAY [0..29] OF BIT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Dynamic Data Cfg 0" Index="#x1620" InOut="1" Flags="#x0011" SyncMan="2">
+							<Entry Name="Dynamic Type" Index="#x7420" Sub="#x01">
+								<Type>UDINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Dynamic Data Cfg 1" Index="#x1621" InOut="1" Flags="#x0011" SyncMan="2">
+							<Entry Name="Dynamic Type" Index="#x7421" Sub="#x01">
+								<Type>UDINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Dynamic Data Cfg 2" Index="#x1622" InOut="1" Flags="#x0011" SyncMan="2">
+							<Entry Name="Dynamic Type" Index="#x7422" Sub="#x01">
+								<Type>UDINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="Dynamic Data Cfg 3" Index="#x1623" InOut="1" Flags="#x0011" SyncMan="2">
+							<Entry Name="Dynamic Type" Index="#x7423" Sub="#x01">
+								<Type>UDINT</Type>
+							</Entry>
+						</Pdo>
+						<CoeProfile ProfileNo="5001"/>
+					</EtherCAT>
+				</Box>
+				<EtherCAT/>
+			</Device>
+		</Io>
 	</Project>
+	<Mappings>
+		<MappingInfo Identifier="{00000000-2001-0850-0020-500810000403}" Id="#x02030010"/>
+		<OwnerA Name="TIPC^RUNTIME^RUNTIME Instance">
+			<OwnerB Name="TIID^Device 1 (EtherCAT)^Box 1 (Meca500)">
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInActivated" VarB="Robot Status^Activated"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInBusy" VarB="Robot Status^Busy"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInCleared" VarB="Motion Status^FIFO Cleared"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInCollision" VarB="Robot Status^CollisionStatus"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInEStop" VarB="Robot Status^Estop"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInEob" VarB="Motion Status^EOB"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInEom" VarB="Motion Status^EOM"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInExcessiveTorque" VarB="Motion Status^Excessive torque"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInHomed" VarB="Robot Status^Homed"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInPStop2" VarB="Motion Status^PStop2"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInPaused" VarB="Motion Status^Paused"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInWorkZone" VarB="Robot Status^WorkZoneStatus"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInCheckpointDiscarded" VarB="Motion Status^DiscardedCheckpointId"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInCheckpointReached" VarB="Motion Status^ReachedCheckPointId"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInErrorCode" VarB="Robot Status^Error"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInFifoSpace" VarB="Motion Status^FIFO Space"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInMoveId" VarB="Motion Status^Move ID"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInJoint1" VarB="Joint Set^SubIndex 001"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInJoint2" VarB="Joint Set^SubIndex 002"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInJoint3" VarB="Joint Set^SubIndex 003"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInJoint4" VarB="Joint Set^SubIndex 004"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInJoint5" VarB="Joint Set^SubIndex 005"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInJoint6" VarB="Joint Set^SubIndex 006"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInTcpRx" VarB="End-Effector Pose^SubIndex 004"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInTcpRy" VarB="End-Effector Pose^SubIndex 005"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInTcpRz" VarB="End-Effector Pose^SubIndex 006"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInTcpX" VarB="End-Effector Pose^SubIndex 001"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInTcpY" VarB="End-Effector Pose^SubIndex 002"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInTcpZ" VarB="End-Effector Pose^SubIndex 003"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutActivate" VarB="Robot Control^Activate"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutBrakesControlAllowed" VarB="Brakes Control^BrakesControlAllowed"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutBrakesEngaged" VarB="Brakes Control^BrakesEngaged"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutClearMove" VarB="Motion Control^Clear Move"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutDeactivate" VarB="Robot Control^Deactivate"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutDisableEtherCAT" VarB="Robot Control^DisableEtherCAT"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutHome" VarB="Robot Control^Home"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutPause" VarB="Motion Control^Pause"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutRecoveryMode" VarB="Robot Control^Recovery Mode"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutResetError" VarB="Robot Control^Reset Error"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutResume" VarB="Motion Control^Resume Motion"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutSetPoint" VarB="Motion Control^SetPoint"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutSimMode" VarB="Robot Control^Sim Mode"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.nOutHostTime" VarB="Host Time^Host Time"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.nOutMotionCommand" VarB="Move^Move Command"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.nOutMoveId" VarB="Motion Control^Move ID"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument1" VarB="Move^SubIndex 001"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument2" VarB="Move^SubIndex 002"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument3" VarB="Move^SubIndex 003"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument4" VarB="Move^SubIndex 004"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument5" VarB="Move^SubIndex 005"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument6" VarB="Move^SubIndex 006"/>
+			</OwnerB>
+		</OwnerA>
+	</Mappings>
 </TcSmProject>

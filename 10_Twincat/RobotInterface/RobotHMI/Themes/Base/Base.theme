@@ -1,5 +1,12 @@
 {
-  "controlTypeValues": {},
+  "controlTypeValues": {
+    "TcHmi.Controls.Beckhoff.TcHmiTextbox": {
+      "attributes": {
+        "TextHorizontalAlignment": "Center"
+      },
+      "themedResources": {}
+    }
+  },
   "controlClassValues": {
     "background-container": {
       "attributes": {
@@ -11,6 +18,52 @@
         },
         "BorderColor": {
           "color": "#C3CDD5"
+        },
+        "BorderWidth": {
+          "left": 1,
+          "right": 1,
+          "top": 1,
+          "bottom": 1,
+          "leftUnit": "px",
+          "rightUnit": "px",
+          "topUnit": "px",
+          "bottomUnit": "px"
+        },
+        "BorderStyle": {
+          "left": "Solid",
+          "right": "Solid",
+          "top": "Solid",
+          "bottom": "Solid"
+        },
+        "BoxShadow": [
+          {
+            "color": {
+              "color": "rgba(22, 52, 74, 0.14)"
+            },
+            "offsetX": 0.0,
+            "offsetXUnit": "px",
+            "offsetY": 2.0,
+            "offsetYUnit": "px",
+            "inset": false,
+            "blur": 6.0,
+            "blurUnit": "px",
+            "spread": 0.0,
+            "spreadUnit": "px"
+          }
+        ]
+      },
+      "themedResources": {}
+    },
+    "background-container_dark": {
+      "attributes": {
+        "BackgroundColor": {
+          "color": "rgba(214, 214, 214, 1)"
+        },
+        "TextColor": {
+          "color": "#16344A"
+        },
+        "BorderColor": {
+          "color": "rgba(148, 151, 154, 1)"
         },
         "BorderWidth": {
           "left": 1,
@@ -141,7 +194,9 @@
       "themedResources": {}
     },
     "headline-1": {
-      "attributes": {},
+      "attributes": {
+        "TextFontSize": 24.0
+      },
       "themedResources": {}
     },
     "headline-2": {
@@ -304,52 +359,6 @@
     },
     "text-size-default": {
       "attributes": {},
-      "themedResources": {}
-    },
-    "background-container_dark": {
-      "attributes": {
-        "BackgroundColor": {
-          "color": "rgba(214, 214, 214, 1)"
-        },
-        "TextColor": {
-          "color": "#16344A"
-        },
-        "BorderColor": {
-          "color": "rgba(148, 151, 154, 1)"
-        },
-        "BorderWidth": {
-          "left": 1,
-          "right": 1,
-          "top": 1,
-          "bottom": 1,
-          "leftUnit": "px",
-          "rightUnit": "px",
-          "topUnit": "px",
-          "bottomUnit": "px"
-        },
-        "BorderStyle": {
-          "left": "Solid",
-          "right": "Solid",
-          "top": "Solid",
-          "bottom": "Solid"
-        },
-        "BoxShadow": [
-          {
-            "color": {
-              "color": "rgba(22, 52, 74, 0.14)"
-            },
-            "offsetX": 0.0,
-            "offsetXUnit": "px",
-            "offsetY": 2.0,
-            "offsetYUnit": "px",
-            "inset": false,
-            "blur": 6.0,
-            "blurUnit": "px",
-            "spread": 0.0,
-            "spreadUnit": "px"
-          }
-        ]
-      },
       "themedResources": {}
     }
   },

@@ -10,6 +10,9 @@ VAR_INPUT
 	COMM: POINTER TO FB_1_CommunicationModul := ADR(emptyCOMM);
 	
 	StandStillLimit: REAL := 0.001;
+  SafePosition: stJoint6;
+  SafePositionTolerance: LREAL := 0.001;
+  RegisterAsTopLevelRobot: BOOL := TRUE;
 	
 // 	FILESERVER: FB_FileServer;
 END_VAR
@@ -49,6 +52,11 @@ END_VAR]]></Declaration>
   END_VAR]]></Declaration>
       <Implementation>
       <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
+
+  IF NOT RegisterAsTopLevelRobot THEN
+    FB_Init := TRUE;
+    RETURN;
+  END_IF
 
   FOR iRobot := 1 TO SETUP.nRobCount DO
     IF SETUP.apRobot[iRobot] = THIS THEN
@@ -130,6 +138,20 @@ BA_Handler := 0;
 ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="MoveToSafePosition" Id="{1460c5aa-e9ef-4e0e-a2bc-5ac3c6af9cb6}" FolderPath="Generic Control\">
+      <Declaration><![CDATA[METHOD MoveToSafePosition : UINT
+VAR_INPUT
+    Velocity : LREAL;
+END_VAR
+VAR
+    settings : stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[settings.Velocity := Velocity;
+settings.Joints := SafePosition;
+MoveToSafePosition := BA_Handler(Cmd := eBA.MoveJJoints, Settings := settings);]]></ST>
+      </Implementation>
+    </Method>
     <Action Name="CYCLIC_ROB" Id="{ebf16c89-c511-406b-9426-1ade99c4f730}">
       <Implementation>
         <ST><![CDATA[CYCLIC_BASE();
@@ -208,6 +230,25 @@ END_VAR
 ]]></Declaration>
         <Implementation>
           <ST><![CDATA[IsInCollision := HMI_ROB.bInCollision;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="InSavePosition" Id="{0b1ac6ae-f2f1-4986-8684-c6891da4f895}" FolderPath="Generic Status\">
+      <Declaration><![CDATA[PROPERTY InSavePosition : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f07a4056-55e2-4a4d-b3fa-f23e3592a78e}">
+        <Declaration><![CDATA[VAR
+    joints : stJoint6;
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[joints := ActualJointPosition;
+
+InSavePosition :=
+    (ABS(joints.joint1 - SafePosition.joint1) <= SafePositionTolerance) AND
+    (ABS(joints.joint2 - SafePosition.joint2) <= SafePositionTolerance) AND
+    (ABS(joints.joint3 - SafePosition.joint3) <= SafePositionTolerance) AND
+    (ABS(joints.joint4 - SafePosition.joint4) <= SafePositionTolerance) AND
+    (ABS(joints.joint5 - SafePosition.joint5) <= SafePositionTolerance) AND
+    (ABS(joints.joint6 - SafePosition.joint6) <= SafePositionTolerance);]]></ST>
         </Implementation>
       </Get>
     </Property>

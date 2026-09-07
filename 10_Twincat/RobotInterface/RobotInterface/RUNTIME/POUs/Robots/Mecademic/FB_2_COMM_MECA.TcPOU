@@ -1,0 +1,278 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_2_COMM_MECA" Id="{fdc4f5ff-d3fa-4aab-86fa-4dd482a8fa00}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_2_COMM_MECA EXTENDS FB_1_CommunicationModul
+VAR_INPUT
+    bInProcessDataValid AT %I*: BOOL;
+    bInBusy AT %I*: BOOL;
+    bInActivated AT %I*: BOOL;
+    bInHomed AT %I*: BOOL;
+    bInCollision AT %I*: BOOL;
+    bInWorkZone AT %I*: BOOL;
+    bInMonitoringMode AT %I*: BOOL;
+    nInErrorCode AT %I*: UINT;
+    nInCheckpointReached AT %I*: UINT;
+    nInCheckpointDiscarded AT %I*: UINT;
+    nInMoveId AT %I*: UINT;
+    nInFifoSpace AT %I*: UINT;
+    bInPaused AT %I*: BOOL;
+    bInEob AT %I*: BOOL;
+    bInEom AT %I*: BOOL;
+    bInCleared AT %I*: BOOL;
+    bInExcessiveTorque AT %I*: BOOL;
+    rInJoint1 AT %I*: REAL;
+    rInJoint2 AT %I*: REAL;
+    rInJoint3 AT %I*: REAL;
+    rInJoint4 AT %I*: REAL;
+    rInJoint5 AT %I*: REAL;
+    rInJoint6 AT %I*: REAL;
+    rInTcpX AT %I*: REAL;
+    rInTcpY AT %I*: REAL;
+    rInTcpZ AT %I*: REAL;
+    rInTcpRx AT %I*: REAL;
+    rInTcpRy AT %I*: REAL;
+    rInTcpRz AT %I*: REAL;
+    bInEStop AT %I*: BOOL;
+    bInPStop2 AT %I*: BOOL;
+    bInConnectionDropped AT %I*: BOOL;
+    bInResetReady AT %I*: BOOL;
+    bInVMotorOn AT %I*: BOOL;
+    nInDynamicType0 AT %I*: UDINT;
+    nInDynamicType1 AT %I*: UDINT;
+    nInDynamicType2 AT %I*: UDINT;
+    nInDynamicType3 AT %I*: UDINT;
+END_VAR
+VAR_OUTPUT
+    bOutDeactivate AT %Q*: BOOL;
+    bOutActivate AT %Q*: BOOL;
+    bOutHome AT %Q*: BOOL;
+    bOutResetError AT %Q*: BOOL;
+    bOutSimMode AT %Q*: BOOL;
+    bOutRecoveryMode AT %Q*: BOOL;
+    bOutDisableEtherCAT AT %Q*: BOOL;
+    nOutMoveId AT %Q*: UINT;
+    bOutSetPoint AT %Q*: BOOL;
+    bOutPause AT %Q*: BOOL;
+    bOutClearMove AT %Q*: BOOL;
+    bOutResume AT %Q*: BOOL;
+    bOutUseVariables AT %Q*: BOOL;
+    nOutMotionCommand AT %Q*: UDINT;
+    rOutArgument1 AT %Q*: REAL;
+    rOutArgument2 AT %Q*: REAL;
+    rOutArgument3 AT %Q*: REAL;
+    rOutArgument4 AT %Q*: REAL;
+    rOutArgument5 AT %Q*: REAL;
+    rOutArgument6 AT %Q*: REAL;
+    nOutHostTime AT %Q*: UDINT;
+    bOutBrakesControlAllowed AT %Q*: BOOL;
+    bOutBrakesEngaged AT %Q*: BOOL;
+    nOutDynamicType0 AT %Q*: UDINT := 42;
+    nOutDynamicType1 AT %Q*: UDINT := 44;
+    nOutDynamicType2 AT %Q*: UDINT := 40;
+    nOutDynamicType3 AT %Q*: UDINT := 41;
+END_VAR
+VAR
+    bFeedbackValid : BOOL;
+    bDynamicDataValid : BOOL;
+    bCommandPending : BOOL;
+    bCommandAccepted : BOOL;
+    bRequestDeactivate : BOOL;
+    bRequestActivate : BOOL;
+    bRequestHome : BOOL;
+    bRequestResetError : BOOL;
+    bRequestPause : BOOL;
+    bRequestClearMove : BOOL;
+    bRequestResume : BOOL;
+    nPendingMoveId : UINT;
+    nPendingCommand : UDINT;
+    rPendingArgument1 : REAL;
+    rPendingArgument2 : REAL;
+    rPendingArgument3 : REAL;
+    rPendingArgument4 : REAL;
+    rPendingArgument5 : REAL;
+    rPendingArgument6 : REAL;
+    nNextMoveId : UINT := 1;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="ClearMotion" Id="{f6a7b8c9-d0e1-4234-a5f6-b7c8d9e0f1a2}">
+      <Declaration><![CDATA[METHOD ClearMotion : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bRequestClearMove := TRUE;
+ClearMotion := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="CommandBusy" Id="{89b1c3e9-4d5f-48ab-91c2-3fb5e2b8d1f0}">
+      <Declaration><![CDATA[PROPERTY CommandBusy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{1ab2c3d4-e5f6-47a8-90b1-c2d3e4f5a6b7}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CommandBusy := bCommandPending;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Action Name="CYCLIC_COMM_MECA" Id="{8b2f0c9c-2be0-4a0a-9f5e-0b1e5b5c7a11}">
+      <Implementation>
+        <ST><![CDATA[CYCLIC_COMM();
+
+bFeedbackValid := bInProcessDataValid AND NOT bInConnectionDropped;
+bDynamicDataValid :=
+    (nInDynamicType0 = nOutDynamicType0) OR
+    (nInDynamicType1 = nOutDynamicType1) OR
+    (nInDynamicType2 = nOutDynamicType2) OR
+    (nInDynamicType3 = nOutDynamicType3);
+
+HMI_COMM._CommunicationConnected := bFeedbackValid;
+HMI_COMM._CommunicationReady := bFeedbackValid AND bDynamicDataValid AND NOT bInMonitoringMode;
+
+bOutDisableEtherCAT := FALSE;
+bOutBrakesControlAllowed := FALSE;
+bOutBrakesEngaged := FALSE;
+bOutDeactivate := bRequestDeactivate;
+bOutActivate := bRequestActivate;
+bOutHome := bRequestHome;
+bOutResetError := bRequestResetError;
+bOutPause := bRequestPause;
+bOutClearMove := bRequestClearMove;
+bOutResume := bRequestResume;
+
+IF bRequestActivate AND bInActivated THEN
+    bRequestActivate := FALSE;
+END_IF
+IF bRequestDeactivate AND NOT bInActivated AND NOT bInBusy THEN
+    bRequestDeactivate := FALSE;
+END_IF
+IF bRequestHome AND bInHomed THEN
+    bRequestHome := FALSE;
+END_IF
+IF bRequestResetError AND (nInErrorCode = 0) THEN
+    bRequestResetError := FALSE;
+END_IF
+IF bRequestPause AND bInPaused THEN
+    bRequestPause := FALSE;
+END_IF
+IF bRequestClearMove AND bInCleared THEN
+    bRequestClearMove := FALSE;
+END_IF
+IF bRequestResume AND NOT bInPaused THEN
+    bRequestResume := FALSE;
+END_IF
+
+IF NOT bCommandPending THEN
+    bOutSetPoint := FALSE;
+    nOutMoveId := 0;
+    nOutMotionCommand := 0;
+    rOutArgument1 := 0.0;
+    rOutArgument2 := 0.0;
+    rOutArgument3 := 0.0;
+    rOutArgument4 := 0.0;
+    rOutArgument5 := 0.0;
+    rOutArgument6 := 0.0;
+ELSE
+    bOutSetPoint := TRUE;
+    nOutMoveId := nPendingMoveId;
+    nOutMotionCommand := nPendingCommand;
+    rOutArgument1 := rPendingArgument1;
+    rOutArgument2 := rPendingArgument2;
+    rOutArgument3 := rPendingArgument3;
+    rOutArgument4 := rPendingArgument4;
+    rOutArgument5 := rPendingArgument5;
+    rOutArgument6 := rPendingArgument6;
+
+    IF nInMoveId = nPendingMoveId THEN
+        bCommandPending := FALSE;
+        bCommandAccepted := TRUE;
+    END_IF
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="Home" Id="{c3d4e5f6-a7b8-4901-92c3-d4e5f6a7b8c9}">
+      <Declaration><![CDATA[METHOD Home : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bRequestHome := TRUE;
+Home := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PauseMotion" Id="{e5f6a7b8-c9d0-4123-94f6-a7b8c9d0e1f2}">
+      <Declaration><![CDATA[METHOD PauseMotion : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bRequestPause := TRUE;
+PauseMotion := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="QueueMotion" Id="{c30a5e40-17c8-4e1d-a3af-4d4e2b9b7d31}">
+      <Declaration><![CDATA[METHOD QueueMotion : UINT
+VAR_INPUT
+    nCommand : UDINT;
+    rArgument1 : REAL;
+    rArgument2 : REAL;
+    rArgument3 : REAL;
+    rArgument4 : REAL;
+    rArgument5 : REAL;
+    rArgument6 : REAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[QueueMotion := 0;
+bCommandAccepted := FALSE;
+
+IF NOT HMI_COMM._CommunicationReady OR bCommandPending OR (nInFifoSpace = 0) THEN
+    RETURN;
+END_IF
+
+IF nNextMoveId = 0 THEN
+    nNextMoveId := 1;
+END_IF
+
+nPendingMoveId := nNextMoveId;
+IF nNextMoveId = 65535 THEN
+    nNextMoveId := 1;
+ELSE
+    nNextMoveId := nNextMoveId + 1;
+END_IF
+
+nPendingCommand := nCommand;
+rPendingArgument1 := rArgument1;
+rPendingArgument2 := rArgument2;
+rPendingArgument3 := rArgument3;
+rPendingArgument4 := rArgument4;
+rPendingArgument5 := rArgument5;
+rPendingArgument6 := rArgument6;
+bCommandPending := TRUE;
+QueueMotion := nPendingMoveId;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RequestActivate" Id="{a1b2c3d4-e5f6-4789-90ab-c1d2e3f4a5b6}">
+      <Declaration><![CDATA[METHOD RequestActivate : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bRequestActivate := TRUE;
+RequestActivate := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RequestDeactivate" Id="{b2c3d4e5-f6a7-4890-a1b2-c3d4e5f6a7b8}">
+      <Declaration><![CDATA[METHOD RequestDeactivate : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bRequestDeactivate := TRUE;
+RequestDeactivate := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetError" Id="{d4e5f6a7-b8c9-4012-83d4-e5f6a7b8c9d0}">
+      <Declaration><![CDATA[METHOD ResetError : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bRequestResetError := TRUE;
+ResetError := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResumeMotion" Id="{a7b8c9d0-e1f2-4345-b6a7-c8d9e0f1a2b3}">
+      <Declaration><![CDATA[METHOD ResumeMotion : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bRequestResume := TRUE;
+ResumeMotion := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -69,7 +69,26 @@ VAR_GLOBAL
 		sRobotIp:='192.168.250.2',
 		pA_Skills:= [ADR(R2_PP),ADR(R2_Counter)]
 	);
+	
+	MECA_CHARLIE: ROBOT_MECA500;
 
+	(*
+	Replace AxisRef_X, AxisRef_XY45 and AxisRef_Z with AXIS_REF symbols
+	created by the TwinCAT NC configuration before enabling this example.
+	AXIS_X: FB_1_AXIS := (Axis := AxisRef_X, RegisterAsTopLevelRobot := FALSE, SafePosition := (joint1 := 100.0), MinPosition := 0.0, MaxPosition := 500.0);
+	AXIS_XY45: FB_1_AXIS := (Axis := AxisRef_XY45, RegisterAsTopLevelRobot := FALSE, SafePosition := (joint1 := 250.0), MinPosition := 0.0, MaxPosition := 500.0);
+	AXIS_Z: FB_1_AXIS := (Axis := AxisRef_Z, RegisterAsTopLevelRobot := FALSE, SafePosition := (joint1 := 50.0), MinPosition := 0.0, MaxPosition := 300.0);
+	ROBOT_PORTAL: FB_1_PORTAL := (
+		nAxisCount := 3,
+		SafePosition := (joint1 := 100.0, joint2 := 250.0, joint3 := 50.0),
+		aAxis := [
+			(pAxis := ADR(AXIS_X), sName := 'X', fDirX := 1.0, fZeroPoint := 0.0),
+			(pAxis := ADR(AXIS_XY45), sName := 'XY45', fDirX := 0.70710678, fDirY := 0.70710678, fZeroPoint := 250.0),
+			(pAxis := ADR(AXIS_Z), sName := 'Z', fDirZ := 1.0, fZeroPoint := 0.0)
+		]
+	);
+	*)
+	
 
 // 	BFH_RobLab_UR5: ROBOT_UR5 :=(
 // 		sRobotIp:='192.168.250.2',

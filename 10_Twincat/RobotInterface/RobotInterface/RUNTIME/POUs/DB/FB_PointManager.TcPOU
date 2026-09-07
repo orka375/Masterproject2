@@ -9,6 +9,8 @@ VAR_INPUT
     sCmdName    : STRING(80);
     {attribute 'OPC.UA.DA' := '1'}
     sCmdNewName : STRING(80);
+    {attribute 'OPC.UA.DA' := '1'}
+    sFilePath   : STRING(255);
     // Current robot TCP, fed each cycle by the owning robot (used by TEACH).
     {attribute 'OPC.UA.DA' := '1'}
     xCurrentTcp : stPoseGeneral;
@@ -24,6 +26,10 @@ VAR_INPUT
     bCmdRename  : BOOL;
     {attribute 'OPC.UA.DA' := '1'}
     bCmdTeach   : BOOL;
+    {attribute 'OPC.UA.DA' := '1'}
+    bCmdSaveFile : BOOL;
+    {attribute 'OPC.UA.DA' := '1'}
+    bCmdLoadFile : BOOL;
 END_VAR
 VAR_OUTPUT
     bBusy : BOOL;
@@ -35,21 +41,32 @@ VAR_OUTPUT
     bFound : BOOL;
     xPoint : ST_Point;
     pPoint : POINTER TO ST_Point;
+    aPointNames : ARRAY[0..99] OF STRING(80);
+    nPointCount : UINT;
+    nPointNameCount : UINT;
+    nSelectedPointIndex : UDINT := 16#FFFFFFFF;
 END_VAR
 VAR
     aPoints : ARRAY[1..100] OF ST_Point;
-    nPointCount : UINT;
     nNextId : DINT := 1;
     sRobotPrefix : STRING(80);
 
     // Edge detection for the HMI command bits.
-    _rNew    : R_TRIG;
-    _rLoad   : R_TRIG;
-    _rSave   : R_TRIG;
-    _rDelete : R_TRIG;
-    _rRename : R_TRIG;
-    _rTeach  : R_TRIG;
-    _pose    : stPoseGeneral;
+    _rNew       : R_TRIG;
+    _rLoad      : R_TRIG;
+    _rSave      : R_TRIG;
+    _rDelete    : R_TRIG;
+    _rRename    : R_TRIG;
+    _rTeach     : R_TRIG;
+    _rSaveFile  : R_TRIG;
+    _rLoadFile  : R_TRIG;
+    _pose       : stPoseGeneral;
+    _nLastSelectedPointIndex : UDINT := 16#FFFFFFFF;
+
+    _fileOpen   : FB_FileOpen;
+    _fileWrite  : FB_FileWrite;
+    _fileRead   : FB_FileRead;
+    _fileClose  : FB_FileClose;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -69,10 +86,28 @@ _rSave(CLK := bCmdSave);
 _rDelete(CLK := bCmdDelete);
 _rRename(CLK := bCmdRename);
 _rTeach(CLK := bCmdTeach);
+_rSaveFile(CLK := bCmdSaveFile);
+_rLoadFile(CLK := bCmdLoadFile);
+
+IF nSelectedPointIndex <> _nLastSelectedPointIndex THEN
+    _nLastSelectedPointIndex := nSelectedPointIndex;
+    IF nSelectedPointIndex <= 99 THEN
+        IF aPointNames[UDINT_TO_UINT(nSelectedPointIndex)] <> '' THEN
+            sCmdName := aPointNames[UDINT_TO_UINT(nSelectedPointIndex)];
+            bError := FALSE;
+            Load(sName := sCmdName);
+        END_IF
+    END_IF
+END_IF
 
 IF _rLoad.Q THEN
     bError := FALSE;
     Load(sName := sCmdName);
+END_IF
+
+IF _rLoadFile.Q THEN
+    bError := FALSE;
+    LoadAllFromFile();
 END_IF
 
 IF _rNew.Q THEN
@@ -114,6 +149,11 @@ END_IF
 IF _rDelete.Q THEN
     bError := FALSE;
     Delete(sName := sCmdName);
+END_IF
+
+IF _rSaveFile.Q THEN
+    bError := FALSE;
+    SaveAllToFile();
 END_IF
 ]]></ST>
     </Implementation>
@@ -211,6 +251,8 @@ bError := FALSE;
 eResult := POINTSTORE_DONE;
 bDone := TRUE;
 sLastOperation := 'Created 2D point';
+SyncPointNames();
+nSelectedPointIndex := UINT_TO_UDINT(nPointNameCount - 1);
 Create2D := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -286,6 +328,8 @@ bError := FALSE;
 eResult := POINTSTORE_DONE;
 bDone := TRUE;
 sLastOperation := 'Created 3D point';
+SyncPointNames();
+nSelectedPointIndex := UINT_TO_UDINT(nPointNameCount - 1);
 Create3D := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -341,12 +385,14 @@ FOR nShiftIndex := nIndex TO nPointCount - 1 DO
     aPoints[nShiftIndex] := aPoints[nShiftIndex + 1];
 END_FOR
 nPointCount := nPointCount - 1;
+nSelectedPointIndex := 16#FFFFFFFF;
 bFound := FALSE;
 pPoint := 0;
 bError := FALSE;
 eResult := POINTSTORE_DONE;
 bDone := TRUE;
 sLastOperation := 'Deleted point';
+SyncPointNames();
 Delete := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -401,6 +447,270 @@ END_IF
 Load := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="SaveAllToFile" Id="{e1ec9f0d-0dfe-4b72-977d-9abc1cf94517}">
+      <Declaration><![CDATA[METHOD PUBLIC SaveAllToFile : BOOL
+VAR
+    sPath : STRING(255);
+    sData : STRING(4096);
+    sLine : STRING(255);
+    i : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SaveAllToFile := FALSE;
+
+IF sFilePath <> '' THEN
+    sPath := sFilePath;
+ELSE
+    sPath := 'C:\TwinCAT\3.1\Boot\RobotPoints.txt';
+END_IF;
+
+sData := 'id;robot_prefix;short_name;pose_kind;frame_id;x;y;z;rx;ry;rz' + '$R$L';
+
+FOR i := 1 TO nPointCount DO
+    sLine := DINT_TO_STRING(aPoints[i].id) + ';';
+    sLine := CONCAT(sLine, aPoints[i].robot_prefix) + ';';
+    sLine := CONCAT(sLine, aPoints[i].short_name) + ';';
+    sLine := CONCAT(sLine, aPoints[i].pose_kind) + ';';
+    sLine := CONCAT(sLine, DINT_TO_STRING(aPoints[i].frame_id)) + ';';
+    sLine := CONCAT(sLine, LREAL_TO_STRING(aPoints[i].x)) + ';';
+    sLine := CONCAT(sLine, LREAL_TO_STRING(aPoints[i].y)) + ';';
+    sLine := CONCAT(sLine, LREAL_TO_STRING(aPoints[i].z)) + ';';
+    sLine := CONCAT(sLine, LREAL_TO_STRING(aPoints[i].rx)) + ';';
+    sLine := CONCAT(sLine, LREAL_TO_STRING(aPoints[i].ry)) + ';';
+    sLine := CONCAT(sLine, LREAL_TO_STRING(aPoints[i].rz));
+    sData := CONCAT(sData, sLine) + '$R$L';
+END_FOR
+
+_fileOpen(
+    sNetId := '',
+    sPathName := sPath,
+    nMode := FOPEN_MODEWRITE OR FOPEN_MODETEXT,
+    ePath := PATH_GENERIC,
+    bExecute := TRUE,
+    tTimeout := T#5S
+);
+
+IF _fileOpen.bBusy THEN
+    RETURN;
+END_IF
+
+IF _fileOpen.bError THEN
+    bError := TRUE;
+    nErrorID := _fileOpen.nErrId;
+    eResult := POINTSTORE_DATABASE_ERROR;
+    sLastOperation := 'File save failed';
+    RETURN;
+END_IF
+
+_fileWrite(
+    sNetId := '',
+    hFile := _fileOpen.hFile,
+    pWriteBuff := ADR(sData),
+    cbWriteLen := LEN(sData),
+    bExecute := TRUE,
+    tTimeout := T#5S
+);
+
+IF _fileWrite.bBusy THEN
+    RETURN;
+END_IF
+
+IF _fileWrite.bError THEN
+    bError := TRUE;
+    nErrorID := _fileWrite.nErrId;
+    eResult := POINTSTORE_DATABASE_ERROR;
+    sLastOperation := 'File write failed';
+    RETURN;
+END_IF
+
+_fileClose(
+    sNetId := '',
+    hFile := _fileOpen.hFile,
+    bExecute := TRUE,
+    tTimeout := T#5S
+);
+
+IF _fileClose.bBusy THEN
+    RETURN;
+END_IF
+
+IF _fileClose.bError THEN
+    bError := TRUE;
+    nErrorID := _fileClose.nErrId;
+    eResult := POINTSTORE_DATABASE_ERROR;
+    sLastOperation := 'File close failed';
+    RETURN;
+END_IF
+
+bError := FALSE;
+eResult := POINTSTORE_DONE;
+bDone := TRUE;
+SaveAllToFile := TRUE;
+sLastOperation := 'Saved points to local file';
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="LoadAllFromFile" Id="{d9f73ca1-ec3f-401f-bebb-2eb5d8fd34e7}">
+      <Declaration><![CDATA[METHOD PUBLIC LoadAllFromFile : BOOL
+VAR
+    sPath : STRING(255);
+    sData : STRING(4096);
+    sLine : STRING(255);
+    sRemaining : STRING(4096);
+    sField : STRING(255);
+    sBuf : STRING(255);
+    nPos : INT;
+    nIndex : UINT;
+    nItems : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[LoadAllFromFile := FALSE;
+
+IF sFilePath <> '' THEN
+    sPath := sFilePath;
+ELSE
+    sPath := 'C:\TwinCAT\3.1\Boot\RobotPoints.txt';
+END_IF;
+
+nPointCount := 0;
+nNextId := 1;
+
+_fileOpen(
+    sNetId := '',
+    sPathName := sPath,
+    nMode := FOPEN_MODEREAD OR FOPEN_MODETEXT,
+    ePath := PATH_GENERIC,
+    bExecute := TRUE,
+    tTimeout := T#5S
+);
+
+IF _fileOpen.bBusy THEN
+    RETURN;
+END_IF
+
+IF _fileOpen.bError THEN
+    bError := TRUE;
+    nErrorID := _fileOpen.nErrId;
+    eResult := POINTSTORE_DATABASE_ERROR;
+    sLastOperation := 'File load failed';
+    RETURN;
+END_IF
+
+_fileRead(
+    sNetId := '',
+    hFile := _fileOpen.hFile,
+    pReadBuff := ADR(sData),
+    cbReadLen := SIZEOF(sData),
+    bExecute := TRUE,
+    tTimeout := T#5S
+);
+
+IF _fileRead.bBusy THEN
+    RETURN;
+END_IF
+
+IF _fileRead.bError THEN
+    bError := TRUE;
+    nErrorID := _fileRead.nErrId;
+    eResult := POINTSTORE_DATABASE_ERROR;
+    sLastOperation := 'File read failed';
+    RETURN;
+END_IF
+
+_fileClose(
+    sNetId := '',
+    hFile := _fileOpen.hFile,
+    bExecute := TRUE,
+    tTimeout := T#5S
+);
+
+IF _fileClose.bBusy THEN
+    RETURN;
+END_IF
+
+IF _fileClose.bError THEN
+    bError := TRUE;
+    nErrorID := _fileClose.nErrId;
+    eResult := POINTSTORE_DATABASE_ERROR;
+    sLastOperation := 'File close failed';
+    RETURN;
+END_IF
+
+sRemaining := sData;
+
+nPos := FIND(sRemaining, '$R$L');
+WHILE nPos > 0 DO
+    sLine := LEFT(sRemaining, nPos - 1);
+    sRemaining := DELETE(sRemaining, 1, nPos + 1);
+    IF sLine = 'id;robot_prefix;short_name;pose_kind;frame_id;x;y;z;rx;ry;rz' THEN
+        CONTINUE;
+    END_IF
+
+    IF LEN(sLine) > 0 THEN
+        nPointCount := nPointCount + 1;
+        nIndex := nPointCount;
+
+        sBuf := sLine;
+        nItems := 0;
+
+        WHILE LEN(sBuf) > 0 DO
+            nPos := FIND(sBuf, ';');
+            IF nPos > 0 THEN
+                sField := LEFT(sBuf, nPos - 1);
+                sBuf := DELETE(sBuf, 1, nPos);
+            ELSE
+                sField := sBuf;
+                sBuf := '';
+            END_IF;
+
+            nItems := nItems + 1;
+
+            CASE nItems OF
+                1: aPoints[nIndex].id := STRING_TO_DINT(sField);
+                2: aPoints[nIndex].robot_prefix := sField;
+                3: aPoints[nIndex].short_name := sField;
+                4: aPoints[nIndex].pose_kind := sField;
+                5: aPoints[nIndex].frame_id := STRING_TO_DINT(sField);
+                6: aPoints[nIndex].x := STRING_TO_LREAL(sField);
+                7: aPoints[nIndex].y := STRING_TO_LREAL(sField);
+                8: aPoints[nIndex].z := STRING_TO_LREAL(sField);
+                9: aPoints[nIndex].rx := STRING_TO_LREAL(sField);
+                10: aPoints[nIndex].ry := STRING_TO_LREAL(sField);
+                11: aPoints[nIndex].rz := STRING_TO_LREAL(sField);
+            END_CASE;
+        END_WHILE;
+
+        IF aPoints[nIndex].id >= nNextId THEN
+            nNextId := aPoints[nIndex].id + 1;
+        END_IF;
+    END_IF;
+
+    nPos := FIND(sRemaining, '$R$L');
+END_WHILE;
+
+bError := FALSE;
+eResult := POINTSTORE_DONE;
+bDone := TRUE;
+LoadAllFromFile := TRUE;
+sLastOperation := 'Loaded points from local file';
+SyncPointNames();
+IF nPointNameCount > 0 THEN
+    nSelectedPointIndex := 0;
+    _nLastSelectedPointIndex := 0;
+    sCmdName := aPointNames[0];
+    Load(sName := sCmdName);
+    sLastOperation := 'Loaded points from local file';
+ELSE
+    nSelectedPointIndex := 16#FFFFFFFF;
+    _nLastSelectedPointIndex := 16#FFFFFFFF;
+    pPoint := 0;
+    bFound := FALSE;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="PointName" Id="{b5b5ae96-26ce-41d2-877e-ca29f7e37f86}">
       <Declaration><![CDATA[METHOD PRIVATE PointName : STRING(80)
 VAR_INPUT
@@ -441,10 +751,12 @@ END_IF
 aPoints[nIndex].short_name := sNewName;
 xPoint := aPoints[nIndex];
 pPoint := ADR(xPoint);
+sCmdName := sNewName;
 bError := FALSE;
 eResult := POINTSTORE_DONE;
 bDone := TRUE;
 sLastOperation := 'Renamed point';
+SyncPointNames();
 Rename := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -537,5 +849,28 @@ sLastOperation := 'Retouched 3D point';
 Retouch3D := TRUE;]]></ST>
       </Implementation>
     </Method>
+        <Method Name="SyncPointNames" Id="{8a5f8289-b888-4b75-9f49-989f99951e4b}">
+            <Declaration><![CDATA[METHOD PRIVATE SyncPointNames
+VAR
+        nIndex : UINT;
+        nOutputIndex : UINT;
+END_VAR
+]]></Declaration>
+            <Implementation>
+                <ST><![CDATA[FOR nIndex := 0 TO 99 DO
+        aPointNames[nIndex] := '';
+    END_FOR
+
+    nPointNameCount := 0;
+    FOR nIndex := 1 TO nPointCount DO
+        IF aPoints[nIndex].robot_prefix = sRobotPrefix THEN
+            nOutputIndex := nPointNameCount;
+            aPointNames[nOutputIndex] := aPoints[nIndex].short_name;
+            nPointNameCount := nPointNameCount + 1;
+        END_IF
+END_FOR
+]]></ST>
+            </Implementation>
+        </Method>
   </POU>
 </TcPlcObject>
