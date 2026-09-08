@@ -64,10 +64,10 @@
   }
 ]
 </script>
-			<div id="UserControl1_8" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/UC_MANIPULATOR.usercontrol" data-tchmi-robot-index="1" data-tchmi-m="%s%R1.HMI_ROB_MANIP%/s%" data-tchmi-b="%s%R1.HMI_BASE%/s%" data-tchmi-r="%s%R1.HMI_ROB%/s%">
+      <div id="UserControl1_8" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/UC_Manipulator.usercontrol" data-tchmi-robot-index="1" data-tchmi-m="%s%R1.HMI_ROB_MANIP%/s%" data-tchmi-b="%s%R1.HMI_BASE%/s%" data-tchmi-r="%s%R1.HMI_ROB%/s%">
 				<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["overview-manipulator"]</script>
 			</div>
-			<div id="UserControl1_9" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-column-index="3" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/UC_MANIPULATOR.usercontrol" data-tchmi-robot-index="2" data-tchmi-m="%s%R2.HMI_ROB_MANIP%/s%" data-tchmi-b="%s%R2.HMI_BASE%/s%" data-tchmi-r="%s%R2.HMI_ROB%/s%">
+      <div id="UserControl1_9" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-column-index="3" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/UC_Manipulator.usercontrol" data-tchmi-robot-index="2" data-tchmi-m="%s%R2.HMI_ROB_MANIP%/s%" data-tchmi-b="%s%R2.HMI_BASE%/s%" data-tchmi-r="%s%R2.HMI_ROB%/s%">
 				<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["overview-manipulator"]</script>
 			</div>
 		</div>

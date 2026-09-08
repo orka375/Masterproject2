@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stHMI_PM" Id="{d8cf69b6-8489-4b79-a771-9bbd05d2552e}">
+    <Declaration><![CDATA[TYPE stHMI_PM :
+STRUCT
+    bCmdNew      : BOOL;
+    bCmdLoad     : BOOL;
+    bCmdSave     : BOOL;
+    bCmdDelete   : BOOL;
+    bCmdTeach    : BOOL;
+    bCmdSaveFile : BOOL;
+    bCmdLoadFile : BOOL;
+
+    xCurrentTcp : stPoseGeneral;
+
+    editedPoint : ST_Point;
+    loadedPoint : ST_Point;
+
+    // Each FB_PointManager instance owns this independent ten-point RAM store.
+    aPoints : ARRAY[1..10] OF ST_Point;
+
+    // Unused rows retain unique placeholder IDs for TcHmiCombobox validation.
+    aPointList : ARRAY[1..10] OF ST_PointListEntry :=
+			[(id := 1001, text := '', value := 0),
+			(id := 1002, text := '', value := 0),
+			(id := 1003, text := '', value := 0),
+			(id := 1004, text := '', value := 0),
+			(id := 1005, text := '', value := 0),
+			(id := 1006, text := '', value := 0),
+			(id := 1007, text := '', value := 0),
+			(id := 1008, text := '', value := 0),
+			(id := 1009, text := '', value := 0),
+			(id := 1010, text := '', value := 0)];
+    nPointListCount : UINT;
+
+    nSelectedPointId : UDINT;
+
+    sLastOperation : STRING(255);
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

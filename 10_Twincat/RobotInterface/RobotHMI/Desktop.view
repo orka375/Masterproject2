@@ -296,4 +296,6 @@
                         } 
                     ] 
                 } 
-            ]</script></div>
+            ]</script><div id="DEBUG" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-height="26" data-tchmi-height-unit="px" data-tchmi-left="146" data-tchmi-left-unit="px" data-tchmi-text="DEBUG" data-tchmi-top="54" data-tchmi-top-unit="px" data-tchmi-width="150" data-tchmi-width-unit="px" data-tchmi-word-wrap="True">
+</div>
+</div>

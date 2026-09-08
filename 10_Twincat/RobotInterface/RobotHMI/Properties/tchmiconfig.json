@@ -57,12 +57,20 @@
       "type": "Stylesheet"
     },
     {
-      "name": "Scripts/RobotHmi.js",
+      "name": "Scripts/PlcEnumFormatter.js",
+      "description": "",
+      "type": "JavaScript"
+    },
+    {
+      "name": "Scripts/PointManager.js",
       "description": "",
       "type": "JavaScript"
     }
   ],
   "userControls": [
+    {
+      "url": "UserControl/Skill_Paras/PickPlace.usercontrol"
+    },
     {
       "url": "UserControl/Status_Base.usercontrol"
     },
@@ -82,13 +90,16 @@
       "url": "UserControl/Status_Skill.usercontrol"
     },
     {
+      "url": "UserControl/Status_Tool.usercontrol"
+    },
+    {
       "url": "UserControl/TopBar_RobotSelection.usercontrol"
     },
     {
       "url": "UserControl/UC_Jog_Manip.usercontrol"
     },
     {
-      "url": "UserControl/UC_MANIPULATOR.usercontrol"
+      "url": "UserControl/UC_Manipulator.usercontrol"
     },
     {
       "url": "UserControl/UC_PointManager.usercontrol"
@@ -145,6 +156,13 @@
       "preloadBindings": false
     },
     {
+      "url": "Pages/Recipe.content",
+      "preload": false,
+      "keepAlive": false,
+      "loadSync": false,
+      "preloadBindings": false
+    },
+    {
       "url": "Pages/Settings.content",
       "preload": false,
       "keepAlive": false,
@@ -153,13 +171,6 @@
     },
     {
       "url": "Pages/SkillControl.content",
-      "preload": false,
-      "keepAlive": false,
-      "loadSync": false,
-      "preloadBindings": false
-    },
-    {
-      "url": "Pages/SkillRecipes.content",
       "preload": false,
       "keepAlive": false,
       "loadSync": false,
@@ -256,9 +267,155 @@
         "persist": true,
         "readonly": true
       },
-      "SelectedRobot": {
+      "SelectedIndex": {
         "value": 0.0,
         "type": "tchmi:general#/definitions/Number",
+        "persist": false,
+        "readonly": false
+      },
+      "TextHeight": {
+        "value": 20.0,
+        "type": "tchmi:framework#/definitions/PositiveNumber",
+        "persist": false,
+        "readonly": false
+      },
+      "SelectedBase": {
+        "value": {
+          "MyHealth": 0,
+          "aNameOfSkills": [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          "bBusy": false,
+          "eStatus": 0,
+          "sInstanceName": ""
+        },
+        "type": "tchmi:server#/definitions/ADS-PLC1.stHMI_BASE",
+        "persist": false,
+        "readonly": false
+      },
+      "SelectedRob": {
+        "value": {
+          "_jointpos": {
+            "joint1": "NaN",
+            "joint2": "NaN",
+            "joint3": "NaN",
+            "joint4": "NaN",
+            "joint5": "NaN",
+            "joint6": "NaN"
+          },
+          "_speedOverride": "NaN",
+          "_tcppos": {
+            "rx": "NaN",
+            "ry": "NaN",
+            "rz": "NaN",
+            "x": "NaN",
+            "y": "NaN",
+            "z": "NaN"
+          },
+          "bEStop": false,
+          "bInCollision": false,
+          "bMoving": false,
+          "bReady": false,
+          "eModus": 0
+        },
+        "type": "tchmi:server#/definitions/ADS-PLC1.stHMI_ROB",
+        "persist": false,
+        "readonly": false
+      },
+      "SelectedJog": {
+        "value": {
+          "ActiveFramePose": {
+            "rx": "NaN",
+            "ry": "NaN",
+            "rz": "NaN",
+            "x": "NaN",
+            "y": "NaN",
+            "z": "NaN"
+          },
+          "ActualPose": {
+            "rx": "NaN",
+            "ry": "NaN",
+            "rz": "NaN",
+            "x": "NaN",
+            "y": "NaN",
+            "z": "NaN"
+          },
+          "CustomFrame": {
+            "rx": "NaN",
+            "ry": "NaN",
+            "rz": "NaN",
+            "x": "NaN",
+            "y": "NaN",
+            "z": "NaN"
+          },
+          "bCommandIssued": false,
+          "bContinuousJog": false,
+          "bEnable": false,
+          "bJogJoint1Minus": false,
+          "bJogJoint1Plus": false,
+          "bJogJoint2Minus": false,
+          "bJogJoint2Plus": false,
+          "bJogJoint3Minus": false,
+          "bJogJoint3Plus": false,
+          "bJogJoint4Minus": false,
+          "bJogJoint4Plus": false,
+          "bJogJoint5Minus": false,
+          "bJogJoint5Plus": false,
+          "bJogJoint6Minus": false,
+          "bJogJoint6Plus": false,
+          "bJogRxMinus": false,
+          "bJogRxPlus": false,
+          "bJogRyMinus": false,
+          "bJogRyPlus": false,
+          "bJogRzMinus": false,
+          "bJogRzPlus": false,
+          "bJogXMinus": false,
+          "bJogXPlus": false,
+          "bJogYMinus": false,
+          "bJogYPlus": false,
+          "bJogZMinus": false,
+          "bJogZPlus": false,
+          "bMoving": false,
+          "bPending": false,
+          "bReady": false,
+          "bStepJog": false,
+          "bSupportsJoint": false,
+          "bSupportsRx": false,
+          "bSupportsRy": false,
+          "bSupportsRz": false,
+          "bSupportsX": false,
+          "bSupportsY": false,
+          "bSupportsZ": false,
+          "fAngularStep": "NaN",
+          "fAngularVelocity": "NaN",
+          "fJointStep": "NaN",
+          "fJointVelocity": "NaN",
+          "fLinearStep": "NaN",
+          "fLinearVelocity": "NaN",
+          "nFrame": 0,
+          "nLastCommandID": 0
+        },
+        "type": "tchmi:server#/definitions/ADS-PLC1.FB_Jog_Base",
+        "persist": false,
+        "readonly": false
+      },
+      "PM_ReadIn": {
+        "value": {
+          "rx": "NaN",
+          "ry": "NaN",
+          "rz": "NaN",
+          "x": "NaN",
+          "y": "NaN",
+          "z": "NaN"
+        },
+        "type": "tchmi:server#/definitions/ADS-PLC1.stPoseGeneral",
         "persist": false,
         "readonly": false
       }

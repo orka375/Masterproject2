@@ -39,6 +39,14 @@
                 "minItems": 1024,
                 "type": "array"
             },
+            "ADS-PLC1.ARRAY_0..256_OF-BYTE": {
+                "items": {
+                    "$ref": "tchmi:general#/definitions/BYTE"
+                },
+                "maxItems": 257,
+                "minItems": 257,
+                "type": "array"
+            },
             "ADS-PLC1.ARRAY_0..4095_OF-BYTE": {
                 "items": {
                     "$ref": "tchmi:general#/definitions/BYTE"
@@ -55,12 +63,73 @@
                 "minItems": 6,
                 "type": "array"
             },
+            "ADS-PLC1.ARRAY_0..65535_OF-BYTE": {
+                "items": {
+                    "$ref": "tchmi:general#/definitions/BYTE"
+                },
+                "maxItems": 65536,
+                "minItems": 65536,
+                "type": "array"
+            },
+            "ADS-PLC1.ARRAY_0..99_OF-STRING-80": {
+                "items": {
+                    "$ref": "tchmi:general#/definitions/STRING%2880%29"
+                },
+                "maxItems": 100,
+                "minItems": 100,
+                "type": "array"
+            },
+            "ADS-PLC1.ARRAY_1..100_OF-STRING-80": {
+                "items": {
+                    "$ref": "tchmi:general#/definitions/STRING%2880%29"
+                },
+                "maxItems": 100,
+                "minItems": 100,
+                "startOffset": 1,
+                "type": "array"
+            },
             "ADS-PLC1.ARRAY_1..100_OF-ST_Point": {
                 "items": {
                     "$ref": "tchmi:server#/definitions/ADS-PLC1.ST_Point"
                 },
                 "maxItems": 100,
                 "minItems": 100,
+                "startOffset": 1,
+                "type": "array"
+            },
+            "ADS-PLC1.ARRAY_1..100_OF-ST_PointListEntry": {
+                "items": {
+                    "$ref": "tchmi:server#/definitions/ADS-PLC1.ST_PointListEntry"
+                },
+                "maxItems": 100,
+                "minItems": 100,
+                "startOffset": 1,
+                "type": "array"
+            },
+            "ADS-PLC1.ARRAY_1..10_OF-ST_Point": {
+                "items": {
+                    "$ref": "tchmi:server#/definitions/ADS-PLC1.ST_Point"
+                },
+                "maxItems": 10,
+                "minItems": 10,
+                "startOffset": 1,
+                "type": "array"
+            },
+            "ADS-PLC1.ARRAY_1..10_OF-ST_PointListEntry": {
+                "items": {
+                    "$ref": "tchmi:server#/definitions/ADS-PLC1.ST_PointListEntry"
+                },
+                "maxItems": 10,
+                "minItems": 10,
+                "startOffset": 1,
+                "type": "array"
+            },
+            "ADS-PLC1.ARRAY_1..16_OF-POINTER-TO-FB_1_ROB": {
+                "items": {
+                    "$ref": "tchmi:server#/definitions/ADS-PLC1.POINTER-TO-FB_1_ROB"
+                },
+                "maxItems": 16,
+                "minItems": 16,
                 "startOffset": 1,
                 "type": "array"
             },
@@ -76,6 +145,15 @@
             "ADS-PLC1.ARRAY_1..8_OF-STRING-80": {
                 "items": {
                     "$ref": "tchmi:general#/definitions/STRING%2880%29"
+                },
+                "maxItems": 8,
+                "minItems": 8,
+                "startOffset": 1,
+                "type": "array"
+            },
+            "ADS-PLC1.ARRAY_1..8_OF-stHMI_SKILL": {
+                "items": {
+                    "$ref": "tchmi:server#/definitions/ADS-PLC1.stHMI_SKILL"
                 },
                 "maxItems": 8,
                 "minItems": 8,
@@ -606,7 +684,7 @@
                                 "$ref": "tchmi:general#/definitions/UINT"
                             },
                             {
-                                "propertyOrder": 12
+                                "propertyOrder": 16
                             }
                         ]
                     },
@@ -616,7 +694,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.eProgress"
                             },
                             {
-                                "propertyOrder": 13
+                                "propertyOrder": 17
                             }
                         ]
                     },
@@ -671,7 +749,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.stHMI_ROB"
                             },
                             {
-                                "propertyOrder": 11
+                                "propertyOrder": 15
                             }
                         ]
                     },
@@ -705,8 +783,48 @@
                             }
                         ]
                     },
+                    "PointManagerName": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/STRING%2880%29"
+                            },
+                            {
+                                "propertyOrder": 10
+                            }
+                        ]
+                    },
+                    "RegisterAsTopLevelRobot": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 14
+                            }
+                        ]
+                    },
                     "Reset": {
                         "$ref": "tchmi:server#/definitions/ADS-PLC1.METHOD-RETURNING-eResult"
+                    },
+                    "SafePosition": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.stJoint6"
+                            },
+                            {
+                                "propertyOrder": 12
+                            }
+                        ]
+                    },
+                    "SafePositionTolerance": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/LREAL"
+                            },
+                            {
+                                "propertyOrder": 13
+                            }
+                        ]
                     },
                     "Shutdown": {
                         "$ref": "tchmi:server#/definitions/ADS-PLC1.METHOD-RETURNING-BOOL"
@@ -717,7 +835,7 @@
                                 "$ref": "tchmi:general#/definitions/REAL"
                             },
                             {
-                                "propertyOrder": 10
+                                "propertyOrder": 11
                             }
                         ]
                     },
@@ -727,7 +845,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.stJoint6"
                             },
                             {
-                                "propertyOrder": 14
+                                "propertyOrder": 18
                             }
                         ]
                     },
@@ -737,7 +855,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.stPoseGeneral"
                             },
                             {
-                                "propertyOrder": 15
+                                "propertyOrder": 19
                             }
                         ]
                     },
@@ -789,7 +907,11 @@
                     "MyHeartBeat",
                     "HMI_BASE",
                     "PM",
+                    "PointManagerName",
                     "StandStillLimit",
+                    "SafePosition",
+                    "SafePositionTolerance",
+                    "RegisterAsTopLevelRobot",
                     "HMI_ROB",
                     "BA_ID",
                     "BA_STATUS",
@@ -1160,6 +1282,16 @@
                             }
                         ]
                     },
+                    "HMI_TOOL": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.stHMI_TOOL"
+                            },
+                            {
+                                "propertyOrder": 9
+                            }
+                        ]
+                    },
                     "MESSENGER": {
                         "allOf": [
                             {
@@ -1234,16 +1366,6 @@
                                 "propertyOrder": 5
                             }
                         ]
-                    },
-                    "visStatus": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:server#/definitions/ADS-PLC1.stVisStatusTool"
-                            },
-                            {
-                                "propertyOrder": 9
-                            }
-                        ]
                     }
                 },
                 "required": [
@@ -1253,7 +1375,7 @@
                     "sPath",
                     "MyHeartBeat",
                     "HMI_BASE",
-                    "visStatus"
+                    "HMI_TOOL"
                 ],
                 "type": "object"
             },
@@ -1578,7 +1700,7 @@
                                 "$ref": "tchmi:general#/definitions/UINT"
                             },
                             {
-                                "propertyOrder": 12
+                                "propertyOrder": 16
                             }
                         ]
                     },
@@ -1588,7 +1710,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.eProgress"
                             },
                             {
-                                "propertyOrder": 13
+                                "propertyOrder": 17
                             }
                         ]
                     },
@@ -1643,7 +1765,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.stHMI_ROB"
                             },
                             {
-                                "propertyOrder": 11
+                                "propertyOrder": 15
                             }
                         ]
                     },
@@ -1653,7 +1775,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.stHMI_ROB_MANIP"
                             },
                             {
-                                "propertyOrder": 18
+                                "propertyOrder": 22
                             }
                         ]
                     },
@@ -1663,7 +1785,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.FB_Jog_Manipulator"
                             },
                             {
-                                "propertyOrder": 17
+                                "propertyOrder": 21
                             }
                         ]
                     },
@@ -1697,8 +1819,48 @@
                             }
                         ]
                     },
+                    "PointManagerName": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/STRING%2880%29"
+                            },
+                            {
+                                "propertyOrder": 10
+                            }
+                        ]
+                    },
+                    "RegisterAsTopLevelRobot": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 14
+                            }
+                        ]
+                    },
                     "Reset": {
                         "$ref": "tchmi:server#/definitions/ADS-PLC1.METHOD-RETURNING-eResult"
+                    },
+                    "SafePosition": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.stJoint6"
+                            },
+                            {
+                                "propertyOrder": 12
+                            }
+                        ]
+                    },
+                    "SafePositionTolerance": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/LREAL"
+                            },
+                            {
+                                "propertyOrder": 13
+                            }
+                        ]
                     },
                     "Shutdown": {
                         "$ref": "tchmi:server#/definitions/ADS-PLC1.METHOD-RETURNING-BOOL"
@@ -1709,7 +1871,7 @@
                                 "$ref": "tchmi:general#/definitions/REAL"
                             },
                             {
-                                "propertyOrder": 10
+                                "propertyOrder": 11
                             }
                         ]
                     },
@@ -1719,7 +1881,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.FB_1_Tool"
                             },
                             {
-                                "propertyOrder": 16
+                                "propertyOrder": 20
                             }
                         ]
                     },
@@ -1729,7 +1891,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.stJoint6"
                             },
                             {
-                                "propertyOrder": 14
+                                "propertyOrder": 18
                             }
                         ]
                     },
@@ -1739,7 +1901,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.stPoseGeneral"
                             },
                             {
-                                "propertyOrder": 15
+                                "propertyOrder": 19
                             }
                         ]
                     },
@@ -1791,7 +1953,11 @@
                     "MyHeartBeat",
                     "HMI_BASE",
                     "PM",
+                    "PointManagerName",
                     "StandStillLimit",
+                    "SafePosition",
+                    "SafePositionTolerance",
+                    "RegisterAsTopLevelRobot",
                     "HMI_ROB",
                     "BA_ID",
                     "BA_STATUS",
@@ -3224,186 +3390,20 @@
             "ADS-PLC1.FB_PointManager": {
                 "additionalProperties": false,
                 "properties": {
-                    "_pose": {
+                    "HMI_PM": {
                         "allOf": [
                             {
-                                "$ref": "tchmi:server#/definitions/ADS-PLC1.stPoseGeneral"
-                            },
-                            {
-                                "propertyOrder": 29
-                            }
-                        ]
-                    },
-                    "_rDelete": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
-                            },
-                            {
-                                "propertyOrder": 26
-                            }
-                        ]
-                    },
-                    "_rLoad": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
-                            },
-                            {
-                                "propertyOrder": 24
-                            }
-                        ]
-                    },
-                    "_rNew": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
-                            },
-                            {
-                                "comment": "Edge detection for the HMI command bits.",
-                                "propertyOrder": 23
-                            }
-                        ]
-                    },
-                    "_rRename": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
-                            },
-                            {
-                                "propertyOrder": 27
-                            }
-                        ]
-                    },
-                    "_rSave": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
-                            },
-                            {
-                                "propertyOrder": 25
-                            }
-                        ]
-                    },
-                    "_rTeach": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
-                            },
-                            {
-                                "propertyOrder": 28
-                            }
-                        ]
-                    },
-                    "aPoints": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:server#/definitions/ADS-PLC1.ARRAY_1..100_OF-ST_Point"
-                            },
-                            {
-                                "propertyOrder": 19
-                            }
-                        ]
-                    },
-                    "bBusy": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:general#/definitions/BOOL"
-                            },
-                            {
-                                "propertyOrder": 10
-                            }
-                        ]
-                    },
-                    "bCmdDelete": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:general#/definitions/BOOL"
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.stHMI_PM"
                             },
                             {
                                 "attributes": {
                                     "OPC.UA.DA": "1"
                                 },
-                                "propertyOrder": 7
+                                "propertyOrder": 1
                             }
                         ]
                     },
-                    "bCmdLoad": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:general#/definitions/BOOL"
-                            },
-                            {
-                                "attributes": {
-                                    "OPC.UA.DA": "1"
-                                },
-                                "propertyOrder": 5
-                            }
-                        ]
-                    },
-                    "bCmdNew": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:general#/definitions/BOOL"
-                            },
-                            {
-                                "attributes": {
-                                    "OPC.UA.DA": "1"
-                                },
-                                "propertyOrder": 4
-                            }
-                        ]
-                    },
-                    "bCmdRename": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:general#/definitions/BOOL"
-                            },
-                            {
-                                "attributes": {
-                                    "OPC.UA.DA": "1"
-                                },
-                                "propertyOrder": 8
-                            }
-                        ]
-                    },
-                    "bCmdSave": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:general#/definitions/BOOL"
-                            },
-                            {
-                                "attributes": {
-                                    "OPC.UA.DA": "1"
-                                },
-                                "propertyOrder": 6
-                            }
-                        ]
-                    },
-                    "bCmdTeach": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:general#/definitions/BOOL"
-                            },
-                            {
-                                "attributes": {
-                                    "OPC.UA.DA": "1"
-                                },
-                                "propertyOrder": 9
-                            }
-                        ]
-                    },
-                    "bDone": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:general#/definitions/BOOL"
-                            },
-                            {
-                                "propertyOrder": 11
-                            }
-                        ]
-                    },
-                    "bError": {
+                    "_bConfigured": {
                         "allOf": [
                             {
                                 "$ref": "tchmi:general#/definitions/BOOL"
@@ -3413,13 +3413,348 @@
                             }
                         ]
                     },
+                    "_bEditingNew": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 21
+                            }
+                        ]
+                    },
+                    "_bReadFileActive": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "File state machines.",
+                                "propertyOrder": 24
+                            }
+                        ]
+                    },
+                    "_bWriteFileActive": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 25
+                            }
+                        ]
+                    },
+                    "_csvReader": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Utilities.FB_CSVMemBufferReader"
+                            },
+                            {
+                                "propertyOrder": 35
+                            }
+                        ]
+                    },
+                    "_csvWriter": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Utilities.FB_CSVMemBufferWriter"
+                            },
+                            {
+                                "comment": "CSV is generated into/read from a byte buffer. This avoids STRING(255)\r\n limitations for complete records/files.",
+                                "propertyOrder": 34
+                            }
+                        ]
+                    },
+                    "_emptyPoint": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.ST_Point"
+                            },
+                            {
+                                "propertyOrder": 23
+                            }
+                        ]
+                    },
+                    "_fileBuffer": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.ARRAY_0..65535_OF-BYTE"
+                            },
+                            {
+                                "propertyOrder": 36
+                            }
+                        ]
+                    },
+                    "_fileClose": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_System.FB_FileClose"
+                            },
+                            {
+                                "propertyOrder": 33
+                            }
+                        ]
+                    },
+                    "_fileOpen": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_System.FB_FileOpen"
+                            },
+                            {
+                                "propertyOrder": 30
+                            }
+                        ]
+                    },
+                    "_fileRead": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_System.FB_FileRead"
+                            },
+                            {
+                                "propertyOrder": 31
+                            }
+                        ]
+                    },
+                    "_fileWrite": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_System.FB_FileWrite"
+                            },
+                            {
+                                "propertyOrder": 32
+                            }
+                        ]
+                    },
+                    "_hLoadFile": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UINT"
+                            },
+                            {
+                                "propertyOrder": 28
+                            }
+                        ]
+                    },
+                    "_hSaveFile": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UINT"
+                            },
+                            {
+                                "propertyOrder": 29
+                            }
+                        ]
+                    },
+                    "_loadPoints": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.ARRAY_1..10_OF-ST_Point"
+                            },
+                            {
+                                "comment": "File data is validated here first and only committed to aPoints on success.",
+                                "propertyOrder": 39
+                            }
+                        ]
+                    },
+                    "_nEditingId": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/DINT"
+                            },
+                            {
+                                "comment": "Editing identity. ID is kept privately so HMI writes can never change it.",
+                                "propertyOrder": 20
+                            }
+                        ]
+                    },
+                    "_nFileBufferSize": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "propertyOrder": 37
+                            }
+                        ]
+                    },
+                    "_nLastSelectedPointId": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "propertyOrder": 22
+                            }
+                        ]
+                    },
+                    "_nLoadFileState": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UINT"
+                            },
+                            {
+                                "propertyOrder": 26
+                            }
+                        ]
+                    },
+                    "_nLoadPointCount": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UINT"
+                            },
+                            {
+                                "propertyOrder": 40
+                            }
+                        ]
+                    },
+                    "_nSaveFileState": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UINT"
+                            },
+                            {
+                                "propertyOrder": 27
+                            }
+                        ]
+                    },
+                    "_overflowByte": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BYTE"
+                            },
+                            {
+                                "propertyOrder": 38
+                            }
+                        ]
+                    },
+                    "_rDelete": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
+                            },
+                            {
+                                "propertyOrder": 16
+                            }
+                        ]
+                    },
+                    "_rLoad": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
+                            },
+                            {
+                                "propertyOrder": 14
+                            }
+                        ]
+                    },
+                    "_rLoadFile": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
+                            },
+                            {
+                                "propertyOrder": 19
+                            }
+                        ]
+                    },
+                    "_rNew": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
+                            },
+                            {
+                                "comment": "HMI command edges.",
+                                "propertyOrder": 13
+                            }
+                        ]
+                    },
+                    "_rSave": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
+                            },
+                            {
+                                "propertyOrder": 15
+                            }
+                        ]
+                    },
+                    "_rSaveFile": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
+                            },
+                            {
+                                "propertyOrder": 18
+                            }
+                        ]
+                    },
+                    "_rTeach": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
+                            },
+                            {
+                                "propertyOrder": 17
+                            }
+                        ]
+                    },
+                    "_sDatabasePath": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.STRING-255"
+                            },
+                            {
+                                "propertyOrder": 11
+                            }
+                        ]
+                    },
+                    "_sName": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/STRING%2880%29"
+                            },
+                            {
+                                "propertyOrder": 10
+                            }
+                        ]
+                    },
+                    "bBusy": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 2
+                            }
+                        ]
+                    },
+                    "bDone": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 3
+                            }
+                        ]
+                    },
+                    "bError": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 4
+                            }
+                        ]
+                    },
                     "bFound": {
                         "allOf": [
                             {
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 16
+                                "propertyOrder": 7
                             }
                         ]
                     },
@@ -3429,7 +3764,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.E_PointStoreResult"
                             },
                             {
-                                "propertyOrder": 13
+                                "propertyOrder": 5
                             }
                         ]
                     },
@@ -3439,17 +3774,7 @@
                                 "$ref": "tchmi:general#/definitions/UDINT"
                             },
                             {
-                                "propertyOrder": 14
-                            }
-                        ]
-                    },
-                    "nNextId": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:general#/definitions/DINT"
-                            },
-                            {
-                                "propertyOrder": 21
+                                "propertyOrder": 6
                             }
                         ]
                     },
@@ -3459,7 +3784,7 @@
                                 "$ref": "tchmi:general#/definitions/UINT"
                             },
                             {
-                                "propertyOrder": 20
+                                "propertyOrder": 9
                             }
                         ]
                     },
@@ -3469,111 +3794,51 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.POINTER-TO-ST_Point"
                             },
                             {
-                                "propertyOrder": 18
-                            }
-                        ]
-                    },
-                    "sCmdName": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:general#/definitions/STRING%2880%29"
-                            },
-                            {
-                                "attributes": {
-                                    "OPC.UA.DA": "1"
-                                },
-                                "comment": "HMI command interface. Bits are edge-triggered (one action per rising edge),\r\n so a momentary HMI button press executes exactly one operation.",
-                                "propertyOrder": 1
-                            }
-                        ]
-                    },
-                    "sCmdNewName": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:general#/definitions/STRING%2880%29"
-                            },
-                            {
-                                "attributes": {
-                                    "OPC.UA.DA": "1"
-                                },
-                                "propertyOrder": 2
-                            }
-                        ]
-                    },
-                    "sLastOperation": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:general#/definitions/STRING%2880%29"
-                            },
-                            {
-                                "propertyOrder": 15
-                            }
-                        ]
-                    },
-                    "sRobotPrefix": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:general#/definitions/STRING%2880%29"
-                            },
-                            {
-                                "propertyOrder": 22
-                            }
-                        ]
-                    },
-                    "xCurrentTcp": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:server#/definitions/ADS-PLC1.stPoseGeneral"
-                            },
-                            {
-                                "attributes": {
-                                    "OPC.UA.DA": "1"
-                                },
-                                "comment": "Current robot TCP, fed each cycle by the owning robot (used by TEACH).",
-                                "propertyOrder": 3
-                            }
-                        ]
-                    },
-                    "xPoint": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:server#/definitions/ADS-PLC1.ST_Point"
-                            },
-                            {
-                                "propertyOrder": 17
+                                "propertyOrder": 8
                             }
                         ]
                     }
                 },
                 "required": [
-                    "sCmdName",
-                    "sCmdNewName",
-                    "xCurrentTcp",
-                    "bCmdNew",
-                    "bCmdLoad",
-                    "bCmdSave",
-                    "bCmdDelete",
-                    "bCmdRename",
-                    "bCmdTeach",
+                    "HMI_PM",
                     "bBusy",
                     "bDone",
                     "bError",
                     "eResult",
                     "nErrorID",
-                    "sLastOperation",
                     "bFound",
-                    "xPoint",
-                    "aPoints",
                     "nPointCount",
-                    "nNextId",
-                    "sRobotPrefix",
+                    "_sName",
+                    "_sDatabasePath",
+                    "_bConfigured",
                     "_rNew",
                     "_rLoad",
                     "_rSave",
                     "_rDelete",
-                    "_rRename",
                     "_rTeach",
-                    "_pose"
+                    "_rSaveFile",
+                    "_rLoadFile",
+                    "_nEditingId",
+                    "_bEditingNew",
+                    "_nLastSelectedPointId",
+                    "_emptyPoint",
+                    "_bReadFileActive",
+                    "_bWriteFileActive",
+                    "_nLoadFileState",
+                    "_nSaveFileState",
+                    "_hLoadFile",
+                    "_hSaveFile",
+                    "_fileOpen",
+                    "_fileRead",
+                    "_fileWrite",
+                    "_fileClose",
+                    "_csvWriter",
+                    "_csvReader",
+                    "_fileBuffer",
+                    "_nFileBufferSize",
+                    "_overflowByte",
+                    "_loadPoints",
+                    "_nLoadPointCount"
                 ],
                 "type": "object"
             },
@@ -5671,6 +5936,9 @@
                     }
                 ]
             },
+            "ADS-PLC1.PVOID": {
+                "$ref": "tchmi:server#/definitions/ADS-PLC1.UXINT"
+            },
             "ADS-PLC1.ROBOT_UR": {
                 "additionalProperties": false,
                 "attributes": {
@@ -6046,6 +6314,16 @@
                     }
                 ]
             },
+            "ADS-PLC1.STRING-120": {
+                "allOf": [
+                    {
+                        "maxLength": 120
+                    },
+                    {
+                        "$ref": "tchmi:general#/definitions/String"
+                    }
+                ]
+            },
             "ADS-PLC1.STRING-128": {
                 "allOf": [
                     {
@@ -6135,7 +6413,7 @@
                                 "$ref": "tchmi:general#/definitions/DINT"
                             },
                             {
-                                "propertyOrder": 5
+                                "propertyOrder": 4
                             }
                         ]
                     },
@@ -6149,17 +6427,7 @@
                             }
                         ]
                     },
-                    "pose_kind": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:server#/definitions/ADS-PLC1.STRING-16"
-                            },
-                            {
-                                "propertyOrder": 4
-                            }
-                        ]
-                    },
-                    "robot_prefix": {
+                    "name": {
                         "allOf": [
                             {
                                 "$ref": "tchmi:general#/definitions/STRING%2880%29"
@@ -6169,13 +6437,23 @@
                             }
                         ]
                     },
+                    "pose_kind": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.STRING-16"
+                            },
+                            {
+                                "propertyOrder": 3
+                            }
+                        ]
+                    },
                     "rx": {
                         "allOf": [
                             {
                                 "$ref": "tchmi:general#/definitions/LREAL"
                             },
                             {
-                                "propertyOrder": 9
+                                "propertyOrder": 8
                             }
                         ]
                     },
@@ -6185,7 +6463,7 @@
                                 "$ref": "tchmi:general#/definitions/LREAL"
                             },
                             {
-                                "propertyOrder": 10
+                                "propertyOrder": 9
                             }
                         ]
                     },
@@ -6195,17 +6473,7 @@
                                 "$ref": "tchmi:general#/definitions/LREAL"
                             },
                             {
-                                "propertyOrder": 11
-                            }
-                        ]
-                    },
-                    "short_name": {
-                        "allOf": [
-                            {
-                                "$ref": "tchmi:general#/definitions/STRING%2880%29"
-                            },
-                            {
-                                "propertyOrder": 3
+                                "propertyOrder": 10
                             }
                         ]
                     },
@@ -6215,7 +6483,7 @@
                                 "$ref": "tchmi:general#/definitions/LREAL"
                             },
                             {
-                                "propertyOrder": 6
+                                "propertyOrder": 5
                             }
                         ]
                     },
@@ -6225,7 +6493,7 @@
                                 "$ref": "tchmi:general#/definitions/LREAL"
                             },
                             {
-                                "propertyOrder": 7
+                                "propertyOrder": 6
                             }
                         ]
                     },
@@ -6235,15 +6503,14 @@
                                 "$ref": "tchmi:general#/definitions/LREAL"
                             },
                             {
-                                "propertyOrder": 8
+                                "propertyOrder": 7
                             }
                         ]
                     }
                 },
                 "required": [
                     "id",
-                    "robot_prefix",
-                    "short_name",
+                    "name",
                     "pose_kind",
                     "frame_id",
                     "x",
@@ -6252,6 +6519,48 @@
                     "rx",
                     "ry",
                     "rz"
+                ],
+                "type": "object"
+            },
+            "ADS-PLC1.ST_PointListEntry": {
+                "additionalProperties": false,
+                "properties": {
+                    "id": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "Field names are intentionally lower-case: TcHmiCombobox SrcData expects\r\n id / text / value names. Real IDs are 1..10; placeholders are above 1000.",
+                                "propertyOrder": 1
+                            }
+                        ]
+                    },
+                    "text": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.STRING-120"
+                            },
+                            {
+                                "propertyOrder": 2
+                            }
+                        ]
+                    },
+                    "value": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/DINT"
+                            },
+                            {
+                                "propertyOrder": 3
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "text",
+                    "value"
                 ],
                 "type": "object"
             },
@@ -6382,11 +6691,592 @@
                 ],
                 "type": "object"
             },
+            "ADS-PLC1.Tc2_System.E_OpenPath": {
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19
+                ],
+                "options": [
+                    {
+                        "label": "PATH_GENERIC",
+                        "value": 1
+                    },
+                    {
+                        "label": "PATH_BOOTPRJ",
+                        "value": 2
+                    },
+                    {
+                        "label": "PATH_BOOTDATA",
+                        "value": 3
+                    },
+                    {
+                        "label": "PATH_BOOTPATH",
+                        "value": 4
+                    },
+                    {
+                        "label": "PATH_USERPATH1",
+                        "value": 11
+                    },
+                    {
+                        "label": "PATH_USERPATH2",
+                        "value": 12
+                    },
+                    {
+                        "label": "PATH_USERPATH3",
+                        "value": 13
+                    },
+                    {
+                        "label": "PATH_USERPATH4",
+                        "value": 14
+                    },
+                    {
+                        "label": "PATH_USERPATH5",
+                        "value": 15
+                    },
+                    {
+                        "label": "PATH_USERPATH6",
+                        "value": 16
+                    },
+                    {
+                        "label": "PATH_USERPATH7",
+                        "value": 17
+                    },
+                    {
+                        "label": "PATH_USERPATH8",
+                        "value": 18
+                    },
+                    {
+                        "label": "PATH_USERPATH9",
+                        "value": 19
+                    }
+                ],
+                "type": "integer"
+            },
+            "ADS-PLC1.Tc2_System.FB_FileClose": {
+                "additionalProperties": false,
+                "attributes": {
+                    "hide_all_locals": ""
+                },
+                "properties": {
+                    "bBusy": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "Busy flag",
+                                "propertyOrder": 5
+                            }
+                        ]
+                    },
+                    "bError": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "Error flag",
+                                "propertyOrder": 6
+                            }
+                        ]
+                    },
+                    "bExecute": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "Rising edge starts command execution",
+                                "propertyOrder": 3
+                            }
+                        ]
+                    },
+                    "hFile": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UINT"
+                            },
+                            {
+                                "comment": "File handle obtained through 'open'",
+                                "propertyOrder": 2
+                            }
+                        ]
+                    },
+                    "nErrId": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "ADS error code",
+                                "propertyOrder": 7
+                            }
+                        ]
+                    },
+                    "sNetId": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_System.T_AmsNetID"
+                            },
+                            {
+                                "comment": "Ams net id",
+                                "propertyOrder": 1
+                            }
+                        ]
+                    },
+                    "tTimeout": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/TIME"
+                            },
+                            {
+                                "comment": "Maximum time allowed for the execution of this ADS command",
+                                "propertyOrder": 4
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "sNetId",
+                    "hFile",
+                    "bExecute",
+                    "tTimeout",
+                    "bBusy",
+                    "bError",
+                    "nErrId"
+                ],
+                "type": "object"
+            },
+            "ADS-PLC1.Tc2_System.FB_FileOpen": {
+                "additionalProperties": false,
+                "attributes": {
+                    "hide_all_locals": ""
+                },
+                "properties": {
+                    "bBusy": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "Busy flag",
+                                "propertyOrder": 7
+                            }
+                        ]
+                    },
+                    "bError": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "Error flag",
+                                "propertyOrder": 8
+                            }
+                        ]
+                    },
+                    "bExecute": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "Rising edge starts command execution",
+                                "propertyOrder": 5
+                            }
+                        ]
+                    },
+                    "ePath": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_System.E_OpenPath"
+                            },
+                            {
+                                "comment": "Default: Open generic file",
+                                "propertyOrder": 4
+                            }
+                        ]
+                    },
+                    "hFile": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UINT"
+                            },
+                            {
+                                "comment": "File handle",
+                                "propertyOrder": 10
+                            }
+                        ]
+                    },
+                    "nErrId": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "ADS error code",
+                                "propertyOrder": 9
+                            }
+                        ]
+                    },
+                    "nMode": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/DWORD"
+                            },
+                            {
+                                "comment": "Open mode flags",
+                                "propertyOrder": 3
+                            }
+                        ]
+                    },
+                    "sNetId": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_System.T_AmsNetID"
+                            },
+                            {
+                                "comment": "Ams net id",
+                                "propertyOrder": 1
+                            }
+                        ]
+                    },
+                    "sPathName": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_System.T_MaxString"
+                            },
+                            {
+                                "comment": "Max filename length = 255",
+                                "propertyOrder": 2
+                            }
+                        ]
+                    },
+                    "tTimeout": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/TIME"
+                            },
+                            {
+                                "comment": "Maximum time allowed for the execution of this ADS command",
+                                "propertyOrder": 6
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "sNetId",
+                    "sPathName",
+                    "nMode",
+                    "ePath",
+                    "bExecute",
+                    "tTimeout",
+                    "bBusy",
+                    "bError",
+                    "nErrId",
+                    "hFile"
+                ],
+                "type": "object"
+            },
+            "ADS-PLC1.Tc2_System.FB_FileRead": {
+                "additionalProperties": false,
+                "attributes": {
+                    "hide_all_locals": ""
+                },
+                "properties": {
+                    "bBusy": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "Busy flag",
+                                "propertyOrder": 7
+                            }
+                        ]
+                    },
+                    "bEOF": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "End of file",
+                                "propertyOrder": 11
+                            }
+                        ]
+                    },
+                    "bError": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "Error flag",
+                                "propertyOrder": 8
+                            }
+                        ]
+                    },
+                    "bExecute": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "Rising edge starts command execution",
+                                "propertyOrder": 5
+                            }
+                        ]
+                    },
+                    "cbRead": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "Count of bytes actually read",
+                                "propertyOrder": 10
+                            }
+                        ]
+                    },
+                    "cbReadLen": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "Count of bytes for read",
+                                "propertyOrder": 4
+                            }
+                        ]
+                    },
+                    "hFile": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UINT"
+                            },
+                            {
+                                "comment": "File handle",
+                                "propertyOrder": 2
+                            }
+                        ]
+                    },
+                    "nErrId": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "ADS error code",
+                                "propertyOrder": 9
+                            }
+                        ]
+                    },
+                    "pReadBuff": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.PVOID"
+                            },
+                            {
+                                "attributes": {
+                                    "TcIgnorePersistent": ""
+                                },
+                                "comment": "Buffer address for read",
+                                "propertyOrder": 3
+                            }
+                        ]
+                    },
+                    "sNetId": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_System.T_AmsNetID"
+                            },
+                            {
+                                "comment": "Ams net id",
+                                "propertyOrder": 1
+                            }
+                        ]
+                    },
+                    "tTimeout": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/TIME"
+                            },
+                            {
+                                "comment": "Maximum time allowed for the execution of this ADS command",
+                                "propertyOrder": 6
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "sNetId",
+                    "hFile",
+                    "pReadBuff",
+                    "cbReadLen",
+                    "bExecute",
+                    "tTimeout",
+                    "bBusy",
+                    "bError",
+                    "nErrId",
+                    "cbRead",
+                    "bEOF"
+                ],
+                "type": "object"
+            },
+            "ADS-PLC1.Tc2_System.FB_FileWrite": {
+                "additionalProperties": false,
+                "attributes": {
+                    "hide_all_locals": ""
+                },
+                "properties": {
+                    "bBusy": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "Busy flag",
+                                "propertyOrder": 7
+                            }
+                        ]
+                    },
+                    "bError": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "Error flag",
+                                "propertyOrder": 8
+                            }
+                        ]
+                    },
+                    "bExecute": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "Rising edge starts command execution",
+                                "propertyOrder": 5
+                            }
+                        ]
+                    },
+                    "cbWrite": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "Count of bytes actually written",
+                                "propertyOrder": 10
+                            }
+                        ]
+                    },
+                    "cbWriteLen": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "Count of bytes for write",
+                                "propertyOrder": 4
+                            }
+                        ]
+                    },
+                    "hFile": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UINT"
+                            },
+                            {
+                                "comment": "File handle",
+                                "propertyOrder": 2
+                            }
+                        ]
+                    },
+                    "nErrId": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "ADS error code",
+                                "propertyOrder": 9
+                            }
+                        ]
+                    },
+                    "pWriteBuff": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.PVOID"
+                            },
+                            {
+                                "attributes": {
+                                    "TcIgnorePersistent": ""
+                                },
+                                "comment": "Buffer address for write",
+                                "propertyOrder": 3
+                            }
+                        ]
+                    },
+                    "sNetId": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_System.T_AmsNetID"
+                            },
+                            {
+                                "comment": "Ams net id",
+                                "propertyOrder": 1
+                            }
+                        ]
+                    },
+                    "tTimeout": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/TIME"
+                            },
+                            {
+                                "comment": "Maximum time allowed for the execution of this ADS command",
+                                "propertyOrder": 6
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "sNetId",
+                    "hFile",
+                    "pWriteBuff",
+                    "cbWriteLen",
+                    "bExecute",
+                    "tTimeout",
+                    "bBusy",
+                    "bError",
+                    "nErrId",
+                    "cbWrite"
+                ],
+                "type": "object"
+            },
             "ADS-PLC1.Tc2_System.T_AmsNetID": {
                 "$ref": "tchmi:server#/definitions/ADS-PLC1.STRING-23"
             },
             "ADS-PLC1.Tc2_System.T_IPv4Addr": {
                 "$ref": "tchmi:server#/definitions/ADS-PLC1.STRING-15"
+            },
+            "ADS-PLC1.Tc2_System.T_MaxString": {
+                "$ref": "tchmi:server#/definitions/ADS-PLC1.STRING-255"
             },
             "ADS-PLC1.Tc2_TcpIp.FB_SocketClose": {
                 "additionalProperties": false,
@@ -6913,6 +7803,563 @@
                     "remoteAddr"
                 ],
                 "type": "object"
+            },
+            "ADS-PLC1.Tc2_Utilities.E_EnumCmdType": {
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "options": [
+                    {
+                        "label": "eEnumCmd_First",
+                        "value": 0
+                    },
+                    {
+                        "label": "eEnumCmd_Next",
+                        "value": 1
+                    },
+                    {
+                        "label": "eEnumCmd_Abort",
+                        "value": 2
+                    }
+                ],
+                "type": "integer"
+            },
+            "ADS-PLC1.Tc2_Utilities.FB_CSVMemBufferReader": {
+                "additionalProperties": false,
+                "attributes": {
+                    "conditionalshow_all_locals": ""
+                },
+                "properties": {
+                    "bBreak": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 22
+                            }
+                        ]
+                    },
+                    "bCRLF": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "TRUE => End of record separator found (CRLF)",
+                                "propertyOrder": 8
+                            }
+                        ]
+                    },
+                    "bDQBefore": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 18
+                            }
+                        ]
+                    },
+                    "bDQField": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 17
+                            }
+                        ]
+                    },
+                    "bEOF": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 21
+                            }
+                        ]
+                    },
+                    "bField": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 14
+                            }
+                        ]
+                    },
+                    "bFirstChar": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 16
+                            }
+                        ]
+                    },
+                    "bOk": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "TRUE => Successfull, FALSE => Failed",
+                                "propertyOrder": 4
+                            }
+                        ]
+                    },
+                    "cbBuffer": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "Max. byte size of data buffer",
+                                "propertyOrder": 3
+                            }
+                        ]
+                    },
+                    "cbCopied": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 15
+                            }
+                        ]
+                    },
+                    "cbField": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 20
+                            }
+                        ]
+                    },
+                    "cbRead": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "Number of successfully parse data bytes",
+                                "propertyOrder": 9
+                            }
+                        ]
+                    },
+                    "cbValue": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "Field value byte size",
+                                "propertyOrder": 7
+                            }
+                        ]
+                    },
+                    "eCmd": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Utilities.E_EnumCmdType"
+                            },
+                            {
+                                "comment": "Command type: read first or next field ?",
+                                "propertyOrder": 1
+                            }
+                        ]
+                    },
+                    "getBufferIndex": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 11
+                            }
+                        ]
+                    },
+                    "getValue": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_System.T_MaxString"
+                            },
+                            {
+                                "comment": "If successfull then this output returns the first/next field value as string",
+                                "propertyOrder": 5
+                            }
+                        ]
+                    },
+                    "pBuffer": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.POINTER-TO-BYTE"
+                            },
+                            {
+                                "comment": "Address ( pointer) of data buffer",
+                                "propertyOrder": 2
+                            }
+                        ]
+                    },
+                    "pField": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.POINTER-TO-BYTE"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 19
+                            }
+                        ]
+                    },
+                    "pValue": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.POINTER-TO-BYTE"
+                            },
+                            {
+                                "comment": "Pointer to the first value byte (HINT: String values are not null terminated. Empty string returns Null pointer )",
+                                "propertyOrder": 6
+                            }
+                        ]
+                    },
+                    "scanPtr": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.POINTER-TO-BYTE"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 12
+                            }
+                        ]
+                    },
+                    "scanSize": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 13
+                            }
+                        ]
+                    },
+                    "state": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 10
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "eCmd",
+                    "cbBuffer",
+                    "bOk",
+                    "getValue",
+                    "cbValue",
+                    "bCRLF",
+                    "cbRead",
+                    "state",
+                    "getBufferIndex",
+                    "scanSize",
+                    "bField",
+                    "cbCopied",
+                    "bFirstChar",
+                    "bDQField",
+                    "bDQBefore",
+                    "cbField",
+                    "bEOF",
+                    "bBreak"
+                ],
+                "type": "object"
+            },
+            "ADS-PLC1.Tc2_Utilities.FB_CSVMemBufferWriter": {
+                "additionalProperties": false,
+                "attributes": {
+                    "conditionalshow_all_locals": ""
+                },
+                "properties": {
+                    "bCRLF": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "TRUE = > Append end of record separator (CRLF)",
+                                "propertyOrder": 5
+                            }
+                        ]
+                    },
+                    "bNewLine": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 18
+                            }
+                        ]
+                    },
+                    "bOk": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "TRUE => Successfull, FALSE => Failed",
+                                "propertyOrder": 8
+                            }
+                        ]
+                    },
+                    "cbBuffer": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "Max. byte size of data buffer",
+                                "propertyOrder": 7
+                            }
+                        ]
+                    },
+                    "cbCopied": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 17
+                            }
+                        ]
+                    },
+                    "cbFree": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "Number of free data bytes",
+                                "propertyOrder": 10
+                            }
+                        ]
+                    },
+                    "cbSize": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "Number fo used data bytes",
+                                "propertyOrder": 9
+                            }
+                        ]
+                    },
+                    "cbTemp": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 16
+                            }
+                        ]
+                    },
+                    "cbValue": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "OPTIONAL: Byte size of external buffer containing field value data.",
+                                "propertyOrder": 4
+                            }
+                        ]
+                    },
+                    "cbWrite": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "Number of successfully written data bytes",
+                                "propertyOrder": 13
+                            }
+                        ]
+                    },
+                    "eCmd": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Utilities.E_EnumCmdType"
+                            },
+                            {
+                                "comment": "Command type: write first or next field ?",
+                                "propertyOrder": 1
+                            }
+                        ]
+                    },
+                    "fbReader": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Utilities.FB_CSVMemBufferReader"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 14
+                            }
+                        ]
+                    },
+                    "nFields": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "Number of fields",
+                                "propertyOrder": 11
+                            }
+                        ]
+                    },
+                    "nRecords": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "comment": "Number of records",
+                                "propertyOrder": 12
+                            }
+                        ]
+                    },
+                    "pBuffer": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.POINTER-TO-BYTE"
+                            },
+                            {
+                                "comment": "Address ( pointer) of data buffer",
+                                "propertyOrder": 6
+                            }
+                        ]
+                    },
+                    "pValue": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.POINTER-TO-BYTE"
+                            },
+                            {
+                                "comment": "OPTIONAL: Pointer to external buffer containing field value data.",
+                                "propertyOrder": 3
+                            }
+                        ]
+                    },
+                    "putValue": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_System.T_MaxString"
+                            },
+                            {
+                                "comment": "New first/next field value as string",
+                                "propertyOrder": 2
+                            }
+                        ]
+                    },
+                    "temp": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.ARRAY_0..256_OF-BYTE"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 15
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "eCmd",
+                    "putValue",
+                    "cbValue",
+                    "bCRLF",
+                    "cbBuffer",
+                    "bOk",
+                    "cbSize",
+                    "cbFree",
+                    "nFields",
+                    "nRecords",
+                    "cbWrite",
+                    "fbReader",
+                    "temp",
+                    "cbTemp",
+                    "cbCopied",
+                    "bNewLine"
+                ],
+                "type": "object"
+            },
+            "ADS-PLC1.UXINT": {
+                "$ref": "tchmi:general#/definitions/UINT64"
             },
             "ADS-PLC1.eBA": {
                 "attributes": {
@@ -7507,6 +8954,16 @@
                             }
                         ]
                     },
+                    "aSkills": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.ARRAY_1..8_OF-stHMI_SKILL"
+                            },
+                            {
+                                "propertyOrder": 7
+                            }
+                        ]
+                    },
                     "bBusy": {
                         "allOf": [
                             {
@@ -7527,6 +8984,16 @@
                             }
                         ]
                     },
+                    "nSkillCount": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UINT"
+                            },
+                            {
+                                "propertyOrder": 6
+                            }
+                        ]
+                    },
                     "sInstanceName": {
                         "allOf": [
                             {
@@ -7543,7 +9010,9 @@
                     "eStatus",
                     "MyHealth",
                     "bBusy",
-                    "aNameOfSkills"
+                    "aNameOfSkills",
+                    "nSkillCount",
+                    "aSkills"
                 ],
                 "type": "object"
             },
@@ -7635,6 +9104,181 @@
                     "bErrorActiv",
                     "bWarnActiv",
                     "MsgCount"
+                ],
+                "type": "object"
+            },
+            "ADS-PLC1.stHMI_PM": {
+                "additionalProperties": false,
+                "properties": {
+                    "aPointList": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.ARRAY_1..10_OF-ST_PointListEntry"
+                            },
+                            {
+                                "comment": "Unused rows retain unique placeholder IDs for TcHmiCombobox validation.",
+                                "propertyOrder": 12
+                            }
+                        ]
+                    },
+                    "aPoints": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.ARRAY_1..10_OF-ST_Point"
+                            },
+                            {
+                                "comment": "Each FB_PointManager instance owns this independent ten-point RAM store.",
+                                "propertyOrder": 11
+                            }
+                        ]
+                    },
+                    "bCmdDelete": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 4
+                            }
+                        ]
+                    },
+                    "bCmdLoad": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 2
+                            }
+                        ]
+                    },
+                    "bCmdLoadFile": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 7
+                            }
+                        ]
+                    },
+                    "bCmdNew": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 1
+                            }
+                        ]
+                    },
+                    "bCmdSave": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 3
+                            }
+                        ]
+                    },
+                    "bCmdSaveFile": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 6
+                            }
+                        ]
+                    },
+                    "bCmdTeach": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 5
+                            }
+                        ]
+                    },
+                    "editedPoint": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.ST_Point"
+                            },
+                            {
+                                "propertyOrder": 9
+                            }
+                        ]
+                    },
+                    "loadedPoint": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.ST_Point"
+                            },
+                            {
+                                "propertyOrder": 10
+                            }
+                        ]
+                    },
+                    "nPointListCount": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UINT"
+                            },
+                            {
+                                "propertyOrder": 13
+                            }
+                        ]
+                    },
+                    "nSelectedPointId": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UDINT"
+                            },
+                            {
+                                "propertyOrder": 14
+                            }
+                        ]
+                    },
+                    "sLastOperation": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.STRING-255"
+                            },
+                            {
+                                "propertyOrder": 15
+                            }
+                        ]
+                    },
+                    "xCurrentTcp": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.stPoseGeneral"
+                            },
+                            {
+                                "propertyOrder": 8
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "bCmdNew",
+                    "bCmdLoad",
+                    "bCmdSave",
+                    "bCmdDelete",
+                    "bCmdTeach",
+                    "bCmdSaveFile",
+                    "bCmdLoadFile",
+                    "xCurrentTcp",
+                    "editedPoint",
+                    "loadedPoint",
+                    "aPoints",
+                    "aPointList",
+                    "nPointListCount",
+                    "nSelectedPointId",
+                    "sLastOperation"
                 ],
                 "type": "object"
             },
@@ -7836,6 +9480,73 @@
                     "bReset",
                     "Status",
                     "Command"
+                ],
+                "type": "object"
+            },
+            "ADS-PLC1.stHMI_TOOL": {
+                "additionalProperties": false,
+                "attributes": {
+                    "OPC.UA.DA": "1",
+                    "OPC.UA.DA.StructuredType": "1"
+                },
+                "properties": {
+                    "Position": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/REAL"
+                            },
+                            {
+                                "propertyOrder": 1
+                            }
+                        ]
+                    },
+                    "TCPOffset": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.stPoseGeneral"
+                            },
+                            {
+                                "propertyOrder": 5
+                            }
+                        ]
+                    },
+                    "bClosed": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 3
+                            }
+                        ]
+                    },
+                    "bMounted": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 4
+                            }
+                        ]
+                    },
+                    "bOpen": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 2
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "Position",
+                    "bOpen",
+                    "bClosed",
+                    "bMounted",
+                    "TCPOffset"
                 ],
                 "type": "object"
             },
@@ -9403,6 +11114,51 @@
                         "propertyOrder": 1
                     }
                 ]
+            },
+            "USEMAPPING": true
+        },
+        "ADS.PLC1.SETUP.T.HMI_TOOL": {
+            "ACCESS": 3,
+            "DOMAIN": "ADS",
+            "DYNAMIC": true,
+            "MAPPING": "PLC1::SETUP::T::HMI_TOOL",
+            "SCHEMA": {
+                "allOf": [
+                    {
+                        "$ref": "tchmi:server#/definitions/ADS-PLC1.stHMI_TOOL"
+                    },
+                    {
+                        "propertyOrder": 9
+                    }
+                ]
+            },
+            "USEMAPPING": true
+        },
+        "ADS.PLC1.SETUP.UR_ALPHA.PM.HMI_PM.aPointList": {
+            "ACCESS": 3,
+            "DOMAIN": "ADS",
+            "DYNAMIC": true,
+            "MAPPING": "PLC1::SETUP::UR_ALPHA::PM::HMI_PM::aPointList",
+            "SCHEMA": {
+                "allOf": [
+                    {
+                        "$ref": "tchmi:server#/definitions/ADS-PLC1.ARRAY_1..10_OF-ST_PointListEntry"
+                    },
+                    {
+                        "comment": "Unused rows retain unique placeholder IDs for TcHmiCombobox validation.",
+                        "propertyOrder": 12
+                    }
+                ]
+            },
+            "USEMAPPING": true
+        },
+        "ADS.PLC1.SETUP.apRobot": {
+            "ACCESS": 3,
+            "DOMAIN": "ADS",
+            "DYNAMIC": true,
+            "MAPPING": "PLC1::SETUP::apRobot",
+            "SCHEMA": {
+                "$ref": "tchmi:server#/definitions/ADS-PLC1.ARRAY_1..16_OF-POINTER-TO-FB_1_ROB"
             },
             "USEMAPPING": true
         },
@@ -11411,6 +13167,26 @@
             },
             "USEMAPPING": true
         },
+        "R1.HMI_PM": {
+            "ACCESS": 3,
+            "DOMAIN": "ADS",
+            "DYNAMIC": true,
+            "MAPPING": "PLC1::SETUP::UR_ALPHA::PM::HMI_PM",
+            "SCHEMA": {
+                "allOf": [
+                    {
+                        "$ref": "tchmi:server#/definitions/ADS-PLC1.stHMI_PM"
+                    },
+                    {
+                        "attributes": {
+                            "OPC.UA.DA": "1"
+                        },
+                        "propertyOrder": 1
+                    }
+                ]
+            },
+            "USEMAPPING": true
+        },
         "R1.HMI_ROB": {
             "ACCESS": 3,
             "DOMAIN": "ADS",
@@ -11422,7 +13198,7 @@
                         "$ref": "tchmi:server#/definitions/ADS-PLC1.stHMI_ROB"
                     },
                     {
-                        "propertyOrder": 11
+                        "propertyOrder": 15
                     }
                 ]
             },
@@ -11439,7 +13215,7 @@
                         "$ref": "tchmi:server#/definitions/ADS-PLC1.stHMI_ROB_MANIP"
                     },
                     {
-                        "propertyOrder": 18
+                        "propertyOrder": 22
                     }
                 ]
             },
@@ -11456,7 +13232,7 @@
                         "$ref": "tchmi:server#/definitions/ADS-PLC1.FB_Jog_Manipulator"
                     },
                     {
-                        "propertyOrder": 17
+                        "propertyOrder": 21
                     }
                 ]
             },
@@ -11482,6 +13258,26 @@
             },
             "USEMAPPING": true
         },
+        "R2.HMI_PM": {
+            "ACCESS": 3,
+            "DOMAIN": "ADS",
+            "DYNAMIC": true,
+            "MAPPING": "PLC1::SETUP::UR_BRAVO::PM::HMI_PM",
+            "SCHEMA": {
+                "allOf": [
+                    {
+                        "$ref": "tchmi:server#/definitions/ADS-PLC1.stHMI_PM"
+                    },
+                    {
+                        "attributes": {
+                            "OPC.UA.DA": "1"
+                        },
+                        "propertyOrder": 1
+                    }
+                ]
+            },
+            "USEMAPPING": true
+        },
         "R2.HMI_ROB": {
             "ACCESS": 3,
             "DOMAIN": "ADS",
@@ -11493,7 +13289,7 @@
                         "$ref": "tchmi:server#/definitions/ADS-PLC1.stHMI_ROB"
                     },
                     {
-                        "propertyOrder": 11
+                        "propertyOrder": 15
                     }
                 ]
             },
@@ -11510,7 +13306,7 @@
                         "$ref": "tchmi:server#/definitions/ADS-PLC1.stHMI_ROB_MANIP"
                     },
                     {
-                        "propertyOrder": 18
+                        "propertyOrder": 22
                     }
                 ]
             },
@@ -11527,7 +13323,7 @@
                         "$ref": "tchmi:server#/definitions/ADS-PLC1.FB_Jog_Manipulator"
                     },
                     {
-                        "propertyOrder": 17
+                        "propertyOrder": 21
                     }
                 ]
             },
@@ -14230,6 +16026,9 @@
                 "ADS.PLC1.LIBRARY.Param_PickPlace.PlacePositionOffset.z": 3,
                 "ADS.PLC1.LIBRARY.Param_PickPlace.Velocity": 3,
                 "ADS.PLC1.LIBRARY.Param_PickPlace.WrittenFor": 3,
+                "ADS.PLC1.SETUP.T.HMI_TOOL": 3,
+                "ADS.PLC1.SETUP.UR_ALPHA.PM.HMI_PM.aPointList": 3,
+                "ADS.PLC1.SETUP.apRobot": 3,
                 "ADS.PLC1.SETUP.bApplyRecipe": 3,
                 "ChangeUserSettings": 3,
                 "ConfirmAlarm": 3,
@@ -14257,10 +16056,12 @@
                 "R1.COMM.HMI_BASE": 3,
                 "R1.COMM.HMI_COMM": 3,
                 "R1.HMI_BASE": 3,
+                "R1.HMI_PM": 3,
                 "R1.HMI_ROB": 3,
                 "R1.HMI_ROB_MANIP": 3,
                 "R1.JOG": 3,
                 "R2.HMI_BASE": 3,
+                "R2.HMI_PM": 3,
                 "R2.HMI_ROB": 3,
                 "R2.HMI_ROB_MANIP": 3,
                 "R2.JOG": 3,

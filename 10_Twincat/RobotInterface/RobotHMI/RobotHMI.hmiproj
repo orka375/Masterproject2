@@ -123,6 +123,13 @@
   <Target Name="Clean" DependsOnTargets="$(CleanDependsOn)" />
   <Target Name="ReBuild" DependsOnTargets="Clean; Build" />
   <ItemGroup>
+    <Content Include="UserControl\Skill_Paras\PickPlace.usercontrol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="UserControl\Skill_Paras\PickPlace.usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\Skill_Paras\PickPlace.usercontrol</DependentUpon>
+    </Content>
     <Content Include="UserControl\Status_Base - Copy (1).usercontrol.json">
       <SubType>Content</SubType>
       <DependentUpon>UserControl\Status_Base.usercontrol</DependentUpon>
@@ -177,6 +184,13 @@
       <SubType>Content</SubType>
       <DependentUpon>UserControl\Status_Base.usercontrol</DependentUpon>
     </Content>
+    <Content Include="UserControl\Status_Tool.usercontrol">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="UserControl\Status_Tool.usercontrol.json">
+      <SubType>Content</SubType>
+      <DependentUpon>UserControl\Status_Tool.usercontrol</DependentUpon>
+    </Content>
     <Content Include="UserControl\TopBar_RobotSelection.usercontrol">
       <SubType>Content</SubType>
     </Content>
@@ -205,12 +219,12 @@
       <SubType>Content</SubType>
       <DependentUpon>UserControl\UC_SkillControl.usercontrol</DependentUpon>
     </Content>
-    <Content Include="UserControl\UC_MANIPULATOR.usercontrol">
+    <Content Include="UserControl\UC_Manipulator.usercontrol">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="UserControl\UC_MANIPULATOR.usercontrol.json">
+    <Content Include="UserControl\UC_Manipulator.usercontrol.json">
       <SubType>Content</SubType>
-      <DependentUpon>UserControl\UC_MANIPULATOR.usercontrol</DependentUpon>
+      <DependentUpon>UserControl\UC_Manipulator.usercontrol</DependentUpon>
     </Content>
     <Content Include="UserControl\UC_Skills_Overview.usercontrol">
       <SubType>Content</SubType>
@@ -227,11 +241,11 @@
     <Folder Include="Imports\Videos" />
     <Folder Include="KeyboardLayouts\" />
     <Folder Include="Localization" />
+    <Folder Include="Scripts\" />
     <Folder Include="UserControl" />
     <Folder Include="Pages\" />
     <Folder Include="Pages\Diagnostics\" />
     <Folder Include="Pages\Skills\" />
-    <Folder Include="Scripts\" />
     <Folder Include="Server\ADS\" />
     <Folder Include="Server\TcHmiAlarm" />
     <Folder Include="Server\TcHmiEcDiagnostics" />
@@ -277,10 +291,7 @@
     <Content Include="Pages\SkillControl.content">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Pages\SkillRecipes.content">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Scripts\RobotHmi.js">
+    <Content Include="Pages\Recipe.content">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Images\RobotUR5.svg">
@@ -293,6 +304,12 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Pages\Skills\SkillsOverview.content">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Scripts\PlcEnumFormatter.js">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Scripts\PointManager.js">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Server\ADS\ADS.Config.default.json">
@@ -657,6 +674,7 @@
     <Folder Include="Themes\Base\Images\PLC\" />
     <Folder Include="Themes\Base\Images\Settings\" />
     <Folder Include="Themes\Base\Images\TwinCAT\" />
+    <Folder Include="UserControl\Skill_Paras" />
   </ItemGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

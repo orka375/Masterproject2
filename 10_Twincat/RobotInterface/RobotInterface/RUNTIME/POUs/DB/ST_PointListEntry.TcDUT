@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_PointListEntry" Id="{0bb7eec3-b823-4cec-b1f4-d40cbd2bbc52}">
+    <Declaration><![CDATA[TYPE ST_PointListEntry :
+STRUCT
+    // Field names are intentionally lower-case: TcHmiCombobox SrcData expects
+    // id / text / value names. Real IDs are 1..10; placeholders are above 1000.
+    id    : UDINT;
+    text  : STRING(120);
+    value : DINT;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

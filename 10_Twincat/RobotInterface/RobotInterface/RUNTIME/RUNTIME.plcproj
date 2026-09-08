@@ -150,6 +150,9 @@
     <Compile Include="DUTs\Visu\stHMI_BASE.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\Visu\stHMI_PM.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\Visu\stHMI_SKILL.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -162,16 +165,13 @@
     <Compile Include="DUTs\Visu\stHMI_MESSENGER.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Visu\stHMI_TOOL.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="DUTs\Visu\stHMI_ROB_AMR.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Visu\stHMI_ROB_MANIP.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Visu\stVisStatusTool.TcDUT">
+    <Compile Include="DUTs\Visu\stHMI_TOOL.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="GVLs\LIBRARY.TcGVL">
@@ -199,7 +199,7 @@
     <Compile Include="POUs\DB\FB_PointManager.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\DB\FB_PointManager_PostgreSQL.TcPOU">
+    <Compile Include="POUs\DB\ST_PointListEntry.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Demo1.TcPOU">
@@ -411,6 +411,7 @@
     <Folder Include="POUs\DB" />
     <Folder Include="POUs\Helpers" />
     <Folder Include="POUs\Jog" />
+    <Folder Include="POUs\Skills\Skill_Dummy" />
     <Folder Include="POUs\Skills\Skill_Counter" />
     <Folder Include="POUs\Test" />
     <Folder Include="POUs\Robots" />

@@ -1,6 +1,13 @@
 <div id="UC_Jog_Manip" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControl" data-tchmi-top="0" data-tchmi-left="0" data-tchmi-width="100" data-tchmi-height="100" data-tchmi-width-unit="%" data-tchmi-height-unit="%" data-tchmi-creator-viewport-width="1920" data-tchmi-creator-viewport-height="1080">
 	<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["usercontrol-surface"]</script>
-	<script data-tchmi-target-attribute="data-tchmi-trigger" type="application/json">[{"event":"%ctx%owner::Id|EventRegistrationMode=Resolve%/ctx%.onInitialized","actions":[{"objectType":"JavaScript","active":true,"sourceLines":["var owner = TcHmi.Controls.get('%ctx%owner::Id%/ctx%');","var root = owner ? owner.getElement() : null;","var body = root ? root.find('[id$=\"JogBodyGrid\"]') : null;","function getControl(idSuffix) {","  var element = root ? root.find('[id$=\"' + idSuffix + '\"]') : null;","  return element \u0026\u0026 element.length ? TcHmi.Controls.get(element.attr('id')) : null;","}","function setText(idSuffix, text) {","  var control = getControl(idSuffix);","  if (control) { control.setText(text); }","}","function watchValue(expression, update) {","  var symbol = new TcHmi.Symbol(expression);","  symbol.watch(function (data) { update(data ? data.value : null); });","}","function boolText(label, value) {","  return label + ': ' + (value === null || value === undefined ? '--' : (value ? 'TRUE' : 'FALSE'));","}","watchValue('%pp%J::bEnable%/pp%', function (value) {","  if (body \u0026\u0026 body.length) { body.css('opacity', value ? '1' : '0.35'); }","});","watchValue('%pp%R::bReady%/pp%', function (value) { setText('JogReadyStatus', boolText('Ready', value)); });","watchValue('%pp%R::bMoving%/pp%', function (value) { setText('JogMovingStatus', boolText('Moving', value)); });","watchValue('%pp%R::bEStop%/pp%', function (value) { setText('JogEStopStatus', boolText('E-Stop', value)); });","watchValue('%pp%R::bInCollision%/pp%', function (value) { setText('JogCollisionStatus', boolText('Collision', value)); });","watchValue('%pp%R::eModus%/pp%', function (value) { setText('JogModeStatus', 'Mode: ' + (value === null || value === undefined ? '--' : String(value))); });"]}]}]</script>
+	<script data-tchmi-target-attribute="data-tchmi-trigger" type="application/json">
+[
+  {
+    "event": "%ctx%owner::Id|EventRegistrationMode=Resolve%/ctx%.onInitialized",
+    "actions": []
+  }
+]
+</script>
 	<div id="JogManipGrid" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0">
 		<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-layout"]</script>
 		<script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">
@@ -118,7 +125,7 @@
 				<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-header-status"]</script>
 			</div>
 		</div>
-		<div id="JogBodyGrid" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-grid-row-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-is-enabled="%pp%J::bEnable%/pp%">
+		<div id="JogBodyGrid" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-grid-row-index="2" data-tchmi-left="0" data-tchmi-top="-3" data-tchmi-right="0" data-tchmi-bottom="3" data-tchmi-is-enabled="%pp%J::bEnable%/pp%">
 			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-body"]</script>
 			<script data-tchmi-target-attribute="data-tchmi-column-options" type="application/json">
 [
@@ -480,29 +487,10 @@
 			<div id="JogOverrideSlider" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiLinearGauge" data-tchmi-grid-column-index="5" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-value="%pp%R::_speedOverride|BindingMode=TwoWay%/pp%" data-tchmi-min-value="0" data-tchmi-max-value="100" data-tchmi-step="1" data-tchmi-editable="true" data-tchmi-bottom="0" data-tchmi-input-processing-point="InteractionFinished">
 				<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-slider"]</script>
 			</div>
-			<div id="JogStopButton" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-grid-column-index="6" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="STOP" data-tchmi-bottom="0">
+			<div id="JogStopButton" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-grid-column-index="6" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="STOP" data-tchmi-bottom="0" data-tchmi-state-symbol="%pp%R::bEStop%/pp%">
 				<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-stop-button"]</script>
 			
-<script data-tchmi-target-attribute="data-tchmi-trigger" type="application/json">
-[
-  {
-    "event": "%ctx%owner::Id|EventRegistrationMode=Resolve%/ctx%.onPressed",
-    "actions": [
-      {
-        "objectType": "WriteToSymbol",
-        "active": true,
-        "symbolExpression": "%pp%R::bEStop%/pp%",
-        "value": {
-          "objectType": "StaticValue",
-          "valueType": "tchmi:general#/definitions/BOOL",
-          "value": true
-        },
-        "asyncWait": true
-      }
-    ]
-  }
-]
-</script>
+
 
 <script data-tchmi-target-attribute="data-tchmi-background-color" type="application/json">
 {
@@ -519,7 +507,7 @@
 			<div id="JogStepLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="2" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="Jog step [mm]" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 				<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-footer-label"]</script>
 			</div>
-			<div id="JogStepInput" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiNumericInput" data-tchmi-grid-row-index="2" data-tchmi-grid-column-index="3" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-value="%pp%J::fLinearStep|BindingMode=TwoWay%/pp%" data-tchmi-min-value="0.1" data-tchmi-max-value="100" data-tchmi-decimal-digits="4" data-tchmi-step="0.001"></div>
+			<div id="JogStepInput" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiNumericInput" data-tchmi-grid-row-index="2" data-tchmi-grid-column-index="3" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-value="%pp%J::fLinearStep|BindingMode=TwoWay%/pp%" data-tchmi-min-value="0.1" data-tchmi-max-value="100" data-tchmi-decimal-digits="1" data-tchmi-step="0.001" data-tchmi-input-processing-point="InteractionFinished"></div>
 		</div>
 	</div>
 </div>

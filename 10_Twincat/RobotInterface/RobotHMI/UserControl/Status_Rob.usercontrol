@@ -1,16 +1,81 @@
-<div id="UserControl1_1" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControl" data-tchmi-top="0" data-tchmi-left="0" data-tchmi-width="100" data-tchmi-height="100" data-tchmi-width-unit="%" data-tchmi-height-unit="%" data-tchmi-creator-viewport-width="500" data-tchmi-creator-viewport-height="500">
+<div id="UserControl1_1" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControl" data-tchmi-top="0" data-tchmi-left="0" data-tchmi-width="100" data-tchmi-height="100" data-tchmi-width-unit="%" data-tchmi-height-unit="%" data-tchmi-creator-viewport-width="500" data-tchmi-creator-viewport-height="800">
 	<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">
 [
   "background-container_dark"
 ]
 </script>
+  <script data-tchmi-target-attribute="data-tchmi-trigger" type="application/json">[{"event":"%ctx%owner::Id|EventRegistrationMode=Resolve%/ctx%.onInitialized","actions":[{"objectType":"JavaScript","active":true,"sourceLines":["var owner = TcHmi.Controls.get('%ctx%owner::Id%/ctx%');","var root = owner ? owner.getElement() : null;","var target = root ? root.find('[id$=\"StatusRobMode\"]') : null;","if (target && target.length) { PlcEnumFormatter.bind(target.attr('id'), '%pp%R::eModus%/pp%', 'eMode'); }"]}]}]</script>
 	<div id="StatusRobGrid" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-left="10" data-tchmi-top="10" data-tchmi-right="10" data-tchmi-bottom="10">
 	<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-composite"]</script>
-		<script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">[{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"}]</script>
+		<script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">
+[
+  {
+    "height": 100.0,
+    "heightMode": "Value",
+    "heightUnit": "px"
+  },
+  {
+    "height": "%i%TextHeight%/i%",
+    "heightMode": "Value",
+    "heightUnit": "px"
+  },
+  {
+    "height": 1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  }
+]
+</script>
 		<div id="StatusRobValuesGrid" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0">
 			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-grid"]</script>
-			<script data-tchmi-target-attribute="data-tchmi-column-options" type="application/json">[{"width":160,"widthMode":"Value","widthUnit":"px"},{"width":1,"widthMode":"Value","widthUnit":"factor"}]</script>
-			<script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">[{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"}]</script>
+			<script data-tchmi-target-attribute="data-tchmi-column-options" type="application/json">
+[
+  {
+    "width": 100.0,
+    "widthMode": "Value",
+    "widthUnit": "px"
+  },
+  {
+    "width": 1,
+    "widthMode": "Value",
+    "widthUnit": "factor"
+  }
+]
+</script>
+			<script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">
+[
+  {
+    "height": "%i%TextHeight%/i%",
+    "heightMode": "Value",
+    "heightUnit": "px"
+  },
+  {
+    "height": "%i%TextHeight%/i%",
+    "heightMode": "Value",
+    "heightUnit": "px"
+  },
+  {
+    "height": "%i%TextHeight%/i%",
+    "heightMode": "Value",
+    "heightUnit": "px"
+  },
+  {
+    "height": "%i%TextHeight%/i%",
+    "heightMode": "Value",
+    "heightUnit": "px"
+  },
+  {
+    "height": "%i%TextHeight%/i%",
+    "heightMode": "Value",
+    "heightUnit": "px"
+  },
+  {
+    "height": "%i%TextHeight%/i%",
+    "heightMode": "Value",
+    "heightUnit": "px"
+  }
+]
+</script>
 		<div id="StatusRobReadyLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="Ready" data-tchmi-bottom="0"><script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-info-label"]</script></div>
 		<div id="StatusRobReady" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%pp%R::bReady%/pp%" data-tchmi-bottom="0"><script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-info-value"]</script></div>
 		<div id="StatusRobMovingLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-grid-row-index="1" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="Moving" data-tchmi-bottom="0"><script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-info-label"]</script></div>
@@ -20,12 +85,75 @@
 		<div id="StatusRobCollisionLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-grid-row-index="3" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="Collision" data-tchmi-bottom="0"><script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-info-label"]</script></div>
 		<div id="StatusRobCollision" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="3" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%pp%R::bInCollision%/pp%" data-tchmi-bottom="0"><script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-info-value"]</script></div>
 		<div id="StatusRobModeLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-grid-row-index="4" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="Mode" data-tchmi-bottom="0"><script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-info-label"]</script></div>
-		<div id="StatusRobMode" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="4" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%pp%R::eModus%/pp%" data-tchmi-bottom="0"><script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-info-value"]</script></div>
-		<div id="StatusRobSpeedLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-grid-row-index="5" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="Speed override (%)" data-tchmi-bottom="0"><script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-info-label"]</script></div>
-		<div id="StatusRobSpeed" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="5" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%pp%R::_speedOverride%/pp%" data-tchmi-bottom="0"><script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-info-value"]</script></div>
-		</div>
-		<div id="StatusRobComm" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-row-index="1" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/Status_Comm.usercontrol" data-tchmi-b="%pp%B%/pp%" data-tchmi-c="%pp%C%/pp%">
-	<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-panel"]</script>
-		</div>
-	</div>
+    <div id="StatusRobMode" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="4" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0"><script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-info-value"]</script></div>
+						</div>
+			<div id="TcHmiGrid_3" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-right="0" data-tchmi-bottom="5" data-tchmi-grid-row-index="2" data-tchmi-grid-column-index="0">
+<script data-tchmi-target-attribute="data-tchmi-column-options" type="application/json">
+[
+  {
+    "width": 1,
+    "widthMode": "Value",
+    "widthUnit": "factor"
+  },
+  {
+    "width": 0.1,
+    "widthMode": "Value",
+    "widthUnit": "factor"
+  },
+  {
+    "width": 1,
+    "widthMode": "Value",
+    "widthUnit": "factor"
+  }
+]
+</script>
+
+<script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">
+[
+  {
+    "height": "%i%TextHeight%/i%",
+    "heightMode": "Value",
+    "heightUnit": "px",
+    "overflow": false
+  },
+  {
+    "height": "%i%TextHeight%/i%",
+    "heightMode": "Value",
+    "heightUnit": "px",
+    "overflow": false
+  },
+  {
+    "height": 1,
+    "heightMode": "Value",
+    "heightUnit": "factor"
+  }
+]
+</script>
+<div id="StatusRobComm" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/Status_Comm.usercontrol" data-tchmi-b="%pp%B%/pp%" data-tchmi-c="%pp%C%/pp%" data-tchmi-grid-row-index="2" data-tchmi-grid-column-index="0">
+<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-panel"]</script>
+		
+<script data-tchmi-target-attribute="data-tchmi-border-color" type="application/json">
+{
+  "color": "rgba(62, 62, 81, 1)"
+}
+</script>
+</div>
+<div id="TcHmiTextblock_3" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-text="Communication" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-word-wrap="True" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
+<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">
+[
+  "headline-3"
+]
+</script>
+</div>
+<div id="TcHmiTextblock_2" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-text="Tool" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-word-wrap="True" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center" data-tchmi-grid-row-index="0" data-tchmi-grid-column-index="2">
+<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">
+[
+  "headline-3"
+]
+</script>
+</div>
+<div id="Status_Tool_1" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-target-user-control="UserControl/Status_Tool.usercontrol" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-grid-row-index="2" data-tchmi-grid-column-index="2" data-tchmi-right="0" data-tchmi-bottom="0">
+</div>
+</div>
+</div>
 </div>

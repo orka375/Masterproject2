@@ -25,13 +25,13 @@
       "type": "object",
       "id": "tchmi:project#/definitions/Status_Manip"
     },
-    "UC_MANIPULATOR": {
+    "UC_Manipulator": {
       "frameworkControlNamespace": "TcHmi.Controls.Beckhoff",
       "frameworkControlType": "TcHmi.Controls.System.TcHmiUserControl",
       "frameworkInstanceOf": "TcHmi.Controls.System.TcHmiControl",
-      "frameworkUserControlConfig": "UserControl\\UC_MANIPULATOR.usercontrol.json",
+      "frameworkUserControlConfig": "UserControl\\UC_Manipulator.usercontrol.json",
       "type": "object",
-      "id": "tchmi:project#/definitions/UC_MANIPULATOR"
+      "id": "tchmi:project#/definitions/UC_Manipulator"
     },
     "UC_SkillControl": {
       "frameworkControlNamespace": "TcHmi.Controls.Beckhoff",

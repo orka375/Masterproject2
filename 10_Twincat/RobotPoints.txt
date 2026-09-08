@@ -1,0 +1,4 @@
+id;robot_prefix;short_name;pose_kind;frame_id;x;y;z;rx;ry;rz
+1;UR_ALPHA;AlphaHome;POSE_3D;0;412.7;-186.4;358.2;180.0;0.0;0.0
+0;;;;0;0.0;0.0;0.0;0.0;0.0;0.0
+2;UR_ALPHA;AlphaPick;POSE_3D;0;638.5;143.8;92.6;179.5;1.2;-43.0

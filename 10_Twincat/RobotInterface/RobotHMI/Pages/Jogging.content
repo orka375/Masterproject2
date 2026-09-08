@@ -1,6 +1,40 @@
 <div id="RobotMove" data-tchmi-type="TcHmi.Controls.System.TcHmiContent" data-tchmi-top="0" data-tchmi-left="0" data-tchmi-creator-visibility="Visible" data-tchmi-right="0" data-tchmi-bottom="0">
 	<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["overview-surface"]</script>
-	<script data-tchmi-target-attribute="data-tchmi-trigger" type="application/json">[{"event":"%ctx%owner::Id|EventRegistrationMode=Resolve%/ctx%.onInitialized","actions":[{"objectType":"JavaScript","active":true,"sourceLines":["var r1Jog = TcHmi.Controls.get('RobotMoveJogR1');","var r2Jog = TcHmi.Controls.get('RobotMoveJogR2');","var unavailable = TcHmi.Controls.get('RobotMoveJogUnavailable');","var selectedRobot = new TcHmi.Symbol('%i%SelectedRobot%/i%');","selectedRobot.watch(function (data) {","  var selected = data ? Number(data.value) : 0;","  var valid = selected === 1 || selected === 2;","  if (r1Jog) { r1Jog.setVisibility(selected === 1 ? 'Visible' : 'Collapsed'); }","  if (r2Jog) { r2Jog.setVisibility(selected === 2 ? 'Visible' : 'Collapsed'); }","  if (unavailable) { unavailable.setVisibility(valid ? 'Collapsed' : 'Visible'); }","});"]}]}]</script>
+	<script data-tchmi-target-attribute="data-tchmi-trigger" type="application/json">
+[
+  {
+    "event": "%i%SelectedIndex%/i%",
+    "actions": [
+      {
+        "objectType": "JavaScript",
+        "active": true,
+        "sourceLines": [
+          "TcHmi.Symbol.readEx2('%i%SelectedIndex%/i%', function (data) {",
+          "  if (!data || data.error !== TcHmi.Errors.NONE) {",
+          "    return;",
+          "  }",
+          "",
+          "  var selected = Number(data.value) || 0;",
+          "  var visibilityR1 = selected === 1 ? 'Visible' : 'Collapsed';",
+          "  var visibilityR2 = selected === 2 ? 'Visible' : 'Collapsed';",
+          "  var robot1 = TcHmi.Controls.get('RobotMoveJogR1');",
+          "  var robot2 = TcHmi.Controls.get('RobotMoveJogR2');",
+          "  var pm1 = TcHmi.Controls.get('UC_PointManagerR1');",
+          "  var pm2 = TcHmi.Controls.get('UC_PointManagerR2');",
+          "",
+          "  if (robot1) { robot1.setVisibility(visibilityR1); }",
+          "  if (robot2) { robot2.setVisibility(visibilityR2); }",
+          "  if (pm1) { pm1.setVisibility(visibilityR1); }",
+          "  if (pm2) { pm2.setVisibility(visibilityR2); }",
+          "});"
+        ],
+        "asyncWait": true,
+        "waitMode": "Synchronous"
+      }
+    ]
+  }
+]
+</script>
 	<div id="RobotMoveGrid" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0">
 		<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["overview-surface"]</script>
 		<script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">
@@ -26,24 +60,29 @@
 			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["overview-cell-status-slot"]</script>
 		</div>
 		<div id="RobotMoveJogGrid" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-grid-row-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0">
-			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["overview-manipulator-grid"]</script>
+			
 			<script data-tchmi-target-attribute="data-tchmi-column-options" type="application/json">
 [
-	{
-		"width": 0.1,
-		"widthMode": "Value",
-		"widthUnit": "factor"
-	},
-	{
-		"width": 1,
-		"widthMode": "Value",
-		"widthUnit": "factor"
-	},
-	{
-		"width": 0.1,
-		"widthMode": "Value",
-		"widthUnit": "factor"
-	}
+  {
+    "width": 0.1,
+    "widthMode": "Value",
+    "widthUnit": "factor"
+  },
+  {
+    "width": 1,
+    "widthMode": "Value",
+    "widthUnit": "factor"
+  },
+  {
+    "width": 0.1,
+    "widthMode": "Value",
+    "widthUnit": "factor"
+  },
+  {
+    "width": 1,
+    "widthMode": "Value",
+    "widthUnit": "factor"
+  }
 ]
 </script>
 			<script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">
@@ -55,12 +94,16 @@
 	}
 ]
 </script>
-			<div id="RobotMoveJogR1" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/UC_Jog_Manip.usercontrol" data-tchmi-j="%s%R1.JOG%/s%" data-tchmi-r="%s%R1.HMI_ROB%/s%" data-tchmi-creator-visibility="Visible">
+			<div id="RobotMoveJogR1" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/UC_Jog_Manip.usercontrol" data-tchmi-j="%s%R1.JOG|BindingMode=TwoWay%/s%" data-tchmi-r="%s%R1.HMI_ROB|BindingMode=TwoWay%/s%" data-tchmi-creator-visibility="Visible">
 				<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["overview-manipulator"]</script>
 			</div>
-						<div id="RobotMoveJogUnavailable" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="No robot selected" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center" data-tchmi-visibility="Collapsed">
-				<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-unavailable"]</script>
+			<div id="RobotMoveJogR2" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-target-user-control="UserControl/UC_Jog_Manip.usercontrol" data-tchmi-j="%s%R2.JOG|BindingMode=TwoWay%/s%" data-tchmi-r="%s%R2.HMI_ROB|BindingMode=TwoWay%/s%" data-tchmi-visibility="Collapsed">
+				<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["overview-manipulator"]</script>
 			</div>
-		</div>
+                <div id="UC_PointManagerR1" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-column-index="3" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-target-user-control="UserControl/UC_PointManager.usercontrol" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-pm="%s%R1.HMI_PM|BindingMode=TwoWay%/s%">
+</div>
+<div id="UC_PointManagerR2" data-tchmi-type="TcHmi.Controls.System.TcHmiUserControlHost" data-tchmi-grid-column-index="3" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-target-user-control="UserControl/UC_PointManager.usercontrol" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-pm="%s%R2.HMI_PM|BindingMode=TwoWay%/s%" data-tchmi-visibility="Collapsed">
+</div>
+</div>
 	</div>
 </div>

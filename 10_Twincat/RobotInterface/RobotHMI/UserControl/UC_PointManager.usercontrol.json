@@ -10,7 +10,7 @@
       "name": "data-tchmi-pm",
       "displayName": "PM",
       "visible": true,
-      "type": "tchmi:server#/definitions/ADS-PLC1.FB_PointManager",
+      "type": "tchmi:server#/definitions/ADS-PLC1.stHMI_PM",
       "category": "",
       "description": "",
       "readOnly": false,

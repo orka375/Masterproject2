@@ -15,6 +15,9 @@ END_VAR
 
 {attribute 'global_init_slot' := '40400'} //https://infosys.beckhoff.com/index.php?content=../content/1031/tc3_plc_intro/2529649291.html&id=
 VAR_GLOBAL
+	
+	SIMMODE: BOOL := TRUE;
+
 	next_ID: UINT:= 100;
 	nRobCount: UINT := 0;
 	nManipCount: UINT := 0;
@@ -22,6 +25,7 @@ VAR_GLOBAL
 	nSkillCount: UINT := 0;
 	nToolCount: UINT := 0;
 	apRobot: ARRAY[1..MaxNrofRobots] OF POINTER TO FB_1_ROB;
+	apRobotNames: ARRAY[1..MaxNrofRobots] OF POINTER TO STRING; 		//TODO
 	apManip: ARRAY[1..MaxNrofManipulators] OF POINTER TO FB_2_ROB_MANIP;
 	apAMR: ARRAY[1..MaxNrofAMRs] OF POINTER TO FB_2_ROB_AMR;
 	apSkill: ARRAY[1..MaxNrofSkills] OF POINTER TO FB_1_Skill;
@@ -52,7 +56,9 @@ VAR_GLOBAL
 	R2_Counter_para: stParam_Counter:= (nMax:= 8);
 	R2_Counter: Skill_Counter := (Param:=R2_Counter_para);
 	
-
+	
+	T: FB_1_TOOL;
+	
 END_VAR
 
 
@@ -62,15 +68,19 @@ END_VAR
 VAR_GLOBAL
 	UR_ALPHA: ROBOT_UR :=(
 		sRobotIp:='192.168.250.2',
+		PointManagerName:='UR_ALPHA',
 		pA_Skills:= [ADR(R1_PP),ADR(R1_Counter)]
 	);
 
 	UR_BRAVO: ROBOT_UR :=(
 		sRobotIp:='192.168.250.2',
+		PointManagerName:='UR_BRAVO',
 		pA_Skills:= [ADR(R2_PP),ADR(R2_Counter)]
 	);
 	
-	MECA_CHARLIE: ROBOT_MECA500;
+	MECA_CHARLIE: ROBOT_MECA500 :=(
+		PointManagerName:='MECA_CHARLIE'
+	);
 
 	(*
 	Replace AxisRef_X, AxisRef_XY45 and AxisRef_Z with AXIS_REF symbols

@@ -30,6 +30,17 @@ END_VAR
     </Implementation>
     <Folder Name="MotionControl" Id="{fc8c0aca-629b-4848-a20d-78e9ce6e9fda}" />
     <Folder Name="StateControl" Id="{4f99cba4-d44f-4086-b21c-31fe1a3d2978}" />
+    <Action Name="CYCLIC_MANIP" Id="{c5ea77dd-14da-4015-9108-0744e50afbab}">
+      <Implementation>
+        <ST><![CDATA[CYCLIC_ROB();
+TOOL.CYCLIC_TOOL();
+JOG(pRobot:=THIS);
+
+
+
+]]></ST>
+      </Implementation>
+    </Action>
     <Method Name="FB_Init" Id="{59b2ccf3-d1a8-4248-bdb8-48f7cd1360d5}">
       <Declaration><![CDATA[METHOD FB_Init : BOOL
   VAR_INPUT
@@ -40,7 +51,7 @@ END_VAR
     iManip : UINT;
   END_VAR]]></Declaration>
       <Implementation>
-      <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
+        <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
 
   FOR iManip := 1 TO SETUP.nManipCount DO
     IF SETUP.apManip[iManip] = THIS THEN
@@ -56,17 +67,6 @@ END_VAR
   END_IF]]></ST>
       </Implementation>
     </Method>
-    <Action Name="CYCLIC_MANIP" Id="{c5ea77dd-14da-4015-9108-0744e50afbab}">
-      <Implementation>
-        <ST><![CDATA[CYCLIC_ROB();
-TOOL.CYCLIC_TOOL();
-JOG(pRobot:=THIS);
-
-
-
-]]></ST>
-      </Implementation>
-    </Action>
     <Method Name="Home" Id="{332921a2-9f70-499b-943d-00519405a468}" FolderPath="MotionControl\">
       <Declaration><![CDATA[{warning 'Add method implementation '}
 METHOD Home : UINT
@@ -113,25 +113,6 @@ MoveJoint := BA_Handler(Cmd:=eBA.MoveJ,Settings:=Config); //HAndler returns a UI
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="MoveJointRelative" Id="{d4d7d377-1aa7-4fc3-9e59-f55d00fe8d35}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[
-METHOD MoveJointRelative : UINT
-VAR_INPUT
-    Target : stTarget;
-	Velocity: REAL;
-END_VAR
-
-VAR
-	Config: stBA_Settings;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Config.Velocity:=Velocity;
-Config.Target:=Target;
-
-
-MoveJointRelative:= BA_Handler(Cmd:=eBA.MoveJRelativ,Settings:=Config);]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="MoveJointAbsolute" Id="{5b7e2c11-0d34-4f8a-9c62-7a1e4d90b3f2}" FolderPath="MotionControl\">
       <Declaration><![CDATA[// Move to an absolute joint configuration (joint space).
 // Used by the hold-to-run joint jog. The concrete robot FB
@@ -150,6 +131,25 @@ END_VAR]]></Declaration>
 Config.Joints := Joints;
 
 MoveJointAbsolute := BA_Handler(Cmd:=eBA.MoveJJoints, Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveJointRelative" Id="{d4d7d377-1aa7-4fc3-9e59-f55d00fe8d35}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[
+METHOD MoveJointRelative : UINT
+VAR_INPUT
+    Target : stTarget;
+	Velocity: REAL;
+END_VAR
+
+VAR
+	Config: stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Config.Velocity:=Velocity;
+Config.Target:=Target;
+
+
+MoveJointRelative:= BA_Handler(Cmd:=eBA.MoveJRelativ,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
     <Method Name="MoveLinear" Id="{af96fe73-c0fb-4331-8a41-58ccd3cdc293}" FolderPath="MotionControl\">
@@ -236,7 +236,9 @@ ELSE
 END_IF
 
 
-
+IF SIMMODE THEN
+		myResult:=SUCCESS;
+END_IF
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
@@ -297,18 +299,18 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-PM.Configure(sPrefix:=Name,sDatabase:=CONCAT('db_',Name)); //TODO
-
 
 IF TOOL.LastTransitionType = eTransitions.Configure THEN
-	IF TOOL.LastTransitionResult = SUCCESS AND COMM^.CommunicationReady  THEN
+	IF TOOL.LastTransitionResult = SUCCESS  THEN
 		myResult:=SUCCESS;
 	END_IF
 ELSE
 	TOOL.Configure();
 END_IF
 
-
+IF SIMMODE THEN
+	myResult:=SUCCESS;
+END_IF
 
 
 

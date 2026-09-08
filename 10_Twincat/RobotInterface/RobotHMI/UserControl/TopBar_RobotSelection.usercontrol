@@ -27,9 +27,180 @@
 ]
 </script>
 		<div id="TopBarRobotLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-column-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="Selected Robot" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center"><script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-header-title"]</script></div>
-		<div id="TopBarRobotSelector" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiCombobox" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="10" data-tchmi-right="8" data-tchmi-bottom="6" data-tchmi-selected-value="%i%SelectedRobot%/i%">
+		<div id="TopBarRobotSelector" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiCombobox" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-selected-value="%i%SelectedRobot%/i%" data-tchmi-auto-select-text="False" data-tchmi-allow-text-input="False" data-tchmi-selected-id="%i%SelectedIndex%/i%">
 	<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-cell-surface"]</script>
-			<script data-tchmi-target-attribute="data-tchmi-src-data" type="application/json">[{"id":1,"text":"%s%R1.HMI_BASE::sInstanceName%/s%","value":1},{"id":2,"text":"%s%R2.HMI_BASE::sInstanceName%/s%","value":2}]</script>
-		</div>
+			
+		
+<script data-tchmi-target-attribute="data-tchmi-trigger" type="application/json">
+[
+  {
+    "event": "%ctx%owner::Id|EventRegistrationMode=Resolve%/ctx%.onSelectionChanged",
+    "actions": [
+      {
+        "objectType": "WriteToSymbol",
+        "active": true,
+        "symbolExpression": "%ctrl%DEBUG::Text%/ctrl%",
+        "value": {
+          "objectType": "Symbol",
+          "valueType": "tchmi:general#/definitions/String",
+          "symbolExpression": "%ctrl%TopBarRobotSelector::SelectedId%/ctrl%"
+        },
+        "asyncWait": true
+      },
+      {
+        "objectType": "SwitchCase",
+        "active": true,
+        "compare": {
+          "objectType": "Symbol",
+          "valueType": "tchmi:general#/definitions/UDINT",
+          "symbolExpression": "%ctrl%TopBarRobotSelector::SelectedId%/ctrl%"
+        },
+        "cases": [
+          {
+            "caseValue": {
+              "objectType": "StaticValue",
+              "valueType": "tchmi:general#/definitions/UDINT",
+              "value": 1
+            },
+            "actions": [
+              {
+                "objectType": "WriteToSymbol",
+                "active": true,
+                "symbolExpression": "%ctrl%DEBUG::Text%/ctrl%",
+                "value": {
+                  "objectType": "FunctionExpression",
+                  "functionExpression": "'ONE'"
+                },
+                "asyncWait": true
+              },
+              {
+                "objectType": "WriteToSymbol",
+                "active": true,
+                "symbolExpression": "%i%SelectedRob%/i%",
+                "value": {
+                  "objectType": "Symbol",
+                  "valueType": "tchmi:server#/definitions/ADS-PLC1.stHMI_ROB",
+                  "symbolExpression": "%s%R1.HMI_ROB|BindingMode=TwoWay%/s%"
+                },
+                "asyncWait": true
+              },
+              {
+                "objectType": "WriteToSymbol",
+                "active": true,
+                "symbolExpression": "%i%SelectedIndex%/i%",
+                "value": {
+                  "objectType": "StaticValue",
+                  "valueType": "tchmi:general#/definitions/Number",
+                  "value": 1.0
+                },
+                "asyncWait": true
+              },
+              {
+                "objectType": "WriteToSymbol",
+                "active": true,
+                "symbolExpression": "%i%SelectedJog%/i%",
+                "value": {
+                  "objectType": "Symbol",
+                  "valueType": "tchmi:server#/definitions/ADS-PLC1.FB_Jog_Base",
+                  "symbolExpression": "%s%R1.JOG|BindingMode=TwoWay%/s%"
+                },
+                "asyncWait": true
+              }
+            ]
+          },
+          {
+            "caseValue": {
+              "objectType": "StaticValue",
+              "valueType": "tchmi:general#/definitions/UDINT",
+              "value": 2
+            },
+            "actions": [
+              {
+                "objectType": "WriteToSymbol",
+                "active": true,
+                "symbolExpression": "%i%SelectedRob%/i%",
+                "value": {
+                  "objectType": "Symbol",
+                  "valueType": "tchmi:server#/definitions/ADS-PLC1.stHMI_ROB",
+                  "symbolExpression": "%s%R2.HMI_ROB|BindingMode=TwoWay%/s%"
+                },
+                "asyncWait": true
+              },
+              {
+                "objectType": "WriteToSymbol",
+                "active": true,
+                "symbolExpression": "%i%SelectedIndex%/i%",
+                "value": {
+                  "objectType": "StaticValue",
+                  "valueType": "tchmi:general#/definitions/Number",
+                  "value": 2.0
+                },
+                "asyncWait": true
+              },
+              {
+                "objectType": "WriteToSymbol",
+                "active": true,
+                "symbolExpression": "%i%SelectedJog%/i%",
+                "value": {
+                  "objectType": "Symbol",
+                  "valueType": "tchmi:server#/definitions/ADS-PLC1.FB_Jog_Base",
+                  "symbolExpression": "%s%R2.JOG|BindingMode=TwoWay%/s%"
+                },
+                "asyncWait": true
+              },
+              {
+                "objectType": "WriteToSymbol",
+                "active": true,
+                "symbolExpression": "%ctrl%DEBUG::Text%/ctrl%",
+                "value": {
+                  "objectType": "StaticValue",
+                  "valueType": "tchmi:general#/definitions/String",
+                  "value": "'TWO'"
+                },
+                "asyncWait": true
+              }
+            ]
+          },
+          {
+            "caseValue": {
+              "objectType": "StaticValue",
+              "valueType": "tchmi:general#/definitions/UDINT",
+              "value": null
+            },
+            "actions": [
+              {
+                "objectType": "WriteToSymbol",
+                "active": true,
+                "symbolExpression": null,
+                "value": {
+                  "objectType": "StaticValue",
+                  "valueType": "tchmi:general#/definitions/String",
+                  "value": null
+                },
+                "asyncWait": true
+              }
+            ]
+          }
+        ],
+        "asyncWait": true
+      }
+    ]
+  }
+]
+</script>
+
+<script data-tchmi-target-attribute="data-tchmi-src-data" type="application/json">
+[
+  {
+    "id": 1.0,
+    "text": "%s%R1.HMI_BASE::sInstanceName%/s%"
+  },
+  {
+    "id": 2.0,
+    "text": "%s%R2.HMI_BASE::sInstanceName%/s%"
+  }
+]
+</script>
+</div>
 	</div>
 </div>

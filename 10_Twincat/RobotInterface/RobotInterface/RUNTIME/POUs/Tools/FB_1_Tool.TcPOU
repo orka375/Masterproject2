@@ -4,15 +4,14 @@
     <Declaration><![CDATA[FUNCTION_BLOCK FB_1_Tool EXTENDS FB_0_Base
 VAR_INPUT
 	pROB: POINTER TO FB_1_ROB;
-  MountingPose: stPoseGeneral;
-  bFrameValid: BOOL := TRUE;
+
 END_VAR
 VAR_OUTPUT
-	visStatus: stVisStatusTool;
+	HMI_TOOL: stHMI_TOOL;
 END_VAR
 VAR
-	_tcpoffset: stPoseGeneral;
-	_mounted: BOOL;
+
+
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -22,20 +21,6 @@ END_VAR
     <Action Name="CYCLIC_TOOL" Id="{dff3f002-2f5f-470a-8757-89415d48f543}">
       <Implementation>
         <ST><![CDATA[CYCLIC_BASE();
-
-    visStatus.State := State;
-    visStatus.isBusy := Busy;
-    visStatus.isReady := State = eState.Active;
-    visStatus.isMoving := FALSE;
-    visStatus.hasError := State = eState.ErrorProcessing;
-    visStatus.bOpen := FALSE;
-    visStatus.bClosed := FALSE;
-
-    IF _mounted THEN
-      visStatus.Position := 'Mounted';
-    ELSE
-      visStatus.Position := 'Unmounted';
-    END_IF
 ]]></ST>
       </Implementation>
     </Action>
@@ -78,7 +63,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_mounted := TRUE;
+        <ST><![CDATA[HMI_TOOL.bMounted := TRUE;
       Mount := TRUE;
 ]]></ST>
       </Implementation>
@@ -88,7 +73,7 @@ END_VAR
       <Get Name="Get" Id="{a3302d2d-ceba-42df-acfc-0b00da5af4c8}">
         <Declaration><![CDATA[]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Mounted:=_mounted;
+          <ST><![CDATA[Mounted:=HMI_TOOL.bMounted;
 ]]></ST>
         </Implementation>
       </Get>
@@ -276,7 +261,7 @@ END_VAR
   END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF _mounted THEN
+        <ST><![CDATA[IF HMI_TOOL.bMounted THEN
     crx := COS(currPos.rx);
     srx := SIN(currPos.rx);
     cry := COS(currPos.ry);
@@ -285,22 +270,22 @@ END_VAR
     srz := SIN(currPos.rz);
 
     (* Rz * Ry * Rx: rotate the tool-frame offset into the base frame. *)
-    offsetX := (cry * crz) * _tcpoffset.x
-      + (crz * srx * sry - crx * srz) * _tcpoffset.y
-      + (srx * srz + crx * crz * sry) * _tcpoffset.z;
-    offsetY := (cry * srz) * _tcpoffset.x
-      + (crx * crz + srx * sry * srz) * _tcpoffset.y
-      + (crx * sry * srz - crz * srx) * _tcpoffset.z;
-    offsetZ := (-sry) * _tcpoffset.x
-      + (cry * srx) * _tcpoffset.y
-      + (crx * cry) * _tcpoffset.z;
+    offsetX := (cry * crz) * HMI_TOOL.TCPOffset.x
+      + (crz * srx * sry - crx * srz) * HMI_TOOL.TCPOffset.y
+      + (srx * srz + crx * crz * sry) * HMI_TOOL.TCPOffset.z;
+    offsetY := (cry * srz) * HMI_TOOL.TCPOffset.x
+      + (crx * crz + srx * sry * srz) * HMI_TOOL.TCPOffset.y
+      + (crx * sry * srz - crz * srx) * HMI_TOOL.TCPOffset.z;
+    offsetZ := (-sry) * HMI_TOOL.TCPOffset.x
+      + (cry * srx) * HMI_TOOL.TCPOffset.y
+      + (crx * cry) * HMI_TOOL.TCPOffset.z;
 
     TargetPositionWithToolOffset.x := currPos.x + offsetX;
     TargetPositionWithToolOffset.y := currPos.y + offsetY;
     TargetPositionWithToolOffset.z := currPos.z + offsetZ;
-    TargetPositionWithToolOffset.rx := currPos.rx + _tcpoffset.rx;
-    TargetPositionWithToolOffset.ry := currPos.ry + _tcpoffset.ry;
-    TargetPositionWithToolOffset.rz := currPos.rz + _tcpoffset.rz;
+    TargetPositionWithToolOffset.rx := currPos.rx + HMI_TOOL.TCPOffset.rx;
+    TargetPositionWithToolOffset.ry := currPos.ry + HMI_TOOL.TCPOffset.ry;
+    TargetPositionWithToolOffset.rz := currPos.rz + HMI_TOOL.TCPOffset.rz;
 ELSE
     TargetPositionWithToolOffset := currPos;
 END_IF]]></ST>
@@ -313,7 +298,7 @@ END_IF]]></ST>
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[ToolTCPOffset:= _tcpoffset;]]></ST>
+          <ST><![CDATA[ToolTCPOffset:= HMI_TOOL.TCPOffset;]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{7dc90ed2-9d77-4d8d-aa71-078dc4371482}">
@@ -321,7 +306,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_tcpoffset:= ToolTCPOffset;]]></ST>
+          <ST><![CDATA[HMI_TOOL.TCPOffset:= ToolTCPOffset;]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -331,7 +316,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_mounted := FALSE;
+        <ST><![CDATA[HMI_TOOL.bMounted := FALSE;
       Unmount := TRUE;]]></ST>
       </Implementation>
     </Method>
