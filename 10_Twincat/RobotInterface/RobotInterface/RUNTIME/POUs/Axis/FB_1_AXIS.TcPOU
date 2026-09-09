@@ -1,0 +1,261 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_1_AXIS" Id="{a97f4883-70e2-44ce-bc86-4b27e6c2bb80}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'hide_all_locals'}
+FUNCTION_BLOCK FB_1_AXIS EXTENDS FB_1_ROB
+VAR_IN_OUT
+    Axis : AXIS_REF;
+END_VAR
+
+VAR_INPUT
+    DefaultVelocity : LREAL := 50.0;
+    DefaultAcceleration : LREAL := 100.0;
+    DefaultDeceleration : LREAL := 100.0;
+    DefaultJerk : LREAL := 1000.0;
+    MinPosition : LREAL := -1000000.0;
+    MaxPosition : LREAL := 1000000.0;
+END_VAR
+
+VAR_OUTPUT
+    AxisPowered : BOOL;
+    AxisHomed : BOOL;
+    AxisError : BOOL;
+    AxisErrorID : UDINT;
+END_VAR
+
+VAR
+    _fbPower : MC_Power;
+    _fbMoveAbsolute : MC_MoveAbsolute;
+    _fbMoveRelative : MC_MoveRelative;
+    _fbHome : MC_Home;
+    _fbStop : MC_Stop;
+    _fbReset : MC_Reset;
+
+    _bPowerRequest : BOOL;
+    _bMoveAbsoluteExecute : BOOL;
+    _bMoveRelativeExecute : BOOL;
+    _bHomeExecute : BOOL;
+    _bStopExecute : BOOL;
+    _bResetExecute : BOOL;
+    _bActionAccepted : BOOL;
+    _bActionActive : BOOL;
+    _activeCommand : eBA;
+    _activeSettings : stBA_Settings;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CYCLIC_AXIS();]]></ST>
+    </Implementation>
+    <Method Name="BA_Handler" Id="{e564056b-05af-457a-9f29-c4d0e82f2cf0}">
+      <Declaration><![CDATA[METHOD BA_Handler : UINT
+VAR_INPUT
+    Cmd : eBA;
+    Settings : stBA_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[BA_Handler := 0;
+
+IF State <> eState.Active OR NOT AxisPowered OR AxisError OR _bActionActive OR _bStopExecute THEN
+    RETURN;
+END_IF
+
+CASE Cmd OF
+    eBA.MoveL,
+    eBA.MoveJ:
+        IF Settings.Target.pose.x < MinPosition OR Settings.Target.pose.x > MaxPosition THEN
+            RETURN;
+        END_IF
+        _bMoveAbsoluteExecute := TRUE;
+
+    eBA.MoveJJoints:
+        IF Settings.Joints.joint1 < MinPosition OR Settings.Joints.joint1 > MaxPosition THEN
+            RETURN;
+        END_IF
+        _activeSettings := Settings;
+        _activeSettings.Target.pose.x := Settings.Joints.joint1;
+        _bMoveAbsoluteExecute := TRUE;
+
+    eBA.MoveLRelativ,
+    eBA.MoveJRelativ:
+        _bMoveRelativeExecute := TRUE;
+
+    eBA.Home:
+        _bHomeExecute := TRUE;
+
+ELSE
+    Messenger.AddError(eMessageCategories.NotImplemented, Path, 'Basic action not supported by NC axis');
+    RETURN;
+END_CASE
+
+IF Idcounter >= 65534 THEN
+    Idcounter := 1000;
+ELSE
+    Idcounter := Idcounter + 1;
+END_IF
+
+BA_ID := Idcounter;
+BA_STATUS := eProgress.INIT;
+_activeCommand := Cmd;
+IF Cmd <> eBA.MoveJJoints THEN
+    _activeSettings := Settings;
+END_IF
+_bActionAccepted := FALSE;
+_bActionActive := TRUE;
+BA_Handler := BA_ID;]]></ST>
+      </Implementation>
+    </Method>
+    <Action Name="CYCLIC_AXIS" Id="{c53fd8f9-3809-4fcd-8eb9-75e58ef91f07}">
+      <Implementation>
+        <ST><![CDATA[CYCLIC_ROB();
+
+(* The state machine sets _bPowerRequest through OnActivate/OnDeactivate. *)
+_fbPower(
+    Axis := Axis,
+    Enable := _bPowerRequest,
+    Enable_Positive := _bPowerRequest,
+    Enable_Negative := _bPowerRequest
+);
+
+_fbMoveAbsolute(
+    Axis := Axis,
+    Execute := _bMoveAbsoluteExecute,
+    Position := _activeSettings.Target.pose.x,
+    Velocity := SEL(_activeSettings.Velocity > 0.0, DefaultVelocity, _activeSettings.Velocity),
+    Acceleration := SEL(_activeSettings.Acceleration > 0.0, DefaultAcceleration, _activeSettings.Acceleration),
+    Deceleration := SEL(_activeSettings.Acceleration > 0.0, DefaultDeceleration, _activeSettings.Acceleration),
+    Jerk := DefaultJerk
+);
+
+_fbMoveRelative(
+    Axis := Axis,
+    Execute := _bMoveRelativeExecute,
+    Distance := _activeSettings.Pose.x,
+    Velocity := SEL(_activeSettings.Velocity > 0.0, DefaultVelocity, _activeSettings.Velocity),
+    Acceleration := SEL(_activeSettings.Acceleration > 0.0, DefaultAcceleration, _activeSettings.Acceleration),
+    Deceleration := SEL(_activeSettings.Acceleration > 0.0, DefaultDeceleration, _activeSettings.Acceleration),
+    Jerk := DefaultJerk
+);
+
+_fbHome(Axis := Axis, Execute := _bHomeExecute);
+_fbStop(Axis := Axis, Execute := _bStopExecute, Deceleration := DefaultDeceleration, Jerk := DefaultJerk);
+_fbReset(Axis := Axis, Execute := _bResetExecute);
+
+AxisPowered := _fbPower.Status;
+AxisError := _fbPower.Error OR _fbMoveAbsolute.Error OR _fbMoveRelative.Error OR _fbHome.Error OR _fbStop.Error OR _fbReset.Error;
+
+IF _fbPower.Error THEN
+    AxisErrorID := _fbPower.ErrorID;
+ELSIF _fbMoveAbsolute.Error THEN
+    AxisErrorID := _fbMoveAbsolute.ErrorID;
+ELSIF _fbMoveRelative.Error THEN
+    AxisErrorID := _fbMoveRelative.ErrorID;
+ELSIF _fbHome.Error THEN
+    AxisErrorID := _fbHome.ErrorID;
+ELSIF _fbStop.Error THEN
+    AxisErrorID := _fbStop.ErrorID;
+ELSIF _fbReset.Error THEN
+    AxisErrorID := _fbReset.ErrorID;
+ELSE
+    AxisErrorID := 0;
+END_IF
+
+(* A linear one-axis robot uses the same millimetre coordinate for joint 1 and TCP X. *)
+HMI_ROB._jointpos.joint1 := Axis.NcToPlc.ActPos;
+HMI_ROB._tcppos.x := Axis.NcToPlc.ActPos;
+_jointvel.joint1 := Axis.NcToPlc.ActVelo;
+_tcpvel.x := Axis.NcToPlc.ActVelo;
+HMI_ROB.bMoving := ABS(Axis.NcToPlc.ActVelo) > StandStillLimit;
+HMI_ROB.bEStop := _bStopExecute OR _fbStop.Busy;
+HMI_ROB.bReady := (State = eState.Active) AND AxisPowered AND NOT AxisError AND NOT Busy;
+
+IF _bActionActive THEN
+    IF NOT _bActionAccepted THEN
+        IF _fbMoveAbsolute.Busy OR _fbMoveRelative.Busy OR _fbHome.Busy THEN
+            _bActionAccepted := TRUE;
+            BA_STATUS := eProgress.ACKNOWLEDGE;
+            _bMoveAbsoluteExecute := FALSE;
+            _bMoveRelativeExecute := FALSE;
+            _bHomeExecute := FALSE;
+        END_IF
+    END_IF
+
+    IF _fbMoveAbsolute.Done OR _fbMoveRelative.Done OR _fbHome.Done THEN
+        IF _fbHome.Done THEN
+            AxisHomed := TRUE;
+        END_IF
+        _bActionActive := FALSE;
+        BA_STATUS := eProgress.FINALIZED;
+    ELSIF _fbMoveAbsolute.CommandAborted OR _fbMoveRelative.CommandAborted OR _fbHome.CommandAborted THEN
+        _bActionActive := FALSE;
+        BA_STATUS := eProgress.ABORTED;
+    ELSIF AxisError THEN
+        AxisHomed := FALSE;
+        _bActionActive := FALSE;
+        BA_STATUS := eProgress.ABORTED;
+        Messenger.AddError(eMessageCategories.HardwareFailure, Path, 'NC axis command error');
+    ELSIF _bActionAccepted THEN
+        BA_STATUS := eProgress.RUNNING;
+    END_IF
+END_IF
+
+IF _fbStop.Done OR _fbStop.CommandAborted OR _fbStop.Error THEN
+    _bStopExecute := FALSE;
+END_IF
+
+IF _fbReset.Done OR _fbReset.Error THEN
+    _bResetExecute := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="EStop" Id="{99874775-255a-4b95-82d7-f937607677f1}">
+      <Declaration><![CDATA[METHOD EStop : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_bMoveAbsoluteExecute := FALSE;
+_bMoveRelativeExecute := FALSE;
+_bHomeExecute := FALSE;
+_bActionActive := FALSE;
+BA_STATUS := eProgress.ABORTED;
+_bStopExecute := TRUE;
+HMI_ROB.bEStop := TRUE;
+EStop := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnActivate" Id="{cc4faa86-c6cf-4b58-ae21-5e00e6cd0b59}">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+VAR
+    parentResult : eResult;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[parentResult := SUPER^.OnActivate();
+_bPowerRequest := TRUE;
+
+IF AxisError THEN
+    OnActivate := eResult.ERROR;
+ELSIF AxisPowered THEN
+    OnActivate := CombineResults(parentResult, eResult.SUCCESS);
+ELSE
+    OnActivate := CombineResults(parentResult, eResult.NONE);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{6f28d53d-8fbf-4d45-bf52-3aee2d6cf738}">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+VAR
+    parentResult : eResult;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[parentResult := SUPER^.OnDeactivate();
+
+IF HMI_ROB.bMoving AND NOT _bStopExecute THEN
+    _bStopExecute := TRUE;
+END_IF
+
+IF _bStopExecute OR _fbStop.Busy THEN
+    OnDeactivate := CombineResults(parentResult, eResult.NONE);
+ELSE
+    _bPowerRequest := FALSE;
+    OnDeactivate := CombineResults(parentResult, eResult.SUCCESS);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -3,10 +3,13 @@
   <POU Name="ROBOT_MECA500" Id="{2f3ce915-1e6f-4cc8-9a5b-aaacdfe77a55}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK ROBOT_MECA500 EXTENDS FB_2_ROB_MANIP
 
-VAR_OUTPUT
+VAR_INPUT
     MECA_COMM : FB_2_COMM_MECA;
 END_VAR
-]]></Declaration>
+
+VAR
+	configure_process: INT;
+END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[COMM := ADR(MECA_COMM);
 MECA_COMM.CYCLIC_COMM_MECA();
@@ -35,6 +38,7 @@ HMI_ROB.bReady := MECA_COMM.HMI_COMM._CommunicationReady
 CYCLIC_MANIP();
 ]]></ST>
     </Implementation>
+    <Folder Name="StateControl" Id="{0690a919-5712-4fb8-9a65-51b10c3302d0}" />
     <Method Name="BA_Handler" Id="{7c1d2e3f-4a5b-6c7d-8e9f-0a1b2c3d4e5f}">
       <Declaration><![CDATA[METHOD BA_Handler : UINT
 VAR_INPUT
@@ -106,6 +110,207 @@ BA_Handler := MECA_COMM.QueueMotion(
     rArgument5 := rArgument5,
     rArgument6 := rArgument6
 );
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnActivate" Id="{08e021be-8352-4a14-9c35-bbd66cfe1db1}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnActivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+MECA_COMM.bOutActivate:=TRUE;
+
+IF MECA_COMM.bInActivated THEN
+	myResult:=SUCCESS;
+END_IF
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnActivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCleanup" Id="{2007c120-967e-48a1-b60a-b2d63d6ff5f6}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnCleanup();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+myResult := SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnCleanup := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnConfigure" Id="{12e6af47-d1b4-4666-a03f-4950e73b358a}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnConfigure();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+IF configure_process=0 THEN
+	//Activate
+	MECA_COMM.bOutActivate:=TRUE;
+	IF MECA_COMM.bInActivated THEN
+		configure_process:=1;
+		MECA_COMM.bOutActivate:=FALSE;
+	END_IF
+END_IF
+
+IF configure_process=1 THEN
+	//Home
+	MECA_COMM.bOutHome:=TRUE;
+	IF MECA_COMM.bInHomed THEN
+		configure_process:=2;
+		MECA_COMM.bOutHome:=FALSE;
+	END_IF
+END_IF
+
+IF configure_process=2 THEN
+	//Home
+	MECA_COMM.bOutDeactivate:=TRUE;
+	IF NOT MECA_COMM.bInActivated THEN
+		configure_process:=0;
+		MECA_COMM.bOutDeactivate:=FALSE;
+		myResult:=SUCCESS;
+	END_IF
+END_IF
+
+
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnConfigure := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{f3781e3e-cbdd-4bc5-8406-27f9edc3aec2}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+MECA_COMM.bOutDeactivate:=TRUE;
+IF NOT MECA_COMM.bInActivated THEN
+	MECA_COMM.bOutDeactivate:=FALSE;
+	myResult:=SUCCESS;
+END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnDeactivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{c7584c09-77b1-407e-8727-1d3e80f5fb7f}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnError();
+
+myResult := NONE;
+
+// ----- YOUR CODE HERE -----------------------------
+
+myResult := SUCCESS;
+
+// ----- END YOUR CODE ------------------------------
+
+OnError := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnShutdown" Id="{0c754bf0-1e9e-4b2e-b2a1-47364e3994e0}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+VAR_INPUT
+END_VAR
+
+    VAR
+    	eParentResult: eResult;
+    	myResult: ERESULT;
+    END_VAR
+
+    VAR //YOUR CODE
+    	succ : BOOL;
+    END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnShutdown := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>

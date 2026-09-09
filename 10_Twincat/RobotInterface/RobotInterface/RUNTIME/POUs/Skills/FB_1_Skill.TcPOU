@@ -3,9 +3,20 @@
   <POU Name="FB_1_Skill" Id="{2b9ea1ae-8caf-40cf-8b0f-b3a375666762}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_1_Skill EXTENDS FB_0_Base 
 // IMPLEMENTS ITF_1_Skill
+
+
+
 VAR_INPUT
+	TAG: STRING := 'EMPTY';
 	DEBUG_SKILL: DEBUG_SKILL;
 	pOwner: POINTER TO FB_0_BASE;
+	
+	bSubSkillRunning: BOOL;
+	SubSkill: POINTER TO FB_1_Skill;
+	
+	bMoveRunning: BOOL;
+	nCalledMoveID: UINT;
+	
 	
 	
 END_VAR
@@ -43,6 +54,7 @@ VAR
     tonTimeout  : TON;
 	_activateDeploy: BOOL;
 	_emergency: BOOL;
+	SubSkillPhase: INT;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
@@ -50,32 +62,6 @@ END_VAR]]></Declaration>
     <Folder Name="Internal" Id="{96dbd9e8-6c39-4ccb-8b32-e843cad33cc5}" />
     <Folder Name="Public" Id="{8eeb3120-c4f5-4dff-98ca-2143f9392787}" />
     <Folder Name="StateControl" Id="{71a3cf00-e64f-49c4-a480-600b201a90b4}" />
-    <Method Name="FB_Init" Id="{69f9f497-1b72-4d80-aee2-459cc303c27d}">
-      <Declaration><![CDATA[METHOD FB_Init : BOOL
-  VAR_INPUT
-    bInitRetains : BOOL;
-    bInCopyCode : BOOL;
-  END_VAR
-  VAR
-    iSkill : UINT;
-  END_VAR]]></Declaration>
-      <Implementation>
-      <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
-
-  FOR iSkill := 1 TO SETUP.nSkillCount DO
-    IF SETUP.apSkill[iSkill] = THIS THEN
-      FB_Init := TRUE;
-      RETURN;
-    END_IF
-  END_FOR
-
-  IF SETUP.nSkillCount < SETUP.MaxNrofSkills THEN
-    SETUP.nSkillCount := SETUP.nSkillCount + 1;
-    SETUP.apSkill[SETUP.nSkillCount] := THIS;
-    FB_Init := TRUE;
-  END_IF]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="_M_Start" Id="{be1a62f7-3d1f-44a1-b23c-14be160cd3f9}" FolderPath="Internal\">
       <Declaration><![CDATA[{warning 'Add method implementation '}
 METHOD INTERNAL _M_Start : eResult
@@ -210,6 +196,46 @@ IF (LastTransitionType=eTransitions.Activate AND LastTransitionResult<=SUCCESS) 
  ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="ExecuteSubSkill" Id="{7f3779b3-4459-41d6-adfb-6aa7e70bc5db}">
+      <Declaration><![CDATA[METHOD ExecuteSubSkill : BOOL
+VAR_INPUT
+	pSkillToExecute: POINTER TO FB_1_Skill;
+	pbTransition: POINTER TO BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//ENTRY
+
+IF SubSkillPhase= 0 THEN
+	pSkillToExecute^.Execute();
+	bSubSkillRunning:=TRUE;
+	SubSkillPhase := 10;
+END_IF
+
+IF SubSkillPhase= 10 THEN		//DO
+	IF SubSkill^.ExecutionDone AND SubSkill^.ExecutionResult=SUCCESS THEN
+		SubSkillPhase := 20;
+	END_IF
+	
+	IF SubSkill^.ExecutionDone AND SubSkill^.ExecutionResult<>SUCCESS THEN
+		ExecutionDone:=TRUE;
+		ExecutionResult:=FAILURE;
+		Deactivate();
+		Messenger.AddWarn(eMessageCategories.Undefined,Path,'SubSkill Execution failed/errored');
+	END_IF
+			
+			
+END_IF
+
+
+IF SubSkillPhase= 20 THEN
+	bSubSkillRunning:=FALSE;
+	SubSkill:=0;
+	SubSkillPhase := 0;
+	pbTransition^:=TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="ExecutionDone" Id="{e8b4d378-09d9-465e-b949-6bfe1008a53f}">
       <Declaration><![CDATA[{warning 'Add property implementation'}
 PROPERTY ExecutionDone : BOOL
@@ -269,6 +295,32 @@ END_VAR
       <Implementation>
         <ST><![CDATA[HMI_SKILL.Command.bStop:=TRUE;
 ]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{69f9f497-1b72-4d80-aee2-459cc303c27d}">
+      <Declaration><![CDATA[METHOD FB_Init : BOOL
+  VAR_INPUT
+    bInitRetains : BOOL;
+    bInCopyCode : BOOL;
+  END_VAR
+  VAR
+    iSkill : UINT;
+  END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
+
+  FOR iSkill := 1 TO SETUP.nSkillCount DO
+    IF SETUP.apSkill[iSkill] = THIS THEN
+      FB_Init := TRUE;
+      RETURN;
+    END_IF
+  END_FOR
+
+  IF SETUP.nSkillCount < SETUP.MaxNrofSkills THEN
+    SETUP.nSkillCount := SETUP.nSkillCount + 1;
+    SETUP.apSkill[SETUP.nSkillCount] := THIS;
+    FB_Init := TRUE;
+  END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="onActivate" Id="{46f7f3ef-55a8-4a46-bd3a-f25fd3c3df9b}" FolderPath="StateControl\">

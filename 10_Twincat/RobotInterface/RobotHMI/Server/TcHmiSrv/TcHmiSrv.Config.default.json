@@ -2208,7 +2208,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.stPoseGeneral"
                             },
                             {
-                                "propertyOrder": 40
+                                "propertyOrder": 42
                             }
                         ]
                     },
@@ -2218,7 +2218,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.stPoseGeneral"
                             },
                             {
-                                "propertyOrder": 39
+                                "propertyOrder": 41
                             }
                         ]
                     },
@@ -2229,7 +2229,7 @@
                             },
                             {
                                 "comment": "Orientation is used for Custom-frame jogging.\r\n Manipulator: Rx/Ry/Rz is a rotation vector.\r\n AMR: Rz is interpreted as planar yaw.",
-                                "propertyOrder": 9
+                                "propertyOrder": 11
                             }
                         ]
                     },
@@ -2239,7 +2239,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 37
+                                "propertyOrder": 39
                             }
                         ]
                     },
@@ -2249,7 +2249,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 49
+                                "propertyOrder": 51
                             }
                         ]
                     },
@@ -2270,7 +2270,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 23
+                                "propertyOrder": 25
                             }
                         ]
                     },
@@ -2281,7 +2281,7 @@
                             },
                             {
                                 "comment": "==========================================================\r\n HMI JOINT JOG BUTTONS (manipulator only).\r\n Hold-to-run: TRUE = jog while held, FALSE = stop.\r\n ==========================================================",
-                                "propertyOrder": 22
+                                "propertyOrder": 24
                             }
                         ]
                     },
@@ -2291,7 +2291,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 25
+                                "propertyOrder": 27
                             }
                         ]
                     },
@@ -2301,7 +2301,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 24
+                                "propertyOrder": 26
                             }
                         ]
                     },
@@ -2311,7 +2311,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 27
+                                "propertyOrder": 29
                             }
                         ]
                     },
@@ -2321,7 +2321,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 26
+                                "propertyOrder": 28
                             }
                         ]
                     },
@@ -2331,7 +2331,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 29
+                                "propertyOrder": 31
                             }
                         ]
                     },
@@ -2341,7 +2341,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 28
+                                "propertyOrder": 30
                             }
                         ]
                     },
@@ -2351,7 +2351,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 31
+                                "propertyOrder": 33
                             }
                         ]
                     },
@@ -2361,7 +2361,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 30
+                                "propertyOrder": 32
                             }
                         ]
                     },
@@ -2371,7 +2371,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 33
+                                "propertyOrder": 35
                             }
                         ]
                     },
@@ -2381,7 +2381,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 32
+                                "propertyOrder": 34
                             }
                         ]
                     },
@@ -2391,7 +2391,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 17
+                                "propertyOrder": 19
                             }
                         ]
                     },
@@ -2401,7 +2401,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 16
+                                "propertyOrder": 18
                             }
                         ]
                     },
@@ -2411,7 +2411,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 19
+                                "propertyOrder": 21
                             }
                         ]
                     },
@@ -2421,7 +2421,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 18
+                                "propertyOrder": 20
                             }
                         ]
                     },
@@ -2431,7 +2431,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 21
+                                "propertyOrder": 23
                             }
                         ]
                     },
@@ -2441,7 +2441,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 20
+                                "propertyOrder": 22
                             }
                         ]
                     },
@@ -2451,7 +2451,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 11
+                                "propertyOrder": 13
                             }
                         ]
                     },
@@ -2462,7 +2462,7 @@
                             },
                             {
                                 "comment": "==========================================================\r\n HMI DIRECTION BUTTONS\r\n Manipulator: rising edge = one step.\r\n AMR: TRUE = continuous dead-man velocity command.\r\n ==========================================================",
-                                "propertyOrder": 10
+                                "propertyOrder": 12
                             }
                         ]
                     },
@@ -2472,7 +2472,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 13
+                                "propertyOrder": 15
                             }
                         ]
                     },
@@ -2482,7 +2482,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 12
+                                "propertyOrder": 14
                             }
                         ]
                     },
@@ -2492,7 +2492,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 15
+                                "propertyOrder": 17
                             }
                         ]
                     },
@@ -2502,7 +2502,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 14
+                                "propertyOrder": 16
                             }
                         ]
                     },
@@ -2512,7 +2512,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 35
+                                "propertyOrder": 37
                             }
                         ]
                     },
@@ -2522,7 +2522,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 36
+                                "propertyOrder": 38
                             }
                         ]
                     },
@@ -2533,7 +2533,7 @@
                             },
                             {
                                 "comment": "Common status for HMI.",
-                                "propertyOrder": 34
+                                "propertyOrder": 36
                             }
                         ]
                     },
@@ -2544,7 +2544,7 @@
                             },
                             {
                                 "comment": "Indicates the intended button behavior.",
-                                "propertyOrder": 48
+                                "propertyOrder": 50
                             }
                         ]
                     },
@@ -2554,7 +2554,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 47
+                                "propertyOrder": 49
                             }
                         ]
                     },
@@ -2564,7 +2564,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 44
+                                "propertyOrder": 46
                             }
                         ]
                     },
@@ -2574,7 +2574,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 45
+                                "propertyOrder": 47
                             }
                         ]
                     },
@@ -2584,7 +2584,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 46
+                                "propertyOrder": 48
                             }
                         ]
                     },
@@ -2595,7 +2595,7 @@
                             },
                             {
                                 "comment": "HMI can use these to show/hide unsupported axes.",
-                                "propertyOrder": 41
+                                "propertyOrder": 43
                             }
                         ]
                     },
@@ -2605,7 +2605,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 42
+                                "propertyOrder": 44
                             }
                         ]
                     },
@@ -2615,7 +2615,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 43
+                                "propertyOrder": 45
                             }
                         ]
                     },
@@ -2629,13 +2629,23 @@
                             }
                         ]
                     },
-                    "fAngularVelocity": {
+                    "fAngularStep_deg": {
                         "allOf": [
                             {
                                 "$ref": "tchmi:general#/definitions/REAL"
                             },
                             {
                                 "propertyOrder": 6
+                            }
+                        ]
+                    },
+                    "fAngularVelocity": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/REAL"
+                            },
+                            {
+                                "propertyOrder": 8
                             }
                         ]
                     },
@@ -2646,7 +2656,7 @@
                             },
                             {
                                 "comment": "Joint jog settings (manipulator only).\r\n fJointStep      [rad] increment issued per hold-to-run cycle\r\n fJointVelocity  [rad/s]",
-                                "propertyOrder": 7
+                                "propertyOrder": 9
                             }
                         ]
                     },
@@ -2656,7 +2666,7 @@
                                 "$ref": "tchmi:general#/definitions/REAL"
                             },
                             {
-                                "propertyOrder": 8
+                                "propertyOrder": 10
                             }
                         ]
                     },
@@ -2666,8 +2676,19 @@
                                 "$ref": "tchmi:general#/definitions/REAL"
                             },
                             {
-                                "comment": "Step values are used by the manipulator jog.\r\n SI recommendation:\r\n fLinearStep  [m]\r\n fAngularStep [rad]",
+                                "comment": "Step values are used by the manipulator jog.\r\n SI recommendation:\r\n fLinearStep  [mm]\r\n fAngularStep [rad]",
                                 "propertyOrder": 3
+                            }
+                        ]
+                    },
+                    "fLinearStep_mm": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/REAL"
+                            },
+                            {
+                                "comment": "HMI-facing step values (mm / deg). Converted into fLinearStep/fAngularStep\r\n by ConvertStepUnits(), since the HMI cannot bind to FB properties over ADS.",
+                                "propertyOrder": 5
                             }
                         ]
                     },
@@ -2678,7 +2699,7 @@
                             },
                             {
                                 "comment": "Velocity values are shared settings.\r\n fLinearVelocity  [m/s]\r\n fAngularVelocity [rad/s]",
-                                "propertyOrder": 5
+                                "propertyOrder": 7
                             }
                         ]
                     },
@@ -2699,7 +2720,7 @@
                                 "$ref": "tchmi:general#/definitions/UINT"
                             },
                             {
-                                "propertyOrder": 38
+                                "propertyOrder": 40
                             }
                         ]
                     }
@@ -2709,6 +2730,8 @@
                     "nFrame",
                     "fLinearStep",
                     "fAngularStep",
+                    "fLinearStep_mm",
+                    "fAngularStep_deg",
                     "fLinearVelocity",
                     "fAngularVelocity",
                     "fJointStep",
@@ -2773,7 +2796,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.stPoseGeneral"
                             },
                             {
-                                "propertyOrder": 40
+                                "propertyOrder": 42
                             }
                         ]
                     },
@@ -2783,7 +2806,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.stPoseGeneral"
                             },
                             {
-                                "propertyOrder": 39
+                                "propertyOrder": 41
                             }
                         ]
                     },
@@ -2794,7 +2817,7 @@
                             },
                             {
                                 "comment": "Orientation is used for Custom-frame jogging.\r\n Manipulator: Rx/Ry/Rz is a rotation vector.\r\n AMR: Rz is interpreted as planar yaw.",
-                                "propertyOrder": 9
+                                "propertyOrder": 11
                             }
                         ]
                     },
@@ -2804,7 +2827,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 37
+                                "propertyOrder": 39
                             }
                         ]
                     },
@@ -2814,7 +2837,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 49
+                                "propertyOrder": 51
                             }
                         ]
                     },
@@ -2835,7 +2858,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 23
+                                "propertyOrder": 25
                             }
                         ]
                     },
@@ -2846,7 +2869,7 @@
                             },
                             {
                                 "comment": "==========================================================\r\n HMI JOINT JOG BUTTONS (manipulator only).\r\n Hold-to-run: TRUE = jog while held, FALSE = stop.\r\n ==========================================================",
-                                "propertyOrder": 22
+                                "propertyOrder": 24
                             }
                         ]
                     },
@@ -2856,7 +2879,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 25
+                                "propertyOrder": 27
                             }
                         ]
                     },
@@ -2866,7 +2889,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 24
+                                "propertyOrder": 26
                             }
                         ]
                     },
@@ -2876,7 +2899,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 27
+                                "propertyOrder": 29
                             }
                         ]
                     },
@@ -2886,7 +2909,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 26
+                                "propertyOrder": 28
                             }
                         ]
                     },
@@ -2896,7 +2919,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 29
+                                "propertyOrder": 31
                             }
                         ]
                     },
@@ -2906,7 +2929,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 28
+                                "propertyOrder": 30
                             }
                         ]
                     },
@@ -2916,7 +2939,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 31
+                                "propertyOrder": 33
                             }
                         ]
                     },
@@ -2926,7 +2949,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 30
+                                "propertyOrder": 32
                             }
                         ]
                     },
@@ -2936,7 +2959,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 33
+                                "propertyOrder": 35
                             }
                         ]
                     },
@@ -2946,7 +2969,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 32
+                                "propertyOrder": 34
                             }
                         ]
                     },
@@ -2956,7 +2979,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 17
+                                "propertyOrder": 19
                             }
                         ]
                     },
@@ -2966,7 +2989,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 16
+                                "propertyOrder": 18
                             }
                         ]
                     },
@@ -2976,7 +2999,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 19
+                                "propertyOrder": 21
                             }
                         ]
                     },
@@ -2986,7 +3009,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 18
+                                "propertyOrder": 20
                             }
                         ]
                     },
@@ -2996,7 +3019,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 21
+                                "propertyOrder": 23
                             }
                         ]
                     },
@@ -3006,7 +3029,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 20
+                                "propertyOrder": 22
                             }
                         ]
                     },
@@ -3016,7 +3039,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 11
+                                "propertyOrder": 13
                             }
                         ]
                     },
@@ -3027,7 +3050,7 @@
                             },
                             {
                                 "comment": "==========================================================\r\n HMI DIRECTION BUTTONS\r\n Manipulator: rising edge = one step.\r\n AMR: TRUE = continuous dead-man velocity command.\r\n ==========================================================",
-                                "propertyOrder": 10
+                                "propertyOrder": 12
                             }
                         ]
                     },
@@ -3037,7 +3060,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 13
+                                "propertyOrder": 15
                             }
                         ]
                     },
@@ -3047,7 +3070,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 12
+                                "propertyOrder": 14
                             }
                         ]
                     },
@@ -3057,7 +3080,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 15
+                                "propertyOrder": 17
                             }
                         ]
                     },
@@ -3067,7 +3090,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 14
+                                "propertyOrder": 16
                             }
                         ]
                     },
@@ -3077,7 +3100,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 35
+                                "propertyOrder": 37
                             }
                         ]
                     },
@@ -3087,7 +3110,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 36
+                                "propertyOrder": 38
                             }
                         ]
                     },
@@ -3098,7 +3121,7 @@
                             },
                             {
                                 "comment": "Common status for HMI.",
-                                "propertyOrder": 34
+                                "propertyOrder": 36
                             }
                         ]
                     },
@@ -3109,7 +3132,7 @@
                             },
                             {
                                 "comment": "Indicates the intended button behavior.",
-                                "propertyOrder": 48
+                                "propertyOrder": 50
                             }
                         ]
                     },
@@ -3119,7 +3142,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 47
+                                "propertyOrder": 49
                             }
                         ]
                     },
@@ -3129,7 +3152,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 44
+                                "propertyOrder": 46
                             }
                         ]
                     },
@@ -3139,7 +3162,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 45
+                                "propertyOrder": 47
                             }
                         ]
                     },
@@ -3149,7 +3172,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 46
+                                "propertyOrder": 48
                             }
                         ]
                     },
@@ -3160,7 +3183,7 @@
                             },
                             {
                                 "comment": "HMI can use these to show/hide unsupported axes.",
-                                "propertyOrder": 41
+                                "propertyOrder": 43
                             }
                         ]
                     },
@@ -3170,7 +3193,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 42
+                                "propertyOrder": 44
                             }
                         ]
                     },
@@ -3180,7 +3203,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 43
+                                "propertyOrder": 45
                             }
                         ]
                     },
@@ -3194,13 +3217,23 @@
                             }
                         ]
                     },
-                    "fAngularVelocity": {
+                    "fAngularStep_deg": {
                         "allOf": [
                             {
                                 "$ref": "tchmi:general#/definitions/REAL"
                             },
                             {
                                 "propertyOrder": 6
+                            }
+                        ]
+                    },
+                    "fAngularVelocity": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/REAL"
+                            },
+                            {
+                                "propertyOrder": 8
                             }
                         ]
                     },
@@ -3211,7 +3244,7 @@
                             },
                             {
                                 "comment": "Joint jog settings (manipulator only).\r\n fJointStep      [rad] increment issued per hold-to-run cycle\r\n fJointVelocity  [rad/s]",
-                                "propertyOrder": 7
+                                "propertyOrder": 9
                             }
                         ]
                     },
@@ -3221,7 +3254,7 @@
                                 "$ref": "tchmi:general#/definitions/REAL"
                             },
                             {
-                                "propertyOrder": 8
+                                "propertyOrder": 10
                             }
                         ]
                     },
@@ -3231,8 +3264,19 @@
                                 "$ref": "tchmi:general#/definitions/REAL"
                             },
                             {
-                                "comment": "Step values are used by the manipulator jog.\r\n SI recommendation:\r\n fLinearStep  [m]\r\n fAngularStep [rad]",
+                                "comment": "Step values are used by the manipulator jog.\r\n SI recommendation:\r\n fLinearStep  [mm]\r\n fAngularStep [rad]",
                                 "propertyOrder": 3
+                            }
+                        ]
+                    },
+                    "fLinearStep_mm": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/REAL"
+                            },
+                            {
+                                "comment": "HMI-facing step values (mm / deg). Converted into fLinearStep/fAngularStep\r\n by ConvertStepUnits(), since the HMI cannot bind to FB properties over ADS.",
+                                "propertyOrder": 5
                             }
                         ]
                     },
@@ -3243,7 +3287,7 @@
                             },
                             {
                                 "comment": "Velocity values are shared settings.\r\n fLinearVelocity  [m/s]\r\n fAngularVelocity [rad/s]",
-                                "propertyOrder": 5
+                                "propertyOrder": 7
                             }
                         ]
                     },
@@ -3264,7 +3308,7 @@
                                 "$ref": "tchmi:general#/definitions/UINT"
                             },
                             {
-                                "propertyOrder": 38
+                                "propertyOrder": 40
                             }
                         ]
                     },
@@ -3275,7 +3319,7 @@
                             },
                             {
                                 "comment": "Existing manipulator abstraction. The jog FB only calls\r\n MotionControl methods from FB_2_ROB_MANIP.",
-                                "propertyOrder": 50
+                                "propertyOrder": 52
                             }
                         ]
                     }
@@ -3285,6 +3329,8 @@
                     "nFrame",
                     "fLinearStep",
                     "fAngularStep",
+                    "fLinearStep_mm",
+                    "fAngularStep_deg",
                     "fLinearVelocity",
                     "fAngularVelocity",
                     "fJointStep",
@@ -3409,7 +3455,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 12
+                                "propertyOrder": 13
                             }
                         ]
                     },
@@ -3419,7 +3465,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 21
+                                "propertyOrder": 26
                             }
                         ]
                     },
@@ -3430,7 +3476,7 @@
                             },
                             {
                                 "comment": "File state machines.",
-                                "propertyOrder": 24
+                                "propertyOrder": 29
                             }
                         ]
                     },
@@ -3440,7 +3486,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 25
+                                "propertyOrder": 30
                             }
                         ]
                     },
@@ -3450,7 +3496,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Utilities.FB_CSVMemBufferReader"
                             },
                             {
-                                "propertyOrder": 35
+                                "propertyOrder": 40
                             }
                         ]
                     },
@@ -3461,7 +3507,7 @@
                             },
                             {
                                 "comment": "CSV is generated into/read from a byte buffer. This avoids STRING(255)\r\n limitations for complete records/files.",
-                                "propertyOrder": 34
+                                "propertyOrder": 39
                             }
                         ]
                     },
@@ -3471,7 +3517,17 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.ST_Point"
                             },
                             {
-                                "propertyOrder": 23
+                                "propertyOrder": 28
+                            }
+                        ]
+                    },
+                    "_fMoveToEditedPoint": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.F_TRIG"
+                            },
+                            {
+                                "propertyOrder": 22
                             }
                         ]
                     },
@@ -3481,7 +3537,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.ARRAY_0..65535_OF-BYTE"
                             },
                             {
-                                "propertyOrder": 36
+                                "propertyOrder": 41
                             }
                         ]
                     },
@@ -3491,7 +3547,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_System.FB_FileClose"
                             },
                             {
-                                "propertyOrder": 33
+                                "propertyOrder": 38
                             }
                         ]
                     },
@@ -3501,7 +3557,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_System.FB_FileOpen"
                             },
                             {
-                                "propertyOrder": 30
+                                "propertyOrder": 35
                             }
                         ]
                     },
@@ -3511,7 +3567,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_System.FB_FileRead"
                             },
                             {
-                                "propertyOrder": 31
+                                "propertyOrder": 36
                             }
                         ]
                     },
@@ -3521,7 +3577,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_System.FB_FileWrite"
                             },
                             {
-                                "propertyOrder": 32
+                                "propertyOrder": 37
                             }
                         ]
                     },
@@ -3531,7 +3587,7 @@
                                 "$ref": "tchmi:general#/definitions/UINT"
                             },
                             {
-                                "propertyOrder": 28
+                                "propertyOrder": 33
                             }
                         ]
                     },
@@ -3541,7 +3597,7 @@
                                 "$ref": "tchmi:general#/definitions/UINT"
                             },
                             {
-                                "propertyOrder": 29
+                                "propertyOrder": 34
                             }
                         ]
                     },
@@ -3552,7 +3608,27 @@
                             },
                             {
                                 "comment": "File data is validated here first and only committed to aPoints on success.",
-                                "propertyOrder": 39
+                                "propertyOrder": 44
+                            }
+                        ]
+                    },
+                    "_moveToEditedPointExecuteId": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UINT"
+                            },
+                            {
+                                "propertyOrder": 24
+                            }
+                        ]
+                    },
+                    "_moveToEditedPointSettings": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.stBA_Settings"
+                            },
+                            {
+                                "propertyOrder": 23
                             }
                         ]
                     },
@@ -3563,7 +3639,7 @@
                             },
                             {
                                 "comment": "Editing identity. ID is kept privately so HMI writes can never change it.",
-                                "propertyOrder": 20
+                                "propertyOrder": 25
                             }
                         ]
                     },
@@ -3573,7 +3649,7 @@
                                 "$ref": "tchmi:general#/definitions/UDINT"
                             },
                             {
-                                "propertyOrder": 37
+                                "propertyOrder": 42
                             }
                         ]
                     },
@@ -3583,7 +3659,7 @@
                                 "$ref": "tchmi:general#/definitions/UDINT"
                             },
                             {
-                                "propertyOrder": 22
+                                "propertyOrder": 27
                             }
                         ]
                     },
@@ -3593,7 +3669,7 @@
                                 "$ref": "tchmi:general#/definitions/UINT"
                             },
                             {
-                                "propertyOrder": 26
+                                "propertyOrder": 31
                             }
                         ]
                     },
@@ -3603,7 +3679,7 @@
                                 "$ref": "tchmi:general#/definitions/UINT"
                             },
                             {
-                                "propertyOrder": 40
+                                "propertyOrder": 45
                             }
                         ]
                     },
@@ -3613,7 +3689,7 @@
                                 "$ref": "tchmi:general#/definitions/UINT"
                             },
                             {
-                                "propertyOrder": 27
+                                "propertyOrder": 32
                             }
                         ]
                     },
@@ -3623,7 +3699,7 @@
                                 "$ref": "tchmi:general#/definitions/BYTE"
                             },
                             {
-                                "propertyOrder": 38
+                                "propertyOrder": 43
                             }
                         ]
                     },
@@ -3633,7 +3709,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
                             },
                             {
-                                "propertyOrder": 16
+                                "propertyOrder": 17
                             }
                         ]
                     },
@@ -3643,7 +3719,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
                             },
                             {
-                                "propertyOrder": 14
+                                "propertyOrder": 15
                             }
                         ]
                     },
@@ -3653,7 +3729,17 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
                             },
                             {
-                                "propertyOrder": 19
+                                "propertyOrder": 20
+                            }
+                        ]
+                    },
+                    "_rMoveToEditedPoint": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
+                            },
+                            {
+                                "propertyOrder": 21
                             }
                         ]
                     },
@@ -3664,7 +3750,7 @@
                             },
                             {
                                 "comment": "HMI command edges.",
-                                "propertyOrder": 13
+                                "propertyOrder": 14
                             }
                         ]
                     },
@@ -3674,7 +3760,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
                             },
                             {
-                                "propertyOrder": 15
+                                "propertyOrder": 16
                             }
                         ]
                     },
@@ -3684,7 +3770,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
                             },
                             {
-                                "propertyOrder": 18
+                                "propertyOrder": 19
                             }
                         ]
                     },
@@ -3694,7 +3780,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.Tc2_Standard.R_TRIG"
                             },
                             {
-                                "propertyOrder": 17
+                                "propertyOrder": 18
                             }
                         ]
                     },
@@ -3704,7 +3790,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.STRING-255"
                             },
                             {
-                                "propertyOrder": 11
+                                "propertyOrder": 12
                             }
                         ]
                     },
@@ -3714,7 +3800,7 @@
                                 "$ref": "tchmi:general#/definitions/STRING%2880%29"
                             },
                             {
-                                "propertyOrder": 10
+                                "propertyOrder": 11
                             }
                         ]
                     },
@@ -3724,7 +3810,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 2
+                                "propertyOrder": 3
                             }
                         ]
                     },
@@ -3734,7 +3820,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 3
+                                "propertyOrder": 4
                             }
                         ]
                     },
@@ -3744,7 +3830,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 4
+                                "propertyOrder": 5
                             }
                         ]
                     },
@@ -3754,7 +3840,7 @@
                                 "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 7
+                                "propertyOrder": 8
                             }
                         ]
                     },
@@ -3764,7 +3850,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.E_PointStoreResult"
                             },
                             {
-                                "propertyOrder": 5
+                                "propertyOrder": 6
                             }
                         ]
                     },
@@ -3774,7 +3860,7 @@
                                 "$ref": "tchmi:general#/definitions/UDINT"
                             },
                             {
-                                "propertyOrder": 6
+                                "propertyOrder": 7
                             }
                         ]
                     },
@@ -3784,7 +3870,7 @@
                                 "$ref": "tchmi:general#/definitions/UINT"
                             },
                             {
-                                "propertyOrder": 9
+                                "propertyOrder": 10
                             }
                         ]
                     },
@@ -3794,7 +3880,17 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.POINTER-TO-ST_Point"
                             },
                             {
-                                "propertyOrder": 8
+                                "propertyOrder": 9
+                            }
+                        ]
+                    },
+                    "pRobot": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.POINTER-TO-FB_1_ROB"
+                            },
+                            {
+                                "propertyOrder": 2
                             }
                         ]
                     }
@@ -3818,6 +3914,10 @@
                     "_rTeach",
                     "_rSaveFile",
                     "_rLoadFile",
+                    "_rMoveToEditedPoint",
+                    "_fMoveToEditedPoint",
+                    "_moveToEditedPointSettings",
+                    "_moveToEditedPointExecuteId",
                     "_nEditingId",
                     "_bEditingNew",
                     "_nLastSelectedPointId",
@@ -6564,6 +6664,55 @@
                 ],
                 "type": "object"
             },
+            "ADS-PLC1.Tc2_Standard.F_TRIG": {
+                "additionalProperties": false,
+                "attributes": {
+                    "conditionalshow_all_locals": ""
+                },
+                "properties": {
+                    "CLK": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "signal to detect",
+                                "propertyOrder": 1
+                            }
+                        ]
+                    },
+                    "M": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "attributes": {
+                                    "conditionalshow": ""
+                                },
+                                "propertyOrder": 3
+                            }
+                        ]
+                    },
+                    "Q": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "comment": "falling edge at signal detected",
+                                "propertyOrder": 2
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "CLK",
+                    "Q",
+                    "M"
+                ],
+                "type": "object"
+            },
             "ADS-PLC1.Tc2_Standard.R_TRIG": {
                 "additionalProperties": false,
                 "attributes": {
@@ -8738,6 +8887,124 @@
                 ],
                 "type": "integer"
             },
+            "ADS-PLC1.stBA_Settings": {
+                "additionalProperties": false,
+                "properties": {
+                    "Acceleration": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/LREAL"
+                            },
+                            {
+                                "propertyOrder": 3
+                            }
+                        ]
+                    },
+                    "Joints": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.stJoint6"
+                            },
+                            {
+                                "propertyOrder": 5
+                            }
+                        ]
+                    },
+                    "Name": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/STRING%2880%29"
+                            },
+                            {
+                                "propertyOrder": 1
+                            }
+                        ]
+                    },
+                    "Pin": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/UINT"
+                            },
+                            {
+                                "propertyOrder": 7
+                            }
+                        ]
+                    },
+                    "Pose": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.stPoseGeneral"
+                            },
+                            {
+                                "propertyOrder": 6
+                            }
+                        ]
+                    },
+                    "Target": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.stTarget"
+                            },
+                            {
+                                "propertyOrder": 4
+                            }
+                        ]
+                    },
+                    "Velocity": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/LREAL"
+                            },
+                            {
+                                "propertyOrder": 2
+                            }
+                        ]
+                    },
+                    "bValue": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/BOOL"
+                            },
+                            {
+                                "propertyOrder": 8
+                            }
+                        ]
+                    },
+                    "fValue": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/REAL"
+                            },
+                            {
+                                "propertyOrder": 9
+                            }
+                        ]
+                    },
+                    "nValue": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/INT"
+                            },
+                            {
+                                "propertyOrder": 10
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "Name",
+                    "Velocity",
+                    "Acceleration",
+                    "Target",
+                    "Joints",
+                    "Pose",
+                    "Pin",
+                    "bValue",
+                    "fValue",
+                    "nValue"
+                ],
+                "type": "object"
+            },
             "ADS-PLC1.stComm_UR_Config": {
                 "additionalProperties": false,
                 "properties": {
@@ -9117,7 +9384,7 @@
                             },
                             {
                                 "comment": "Unused rows retain unique placeholder IDs for TcHmiCombobox validation.",
-                                "propertyOrder": 12
+                                "propertyOrder": 13
                             }
                         ]
                     },
@@ -9128,7 +9395,7 @@
                             },
                             {
                                 "comment": "Each FB_PointManager instance owns this independent ten-point RAM store.",
-                                "propertyOrder": 11
+                                "propertyOrder": 12
                             }
                         ]
                     },
@@ -9202,17 +9469,17 @@
                             }
                         ]
                     },
-                    "editedPoint": {
+                    "bMoveRobotToEditedPoint": {
                         "allOf": [
                             {
-                                "$ref": "tchmi:server#/definitions/ADS-PLC1.ST_Point"
+                                "$ref": "tchmi:general#/definitions/BOOL"
                             },
                             {
-                                "propertyOrder": 9
+                                "propertyOrder": 8
                             }
                         ]
                     },
-                    "loadedPoint": {
+                    "editedPoint": {
                         "allOf": [
                             {
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.ST_Point"
@@ -9222,13 +9489,23 @@
                             }
                         ]
                     },
+                    "loadedPoint": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.ST_Point"
+                            },
+                            {
+                                "propertyOrder": 11
+                            }
+                        ]
+                    },
                     "nPointListCount": {
                         "allOf": [
                             {
                                 "$ref": "tchmi:general#/definitions/UINT"
                             },
                             {
-                                "propertyOrder": 13
+                                "propertyOrder": 14
                             }
                         ]
                     },
@@ -9238,7 +9515,7 @@
                                 "$ref": "tchmi:general#/definitions/UDINT"
                             },
                             {
-                                "propertyOrder": 14
+                                "propertyOrder": 15
                             }
                         ]
                     },
@@ -9248,7 +9525,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.STRING-255"
                             },
                             {
-                                "propertyOrder": 15
+                                "propertyOrder": 16
                             }
                         ]
                     },
@@ -9258,7 +9535,7 @@
                                 "$ref": "tchmi:server#/definitions/ADS-PLC1.stPoseGeneral"
                             },
                             {
-                                "propertyOrder": 8
+                                "propertyOrder": 9
                             }
                         ]
                     }
@@ -9271,6 +9548,7 @@
                     "bCmdTeach",
                     "bCmdSaveFile",
                     "bCmdLoadFile",
+                    "bMoveRobotToEditedPoint",
                     "xCurrentTcp",
                     "editedPoint",
                     "loadedPoint",
@@ -9295,6 +9573,16 @@
                             }
                         ]
                     },
+                    "_jointpos_display": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.stJoint6"
+                            },
+                            {
+                                "propertyOrder": 10
+                            }
+                        ]
+                    },
                     "_speedOverride": {
                         "allOf": [
                             {
@@ -9312,6 +9600,17 @@
                             },
                             {
                                 "propertyOrder": 6
+                            }
+                        ]
+                    },
+                    "_tcppos_display": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.stPoseGeneral"
+                            },
+                            {
+                                "comment": "HMI display mirrors of _tcppos/_jointpos: x,y,z in mm, rx,ry,rz/joint in deg.",
+                                "propertyOrder": 9
                             }
                         ]
                     },
@@ -9374,7 +9673,9 @@
                     "eModus",
                     "_tcppos",
                     "_jointpos",
-                    "_speedOverride"
+                    "_speedOverride",
+                    "_tcppos_display",
+                    "_jointpos_display"
                 ],
                 "type": "object"
             },
@@ -9820,6 +10121,47 @@
                 ],
                 "type": "object"
             },
+            "ADS-PLC1.stTarget": {
+                "additionalProperties": false,
+                "properties": {
+                    "frameId": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/INT"
+                            },
+                            {
+                                "propertyOrder": 2
+                            }
+                        ]
+                    },
+                    "name": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:general#/definitions/STRING%2880%29"
+                            },
+                            {
+                                "propertyOrder": 1
+                            }
+                        ]
+                    },
+                    "pose": {
+                        "allOf": [
+                            {
+                                "$ref": "tchmi:server#/definitions/ADS-PLC1.stPoseGeneral"
+                            },
+                            {
+                                "propertyOrder": 3
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "frameId",
+                    "pose"
+                ],
+                "type": "object"
+            },
             "ADS-PLC1.stVisStatusTool": {
                 "additionalProperties": false,
                 "attributes": {
@@ -9929,7 +10271,7 @@
     "DISCOVERY": 1,
     "ENDPOINTS": [
         "http://127.0.0.1:13000",
-        "http://127.0.0.1:3004"
+        "http://127.0.0.1:3005"
     ],
     "ETAGENABLED": true,
     "EXTENSIONS": {
@@ -11146,7 +11488,7 @@
                     },
                     {
                         "comment": "Unused rows retain unique placeholder IDs for TcHmiCombobox validation.",
-                        "propertyOrder": 12
+                        "propertyOrder": 13
                     }
                 ]
             },
@@ -13242,7 +13584,7 @@
             "ACCESS": 3,
             "DOMAIN": "ADS",
             "DYNAMIC": true,
-            "MAPPING": "PLC1::SETUP::UR_BRAVO::HMI_BASE",
+            "MAPPING": "PLC1::SETUP::MECA_CHARLIE::HMI_BASE",
             "SCHEMA": {
                 "allOf": [
                     {
@@ -13262,7 +13604,7 @@
             "ACCESS": 3,
             "DOMAIN": "ADS",
             "DYNAMIC": true,
-            "MAPPING": "PLC1::SETUP::UR_BRAVO::PM::HMI_PM",
+            "MAPPING": "PLC1::SETUP::MECA_CHARLIE::PM::HMI_PM",
             "SCHEMA": {
                 "allOf": [
                     {
@@ -13282,7 +13624,7 @@
             "ACCESS": 3,
             "DOMAIN": "ADS",
             "DYNAMIC": true,
-            "MAPPING": "PLC1::SETUP::UR_BRAVO::HMI_ROB",
+            "MAPPING": "PLC1::SETUP::MECA_CHARLIE::HMI_ROB",
             "SCHEMA": {
                 "allOf": [
                     {
@@ -13299,7 +13641,7 @@
             "ACCESS": 3,
             "DOMAIN": "ADS",
             "DYNAMIC": true,
-            "MAPPING": "PLC1::SETUP::UR_BRAVO::HMI_ROB_MANIP",
+            "MAPPING": "PLC1::SETUP::MECA_CHARLIE::HMI_ROB_MANIP",
             "SCHEMA": {
                 "allOf": [
                     {
@@ -13316,7 +13658,7 @@
             "ACCESS": 3,
             "DOMAIN": "ADS",
             "DYNAMIC": true,
-            "MAPPING": "PLC1::SETUP::UR_BRAVO::JOG",
+            "MAPPING": "PLC1::SETUP::MECA_CHARLIE::JOG",
             "SCHEMA": {
                 "allOf": [
                     {

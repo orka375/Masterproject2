@@ -80,9 +80,9 @@ R_LastTrans:=T_UR.LastTransitionType;
 R_LastTransRes:=T_UR.LastTransitionResult;
 
 //ROBOT TOOL
-RT_State:=T_UR.TOOL.State;
-RT_LastTrans:=T_UR.TOOL.LastTransitionType;
-RT_LastTransRes:=T_UR.TOOL.LastTransitionResult;
+RT_State:=T_UR.TOOL^.State;
+RT_LastTrans:=T_UR.TOOL^.LastTransitionType;
+RT_LastTransRes:=T_UR.TOOL^.LastTransitionResult;
 
 //ROBOT COMM
 RC_State:=T_UR.UR_COMM.State;

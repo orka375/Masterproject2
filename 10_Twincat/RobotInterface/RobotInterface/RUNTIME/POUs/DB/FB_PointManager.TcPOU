@@ -5,17 +5,18 @@
 VAR_INPUT
     {attribute 'OPC.UA.DA' := '1'}
     HMI_PM : stHMI_PM;
+    pRobot : POINTER TO FB_1_ROB;
 END_VAR
 
 VAR_OUTPUT
-    bBusy      : BOOL;
-    bDone      : BOOL;
-    bError     : BOOL;
-    eResult    : E_PointStoreResult := POINTSTORE_IDLE;
-    nErrorID   : UDINT;
+    bBusy      	: BOOL;
+    bDone      	: BOOL;
+    bError     	: BOOL;
+    Result 		: eResult;
+    nErrorID   	: UDINT;
 
-    bFound     : BOOL;
-    pPoint     : POINTER TO ST_Point;
+    bFound    	: BOOL;
+    pPoint     	: POINTER TO ST_Point;
     nPointCount : UINT;
 END_VAR
 
@@ -32,6 +33,11 @@ VAR
     _rTeach     : R_TRIG;
     _rSaveFile  : R_TRIG;
     _rLoadFile  : R_TRIG;
+    _rMoveToEditedPoint : R_TRIG;
+    _fMoveToEditedPoint : F_TRIG;
+
+    _moveToEditedPointSettings : stBA_Settings;
+    _moveToEditedPointExecuteId : UINT;
 
     // Editing identity. ID is kept privately so HMI writes can never change it.
     _nEditingId : DINT;
@@ -79,7 +85,7 @@ IF (_nEditingId >= 1) AND (_nEditingId <= 10) THEN
 END_IF
 
 IF NOT bError THEN
-    eResult := POINTSTORE_IDLE;
+    Result := NONE;
 END_IF
 
 _rNew(CLK := HMI_PM.bCmdNew);
@@ -89,6 +95,57 @@ _rDelete(CLK := HMI_PM.bCmdDelete);
 _rTeach(CLK := HMI_PM.bCmdTeach);
 _rSaveFile(CLK := HMI_PM.bCmdSaveFile);
 _rLoadFile(CLK := HMI_PM.bCmdLoadFile);
+_rMoveToEditedPoint(CLK := HMI_PM.bMoveRobotToEditedPoint);
+_fMoveToEditedPoint(CLK := HMI_PM.bMoveRobotToEditedPoint);
+
+IF _fMoveToEditedPoint.Q THEN
+    IF (_moveToEditedPointExecuteId <> 0) AND (pRobot <> 0) THEN
+        IF pRobot^.BA_Annulate(ExecuteId := _moveToEditedPointExecuteId) THEN
+            pRobot^.EStop();
+        END_IF
+    END_IF
+    _moveToEditedPointExecuteId := 0;
+END_IF
+
+IF _rMoveToEditedPoint.Q THEN
+    IF pRobot <> 0 THEN
+        IF pRobot^.IsReady
+           AND NOT bBusy
+           AND (_nEditingId >= 1) AND (_nEditingId <= 10)
+           AND (HMI_PM.editedPoint.frame_id >= 0)
+           AND (HMI_PM.editedPoint.frame_id <= 32767) THEN
+
+            _moveToEditedPointSettings.Name := HMI_PM.editedPoint.name;
+            _moveToEditedPointSettings.Velocity := 0.05;
+            _moveToEditedPointSettings.Acceleration := 0.5;
+            _moveToEditedPointSettings.Target.name := HMI_PM.editedPoint.name;
+            _moveToEditedPointSettings.Target.frameId := DINT_TO_INT(HMI_PM.editedPoint.frame_id);
+            _moveToEditedPointSettings.Target.pose.x := HMI_PM.editedPoint.x;
+            _moveToEditedPointSettings.Target.pose.y := HMI_PM.editedPoint.y;
+            _moveToEditedPointSettings.Target.pose.z := HMI_PM.editedPoint.z;
+            _moveToEditedPointSettings.Target.pose.rx := HMI_PM.editedPoint.rx;
+            _moveToEditedPointSettings.Target.pose.ry := HMI_PM.editedPoint.ry;
+            _moveToEditedPointSettings.Target.pose.rz := HMI_PM.editedPoint.rz;
+
+            _moveToEditedPointExecuteId := pRobot^.BA_Handler(
+                Cmd := eBA.MoveJ,
+                Settings := _moveToEditedPointSettings
+            );
+
+            IF _moveToEditedPointExecuteId = 0 THEN
+                HMI_PM.sLastOperation := 'Move to edited point was not accepted';
+            ELSE
+                HMI_PM.sLastOperation := 'Moving robot to edited point while button is held';
+            END_IF
+        ELSE
+            _moveToEditedPointExecuteId := 0;
+            HMI_PM.sLastOperation := 'Robot or edited point is not ready for motion';
+        END_IF
+    ELSE
+        _moveToEditedPointExecuteId := 0;
+        HMI_PM.sLastOperation := 'Robot or edited point is not ready for motion';
+    END_IF
+END_IF
 
 // File operations own the manager until their asynchronous state machine finishes.
 IF _bReadFileActive THEN
@@ -155,7 +212,7 @@ ELSIF _rDelete.Q THEN
     ELSE
         bError := TRUE;
         nErrorID := 16#E802;
-        eResult := POINTSTORE_DATABASE_ERROR;
+        Result := ERROR;
         HMI_PM.sLastOperation := 'No point selected';
     END_IF
 
@@ -470,7 +527,7 @@ nIndex := FindIndex(sName := sName);
 IF nIndex = 0 THEN
     bError := TRUE;
     nErrorID := 16#E802;
-    eResult := POINTSTORE_DATABASE_ERROR;
+    Result := ERROR;
     HMI_PM.sLastOperation := 'Point name not found';
     RETURN;
 END_IF
@@ -498,7 +555,7 @@ nIndex := FindIndexById(nId := nId);
 IF nIndex = 0 THEN
     bError := TRUE;
     nErrorID := 16#E802;
-    eResult := POINTSTORE_DATABASE_ERROR;
+    Result := ERROR;
     HMI_PM.sLastOperation := 'Point ID not found';
     RETURN;
 END_IF
@@ -531,7 +588,7 @@ END_IF
 
 bError := FALSE;
 nErrorID := 0;
-eResult := POINTSTORE_DONE;
+Result := SUCCESS;
 bDone := TRUE;
 HMI_PM.sLastOperation := 'Deleted point from RAM array only';
 
@@ -629,7 +686,7 @@ IF NOT IsValidDatabaseName(sValue := sName) THEN
     _sDatabasePath := '';
     bError := TRUE;
     nErrorID := 16#E80B;
-    eResult := POINTSTORE_DATABASE_ERROR;
+    Result := ERROR;
     HMI_PM.sLastOperation := 'Invalid PointManager name for file path';
     RETURN;
 END_IF
@@ -641,7 +698,7 @@ _bConfigured := TRUE;
 
 bError := FALSE;
 nErrorID := 0;
-eResult := POINTSTORE_DONE;
+Result := SUCCESS;
 bDone := TRUE;
 HMI_PM.sLastOperation := 'Memory point store configured';
 
@@ -797,7 +854,7 @@ END_VAR
       </Implementation>
     </Method>
     <Method Name="Load" Id="{6d00c9c3-ae5f-47ac-82e1-a1471518898e}">
-      <Declaration><![CDATA[METHOD PUBLIC Load : BOOL
+      <Declaration><![CDATA[METHOD PUBLIC Load : eResult
 VAR_INPUT
     sName : STRING(80);
 END_VAR
@@ -806,7 +863,7 @@ VAR
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Load := FALSE;
+        <ST><![CDATA[Load := NONE;
 
 nIndex := FindIndex(sName := sName);
 IF nIndex = 0 THEN
@@ -814,8 +871,9 @@ IF nIndex = 0 THEN
     pPoint := 0;
     bError := TRUE;
     nErrorID := 16#E802;
-    eResult := POINTSTORE_DATABASE_ERROR;
+    Result := ERROR;
     HMI_PM.sLastOperation := 'Point name not found';
+	Load := ERROR;
     RETURN;
 END_IF
 
@@ -838,7 +896,7 @@ CASE _nLoadFileState OF
         IF NOT _bConfigured THEN
             bError := TRUE;
             nErrorID := 16#E80B;
-            eResult := POINTSTORE_DATABASE_ERROR;
+            Result := ERROR;
             HMI_PM.sLastOperation := 'PointManager name is not configured';
             _bReadFileActive := FALSE;
             RETURN;
@@ -867,7 +925,7 @@ CASE _nLoadFileState OF
         IF _fileOpen.bError THEN
             bError := TRUE;
             nErrorID := _fileOpen.nErrId;
-            eResult := POINTSTORE_DATABASE_ERROR;
+            Result := ERROR;
             HMI_PM.sLastOperation := 'File open for load failed';
             _fileOpen(bExecute := FALSE);
             _nLoadFileState := 0;
@@ -895,7 +953,7 @@ CASE _nLoadFileState OF
         IF _fileRead.bError THEN
             bError := TRUE;
             nErrorID := _fileRead.nErrId;
-            eResult := POINTSTORE_DATABASE_ERROR;
+            Result := ERROR;
             HMI_PM.sLastOperation := 'File read failed';
             _fileRead(bExecute := FALSE);
             _nLoadFileState := 30;
@@ -924,12 +982,12 @@ CASE _nLoadFileState OF
         IF _fileRead.bError THEN
             bError := TRUE;
             nErrorID := _fileRead.nErrId;
-            eResult := POINTSTORE_DATABASE_ERROR;
+            Result := ERROR;
             HMI_PM.sLastOperation := 'File size check failed';
         ELSIF _fileRead.cbRead > 0 THEN
             bError := TRUE;
             nErrorID := 16#E808;
-            eResult := POINTSTORE_DATABASE_ERROR;
+            Result := ERROR;
             HMI_PM.sLastOperation := 'Point file is larger than the PLC file buffer';
         END_IF
 
@@ -950,7 +1008,7 @@ CASE _nLoadFileState OF
         IF _fileClose.bError THEN
             bError := TRUE;
             nErrorID := _fileClose.nErrId;
-            eResult := POINTSTORE_DATABASE_ERROR;
+            Result := ERROR;
             HMI_PM.sLastOperation := 'File close after load failed';
         END_IF
 
@@ -1001,7 +1059,7 @@ CASE _nLoadFileState OF
 
         bError := FALSE;
         nErrorID := 0;
-        eResult := POINTSTORE_DONE;
+        Result := SUCCESS;
         bDone := TRUE;
         HMI_PM.sLastOperation := 'Loaded and validated point file into RAM array';
 
@@ -1013,7 +1071,7 @@ END_CASE
       </Implementation>
     </Method>
     <Method Name="LoadById" Id="{434ff23f-8bbe-401c-84d5-3ced9c607a3b}">
-      <Declaration><![CDATA[METHOD PUBLIC LoadById : BOOL
+      <Declaration><![CDATA[METHOD PUBLIC LoadById : eResult
 VAR_INPUT
     nId : DINT;
 END_VAR
@@ -1022,7 +1080,7 @@ VAR
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[LoadById := FALSE;
+        <ST><![CDATA[LoadById := NONE;
 
 nIndex := FindIndexById(nId := nId);
 
@@ -1031,8 +1089,9 @@ IF nIndex = 0 THEN
     pPoint := 0;
     bError := TRUE;
     nErrorID := 16#E802;
-    eResult := POINTSTORE_DATABASE_ERROR;
+    Result := ERROR;
     HMI_PM.sLastOperation := 'Point ID not found';
+	LoadById := ERROR;
     RETURN;
 END_IF
 
@@ -1053,14 +1112,31 @@ pPoint := ADR(HMI_PM.loadedPoint);
 bFound := TRUE;
 bError := FALSE;
 nErrorID := 0;
-eResult := POINTSTORE_DONE;
+Result := SUCCESS;
 bDone := TRUE;
 HMI_PM.sLastOperation := 'Loaded stored point into edit buffer';
 
-LoadById := TRUE;
+LoadById := SUCCESS;
 ]]></ST>
       </Implementation>
     </Method>
+    <Property Name="LoadedPoint" Id="{ea20c9ff-92ea-4122-931a-45e49ef164f8}">
+      <Declaration><![CDATA[PROPERTY LoadedPoint : stPoseGeneral]]></Declaration>
+      <Get Name="Get" Id="{bf2f00be-2b86-46ea-90a3-3f38e1e8b036}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[LoadedPoint.x := HMI_PM.loadedPoint.x;
+LoadedPoint.y := HMI_PM.loadedPoint.y;
+LoadedPoint.z := HMI_PM.loadedPoint.z;
+LoadedPoint.rx := HMI_PM.loadedPoint.rx;
+LoadedPoint.ry := HMI_PM.loadedPoint.ry;
+LoadedPoint.rz := HMI_PM.loadedPoint.rz;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Method Name="ParseLoadBuffer" Id="{02b12707-eafb-4400-96ec-be8eb15e5546}">
       <Declaration><![CDATA[METHOD PRIVATE ParseLoadBuffer : BOOL
 VAR
@@ -1078,7 +1154,7 @@ _nLoadPointCount := 0;
 IF _nFileBufferSize = 0 THEN
     bError := TRUE;
     nErrorID := 16#E806;
-    eResult := POINTSTORE_DATABASE_ERROR;
+    Result := ERROR;
     HMI_PM.sLastOperation := 'Point file is empty';
     RETURN;
 END_IF
@@ -1194,7 +1270,7 @@ WHILE TRUE DO
     IF (point.id < 1) OR (point.id > 10) THEN
         bError := TRUE;
         nErrorID := 16#E807;
-        eResult := POINTSTORE_DATABASE_ERROR;
+        Result := ERROR;
         HMI_PM.sLastOperation := 'File contains point ID outside 1..10';
         RETURN;
     END_IF
@@ -1202,7 +1278,7 @@ WHILE TRUE DO
     IF point.name = '' THEN
         bError := TRUE;
         nErrorID := 16#E803;
-        eResult := POINTSTORE_DATABASE_ERROR;
+        Result := ERROR;
         HMI_PM.sLastOperation := 'File contains an empty point name';
         RETURN;
     END_IF
@@ -1217,7 +1293,7 @@ WHILE TRUE DO
         IF _loadPoints[j].id = point.id THEN
             bError := TRUE;
             nErrorID := 16#E807;
-            eResult := POINTSTORE_DATABASE_ERROR;
+            Result := ERROR;
             HMI_PM.sLastOperation := 'File contains duplicate point IDs';
             RETURN;
         END_IF
@@ -1225,7 +1301,7 @@ WHILE TRUE DO
         IF _loadPoints[j].name = point.name THEN
             bError := TRUE;
             nErrorID := 16#E804;
-            eResult := POINTSTORE_DATABASE_ERROR;
+            Result := ERROR;
             HMI_PM.sLastOperation := 'File contains duplicate point names for one robot';
             RETURN;
         END_IF
@@ -1234,7 +1310,7 @@ WHILE TRUE DO
     IF _nLoadPointCount >= 10 THEN
         bError := TRUE;
         nErrorID := 16#E801;
-        eResult := POINTSTORE_DATABASE_ERROR;
+        Result := ERROR;
         HMI_PM.sLastOperation := 'File contains more than 10 points';
         RETURN;
     END_IF
@@ -1281,7 +1357,7 @@ END_VAR
 IF nPointCount >= 10 THEN
     bError := TRUE;
     nErrorID := 16#E801;
-    eResult := POINTSTORE_DATABASE_ERROR;
+    Result := ERROR;
     HMI_PM.sLastOperation := 'Memory point store full';
     RETURN;
 END_IF
@@ -1290,12 +1366,13 @@ nId := FindFreeId();
 IF nId = 0 THEN
     bError := TRUE;
     nErrorID := 16#E805;
-    eResult := POINTSTORE_DATABASE_ERROR;
+    Result := ERROR;
     HMI_PM.sLastOperation := 'No free point ID in range 1..10';
     RETURN;
 END_IF
 
 _nEditingId := nId;
+
 _bEditingNew := TRUE;
 
 // A new point is only an edit buffer until SAVE POINT is pressed.
@@ -1323,15 +1400,20 @@ ELSE
 END_IF
 
 // Unsaved new point is not a stored selection yet.
-HMI_PM.nSelectedPointId := 0;
-_nLastSelectedPointId := 0;
+// HMI_PM.nSelectedPointId := 0;
+// _nLastSelectedPointId := 0;
+
+MEMCPY(ADR(HMI_PM.aPoints[nId]),ADR(HMI_PM.editedPoint),SIZEOF(HMI_PM.editedPoint));
 
 pPoint := 0;
 bFound := FALSE;
 bError := FALSE;
 nErrorID := 0;
-eResult := POINTSTORE_DONE;
+Result := SUCCESS;
 bDone := TRUE;
+HMI_PM.nSelectedPointId := nId;
+_nLastSelectedPointId := nId;
+nPointCount := nPointCount +1;
 HMI_PM.sLastOperation := 'New point ready for editing; press SAVE POINT to store it';
 
 PrepareNewPoint := TRUE;
@@ -1355,7 +1437,7 @@ END_VAR
 IF sNewName = '' THEN
     bError := TRUE;
     nErrorID := 16#E803;
-    eResult := POINTSTORE_DATABASE_ERROR;
+    Result := ERROR;
     HMI_PM.sLastOperation := 'Point name cannot be empty';
     RETURN;
 END_IF
@@ -1365,11 +1447,11 @@ IF _nEditingId = 0 THEN
     IF nIndex = 0 THEN
         bError := TRUE;
         nErrorID := 16#E802;
-        eResult := POINTSTORE_DATABASE_ERROR;
+        Result := ERROR;
         HMI_PM.sLastOperation := 'Point not found';
         RETURN;
     END_IF
-    IF NOT LoadById(nId := HMI_PM.aPoints[nIndex].id) THEN
+    IF NOT (SUCCESS = LoadById(nId := HMI_PM.aPoints[nIndex].id)) THEN
         RETURN;
     END_IF
 END_IF
@@ -1379,7 +1461,7 @@ HMI_PM.editedPoint.name := sNewName;
 
 bError := FALSE;
 nErrorID := 0;
-eResult := POINTSTORE_DONE;
+Result := SUCCESS;
 bDone := TRUE;
 HMI_PM.sLastOperation := 'Edited point name changed; press SAVE POINT to store it';
 
@@ -1407,11 +1489,11 @@ IF (_nEditingId = 0) AND (sCurrentName <> '') THEN
     IF nIndex = 0 THEN
         bError := TRUE;
         nErrorID := 16#E802;
-        eResult := POINTSTORE_DATABASE_ERROR;
+        Result := ERROR;
         HMI_PM.sLastOperation := 'Point not found';
         RETURN;
     END_IF
-    IF NOT LoadById(nId := HMI_PM.aPoints[nIndex].id) THEN
+    IF NOT (SUCCESS = LoadById(nId := HMI_PM.aPoints[nIndex].id)) THEN
         RETURN;
     END_IF
 END_IF
@@ -1441,11 +1523,11 @@ IF (_nEditingId = 0) AND (sCurrentName <> '') THEN
     IF nIndex = 0 THEN
         bError := TRUE;
         nErrorID := 16#E802;
-        eResult := POINTSTORE_DATABASE_ERROR;
+        Result := ERROR;
         HMI_PM.sLastOperation := 'Point not found';
         RETURN;
     END_IF
-    IF NOT LoadById(nId := HMI_PM.aPoints[nIndex].id) THEN
+    IF NOT (SUCCESS = LoadById(nId := HMI_PM.aPoints[nIndex].id)) THEN
         RETURN;
     END_IF
 END_IF
@@ -1473,7 +1555,7 @@ CASE _nSaveFileState OF
         IF NOT _bConfigured THEN
             bError := TRUE;
             nErrorID := 16#E80B;
-            eResult := POINTSTORE_DATABASE_ERROR;
+            Result := ERROR;
             HMI_PM.sLastOperation := 'PointManager name is not configured';
             _bWriteFileActive := FALSE;
             RETURN;
@@ -1482,7 +1564,7 @@ CASE _nSaveFileState OF
         IF NOT BuildSaveBuffer() THEN
             bError := TRUE;
             nErrorID := 16#E809;
-            eResult := POINTSTORE_DATABASE_ERROR;
+            Result := ERROR;
             HMI_PM.sLastOperation := 'Point file buffer overflow';
             _bWriteFileActive := FALSE;
             RETURN;
@@ -1510,7 +1592,7 @@ CASE _nSaveFileState OF
         IF _fileOpen.bError THEN
             bError := TRUE;
             nErrorID := _fileOpen.nErrId;
-            eResult := POINTSTORE_DATABASE_ERROR;
+            Result := ERROR;
             HMI_PM.sLastOperation := 'File open for save failed';
             _fileOpen(bExecute := FALSE);
             _nSaveFileState := 0;
@@ -1538,12 +1620,12 @@ CASE _nSaveFileState OF
         IF _fileWrite.bError THEN
             bError := TRUE;
             nErrorID := _fileWrite.nErrId;
-            eResult := POINTSTORE_DATABASE_ERROR;
+            Result := ERROR;
             HMI_PM.sLastOperation := 'File write failed';
         ELSIF _fileWrite.cbWrite <> _nFileBufferSize THEN
             bError := TRUE;
             nErrorID := 16#E80A;
-            eResult := POINTSTORE_DATABASE_ERROR;
+            Result := ERROR;
             HMI_PM.sLastOperation := 'File write incomplete';
         END_IF
 
@@ -1564,7 +1646,7 @@ CASE _nSaveFileState OF
         IF _fileClose.bError THEN
             bError := TRUE;
             nErrorID := _fileClose.nErrId;
-            eResult := POINTSTORE_DATABASE_ERROR;
+            Result := ERROR;
             HMI_PM.sLastOperation := 'File close after save failed';
         END_IF
 
@@ -1579,7 +1661,7 @@ CASE _nSaveFileState OF
 
         bError := FALSE;
         nErrorID := 0;
-        eResult := POINTSTORE_DONE;
+        Result := SUCCESS;
         bDone := TRUE;
         SaveAllToFile := TRUE;
         HMI_PM.sLastOperation := 'Overwrote point file with current RAM array';
@@ -1599,7 +1681,7 @@ END_VAR
 IF (_nEditingId < 1) OR (_nEditingId > 10) THEN
     bError := TRUE;
     nErrorID := 16#E802;
-    eResult := POINTSTORE_DATABASE_ERROR;
+    Result := ERROR;
     HMI_PM.sLastOperation := 'No valid edit point ID';
     RETURN;
 END_IF
@@ -1607,7 +1689,7 @@ END_IF
 IF NOT IsValidPointName(sValue := HMI_PM.editedPoint.name) THEN
     bError := TRUE;
     nErrorID := 16#E803;
-    eResult := POINTSTORE_DATABASE_ERROR;
+    Result := ERROR;
     HMI_PM.sLastOperation := 'Point name is empty or contains an invalid CSV character';
     RETURN;
 END_IF
@@ -1615,7 +1697,7 @@ END_IF
 IF NOT CheckName(sInput := HMI_PM.editedPoint.name, nIgnoreId := _nEditingId) THEN
     bError := TRUE;
     nErrorID := 16#E804;
-    eResult := POINTSTORE_DATABASE_ERROR;
+    Result := ERROR;
     HMI_PM.sLastOperation := 'Point name already exists';
     RETURN;
 END_IF
@@ -1630,7 +1712,7 @@ IF nIndex = 0 THEN
     IF NOT _bEditingNew THEN
         bError := TRUE;
         nErrorID := 16#E802;
-        eResult := POINTSTORE_DATABASE_ERROR;
+        Result := ERROR;
         HMI_PM.sLastOperation := 'Point ID is not present in RAM array';
         RETURN;
     END_IF
@@ -1638,7 +1720,7 @@ IF nIndex = 0 THEN
     IF nPointCount >= 10 THEN
         bError := TRUE;
         nErrorID := 16#E801;
-        eResult := POINTSTORE_DATABASE_ERROR;
+        Result := ERROR;
         HMI_PM.sLastOperation := 'Memory point store full';
         RETURN;
     END_IF
@@ -1681,7 +1763,7 @@ SyncPointList();
 
 bError := FALSE;
 nErrorID := 0;
-eResult := POINTSTORE_DONE;
+Result := SUCCESS;
 bDone := TRUE;
 HMI_PM.sLastOperation := 'Saved edited point to RAM array only';
 
@@ -1695,7 +1777,7 @@ SaveEditedPoint := TRUE;
       <Implementation>
         <ST><![CDATA[bError := TRUE;
 nErrorID := 16#E806;
-eResult := POINTSTORE_DATABASE_ERROR;
+Result := ERROR;
 HMI_PM.sLastOperation := 'Invalid or corrupt point file format';
 ]]></ST>
       </Implementation>
@@ -1804,7 +1886,7 @@ END_VAR
 IF (_nEditingId < 1) OR (_nEditingId > 10) THEN
     bError := TRUE;
     nErrorID := 16#E802;
-    eResult := POINTSTORE_DATABASE_ERROR;
+    Result := ERROR;
     HMI_PM.sLastOperation := 'No point loaded or prepared for editing';
     RETURN;
 END_IF
@@ -1819,7 +1901,7 @@ HMI_PM.editedPoint.rz := pose.rz;
 
 bError := FALSE;
 nErrorID := 0;
-eResult := POINTSTORE_DONE;
+Result := SUCCESS;
 bDone := TRUE;
 HMI_PM.sLastOperation := 'Current robot TCP copied to edited 2D coordinates only';
 
@@ -1839,7 +1921,7 @@ END_VAR
 IF (_nEditingId < 1) OR (_nEditingId > 10) THEN
     bError := TRUE;
     nErrorID := 16#E802;
-    eResult := POINTSTORE_DATABASE_ERROR;
+    Result := ERROR;
     HMI_PM.sLastOperation := 'No point loaded or prepared for editing';
     RETURN;
 END_IF
@@ -1855,7 +1937,7 @@ HMI_PM.editedPoint.rz := pose.rz;
 
 bError := FALSE;
 nErrorID := 0;
-eResult := POINTSTORE_DONE;
+Result := SUCCESS;
 bDone := TRUE;
 HMI_PM.sLastOperation := 'Current robot TCP copied to edited point only';
 

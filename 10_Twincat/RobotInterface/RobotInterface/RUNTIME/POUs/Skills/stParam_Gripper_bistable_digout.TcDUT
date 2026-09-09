@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stParam_Gripper_bistable_digout" Id="{b95b8b2b-ecce-4b8d-ab0b-81a7894569d8}">
+    <Declaration><![CDATA[TYPE stParam_Gripper_bistable_digout :
+STRUCT
+	Pin: UINT;
+	ValueIfActiv: BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

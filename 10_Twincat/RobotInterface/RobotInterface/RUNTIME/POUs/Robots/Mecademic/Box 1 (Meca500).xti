@@ -1,0 +1,761 @@
+<?xml version="1.0"?>
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.24" ClassName="CFlbTermDef" SubType="9099">
+	<DataTypes>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-002000000007}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..6] OF BIT</Name>
+			<BitSize>7</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>7</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-00200000000A}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..9] OF BIT</Name>
+			<BitSize>10</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>10</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-002000000002}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..1] OF BIT</Name>
+			<BitSize>2</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>2</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-002000000008}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..0] OF BYTE</Name>
+			<BitSize>8</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>1</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-002000000019}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..24] OF BIT</Name>
+			<BitSize>25</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>25</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-00200000000C}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..11] OF BIT</Name>
+			<BitSize>12</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>12</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-00200000001E}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..29] OF BIT</Name>
+			<BitSize>30</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>30</Elements>
+			</ArrayInfo>
+		</DataType>
+	</DataTypes>
+	<Box Id="1" BoxType="9099" BoxFlags="#x00000020">
+		<Name>__FILENAME__</Name>
+		<ImageId>547</ImageId>
+		<EtherCAT SlaveType="2" PdiType="#x0e80" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="39" VendorId="#x00ecade1" ProductCode="#x0004d500" RevisionNo="#x00000001" InfoDataAddr="true" TimeoutStateChange1="2000" TimeoutStateChange2="9000" TimeoutMailbox2="2000" PortPhys="17" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="Meca500" Desc="Meca500">
+			<SyncMan>001080002600010001000000240080008000001026010000</SyncMan>
+			<SyncMan>801080002200010002000000240080008000801022010000</SyncMan>
+			<SyncMan>00113c006400010003000000000000003c00001164010000</SyncMan>
+			<SyncMan>0014fc00200001000400000000000000fc00001420010000</SyncMan>
+			<Fmmu>0000000000000000001100020100000001000000000000000000000000000000</Fmmu>
+			<Fmmu>0000000000000000001400010100000002000000000000000000000000000000</Fmmu>
+			<Fmmu>00000000000000000d0800010100000003000000000000000000000000000000</Fmmu>
+			<DcMode>53796e6368726f6e0000000000000000534d2d53796e6368726f6e000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000</DcMode>
+			<DcMode>4443000000000000000000000000000044432d53796e6368726f6e000000000000000000000000000000000000000000000000000000000000000000000000030100000000000000000000000000000000000000000000000000000000000000</DcMode>
+			<Pdo Name="Robot Status" Index="#x1a00" Flags="#x0011" SyncMan="3">
+				<Entry Name="Busy" Index="#x6010" Sub="#x02">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Activated" Index="#x6010" Sub="#x03">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Homed" Index="#x6010" Sub="#x04">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="SimActivated" Index="#x6010" Sub="#x05">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="BrakesEngaged" Index="#x6010" Sub="#x06">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="RecoveryMode" Index="#x6010" Sub="#x07">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Estop" Index="#x6010" Sub="#x08">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="CollisionStatus" Index="#x6010" Sub="#x09">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="WorkZoneStatus" Index="#x6010" Sub="#x0a">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry>
+					<Type GUID="{18071995-0000-0000-0000-002000000007}">ARRAY [0..6] OF BIT</Type>
+				</Entry>
+				<Entry Name="Error" Index="#x6010" Sub="#x01">
+					<Type>UINT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Motion Status" Index="#x1a01" Flags="#x0011" SyncMan="3">
+				<Entry Name="ReachedCheckPointId" Index="#x6015" Sub="#x01">
+					<Type>UINT</Type>
+				</Entry>
+				<Entry Name="DiscardedCheckpointId" Index="#x6015" Sub="#x02">
+					<Type>UINT</Type>
+				</Entry>
+				<Entry Name="Move ID" Index="#x6015" Sub="#x03">
+					<Type>UINT</Type>
+				</Entry>
+				<Entry Name="FIFO Space" Index="#x6015" Sub="#x04">
+					<Type>UINT</Type>
+				</Entry>
+				<Entry Name="Paused" Index="#x6015" Sub="#x06">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EOB" Index="#x6015" Sub="#x07">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EOM" Index="#x6015" Sub="#x08">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="FIFO Cleared" Index="#x6015" Sub="#x09">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="PStop2" Index="#x6015" Sub="#x0a">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Excessive torque" Index="#x6015" Sub="#x0b">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry>
+					<Type GUID="{18071995-0000-0000-0000-00200000000A}">ARRAY [0..9] OF BIT</Type>
+				</Entry>
+				<Entry Name="Offline Program ID" Index="#x6015" Sub="#x05">
+					<Type>UINT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Joint Set" Index="#x1a02" Flags="#x0010" SyncMan="3">
+				<Entry Name="SubIndex 001" Index="#x6030" Sub="#x01">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 002" Index="#x6030" Sub="#x02">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 003" Index="#x6030" Sub="#x03">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 004" Index="#x6030" Sub="#x04">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 005" Index="#x6030" Sub="#x05">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 006" Index="#x6030" Sub="#x06">
+					<Type>REAL</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="End-Effector Pose" Index="#x1a03" Flags="#x0010" SyncMan="3">
+				<Entry Name="SubIndex 001" Index="#x6031" Sub="#x01">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 002" Index="#x6031" Sub="#x02">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 003" Index="#x6031" Sub="#x03">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 004" Index="#x6031" Sub="#x04">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 005" Index="#x6031" Sub="#x05">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 006" Index="#x6031" Sub="#x06">
+					<Type>REAL</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Configurations" Index="#x1a08" Flags="#x0010" SyncMan="3">
+				<Entry Name="Shoulder" Index="#x6046" Sub="#x01">
+					<Type>SINT</Type>
+				</Entry>
+				<Entry Name="Elbow" Index="#x6046" Sub="#x02">
+					<Type>SINT</Type>
+				</Entry>
+				<Entry Name="Wrist" Index="#x6046" Sub="#x03">
+					<Type>SINT</Type>
+				</Entry>
+				<Entry Name="Turn" Index="#x6046" Sub="#x04">
+					<Type>SINT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="WRF" Index="#x1a09" Flags="#x0010" SyncMan="3">
+				<Entry Name="SubIndex 001" Index="#x6050" Sub="#x01">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 002" Index="#x6050" Sub="#x02">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 003" Index="#x6050" Sub="#x03">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 004" Index="#x6050" Sub="#x04">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 005" Index="#x6050" Sub="#x05">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 006" Index="#x6050" Sub="#x06">
+					<Type>REAL</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="TRF" Index="#x1a0a" Flags="#x0010" SyncMan="3">
+				<Entry Name="SubIndex 001" Index="#x6051" Sub="#x01">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 002" Index="#x6051" Sub="#x02">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 003" Index="#x6051" Sub="#x03">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 004" Index="#x6051" Sub="#x04">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 005" Index="#x6051" Sub="#x05">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 006" Index="#x6051" Sub="#x06">
+					<Type>REAL</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Robot Timestamp" Index="#x1a10" Flags="#x0010" SyncMan="3">
+				<Entry Name="Timestamp Seconds" Index="#x6060" Sub="#x01">
+					<Type>UDINT</Type>
+				</Entry>
+				<Entry Name="Timestamp Microseconds" Index="#x6060" Sub="#x02">
+					<Type>UDINT</Type>
+				</Entry>
+				<Entry Name="Dynamic Data Cycles" Index="#x6060" Sub="#x03">
+					<Type>UDINT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Safety Status" Index="#x1a11" Flags="#x0010" SyncMan="3">
+				<Entry Name="Estop" Index="#x6065" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused2" Index="#x6065" Sub="#x02">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="PStop2" Index="#x6065" Sub="#x03">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused4" Index="#x6065" Sub="#x04">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused5" Index="#x6065" Sub="#x05">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused6" Index="#x6065" Sub="#x06">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused7" Index="#x6065" Sub="#x07">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Reboot" Index="#x6065" Sub="#x08">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused9" Index="#x6065" Sub="#x09">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused10" Index="#x6065" Sub="#x0a">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Connection Dropped" Index="#x6065" Sub="#x0b">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused12" Index="#x6065" Sub="#x0c">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused13" Index="#x6065" Sub="#x0d">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused14" Index="#x6065" Sub="#x0e">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused15" Index="#x6065" Sub="#x0f">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused16" Index="#x6065" Sub="#x10">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused17" Index="#x6065" Sub="#x11">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused18" Index="#x6065" Sub="#x12">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused19" Index="#x6065" Sub="#x13">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused20" Index="#x6065" Sub="#x14">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused21" Index="#x6065" Sub="#x15">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused22" Index="#x6065" Sub="#x16">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused23" Index="#x6065" Sub="#x17">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused24" Index="#x6065" Sub="#x18">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused25" Index="#x6065" Sub="#x19">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused26" Index="#x6065" Sub="#x1a">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused27" Index="#x6065" Sub="#x1b">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused28" Index="#x6065" Sub="#x1c">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused29" Index="#x6065" Sub="#x1d">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused30" Index="#x6065" Sub="#x1e">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused31" Index="#x6065" Sub="#x1f">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused32" Index="#x6065" Sub="#x20">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Estop Resettable" Index="#x6065" Sub="#x21">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused34" Index="#x6065" Sub="#x22">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="PStop2 Resettable" Index="#x6065" Sub="#x23">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused36" Index="#x6065" Sub="#x24">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused37" Index="#x6065" Sub="#x25">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused38" Index="#x6065" Sub="#x26">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused39" Index="#x6065" Sub="#x27">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Reboot Resettable" Index="#x6065" Sub="#x28">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused41" Index="#x6065" Sub="#x29">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused42" Index="#x6065" Sub="#x2a">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Connection Dropped Resettable" Index="#x6065" Sub="#x2b">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused44" Index="#x6065" Sub="#x2c">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused45" Index="#x6065" Sub="#x2d">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused46" Index="#x6065" Sub="#x2e">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused47" Index="#x6065" Sub="#x2f">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused48" Index="#x6065" Sub="#x30">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused49" Index="#x6065" Sub="#x31">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused50" Index="#x6065" Sub="#x32">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused51" Index="#x6065" Sub="#x33">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused52" Index="#x6065" Sub="#x34">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused53" Index="#x6065" Sub="#x35">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused54" Index="#x6065" Sub="#x36">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused55" Index="#x6065" Sub="#x37">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused56" Index="#x6065" Sub="#x38">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused57" Index="#x6065" Sub="#x39">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused58" Index="#x6065" Sub="#x3a">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused59" Index="#x6065" Sub="#x3b">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused60" Index="#x6065" Sub="#x3c">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused61" Index="#x6065" Sub="#x3d">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused62" Index="#x6065" Sub="#x3e">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused63" Index="#x6065" Sub="#x3f">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused64" Index="#x6065" Sub="#x40">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused65" Index="#x6065" Sub="#x41">
+					<Type>USINT</Type>
+				</Entry>
+				<Entry Name="Reset Ready" Index="#x6065" Sub="#x42">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Vmotor on" Index="#x6065" Sub="#x43">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused68" Index="#x6065" Sub="#x44">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused69" Index="#x6065" Sub="#x45">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused70" Index="#x6065" Sub="#x46">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused71" Index="#x6065" Sub="#x47">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused72" Index="#x6065" Sub="#x48">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused73" Index="#x6065" Sub="#x49">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused74" Index="#x6065" Sub="#x4a">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused75" Index="#x6065" Sub="#x4b">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused76" Index="#x6065" Sub="#x4c">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused77" Index="#x6065" Sub="#x4d">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused78" Index="#x6065" Sub="#x4e">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Unused79" Index="#x6065" Sub="#x4f">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry>
+					<Type GUID="{18071995-0000-0000-0000-002000000002}">ARRAY [0..1] OF BIT</Type>
+				</Entry>
+				<Entry>
+					<Type GUID="{18071995-0000-0000-0000-002000000008}">ARRAY [0..0] OF BYTE</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Dynamic Data 0" Index="#x1a20" Flags="#x0010" SyncMan="3">
+				<Entry Name="Dynamic Type" Index="#x6070" Sub="#x01">
+					<Type>UDINT</Type>
+				</Entry>
+				<Entry Name="Value 0" Index="#x6070" Sub="#x02">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 1" Index="#x6070" Sub="#x03">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 2" Index="#x6070" Sub="#x04">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 3" Index="#x6070" Sub="#x05">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 4" Index="#x6070" Sub="#x06">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 5" Index="#x6070" Sub="#x07">
+					<Type>REAL</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Dynamic Data 1" Index="#x1a21" Flags="#x0010" SyncMan="3">
+				<Entry Name="Dynamic Type" Index="#x6071" Sub="#x01">
+					<Type>UDINT</Type>
+				</Entry>
+				<Entry Name="Value 0" Index="#x6071" Sub="#x02">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 1" Index="#x6071" Sub="#x03">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 2" Index="#x6071" Sub="#x04">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 3" Index="#x6071" Sub="#x05">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 4" Index="#x6071" Sub="#x06">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 5" Index="#x6071" Sub="#x07">
+					<Type>REAL</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Dynamic Data 2" Index="#x1a22" Flags="#x0010" SyncMan="3">
+				<Entry Name="Dynamic Type" Index="#x6072" Sub="#x01">
+					<Type>UDINT</Type>
+				</Entry>
+				<Entry Name="Value 0" Index="#x6072" Sub="#x02">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 1" Index="#x6072" Sub="#x03">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 2" Index="#x6072" Sub="#x04">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 3" Index="#x6072" Sub="#x05">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 4" Index="#x6072" Sub="#x06">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 5" Index="#x6072" Sub="#x07">
+					<Type>REAL</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Dynamic Data 3" Index="#x1a23" Flags="#x0010" SyncMan="3">
+				<Entry Name="Dynamic Type" Index="#x6073" Sub="#x01">
+					<Type>UDINT</Type>
+				</Entry>
+				<Entry Name="Value 0" Index="#x6073" Sub="#x02">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 1" Index="#x6073" Sub="#x03">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 2" Index="#x6073" Sub="#x04">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 3" Index="#x6073" Sub="#x05">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 4" Index="#x6073" Sub="#x06">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="Value 5" Index="#x6073" Sub="#x07">
+					<Type>REAL</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Robot Control" Index="#x1600" InOut="1" Flags="#x0011" SyncMan="2">
+				<Entry Name="Deactivate" Index="#x7200" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Activate" Index="#x7200" Sub="#x02">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Home" Index="#x7200" Sub="#x03">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Reset Error" Index="#x7200" Sub="#x04">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Sim Mode" Index="#x7200" Sub="#x05">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Recovery Mode" Index="#x7200" Sub="#x06">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DisableEtherCAT" Index="#x7200" Sub="#x07">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry>
+					<Type GUID="{18071995-0000-0000-0000-002000000019}">ARRAY [0..24] OF BIT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Motion Control" Index="#x1601" InOut="1" Flags="#x0011" SyncMan="2">
+				<Entry Name="Move ID" Index="#x7310" Sub="#x01">
+					<Type>UINT</Type>
+				</Entry>
+				<Entry Name="SetPoint" Index="#x7310" Sub="#x02">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Pause" Index="#x7310" Sub="#x03">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Clear Move" Index="#x7310" Sub="#x04">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Resume Motion" Index="#x7310" Sub="#x05">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry>
+					<Type GUID="{18071995-0000-0000-0000-00200000000C}">ARRAY [0..11] OF BIT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Move" Index="#x1602" InOut="1" Flags="#x0011" SyncMan="2">
+				<Entry Name="Move Command" Index="#x7305">
+					<Type>UDINT</Type>
+				</Entry>
+				<Entry Name="SubIndex 001" Index="#x7306" Sub="#x01">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 002" Index="#x7306" Sub="#x02">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 003" Index="#x7306" Sub="#x03">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 004" Index="#x7306" Sub="#x04">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 005" Index="#x7306" Sub="#x05">
+					<Type>REAL</Type>
+				</Entry>
+				<Entry Name="SubIndex 006" Index="#x7306" Sub="#x06">
+					<Type>REAL</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Host Time" Index="#x1610" InOut="1" Flags="#x0011" SyncMan="2">
+				<Entry Name="Host Time" Index="#x7400">
+					<Type>UDINT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Brakes Control" Index="#x1611" InOut="1" Flags="#x0011" SyncMan="2">
+				<Entry Name="BrakesControlAllowed" Index="#x7410" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="BrakesEngaged" Index="#x7410" Sub="#x02">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry>
+					<Type GUID="{18071995-0000-0000-0000-00200000001E}">ARRAY [0..29] OF BIT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Dynamic Data Cfg 0" Index="#x1620" InOut="1" Flags="#x0011" SyncMan="2">
+				<Entry Name="Dynamic Type" Index="#x7420" Sub="#x01">
+					<Type>UDINT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Dynamic Data Cfg 1" Index="#x1621" InOut="1" Flags="#x0011" SyncMan="2">
+				<Entry Name="Dynamic Type" Index="#x7421" Sub="#x01">
+					<Type>UDINT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Dynamic Data Cfg 2" Index="#x1622" InOut="1" Flags="#x0011" SyncMan="2">
+				<Entry Name="Dynamic Type" Index="#x7422" Sub="#x01">
+					<Type>UDINT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="Dynamic Data Cfg 3" Index="#x1623" InOut="1" Flags="#x0011" SyncMan="2">
+				<Entry Name="Dynamic Type" Index="#x7423" Sub="#x01">
+					<Type>UDINT</Type>
+				</Entry>
+			</Pdo>
+			<CoeProfile ProfileNo="5001"/>
+		</EtherCAT>
+	</Box>
+	<Mappings>
+		<OwnerA Name="__THIS__">
+			<OwnerB Name="TIPC^RUNTIME^RUNTIME Instance">
+				<Link VarA="Brakes Control^BrakesControlAllowed" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutBrakesControlAllowed"/>
+				<Link VarA="Brakes Control^BrakesEngaged" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutBrakesEngaged"/>
+				<Link VarA="End-Effector Pose^SubIndex 001" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInTcpX"/>
+				<Link VarA="End-Effector Pose^SubIndex 002" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInTcpY"/>
+				<Link VarA="End-Effector Pose^SubIndex 003" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInTcpZ"/>
+				<Link VarA="End-Effector Pose^SubIndex 004" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInTcpRx"/>
+				<Link VarA="End-Effector Pose^SubIndex 005" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInTcpRy"/>
+				<Link VarA="End-Effector Pose^SubIndex 006" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInTcpRz"/>
+				<Link VarA="Host Time^Host Time" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.nOutHostTime"/>
+				<Link VarA="Joint Set^SubIndex 001" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInJoint1"/>
+				<Link VarA="Joint Set^SubIndex 002" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInJoint2"/>
+				<Link VarA="Joint Set^SubIndex 003" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInJoint3"/>
+				<Link VarA="Joint Set^SubIndex 004" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInJoint4"/>
+				<Link VarA="Joint Set^SubIndex 005" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInJoint5"/>
+				<Link VarA="Joint Set^SubIndex 006" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.rInJoint6"/>
+				<Link VarA="Motion Control^Clear Move" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutClearMove"/>
+				<Link VarA="Motion Control^Move ID" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.nOutMoveId"/>
+				<Link VarA="Motion Control^Pause" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutPause"/>
+				<Link VarA="Motion Control^Resume Motion" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutResume"/>
+				<Link VarA="Motion Control^SetPoint" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutSetPoint"/>
+				<Link VarA="Motion Status^DiscardedCheckpointId" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInCheckpointDiscarded"/>
+				<Link VarA="Motion Status^EOB" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInEob"/>
+				<Link VarA="Motion Status^EOM" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInEom"/>
+				<Link VarA="Motion Status^Excessive torque" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInExcessiveTorque"/>
+				<Link VarA="Motion Status^FIFO Cleared" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInCleared"/>
+				<Link VarA="Motion Status^FIFO Space" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInFifoSpace"/>
+				<Link VarA="Motion Status^Move ID" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInMoveId"/>
+				<Link VarA="Motion Status^PStop2" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInPStop2"/>
+				<Link VarA="Motion Status^Paused" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInPaused"/>
+				<Link VarA="Motion Status^ReachedCheckPointId" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInCheckpointReached"/>
+				<Link VarA="Move^Move Command" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.nOutMotionCommand"/>
+				<Link VarA="Move^SubIndex 001" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument1"/>
+				<Link VarA="Move^SubIndex 002" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument2"/>
+				<Link VarA="Move^SubIndex 003" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument3"/>
+				<Link VarA="Move^SubIndex 004" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument4"/>
+				<Link VarA="Move^SubIndex 005" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument5"/>
+				<Link VarA="Move^SubIndex 006" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.rOutArgument6"/>
+				<Link VarA="Robot Control^Activate" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutActivate"/>
+				<Link VarA="Robot Control^Deactivate" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutDeactivate"/>
+				<Link VarA="Robot Control^DisableEtherCAT" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutDisableEtherCAT"/>
+				<Link VarA="Robot Control^Home" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutHome"/>
+				<Link VarA="Robot Control^Recovery Mode" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutRecoveryMode"/>
+				<Link VarA="Robot Control^Reset Error" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutResetError"/>
+				<Link VarA="Robot Control^Sim Mode" VarB="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutSimMode"/>
+				<Link VarA="Robot Status^Activated" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInActivated"/>
+				<Link VarA="Robot Status^Busy" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInBusy"/>
+				<Link VarA="Robot Status^CollisionStatus" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInCollision"/>
+				<Link VarA="Robot Status^Error" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInErrorCode"/>
+				<Link VarA="Robot Status^Estop" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInEStop"/>
+				<Link VarA="Robot Status^Homed" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInHomed"/>
+				<Link VarA="Robot Status^WorkZoneStatus" VarB="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInWorkZone"/>
+			</OwnerB>
+		</OwnerA>
+	</Mappings>
+</TcSmItem>

@@ -12,16 +12,21 @@ STRUCT
 	PlacePositionName: STRING;
 	PlacePositionOffset: stPoseGeneral;
 	
-	PickApproachDirection: STRING := '+Z';
+	PickApproachDirection: eDirections := eDirections.Zplus;
 	PickApproachOffset: REAL := 20; 			//mm
 	
-	PlaceApproachDirection: STRING := '+Z';
+	PlaceApproachDirection: eDirections := eDirections.Zplus;
 	PlaceApproachOffset: REAL := 20; 			//mm
 	
-	Velocity: REAL:= 10;			//mm/s
+	bPassTroughMiddlePoint: BOOL := FALSE;
+	MiddlePointName: STRING;
+	
+	FastVelocity: REAL:= 20;			//mm/s
+	SlowVelocity: REAL:= 10;			//mm/s
 	
 END_STRUCT
 END_TYPE
+
 ]]></Declaration>
   </DUT>
 </TcPlcObject>

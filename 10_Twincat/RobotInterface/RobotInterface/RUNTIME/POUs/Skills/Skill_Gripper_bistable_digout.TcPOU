@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Skill_Gripper_bistable_digout" Id="{a5a9cfad-4d81-4166-b0c8-d34649515f13}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Skill_Gripper_bistable_digout EXTENDS FB_1_Skill
+VAR_INPUT
+	Param : stParam_Gripper_bistable_digout;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

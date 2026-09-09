@@ -22,15 +22,17 @@ VAR
     _RTDEStreaming : BOOL;
     _EnableDashboard : BOOL;
     _EnableRTDE      : BOOL;
+	
+	_nRobotStartupState : UINT := 0;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[CYCLIC_COMM_UR();
 
 _EnableDashboard := bRequestConnection
-    AND ((HMI_BASE.eStatus = eState.Configuring) OR _DashboardConnected);
+    AND ((HMI_BASE.eStatus = eState.Configuring) OR _DashboardConnected OR (HMI_BASE.eStatus = eState.ErrorProcessing));
 
 _EnableRTDE := bRequestConnection
-    AND ((HMI_BASE.eStatus = eState.Configuring) OR _RTDEConnected);
+    AND ((HMI_BASE.eStatus = eState.Configuring) OR _RTDEConnected OR (HMI_BASE.eStatus = eState.ErrorProcessing));
 
 
 // ==================================================
@@ -162,15 +164,19 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnCleanup();
 //--------------------------------------------------
-myResult:=NONE;
+myResult := NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-myResult:=SUCCESS;
+_nRobotStartupState := 0;
+
+myResult := SUCCESS;
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
-OnCleanup := CombineResults(eParentResult,myResult);
-]]></ST>
+OnCleanup := CombineResults(
+    eParentResult,
+    myResult
+);]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnConfigure" Id="{fe1e62cc-b3f4-4da7-9fa1-851d69b6c7d8}" FolderPath="StateControl\">
@@ -185,34 +191,232 @@ END_VAR
 
 VAR //YOUR CODE
 	succ : BOOL;
+	    // Robot power-on during configuration
+
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnConfigure();
 //--------------------------------------------------
-myResult:=NONE;
+myResult := NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-IF (LEN(Config.sIpAddress) = 0) THEN
-    Messenger.AddError(eMessageCategories.Undefined, sSender := Name, sMessage := 'TCP/IP configuration is invalid');
+// ==================================================
+// Basic configuration / communication errors
+// ==================================================
+
+IF LEN(Config.sIpAddress) = 0 THEN
+
+    Messenger.AddError(
+        eMessageCategories.Undefined,
+        sSender := Name,
+        sMessage := 'TCP/IP configuration is invalid'
+    );
+
     myResult := ERROR;
+
+
 ELSIF _EnableDashboard AND Dashboard.bError THEN
-    Messenger.AddError(eMessageCategories.HardwareFailure, Name, 'UR Dashboard interface error');
+
+    Messenger.AddError(
+        eMessageCategories.HardwareFailure,
+        Name,
+        'UR Dashboard interface error'
+    );
+
     myResult := ERROR;
+
+
 ELSIF _EnableRTDE AND RTDE.bError THEN
-    Messenger.AddError(eMessageCategories.HardwareFailure, Name, 'UR RTDE interface error');
+
+    Messenger.AddError(
+        eMessageCategories.HardwareFailure,
+        Name,
+        'UR RTDE interface error'
+    );
+
     myResult := ERROR;
-ELSIF CommunicationReady THEN
-    Messenger.Clear(Name, 'UR Dashboard interface error');
-    Messenger.Clear(Name, 'UR RTDE interface error');
-    myResult := SUCCESS;
+
+
 ELSE
-    myResult := NONE;
+
+    // ==================================================
+    // UR ROBOT STARTUP STATE MACHINE
+    //
+    // 0   Wait for Dashboard
+    // 10  Wait for "power on" response
+    // 20  Request robotmode
+    // 30  Wait until robotmode = IDLE
+    // 40  Send brake release
+    // 50  Wait for brake release response
+    // 60  Request robotmode
+    // 70  Wait until robotmode = RUNNING
+    // 100 Startup complete
+    // ==================================================
+
+    CASE _nRobotStartupState OF
+
+
+        // --------------------------------------------------
+        // 0 = Dashboard connected -> POWER ON
+        // --------------------------------------------------
+        0:
+
+            IF _DashboardConnected THEN
+
+                IF Dashboard.PowerOn() THEN
+                    _nRobotStartupState := 10;
+                END_IF
+
+            END_IF
+
+
+        // --------------------------------------------------
+        // 10 = Wait for POWER ON response
+        // --------------------------------------------------
+        10:
+
+            IF Dashboard.bResponseValid
+               AND (Dashboard.sLastCommand = 'power on') THEN
+
+                // Command was received by the UR.
+                // Now wait for robot to reach IDLE.
+                _nRobotStartupState := 20;
+
+            END_IF
+
+
+        // --------------------------------------------------
+        // 20 = Ask robot mode
+        // --------------------------------------------------
+        20:
+
+            IF Dashboard.RobotMode() THEN
+                _nRobotStartupState := 30;
+            END_IF
+
+
+        // --------------------------------------------------
+        // 30 = Wait for robotmode response
+        //      POWER_ON/BOOTING -> keep checking
+        //      IDLE             -> release brakes
+        // --------------------------------------------------
+        30:
+
+            IF Dashboard.bResponseValid
+               AND (Dashboard.sLastCommand = 'robotmode') THEN
+
+                IF Dashboard.LastResponseIncludes('IDLE') THEN
+
+                    // Robot electronics are powered.
+                    // We can now release the brakes.
+                    _nRobotStartupState := 40;
+
+                ELSE
+
+                    // Robot is still booting / powering on.
+                    // Ask robotmode again.
+                    _nRobotStartupState := 20;
+
+                END_IF
+
+            END_IF
+
+
+        // --------------------------------------------------
+        // 40 = BRAKE RELEASE
+        // --------------------------------------------------
+        40:
+
+            IF Dashboard.BrakeRelease() THEN
+                _nRobotStartupState := 50;
+            END_IF
+
+
+        // --------------------------------------------------
+        // 50 = Wait for BRAKE RELEASE response
+        // --------------------------------------------------
+        50:
+
+            IF Dashboard.bResponseValid
+               AND (Dashboard.sLastCommand = 'brake release') THEN
+
+                // Brake release command accepted.
+                // Now verify that the robot actually
+                // reaches RUNNING.
+                _nRobotStartupState := 60;
+
+            END_IF
+
+
+        // --------------------------------------------------
+        // 60 = Ask robot mode
+        // --------------------------------------------------
+        60:
+
+            IF Dashboard.RobotMode() THEN
+                _nRobotStartupState := 70;
+            END_IF
+
+
+        // --------------------------------------------------
+        // 70 = Wait until robotmode = RUNNING
+        // --------------------------------------------------
+        70:
+
+            IF Dashboard.bResponseValid
+               AND (Dashboard.sLastCommand = 'robotmode') THEN
+
+                IF Dashboard.LastResponseIncludes('RUNNING') THEN
+
+                    // Robot is powered and brakes released.
+                    _nRobotStartupState := 100;
+
+                ELSE
+
+                    // Still releasing brakes / initializing.
+                    // Query again.
+                    _nRobotStartupState := 60;
+
+                END_IF
+
+            END_IF
+
+
+        // --------------------------------------------------
+        // 100 = Robot startup finished
+        // --------------------------------------------------
+        100:
+
+            IF CommunicationReady THEN
+
+                Messenger.Clear(
+                    Name,
+                    'UR Dashboard interface error'
+                );
+
+                Messenger.Clear(
+                    Name,
+                    'UR RTDE interface error'
+                );
+
+                myResult := SUCCESS;
+
+            ELSE
+                myResult := NONE;
+            END_IF
+
+
+    END_CASE
+
 END_IF
+
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
-OnConfigure := CombineResults(eParentResult,myResult);
-]]></ST>
+OnConfigure := CombineResults(
+    eParentResult,
+    myResult
+);]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnDeactivate" Id="{98b9db24-dd3c-4d2b-a2df-a4c02bc21178}" FolderPath="StateControl\">
@@ -231,15 +435,19 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
 //--------------------------------------------------
-myResult:=NONE;
+myResult := NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-myResult:=SUCCESS;
+_nRobotStartupState := 0;
+
+myResult := SUCCESS;
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
-OnDeactivate := CombineResults(eParentResult,myResult);
-]]></ST>
+OnDeactivate := CombineResults(
+    eParentResult,
+    myResult
+);]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnError" Id="{cbca3eb3-1f59-4132-8cb6-1ba90593b065}" FolderPath="StateControl\">

@@ -62,14 +62,15 @@ VAR
     fbReceive : FB_SocketReceive;
     fbClose   : FB_SocketClose;
 
-    hSocket   : T_HSOCKET;
-
     rSend     : R_TRIG;
     rPause    : R_TRIG;
     rResume   : R_TRIG;
 
     nState    : INT;
     nNextState: INT;
+
+    (* Resets to FALSE on every PLC restart; triggers the stale-socket check below once. *)
+    bColdStartCheckDone : BOOL;
 
     bConnectExecute : BOOL;
     bConnectStarted : BOOL;
@@ -102,6 +103,11 @@ VAR
 
     tonReply        : TON;
     bWaitingReply   : BOOL;
+END_VAR
+VAR PERSISTENT
+    (* Survives PLC reset so a leftover TCP session can be closed before reconnecting. *)
+    hSocket          : T_HSOCKET;
+    bSocketMayBeOpen : BOOL := TRUE;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[(* One-cycle pulses and command edges. *)
@@ -148,6 +154,16 @@ IF (NOT bEnable)
     bCloseExecute := TRUE;
     bCloseStarted := FALSE;
     nState := 900;
+END_IF
+
+(* One-time check per restart: close any socket left open by a prior PLC reset before reconnecting. *)
+IF NOT bColdStartCheckDone THEN
+    bColdStartCheckDone := TRUE;
+    IF bSocketMayBeOpen THEN
+        bCloseExecute := TRUE;
+        bCloseStarted := FALSE;
+        nState := 900;
+    END_IF
 END_IF
 
 CASE nState OF
@@ -230,6 +246,7 @@ CASE nState OF
         ELSE
 
             hSocket := fbConnect.hSocket;
+            bSocketMayBeOpen := TRUE;
 
             // TCP connection now exists.
             bConnected := TRUE;
@@ -936,6 +953,7 @@ CASE nState OF
         bReady := FALSE;
         bStreaming := FALSE;
         bBusy := FALSE;
+        bSocketMayBeOpen := FALSE;
 
         nRxState := 0;
         nRxLen := 0;

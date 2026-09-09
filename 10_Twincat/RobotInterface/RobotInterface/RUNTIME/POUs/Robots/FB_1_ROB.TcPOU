@@ -6,17 +6,16 @@ FUNCTION_BLOCK FB_1_ROB EXTENDS FB_0_Base
 // IMPLEMENTS ITF_1_Robot
 
 VAR_INPUT
-	
 	PM: FB_PointManager;
 	COMM: POINTER TO FB_1_CommunicationModul := ADR(emptyCOMM);
-  PointManagerName: STRING(80);
+
 	
 	StandStillLimit: REAL := 0.001;
-  SafePosition: stJoint6;
-  SafePositionTolerance: LREAL := 0.001;
-  RegisterAsTopLevelRobot: BOOL := TRUE;
+	SafePosition: stJoint6;
+	SafePositionTolerance: LREAL := 0.001;
+	RegisterAsTopLevelRobot: BOOL := TRUE;
 	
-// 	FILESERVER: FB_FileServer;
+
 END_VAR
 
 
@@ -97,6 +96,19 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
+    <Method Name="BA_Annulate" Id="{c602ca79-3f52-4076-b7d1-475b1f146f1f}">
+      <Declaration><![CDATA[{warning 'Override with your own Method in final FB'}
+METHOD BA_Annulate : BOOL
+VAR_INPUT
+    ExecuteId : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* Base implementation: unsupported. Final robot FB overrides this method. *)
+BA_Annulate := FALSE;
+]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="BA_Handler" Id="{83e2d403-4d26-4906-9c94-3843f0c8311a}">
       <Declaration><![CDATA[{warning 'Override with your own Method in final FB'}
 METHOD BA_Handler : UINT
@@ -111,10 +123,63 @@ BA_Handler := 0;
 ]]></ST>
       </Implementation>
     </Method>
+    <Property Name="CurrentMoveID" Id="{62784dec-5174-4916-bfb1-149a6471c58a}">
+      <Declaration><![CDATA[PROPERTY CurrentMoveID : UINT]]></Declaration>
+      <Get Name="Get" Id="{082682ad-76d6-4ec6-87a5-1dc9db09970f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{e81d17f1-0268-481c-8c57-d2dc0dca6c2c}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="CurrentMoveResult" Id="{645ad862-eb02-444d-b382-2e86a3e7f77a}">
+      <Declaration><![CDATA[PROPERTY CurrentMoveResult : eResult]]></Declaration>
+      <Get Name="Get" Id="{d87bf5c3-bc66-4957-b961-0125e6316993}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f48444c7-6cbe-4c01-a7ef-e7522ca0a6b8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Action Name="CYCLIC_ROB" Id="{ebf16c89-c511-406b-9426-1ade99c4f730}">
       <Implementation>
         <ST><![CDATA[CYCLIC_BASE();
 // COMM^.CYCLIC_COMM(); //CHANGED
+
+// HMI display mirrors: x,y,z in mm, rx,ry,rz/joint in deg (native _tcppos/_jointpos stay in m/rad).
+HMI_ROB._tcppos_display.x  := HMI_ROB._tcppos.x * 1000.0;
+HMI_ROB._tcppos_display.y  := HMI_ROB._tcppos.y * 1000.0;
+HMI_ROB._tcppos_display.z  := HMI_ROB._tcppos.z * 1000.0;
+HMI_ROB._tcppos_display.rx := HMI_ROB._tcppos.rx / 0.0174532925199433;
+HMI_ROB._tcppos_display.ry := HMI_ROB._tcppos.ry / 0.0174532925199433;
+HMI_ROB._tcppos_display.rz := HMI_ROB._tcppos.rz / 0.0174532925199433;
+
+HMI_ROB._jointpos_display.joint1 := HMI_ROB._jointpos.joint1 / 0.0174532925199433;
+HMI_ROB._jointpos_display.joint2 := HMI_ROB._jointpos.joint2 / 0.0174532925199433;
+HMI_ROB._jointpos_display.joint3 := HMI_ROB._jointpos.joint3 / 0.0174532925199433;
+HMI_ROB._jointpos_display.joint4 := HMI_ROB._jointpos.joint4 / 0.0174532925199433;
+HMI_ROB._jointpos_display.joint5 := HMI_ROB._jointpos.joint5 / 0.0174532925199433;
+HMI_ROB._jointpos_display.joint6 := HMI_ROB._jointpos.joint6 / 0.0174532925199433;
 
 // Adopt communication faults + health so the robot reflects its comm child.
 IF COMM <> 0 AND COMM <> ADR(emptyCOMM) THEN
@@ -143,7 +208,7 @@ END_FOR
 
 
 PM.HMI_PM.xCurrentTcp := ActualTcpPose;
-PM();
+PM(pRobot := THIS);
 
 
 
@@ -175,7 +240,8 @@ HMI_ROB.bReady := ((State=eState.Active) AND (NOT Busy));
       <Declaration><![CDATA[{warning 'OVERRIDE'}
 METHOD EStop : BOOL]]></Declaration>
       <Implementation>
-        <ST><![CDATA[HMI_ROB.bEStop := TRUE; //depend on Robot Type //TODO]]></ST>
+        <ST><![CDATA[HMI_ROB.bEStop := TRUE; //depend on Robot Type //TODO
+EStop := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="FB_Init" Id="{7b302bc2-af12-4e54-8aa2-dca07a2dd5cc}">
@@ -411,7 +477,7 @@ IF SIMMODE THEN
 		myResult:=SUCCESS;
 END_IF
 
-IF NOT PM.Initalising(sName := PointManagerName) = SUCCESS THEN
+IF NOT PM.Initalising(sName := Name) = SUCCESS THEN
 	myResult:=NONE;
 END_IF
 

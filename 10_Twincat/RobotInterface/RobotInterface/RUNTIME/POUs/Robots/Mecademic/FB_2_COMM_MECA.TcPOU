@@ -2,8 +2,8 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_2_COMM_MECA" Id="{fdc4f5ff-d3fa-4aab-86fa-4dd482a8fa00}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_2_COMM_MECA EXTENDS FB_1_CommunicationModul
-VAR_INPUT
-    bInProcessDataValid AT %I*: BOOL;
+VAR_OUTPUT
+    bInProcessDataValid AT %I*: BOOL := TRUE; //NOT CONNECTED
     bInBusy AT %I*: BOOL;
     bInActivated AT %I*: BOOL;
     bInHomed AT %I*: BOOL;
@@ -42,7 +42,7 @@ VAR_INPUT
     nInDynamicType2 AT %I*: UDINT;
     nInDynamicType3 AT %I*: UDINT;
 END_VAR
-VAR_OUTPUT
+VAR_INPUT
     bOutDeactivate AT %Q*: BOOL;
     bOutActivate AT %Q*: BOOL;
     bOutHome AT %Q*: BOOL;

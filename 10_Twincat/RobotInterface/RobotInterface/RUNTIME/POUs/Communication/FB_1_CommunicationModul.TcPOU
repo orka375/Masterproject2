@@ -434,9 +434,9 @@ myResult := NONE;
 
 // ----- YOUR CODE HERE -----------------------------
 
-Reconnect();
+Disconnect();
 
-IF CommunicationReady THEN
+IF NOT Connected THEN
     myResult := SUCCESS;
 END_IF
 

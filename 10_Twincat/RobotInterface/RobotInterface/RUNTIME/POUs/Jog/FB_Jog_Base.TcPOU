@@ -19,10 +19,15 @@ VAR_INPUT
 
     // Step values are used by the manipulator jog.
     // SI recommendation:
-    // fLinearStep  [m]
+    // fLinearStep  [mm]
     // fAngularStep [rad]
     fLinearStep         : REAL := 0.001;
     fAngularStep        : REAL := 0.0174532925;
+
+    // HMI-facing step values (mm / deg). Converted into fLinearStep/fAngularStep
+    // by ConvertStepUnits(), since the HMI cannot bind to FB properties over ADS.
+    fLinearStep_mm      : REAL := 1.0;
+    fAngularStep_deg    : REAL := 1.0;
 
     // Velocity values are shared settings.
     // fLinearVelocity  [m/s]
@@ -340,6 +345,14 @@ END_VAR]]></Declaration>
 ELSE
     SetLinearVelocity := FALSE;
 END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ConvertStepUnits" Id="{a3f0a1c1-5b8e-4f1a-9c2d-7e6f4a2b1c3d}" FolderPath="Settings\">
+      <Declaration><![CDATA[METHOD PUBLIC ConvertStepUnits : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fLinearStep := fLinearStep_mm / 1000.0;
+fAngularStep := fAngularStep_deg * 0.0174532925199433;
+ConvertStepUnits := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="StopJog" Id="{275159c4-fdb9-47b2-a70b-1c291e3b6d7e}" FolderPath="JogControl\">

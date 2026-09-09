@@ -11,11 +11,7 @@ VAR
 
 	// Cell robot loop index.
 	iRobot : INT;
-	iRecipe : INT;
-	iDestination : INT;
-	iDestinationMatch : INT;
-	bRecipePending : BOOL;
-	rApplyRecipe: R_TRIG;
+
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -33,68 +29,8 @@ FOR iRobot := 1 TO TO_INT(SETUP.nRobCount) DO
 END_FOR
 
 SETUP.CELL_MESSENGER();
-
-rApplyRecipe(CLK := SETUP.bApplyRecipe);
-
-SETUP.bRecipeApplied := FALSE;
-SETUP.bRecipeApplyError := FALSE;
-
-IF rApplyRecipe.Q THEN
-	bRecipePending := FALSE;
-
-	FOR iRecipe := 1 TO SETUP.nRecipeBindingCount DO
-		IF SETUP.aRecipeBinding[iRecipe].pWrittenFor <> 0 THEN
-			IF SETUP.aRecipeBinding[iRecipe].pWrittenFor^ <> '' THEN
-				bRecipePending := TRUE;
-				iDestinationMatch := 0;
-
-				FOR iDestination := 1 TO SETUP.aRecipeBinding[iRecipe].nDestinationCount DO
-					IF FIND(
-						SETUP.aRecipeBinding[iRecipe].aDestination[iDestination].sRobotName,
-						SETUP.aRecipeBinding[iRecipe].pWrittenFor^) <> 0
-						OR FIND(
-							SETUP.aRecipeBinding[iRecipe].pWrittenFor^,
-							SETUP.aRecipeBinding[iRecipe].aDestination[iDestination].sRobotName) <> 0 THEN
-						iDestinationMatch := iDestination;
-						EXIT;
-					END_IF
-				END_FOR
-
-				IF iDestinationMatch = 0 THEN
-					SETUP.bRecipeApplyError := TRUE;
-				ELSIF SETUP.aRecipeBinding[iRecipe].pSource = 0
-					OR SETUP.aRecipeBinding[iRecipe].cbSize = 0
-					OR SETUP.aRecipeBinding[iRecipe].aDestination[iDestinationMatch].pSkillParameter = 0 THEN
-					SETUP.bRecipeApplyError := TRUE;
-				ELSE
-					MEMCPY(
-						SETUP.aRecipeBinding[iRecipe].aDestination[iDestinationMatch].pSkillParameter,
-						SETUP.aRecipeBinding[iRecipe].pSource,
-						SETUP.aRecipeBinding[iRecipe].cbSize);
-// 					SETUP.aRecipeBinding[iRecipe].pWrittenFor^ := '';
-					SETUP.bRecipeApplied := TRUE;
-				END_IF
-			END_IF
-		ELSE
-			SETUP.bRecipeApplyError := TRUE;
-		END_IF
-	END_FOR
-
-	IF NOT bRecipePending THEN
-		SETUP.bRecipeApplyError := TRUE;
-		SETUP.CELL_MESSENGER.AddError(
-			eMessageCategories.Undefined,
-			'MAIN.Recipe',
-			'No recipe buffer is pending');
-	ELSIF SETUP.bRecipeApplyError THEN
-		SETUP.CELL_MESSENGER.AddError(
-			eMessageCategories.Undefined,
-			'MAIN.Recipe',
-			'Recipe binding or WrittenFor robot not found');
-	ELSE
-		SETUP.CELL_MESSENGER.Clear('MAIN.Recipe');
-	END_IF
-END_IF]]></ST>
+RECIPE_HANDLER();
+]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

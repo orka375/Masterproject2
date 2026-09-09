@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="RECIPE_HANDLER" Id="{8fc7858a-db29-46b7-9dc0-43ffeaf9c5ce}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM RECIPE_HANDLER
+VAR
+	bApplyRecipe : BOOL;
+    bRecipeApplied : BOOL;
+    bRecipeApplyError : BOOL;
+	
+	iRecipe : INT;
+	iDestination : INT;
+	iDestinationMatch : INT;
+	bRecipePending : BOOL;
+	rApplyRecipe: R_TRIG;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+rApplyRecipe(CLK := bApplyRecipe);
+
+bRecipeApplied := FALSE;
+bRecipeApplyError := FALSE;
+
+IF rApplyRecipe.Q THEN
+	bRecipePending := FALSE;
+
+	FOR iRecipe := 1 TO SETUP.nRecipeBindingCount DO
+		IF SETUP.aRecipeBinding[iRecipe].pWrittenFor <> 0 THEN
+			IF SETUP.aRecipeBinding[iRecipe].pWrittenFor^ <> '' THEN
+				bRecipePending := TRUE;
+				iDestinationMatch := 0;
+
+				FOR iDestination := 1 TO SETUP.aRecipeBinding[iRecipe].nDestinationCount DO
+					IF FIND(
+						SETUP.aRecipeBinding[iRecipe].aDestination[iDestination].sRobotName,
+						SETUP.aRecipeBinding[iRecipe].pWrittenFor^) <> 0
+						OR FIND(
+							SETUP.aRecipeBinding[iRecipe].pWrittenFor^,
+							SETUP.aRecipeBinding[iRecipe].aDestination[iDestination].sRobotName) <> 0 THEN
+						iDestinationMatch := iDestination;
+						EXIT;
+					END_IF
+				END_FOR
+
+				IF iDestinationMatch = 0 THEN
+					bRecipeApplyError := TRUE;
+				ELSIF SETUP.aRecipeBinding[iRecipe].pSource = 0
+					OR SETUP.aRecipeBinding[iRecipe].cbSize = 0
+					OR SETUP.aRecipeBinding[iRecipe].aDestination[iDestinationMatch].pSkillParameter = 0 THEN
+					bRecipeApplyError := TRUE;
+				ELSE
+					MEMCPY(
+						SETUP.aRecipeBinding[iRecipe].aDestination[iDestinationMatch].pSkillParameter,
+						SETUP.aRecipeBinding[iRecipe].pSource,
+						SETUP.aRecipeBinding[iRecipe].cbSize);
+// 					SETUP.aRecipeBinding[iRecipe].pWrittenFor^ := '';
+					bRecipeApplied := TRUE;
+				END_IF
+			END_IF
+		ELSE
+			bRecipeApplyError := TRUE;
+		END_IF
+	END_FOR
+
+	IF NOT bRecipePending THEN
+		bRecipeApplyError := TRUE;
+		SETUP.CELL_MESSENGER.AddError(
+			eMessageCategories.Undefined,
+			'MAIN.Recipe',
+			'No recipe buffer is pending');
+	ELSIF bRecipeApplyError THEN
+		SETUP.CELL_MESSENGER.AddError(
+			eMessageCategories.Undefined,
+			'MAIN.Recipe',
+			'Recipe binding or WrittenFor robot not found');
+	ELSE
+		SETUP.CELL_MESSENGER.Clear('MAIN.Recipe');
+	END_IF
+END_IF]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

@@ -203,7 +203,7 @@
 				<div id="JointJogJ1Minus" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-state-symbol="%pp%J::bJogJoint1Minus%/pp%" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-text="-" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-grid-column-index="2">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-button"]</script>
 				</div>
-				<div id="JointJogJ1Value" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%pp%R::_jointpos::joint1%/pp%" data-tchmi-bottom="0" data-tchmi-grid-column-index="4" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
+				<div id="JointJogJ1Value" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-grid-column-index="4" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%R::_jointpos_display::joint1%/pp%)%/f%">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-readout-native"]</script>
 				</div>
 				<div id="JointJogJ1Plus" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-state-symbol="%pp%J::bJogJoint1Plus%/pp%" data-tchmi-grid-row-index="0" data-tchmi-right="0" data-tchmi-top="0" data-tchmi-text="+" data-tchmi-left="0" data-tchmi-bottom="0" data-tchmi-grid-column-index="6">
@@ -221,7 +221,7 @@
 				<div id="JointJogJ3Minus" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-state-symbol="%pp%J::bJogJoint3Minus%/pp%" data-tchmi-grid-row-index="4" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-text="-" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-grid-column-index="2">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-button"]</script>
 				</div>
-				<div id="JointJogJ3Value" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="4" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%pp%R::_jointpos::joint3%/pp%" data-tchmi-bottom="0" data-tchmi-grid-column-index="4" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
+				<div id="JointJogJ3Value" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="4" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%R::_jointpos_display::joint3%/pp%)%/f%" data-tchmi-bottom="0" data-tchmi-grid-column-index="4" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-readout-native"]</script>
 				</div>
 				<div id="JointJogJ3Plus" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-state-symbol="%pp%J::bJogJoint3Plus%/pp%" data-tchmi-grid-row-index="4" data-tchmi-right="0" data-tchmi-top="0" data-tchmi-text="+" data-tchmi-left="0" data-tchmi-bottom="0" data-tchmi-grid-column-index="6">
@@ -233,7 +233,7 @@
 				<div id="JointJogJ4Minus" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-state-symbol="%pp%J::bJogJoint4Minus%/pp%" data-tchmi-grid-row-index="6" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-text="-" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-grid-column-index="2">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-button"]</script>
 				</div>
-				<div id="JointJogJ4Value" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="6" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%pp%R::_jointpos::joint4%/pp%" data-tchmi-bottom="0" data-tchmi-grid-column-index="4" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
+				<div id="JointJogJ4Value" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="6" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%R::_jointpos_display::joint4%/pp%)%/f%" data-tchmi-bottom="0" data-tchmi-grid-column-index="4" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-readout-native"]</script>
 				</div>
 				<div id="JointJogJ5Label" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="8" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-text="J5" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-grid-column-index="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
@@ -242,7 +242,7 @@
 				<div id="JointJogJ5Minus" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-state-symbol="%pp%J::bJogJoint5Minus%/pp%" data-tchmi-grid-row-index="8" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-text="-" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-grid-column-index="2">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-button"]</script>
 				</div>
-				<div id="JointJogJ5Value" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="8" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%pp%R::_jointpos::joint5%/pp%" data-tchmi-bottom="0" data-tchmi-grid-column-index="4" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
+				<div id="JointJogJ5Value" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="8" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%R::_jointpos_display::joint5%/pp%)%/f%" data-tchmi-bottom="0" data-tchmi-grid-column-index="4" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-readout-native"]</script>
 				</div>
 				<div id="JointJogJ5Plus" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-state-symbol="%pp%J::bJogJoint5Plus%/pp%" data-tchmi-grid-row-index="8" data-tchmi-right="0" data-tchmi-top="0" data-tchmi-text="+" data-tchmi-left="0" data-tchmi-bottom="0" data-tchmi-grid-column-index="6">
@@ -297,7 +297,7 @@
 				<div id="JointJogJ2Plus" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-state-symbol="%pp%J::bJogJoint2Plus%/pp%" data-tchmi-grid-row-index="2" data-tchmi-right="0" data-tchmi-top="0" data-tchmi-text="+" data-tchmi-left="0" data-tchmi-bottom="0" data-tchmi-grid-column-index="6">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-button"]</script>
 				</div>
-				<div id="JointJogJ2Value" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%pp%R::_jointpos::joint2%/pp%" data-tchmi-bottom="0" data-tchmi-grid-column-index="4" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
+				<div id="JointJogJ2Value" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%R::_jointpos_display::joint2%/pp%)%/f%" data-tchmi-bottom="0" data-tchmi-grid-column-index="4" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-readout-native"]</script>
 				</div>
 				<div id="JointJogJ4Plus" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-state-symbol="%pp%J::bJogJoint4Plus%/pp%" data-tchmi-grid-row-index="6" data-tchmi-right="0" data-tchmi-top="0" data-tchmi-text="+" data-tchmi-left="0" data-tchmi-bottom="0" data-tchmi-grid-column-index="6">
@@ -306,9 +306,9 @@
 				<div id="JointJogJ6Plus" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-state-symbol="%pp%J::bJogJoint6Plus%/pp%" data-tchmi-grid-row-index="10" data-tchmi-right="0" data-tchmi-top="0" data-tchmi-text="+" data-tchmi-left="0" data-tchmi-bottom="0" data-tchmi-grid-column-index="6">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-button"]</script>
 				</div>
-				<div id="JointJogJ6Value" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="10" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%pp%R::_jointpos::joint6%/pp%" data-tchmi-bottom="0" data-tchmi-grid-column-index="4" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
-					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-readout-native"]</script>
-				</div>
+				<div id="JointJogJ6Value" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="10" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%R::_jointpos_display::joint6%/pp%)%/f%" data-tchmi-bottom="0" data-tchmi-grid-column-index="4" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
+									<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-readout-native"]</script>
+								</div>
 				</div>
 			</div>
 			<div id="TcpJogGrid" data-tchmi-type="TcHmi.Controls.System.TcHmiGrid" data-tchmi-grid-column-index="3" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0">
@@ -421,7 +421,7 @@
 ]
 </script>
 				</div>
-				<div id="TcpPositionXValue" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="2" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%pp%R::_tcppos::x%/pp%" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
+				<div id="TcpPositionXValue" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="2" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%R::_tcppos_display::x%/pp%)%/f%" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">
 [
   "text-centered"
@@ -431,31 +431,31 @@
 				<div id="TcpPositionYLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="4" data-tchmi-grid-column-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-text="Y" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-label"]</script>
 				</div>
-				<div id="TcpPositionYValue" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="4" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%pp%R::_tcppos::y%/pp%" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
+				<div id="TcpPositionYValue" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="4" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%R::_tcppos_display::y%/pp%)%/f%" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-readout-native"]</script>
 				</div>
 				<div id="TcpPositionZLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="6" data-tchmi-grid-column-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-text="Z" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-label"]</script>
 				</div>
-				<div id="TcpPositionZValue" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="6" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%pp%R::_tcppos::z%/pp%" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
+				<div id="TcpPositionZValue" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="6" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%R::_tcppos_display::z%/pp%)%/f%" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-readout-native"]</script>
 				</div>
 				<div id="TcpPositionRxLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="8" data-tchmi-grid-column-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-text="Rx" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-label"]</script>
 				</div>
-				<div id="TcpPositionRxValue" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="8" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%pp%R::_tcppos::rx%/pp%" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
+				<div id="TcpPositionRxValue" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="8" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%R::_tcppos_display::rx%/pp%)%/f%" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-readout-native"]</script>
 				</div>
 				<div id="TcpPositionRyLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="10" data-tchmi-grid-column-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-text="Ry" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-label"]</script>
 				</div>
-				<div id="TcpPositionRyValue" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="10" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%pp%R::_tcppos::ry%/pp%" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
+				<div id="TcpPositionRyValue" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="10" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%R::_tcppos_display::ry%/pp%)%/f%" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-readout-native"]</script>
 				</div>
 				<div id="TcpPositionRzLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="12" data-tchmi-grid-column-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-text="Rz" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-label"]</script>
 				</div>
-				<div id="TcpPositionRzValue" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="12" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%pp%R::_tcppos::rz%/pp%" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
+				<div id="TcpPositionRzValue" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="12" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%R::_tcppos_display::rz%/pp%)%/f%" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-readout-native"]</script>
 				</div>
 			</div>
@@ -507,7 +507,31 @@
 			<div id="JogStepLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="2" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="Jog step [mm]" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 				<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-footer-label"]</script>
 			</div>
-			<div id="JogStepInput" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiNumericInput" data-tchmi-grid-row-index="2" data-tchmi-grid-column-index="3" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-value="%pp%J::fLinearStep|BindingMode=TwoWay%/pp%" data-tchmi-min-value="0.1" data-tchmi-max-value="100" data-tchmi-decimal-digits="1" data-tchmi-step="0.001" data-tchmi-input-processing-point="InteractionFinished"></div>
-		</div>
+						<div id="JogAngularStepLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="2" data-tchmi-grid-column-index="4" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="Jog step [deg]" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
+				<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-footer-label"]</script>
+			</div>
+					<div id="TcHmiTextbox_1" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextbox" data-tchmi-grid-column-index="3" data-tchmi-grid-row-index="2" data-tchmi-horizontal-scroll="Auto" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-reset-to-last-valid-value="True" data-tchmi-text="%pp%J::fLinearStep_mm|BindingMode=TwoWay%/pp%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-vertical-scroll="Auto" data-tchmi-right="0" data-tchmi-bottom="0">
+<script data-tchmi-target-attribute="data-tchmi-content-padding" type="application/json">
+{
+  "top": 3,
+  "right": 3,
+  "bottom": 3,
+  "left": 3
+}
+</script>
+
+</div>
+<div id="TcHmiTextbox_2" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextbox" data-tchmi-grid-column-index="5" data-tchmi-grid-row-index="2" data-tchmi-horizontal-scroll="Auto" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-reset-to-last-valid-value="True" data-tchmi-text="%pp%J::fAngularStep_deg|BindingMode=TwoWay%/pp%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-vertical-scroll="Auto" data-tchmi-right="0" data-tchmi-bottom="0">
+<script data-tchmi-target-attribute="data-tchmi-content-padding" type="application/json">
+{
+  "top": 3,
+  "right": 3,
+  "bottom": 3,
+  "left": 3
+}
+</script>
+
+</div>
+</div>
 	</div>
 </div>

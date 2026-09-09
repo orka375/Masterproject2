@@ -195,6 +195,7 @@ END_IF
         <ST><![CDATA[IF NOT _once THEN
 	SETUP_BASE();
 END_IF
+bAutoConfigure := SETUP.SYSTEMAUTOCONFIGURE;
 
 
 
@@ -349,6 +350,22 @@ FOR i := nLen TO 1 BY -1 DO
         GetInstanceName := RIGHT(sPath, TO_INT(nLen - i-1));
         RETURN;
     END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetSkillByTag" Id="{06738894-b8f5-4203-96ae-1c57f1d76ca4}">
+      <Declaration><![CDATA[METHOD GetSkillByTag : POINTER TO FB_1_Skill;
+VAR_INPUT
+	sTag: STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GetSkillByTag := NONE;
+FOR i:= 1 TO SETUP.MaxNrofSkills DO
+	IF pA_Skills[i]^.Name = sTag THEN
+		GetSkillByTag := pA_Skills[i];
+		RETURN;
+	END_IF
 END_FOR]]></ST>
       </Implementation>
     </Method>
@@ -607,16 +624,26 @@ OnDeactivate := myResult;
       <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
 VAR_INPUT
 END_VAR
-]]></Declaration>
+
+VAR
+	myResult: eResult;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[OnError := SUCCESS;
+        <ST><![CDATA[//--------------------------------------------------
+myResult:=SUCCESS;		//!!
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 
 
-//Escalation Surveillance //TODO
+_manualResetCalled:=FALSE;
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnError := myResult;
 
 
 
-_manualResetCalled:=FALSE;]]></ST>
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnShutdown" Id="{baf0cda2-305c-4fe2-9dcb-4d0d08ee6a48}" FolderPath="StateControl\">
@@ -674,7 +701,7 @@ OnShutdown := myResult;
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Path:=sPath;]]></ST>
+          <ST><![CDATA[Path:=CONCAT(CONCAT(sPath,'.'),Name);]]></ST>
         </Implementation>
       </Get>
     </Property>

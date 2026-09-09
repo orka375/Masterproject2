@@ -28,7 +28,10 @@ END_VAR]]></Declaration>
     <Folder Name="JogControl" Id="{1c021ab3-4c12-4486-8807-370f307ce83d}" />
     <Action Name="CYCLIC_JOG_MANIP" Id="{bf95fbc2-1e1a-4222-953f-b510186d86b9}">
       <Implementation>
-        <ST><![CDATA[// ----------------------------------------------------------
+        <ST><![CDATA[fLinearStep := fLinearStep_mm / 1000.0;
+fAngularStep := fAngularStep_deg * 0.0174532925199433;
+
+// ----------------------------------------------------------
 // Capabilities / behavior for HMI
 // ----------------------------------------------------------
 bSupportsX := TRUE;
@@ -136,29 +139,29 @@ IF pRobot <> 0 THEN
             _jointTarget := pRobot^.ActualJointPosition;
 
             IF bJogJoint1Plus THEN
-                _jointTarget.joint1 := _jointTarget.joint1 + ABS(fJointStep);
-            ELSIF bJogJoint1Minus THEN
-                _jointTarget.joint1 := _jointTarget.joint1 - ABS(fJointStep);
-            ELSIF bJogJoint2Plus THEN
-                _jointTarget.joint2 := _jointTarget.joint2 + ABS(fJointStep);
-            ELSIF bJogJoint2Minus THEN
-                _jointTarget.joint2 := _jointTarget.joint2 - ABS(fJointStep);
-            ELSIF bJogJoint3Plus THEN
-                _jointTarget.joint3 := _jointTarget.joint3 + ABS(fJointStep);
-            ELSIF bJogJoint3Minus THEN
-                _jointTarget.joint3 := _jointTarget.joint3 - ABS(fJointStep);
-            ELSIF bJogJoint4Plus THEN
-                _jointTarget.joint4 := _jointTarget.joint4 + ABS(fJointStep);
-            ELSIF bJogJoint4Minus THEN
-                _jointTarget.joint4 := _jointTarget.joint4 - ABS(fJointStep);
-            ELSIF bJogJoint5Plus THEN
-                _jointTarget.joint5 := _jointTarget.joint5 + ABS(fJointStep);
-            ELSIF bJogJoint5Minus THEN
-                _jointTarget.joint5 := _jointTarget.joint5 - ABS(fJointStep);
-            ELSIF bJogJoint6Plus THEN
-                _jointTarget.joint6 := _jointTarget.joint6 + ABS(fJointStep);
-            ELSIF bJogJoint6Minus THEN
-                _jointTarget.joint6 := _jointTarget.joint6 - ABS(fJointStep);
+                _jointTarget.joint1 := _jointTarget.joint1 + ABS(fAngularStep);
+            ELSIF bJogJoint1Minus THEN                                       
+                _jointTarget.joint1 := _jointTarget.joint1 - ABS(fAngularStep);
+            ELSIF bJogJoint2Plus THEN                                        
+                _jointTarget.joint2 := _jointTarget.joint2 + ABS(fAngularStep);
+            ELSIF bJogJoint2Minus THEN                                       
+                _jointTarget.joint2 := _jointTarget.joint2 - ABS(fAngularStep);
+            ELSIF bJogJoint3Plus THEN                                        
+                _jointTarget.joint3 := _jointTarget.joint3 + ABS(fAngularStep);
+            ELSIF bJogJoint3Minus THEN                                       
+                _jointTarget.joint3 := _jointTarget.joint3 - ABS(fAngularStep);
+            ELSIF bJogJoint4Plus THEN                                        
+                _jointTarget.joint4 := _jointTarget.joint4 + ABS(fAngularStep);
+            ELSIF bJogJoint4Minus THEN                                       
+                _jointTarget.joint4 := _jointTarget.joint4 - ABS(fAngularStep);
+            ELSIF bJogJoint5Plus THEN                                        
+                _jointTarget.joint5 := _jointTarget.joint5 + ABS(fAngularStep);
+            ELSIF bJogJoint5Minus THEN                                       
+                _jointTarget.joint5 := _jointTarget.joint5 - ABS(fAngularStep);
+            ELSIF bJogJoint6Plus THEN                                        
+                _jointTarget.joint6 := _jointTarget.joint6 + ABS(fAngularStep);
+            ELSIF bJogJoint6Minus THEN                                       
+                _jointTarget.joint6 := _jointTarget.joint6 - ABS(fAngularStep);
             END_IF
 
             nLastCommandID := pRobot^.MoveJointAbsolute(

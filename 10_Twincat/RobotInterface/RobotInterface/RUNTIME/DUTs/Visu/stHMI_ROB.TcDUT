@@ -11,6 +11,9 @@ STRUCT
 	_tcppos : stPoseGeneral;
 	_jointpos: stJoint6;
 	_speedOverride : LREAL := 100.0;
+	(* HMI display mirrors of _tcppos/_jointpos: x,y,z in mm, rx,ry,rz/joint in deg. *)
+	_tcppos_display : stPoseGeneral;
+	_jointpos_display : stJoint6;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

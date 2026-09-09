@@ -306,7 +306,7 @@
             <div id="PointManagerXStored" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock"
            data-tchmi-grid-column-index="2" data-tchmi-grid-row-index="6"
            data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0"
-           data-tchmi-text="%pp%PM::loadedPoint::x%/pp%" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center"></div>
+           data-tchmi-text="%f%FormatString('{0|.2f}', %pp%PM::loadedPoint::x%/pp%)%/f%" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center"></div>
 
       <!-- Y -->
       <div id="PointManagerYLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock"
@@ -316,7 +316,7 @@
             <div id="PointManagerYStored" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock"
            data-tchmi-grid-column-index="2" data-tchmi-grid-row-index="8"
            data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0"
-           data-tchmi-text="%pp%PM::loadedPoint::y%/pp%" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center"></div>
+           data-tchmi-text="%f%FormatString('{0|.2f}', %pp%PM::loadedPoint::y%/pp%)%/f%" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center"></div>
 
       <!-- Z -->
       <div id="PointManagerZLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock"
@@ -326,7 +326,7 @@
             <div id="PointManagerZStored" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock"
            data-tchmi-grid-column-index="2" data-tchmi-grid-row-index="10"
            data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0"
-           data-tchmi-text="%pp%PM::loadedPoint::z%/pp%" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center"></div>
+           data-tchmi-text="%f%FormatString('{0|.2f}', %pp%PM::loadedPoint::z%/pp%)%/f%" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center"></div>
 
       <!-- Rx -->
       <div id="PointManagerRxLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock"
@@ -336,7 +336,7 @@
             <div id="PointManagerRxStored" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock"
            data-tchmi-grid-column-index="2" data-tchmi-grid-row-index="12"
            data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0"
-           data-tchmi-text="%pp%PM::loadedPoint::rx%/pp%" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center"></div>
+           data-tchmi-text="%f%FormatString('{0|.2f}', %pp%PM::loadedPoint::rx%/pp%)%/f%" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center"></div>
 
       <!-- Ry -->
       <div id="PointManagerRyLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock"
@@ -346,7 +346,7 @@
             <div id="PointManagerRyStored" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock"
            data-tchmi-grid-column-index="2" data-tchmi-grid-row-index="14"
            data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0"
-           data-tchmi-text="%pp%PM::loadedPoint::ry%/pp%" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center"></div>
+           data-tchmi-text="%f%FormatString('{0|.2f}', %pp%PM::loadedPoint::ry%/pp%)%/f%" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center"></div>
 
       <!-- Rz -->
       <div id="PointManagerRzLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock"
@@ -356,9 +356,9 @@
             <div id="PointManagerRzStored" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock"
            data-tchmi-grid-column-index="2" data-tchmi-grid-row-index="16"
            data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0"
-           data-tchmi-text="%pp%PM::loadedPoint::rz%/pp%" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center"></div>
+           data-tchmi-text="%f%FormatString('{0|.2f}', %pp%PM::loadedPoint::rz%/pp%)%/f%" data-tchmi-text-horizontal-alignment="Center" data-tchmi-text-vertical-alignment="Center"></div>
 
-    <div id="TcHmiTextbox_Y" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextbox" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="8" data-tchmi-horizontal-scroll="Auto" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-reset-to-last-valid-value="True" data-tchmi-text="%pp%PM::editedPoint::y|BindingMode=TwoWay%/pp%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-vertical-scroll="Auto" data-tchmi-input-processing-point="InteractionFinished" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-horizontal-alignment="Right">
+    <div id="TcHmiTextbox_Y" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextbox" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="8" data-tchmi-horizontal-scroll="Auto" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-reset-to-last-valid-value="True" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%PM::editedPoint::y|BindingMode=TwoWay%/pp%)%/f%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-vertical-scroll="Auto" data-tchmi-input-processing-point="InteractionFinished" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-horizontal-alignment="Right">
 <script data-tchmi-target-attribute="data-tchmi-content-padding" type="application/json">
 {
   "top": 3,
@@ -369,7 +369,7 @@
 </script>
 
 </div>
-<div id="TcHmiTextbox_Z" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextbox" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="10" data-tchmi-horizontal-scroll="Auto" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-reset-to-last-valid-value="True" data-tchmi-text="%pp%PM::editedPoint::z|BindingMode=TwoWay%/pp%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-vertical-scroll="Auto" data-tchmi-input-processing-point="InteractionFinished" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-horizontal-alignment="Right">
+<div id="TcHmiTextbox_Z" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextbox" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="10" data-tchmi-horizontal-scroll="Auto" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-reset-to-last-valid-value="True" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%PM::editedPoint::z|BindingMode=TwoWay%/pp%)%/f%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-vertical-scroll="Auto" data-tchmi-input-processing-point="InteractionFinished" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-horizontal-alignment="Right">
 <script data-tchmi-target-attribute="data-tchmi-content-padding" type="application/json">
 {
   "top": 3,
@@ -380,7 +380,7 @@
 </script>
 
 </div>
-<div id="TcHmiTextbox_RX" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextbox" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="12" data-tchmi-horizontal-scroll="Auto" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-reset-to-last-valid-value="True" data-tchmi-text="%pp%PM::editedPoint::rx|BindingMode=TwoWay%/pp%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-vertical-scroll="Auto" data-tchmi-input-processing-point="InteractionFinished" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-horizontal-alignment="Right">
+<div id="TcHmiTextbox_RX" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextbox" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="12" data-tchmi-horizontal-scroll="Auto" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-reset-to-last-valid-value="True" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%PM::editedPoint::rx|BindingMode=TwoWay%/pp%)%/f%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-vertical-scroll="Auto" data-tchmi-input-processing-point="InteractionFinished" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-horizontal-alignment="Right">
 <script data-tchmi-target-attribute="data-tchmi-content-padding" type="application/json">
 {
   "top": 3,
@@ -391,7 +391,7 @@
 </script>
 
 </div>
-<div id="TcHmiTextbox_RZ" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextbox" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="16" data-tchmi-horizontal-scroll="Auto" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-reset-to-last-valid-value="True" data-tchmi-text="%pp%PM::editedPoint::rz|BindingMode=TwoWay%/pp%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-vertical-scroll="Auto" data-tchmi-input-processing-point="InteractionFinished" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-horizontal-alignment="Right">
+<div id="TcHmiTextbox_RZ" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextbox" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="16" data-tchmi-horizontal-scroll="Auto" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-reset-to-last-valid-value="True" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%PM::editedPoint::rz|BindingMode=TwoWay%/pp%)%/f%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-vertical-scroll="Auto" data-tchmi-input-processing-point="InteractionFinished" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-horizontal-alignment="Right">
 <script data-tchmi-target-attribute="data-tchmi-content-padding" type="application/json">
 {
   "top": 3,
@@ -402,7 +402,7 @@
 </script>
 
 </div>
-<div id="TcHmiTextbox_RY" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextbox" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="14" data-tchmi-horizontal-scroll="Auto" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-reset-to-last-valid-value="True" data-tchmi-text="%pp%PM::editedPoint::ry|BindingMode=TwoWay%/pp%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-vertical-scroll="Auto" data-tchmi-input-processing-point="InteractionFinished" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-horizontal-alignment="Right">
+<div id="TcHmiTextbox_RY" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextbox" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="14" data-tchmi-horizontal-scroll="Auto" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-reset-to-last-valid-value="True" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%PM::editedPoint::ry|BindingMode=TwoWay%/pp%)%/f%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-vertical-scroll="Auto" data-tchmi-input-processing-point="InteractionFinished" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-horizontal-alignment="Right">
 <script data-tchmi-target-attribute="data-tchmi-content-padding" type="application/json">
 {
   "top": 3,
@@ -413,7 +413,7 @@
 </script>
 
 </div>
-<div id="TcHmiTextbox_X" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextbox" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="6" data-tchmi-horizontal-scroll="Auto" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-reset-to-last-valid-value="True" data-tchmi-text="%pp%PM::editedPoint::x|BindingMode=TwoWay%/pp%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-vertical-scroll="Auto" data-tchmi-input-processing-point="InteractionFinished" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-horizontal-alignment="Right">
+<div id="TcHmiTextbox_X" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextbox" data-tchmi-grid-column-index="1" data-tchmi-grid-row-index="6" data-tchmi-horizontal-scroll="Auto" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-reset-to-last-valid-value="True" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%PM::editedPoint::x|BindingMode=TwoWay%/pp%)%/f%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-vertical-scroll="Auto" data-tchmi-input-processing-point="InteractionFinished" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-horizontal-alignment="Right">
 <script data-tchmi-target-attribute="data-tchmi-content-padding" type="application/json">
 {
   "top": 3,
@@ -449,6 +449,19 @@
          data-tchmi-bottom="0"
          data-tchmi-text="RETOUCH FROM ROBOT"
          data-tchmi-state-symbol="%pp%PM::bCmdTeach%/pp%">
+    </div>
+
+    <div id="PointManagerMoveRobotButton"
+         data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton"
+         data-tchmi-grid-column-index="4"
+         data-tchmi-grid-column-span="3"
+         data-tchmi-grid-row-index="6"
+         data-tchmi-left="0"
+         data-tchmi-top="0"
+         data-tchmi-right="0"
+         data-tchmi-bottom="0"
+         data-tchmi-text="MOVE ROBOT TO POSITION"
+         data-tchmi-state-symbol="%pp%PM::bMoveRobotToEditedPoint%/pp%">
     </div>
 
     <div id="PointManagerSavePointButton"

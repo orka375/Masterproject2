@@ -24,6 +24,7 @@ VAR
     _baActiveID       : UINT;
     _baActiveCmd  : eBA;
     _tonBAStart   : TON;
+    _baStopPending : BOOL;
 END_VAR
 
 
@@ -33,6 +34,19 @@ END_VAR
 UR_COMM();
 
 COMM := ADR(UR_COMM);
+
+(* EStop is queued until the script transport is idle so a quick release cannot
+    be lost while the original motion script is still being transmitted. *)
+IF _baStopPending AND NOT UR_COMM.Script.bBusy THEN
+    IF UR_COMM.Script.ClearScript()
+         AND UR_COMM.Script.AppendLine(sLine := 'def plc_estop():')
+       AND UR_COMM.Script.AppendLine(sLine := '  stopj(2.0)')
+       AND UR_COMM.Script.AppendLine(sLine := 'end')
+       AND UR_COMM.Script.SendBuffered() THEN
+
+          _baStopPending := FALSE;
+    END_IF
+END_IF
 
 (* Map the RTDE Cartesian feedback into the generic robot abstraction. *)
 IF UR_COMM.RTDE.bNewData THEN
@@ -113,6 +127,31 @@ END_IF
 CYCLIC_MANIP();
 ]]></ST>
     </Implementation>
+    <Method Name="BA_Annulate" Id="{dd616886-0923-4987-bf7f-514faf86324b}">
+      <Declaration><![CDATA[METHOD BA_Annulate : BOOL
+VAR_INPUT
+        ExecuteId : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[BA_Annulate := FALSE;
+
+IF (ExecuteId = 0)
+     OR NOT _baActive
+     OR (ExecuteId <> _baActiveID) THEN
+        RETURN;
+END_IF
+
+_baActive := FALSE;
+_baStartSeen := FALSE;
+_baTransportSent := FALSE;
+BA_Active := FALSE;
+BA_Result := 0;
+_commandState := E_RobotCommandState.Idle;
+BA_Annulate := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="BA_Handler" Id="{d7ca35aa-fd04-4db2-bc8f-94c9161e0ebc}">
       <Declaration><![CDATA[METHOD BA_Handler : UINT
 VAR_INPUT
@@ -356,6 +395,15 @@ BA_Result := 0;
 _commandState := E_RobotCommandState.Idle;
 
 BA_Handler := BA_ID;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EStop" Id="{6df22b90-0226-4a6b-8edb-494cabd2419d}">
+      <Declaration><![CDATA[METHOD EStop : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[HMI_ROB.bEStop := TRUE;
+_baStopPending := TRUE;
+EStop := TRUE;
 ]]></ST>
       </Implementation>
     </Method>

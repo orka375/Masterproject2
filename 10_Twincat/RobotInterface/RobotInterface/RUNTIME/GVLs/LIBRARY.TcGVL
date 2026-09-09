@@ -5,6 +5,7 @@
 VAR_GLOBAL
 	Param_PickPlace: stParam_PickPlace;
 	Param_Counter: stParam_Counter;
+	
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>

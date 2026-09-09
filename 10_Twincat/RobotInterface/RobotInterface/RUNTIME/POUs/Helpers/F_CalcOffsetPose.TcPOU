@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="F_CalcOffsetPose" Id="{8e716b24-c7a7-4c98-977e-1d0892ef2893}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION F_CalcOffsetPose : stPoseGeneral
+VAR_INPUT
+	Pose      : stPoseGeneral;
+    Direction : eDirections;
+    Offset    : LREAL;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[F_CalcOffsetPose := Pose;
+
+CASE Direction OF
+
+    eDirections.Zplus:
+        F_CalcOffsetPose.z := F_CalcOffsetPose.z + ABS(Offset);
+
+    eDirections.Zminus:
+        F_CalcOffsetPose.z := F_CalcOffsetPose.z - ABS(Offset);
+
+    eDirections.Xplus:
+        F_CalcOffsetPose.x := F_CalcOffsetPose.x + ABS(Offset);
+
+    eDirections.Xminus:
+        F_CalcOffsetPose.x := F_CalcOffsetPose.x - ABS(Offset);
+
+    eDirections.Yplus:
+        F_CalcOffsetPose.y := F_CalcOffsetPose.y + ABS(Offset);
+
+    eDirections.Yminus:
+        F_CalcOffsetPose.y := F_CalcOffsetPose.y - ABS(Offset);
+
+END_CASE]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

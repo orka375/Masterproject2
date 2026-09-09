@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Refactors>
+  <Renames>
+    <RenamedType>
+      <Type guid="8fc7858a-db29-46b7-9dc0-43ffeaf9c5ce">FB_RECIPEHANDLER</Type>
+      <From>FB_RecipeHandler</From>
+      <To>RECIPE_HANDLER</To>
+    </RenamedType>
+    <RenamedSymbol>
+      <Type guid="9ded34ee-ef83-4142-8634-94e63622f962">FB_PointManager</Type>
+      <From>eResult</From>
+      <To>Result</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="21b924b4-0fb6-46ff-9fb7-f679235d19bb">FB_2_ROB_MANIP</Type>
+      <From>TOOL</From>
+      <To>TOOLHOCH</To>
+    </RenamedSymbol>
+    <RenamedType>
+      <Type guid="06738894-b8f5-4203-96ae-1c57f1d76ca4">CALLSKILLBYTAG</Type>
+      <From>CallSkillByName</From>
+      <To>GetSkillByTag</To>
+    </RenamedType>
+    <RenamedSymbol>
+      <Type guid="ab4d2358-cf6f-47ea-b510-aa1d3f4fa553">stParam_PickPlace</Type>
+      <From>PassTroughMiddlePoint</From>
+      <To>bPassTroughMiddlePoint</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="ab4d2358-cf6f-47ea-b510-aa1d3f4fa553">stParam_PickPlace</Type>
+      <From>PickPositionName</From>
+      <To>MiddlePointName</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="0265789f-44be-4ed2-bfd3-e8ebd7334e24">Skill_PickPlace</Type>
+      <From>bgotmiddlepoint</From>
+      <To>bGotMiddlePoint</To>
+    </RenamedSymbol>
+  </Renames>
+</Refactors>

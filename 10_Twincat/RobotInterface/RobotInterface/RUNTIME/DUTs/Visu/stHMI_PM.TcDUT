@@ -10,6 +10,7 @@ STRUCT
     bCmdTeach    : BOOL;
     bCmdSaveFile : BOOL;
     bCmdLoadFile : BOOL;
+    bMoveRobotToEditedPoint : BOOL;
 
     xCurrentTcp : stPoseGeneral;
 

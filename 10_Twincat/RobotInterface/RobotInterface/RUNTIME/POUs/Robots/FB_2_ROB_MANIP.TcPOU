@@ -6,7 +6,7 @@ FUNCTION_BLOCK FB_2_ROB_MANIP EXTENDS FB_1_ROB
 // IMPLEMENTS ITF_2_Manip
 
 VAR_INPUT
-	TOOL: FB_1_Tool;
+	TOOL: POINTER TO FB_1_Tool;
 	JOG: FB_Jog_Manipulator;
 END_VAR
 
@@ -33,7 +33,7 @@ END_VAR
     <Action Name="CYCLIC_MANIP" Id="{c5ea77dd-14da-4015-9108-0744e50afbab}">
       <Implementation>
         <ST><![CDATA[CYCLIC_ROB();
-TOOL.CYCLIC_TOOL();
+TOOL^.CYCLIC_TOOL();
 JOG(pRobot:=THIS);
 
 
@@ -227,12 +227,12 @@ myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
 
-IF TOOL.LastTransitionType = eTransitions.Activate THEN
-	IF TOOL.LastTransitionResult = SUCCESS THEN
+IF TOOL^.LastTransitionType = eTransitions.Activate THEN
+	IF TOOL^.LastTransitionResult = SUCCESS THEN
 		myResult:=SUCCESS;
 	END_IF
 ELSE
-	TOOL.Activate();
+	TOOL^.Activate();
 END_IF
 
 
@@ -265,12 +265,12 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-IF TOOL.LastTransitionType = eTransitions.Cleanup THEN
-	IF TOOL.LastTransitionResult = SUCCESS THEN
+IF TOOL^.LastTransitionType = eTransitions.Cleanup THEN
+	IF TOOL^.LastTransitionResult = SUCCESS THEN
 		myResult:=SUCCESS;
 	END_IF
 ELSE
-	TOOL.Cleanup();
+	TOOL^.Cleanup();
 END_IF
 
 
@@ -300,12 +300,12 @@ myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
 
-IF TOOL.LastTransitionType = eTransitions.Configure THEN
-	IF TOOL.LastTransitionResult = SUCCESS  THEN
+IF TOOL^.LastTransitionType = eTransitions.Configure THEN
+	IF TOOL^.LastTransitionResult = SUCCESS  THEN
 		myResult:=SUCCESS;
 	END_IF
 ELSE
-	TOOL.Configure();
+	TOOL^.Configure();
 END_IF
 
 IF SIMMODE THEN
@@ -339,12 +339,12 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-IF TOOL.LastTransitionType = eTransitions.Deactivate THEN
-	IF TOOL.LastTransitionResult = SUCCESS THEN
+IF TOOL^.LastTransitionType = eTransitions.Deactivate THEN
+	IF TOOL^.LastTransitionResult = SUCCESS THEN
 		myResult:=SUCCESS;
 	END_IF
 ELSE
-	TOOL.Deactivate();
+	TOOL^.Deactivate();
 END_IF
 
 
@@ -402,12 +402,12 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-IF TOOL.LastTransitionType = eTransitions.Shutdown THEN
-	IF TOOL.LastTransitionResult = SUCCESS THEN
+IF TOOL^.LastTransitionType = eTransitions.Shutdown THEN
+	IF TOOL^.LastTransitionResult = SUCCESS THEN
 		myResult:=SUCCESS;
 	END_IF
 ELSE
-	TOOL.Shutdown();
+	TOOL^.Shutdown();
 END_IF
 
 // ----- END YOUR CODE -----------------------------

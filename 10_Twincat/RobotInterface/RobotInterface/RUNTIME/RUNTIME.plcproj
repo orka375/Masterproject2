@@ -39,6 +39,9 @@
     <Compile Include="DUTs\BaseActions\stBA_Settings.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\BasicRobot\eDirections.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\BasicRobot\eMode.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -64,9 +67,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\DB\E_PointPoseKind.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\DB\E_PointStoreResult.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\DB\ST_CoordSys.TcDUT">
@@ -190,6 +190,12 @@
     <Compile Include="POUs\Archiv\FB_Helper.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Axis\FB_1_AXIS.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Axis\FB_1_PORTAL.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Communication\FB_1_CommunicationModul.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -211,6 +217,12 @@
     <Compile Include="POUs\Helpers\FB_Messenger.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Helpers\F_CalcOffsetPose.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Helpers\RECIPE_HANDLER.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Helpers\FB_Utilities.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -230,12 +242,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Robots\FB_1_ROB.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Robots\FB_1_PORTAL.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Robots\FB_1_AXIS.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Robots\FB_2_ROB_AMR.TcPOU">
@@ -277,6 +283,9 @@
     <Compile Include="POUs\Skills\Skill_Counter\Skill_Counter.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Skills\Skill_Gripper_bistable_digout.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Skills\Skill_LoadDeliverReturn.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -287,6 +296,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Skills\Skill_ROS2_Eyes.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Skills\stParam_Gripper_bistable_digout.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Templates\TEMPLATE_BA_HANDLER.TcPOU">
@@ -411,6 +423,8 @@
     <Folder Include="POUs\DB" />
     <Folder Include="POUs\Helpers" />
     <Folder Include="POUs\Jog" />
+    <Folder Include="POUs\Axis" />
+    <Folder Include="POUs\Skills\Skill_SlowPull" />
     <Folder Include="POUs\Skills\Skill_Dummy" />
     <Folder Include="POUs\Skills\Skill_Counter" />
     <Folder Include="POUs\Test" />

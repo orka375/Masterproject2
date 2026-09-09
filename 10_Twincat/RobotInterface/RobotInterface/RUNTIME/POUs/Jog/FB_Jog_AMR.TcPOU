@@ -54,7 +54,7 @@ END_IF]]></ST>
     </Method>
     <Action Name="CYCLIC_JOG_AMR" Id="{654e51da-3e56-403f-b3b1-30c87ed192f9}">
       <Implementation>
-        <ST><![CDATA[// ----------------------------------------------------------
+                                <ST><![CDATA[// ----------------------------------------------------------
 // Capabilities / behavior for HMI
 // ----------------------------------------------------------
 bSupportsX := TRUE;

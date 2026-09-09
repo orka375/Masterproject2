@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="eDirections" Id="{4feca84c-5f5c-43c9-95e7-82d7183462bb}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE eDirections :
+(
+	Zplus := 0,
+	Zminus := 1,
+	Xplus := 2,
+	Xminus := 3,
+	Yplus := 4,
+	Yminus := 5
+
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -2,7 +2,7 @@
 <TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.24">
 	<DataTypes>
 		<DataType>
-			<Name GUID="{18071995-0000-0000-0000-002000000007}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..6] OF BIT</Name>
+			<Name GUID="{18071995-0000-0000-0000-002000000007}" IecBaseType="true" BitType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..6] OF BIT</Name>
 			<BitSize>7</BitSize>
 			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
 			<ArrayInfo>
@@ -11,7 +11,7 @@
 			</ArrayInfo>
 		</DataType>
 		<DataType>
-			<Name GUID="{18071995-0000-0000-0000-00200000000A}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..9] OF BIT</Name>
+			<Name GUID="{18071995-0000-0000-0000-00200000000A}" IecBaseType="true" BitType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..9] OF BIT</Name>
 			<BitSize>10</BitSize>
 			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
 			<ArrayInfo>
@@ -20,7 +20,7 @@
 			</ArrayInfo>
 		</DataType>
 		<DataType>
-			<Name GUID="{18071995-0000-0000-0000-002000000002}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..1] OF BIT</Name>
+			<Name GUID="{18071995-0000-0000-0000-002000000002}" IecBaseType="true" BitType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..1] OF BIT</Name>
 			<BitSize>2</BitSize>
 			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
 			<ArrayInfo>
@@ -38,7 +38,7 @@
 			</ArrayInfo>
 		</DataType>
 		<DataType>
-			<Name GUID="{18071995-0000-0000-0000-002000000019}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..24] OF BIT</Name>
+			<Name GUID="{18071995-0000-0000-0000-002000000019}" IecBaseType="true" BitType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..24] OF BIT</Name>
 			<BitSize>25</BitSize>
 			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
 			<ArrayInfo>
@@ -47,7 +47,7 @@
 			</ArrayInfo>
 		</DataType>
 		<DataType>
-			<Name GUID="{18071995-0000-0000-0000-00200000000C}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..11] OF BIT</Name>
+			<Name GUID="{18071995-0000-0000-0000-00200000000C}" IecBaseType="true" BitType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..11] OF BIT</Name>
 			<BitSize>12</BitSize>
 			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
 			<ArrayInfo>
@@ -56,7 +56,7 @@
 			</ArrayInfo>
 		</DataType>
 		<DataType>
-			<Name GUID="{18071995-0000-0000-0000-00200000001E}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..29] OF BIT</Name>
+			<Name GUID="{18071995-0000-0000-0000-00200000001E}" IecBaseType="true" BitType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..29] OF BIT</Name>
 			<BitSize>30</BitSize>
 			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
 			<ArrayInfo>
@@ -65,6 +65,9 @@
 			</ArrayInfo>
 		</DataType>
 	</DataTypes>
+	<ImageDatas>
+		<ImageData Id="1000">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000c40e0000c40e00000000000000000000ff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080808080808080808080808080808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080c0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c000bfff00bfffc0c0c0808080c0c0c000ffffc0c0c000ffff808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c000bfff00bfffc0c0c0808080c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c000bfff00bfffc0c0c0808080c0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080c0c0c0ff0000c0c0c0ff0000808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080c0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c000bfff00bfffc0c0c0808080c0c0c00000ffc0c0c00000ff808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c000bfff00bfffc0c0c0808080c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c000bfff00bfffc0c0c0808080c0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080c0c0c0008000c0c0c0008000808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff</ImageData>
+	</ImageDatas>
 	<Project ProjectGUID="{C2A5BCD8-9187-4B62-B358-2BB7D90503F4}" Target64Bit="true" ShowHideConfigurations="#x6">
 		<System>
 			<Licenses>
@@ -82,7 +85,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{2A46B7D0-5025-44A3-8091-A92824C85949}" Name="RUNTIME" PrjFilePath="RUNTIME\RUNTIME.plcproj" TmcFilePath="RUNTIME\RUNTIME.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{03E65FD2-7DE3-9D82-8F5B-6F14BEA59AB7}" TmcPath="RUNTIME\RUNTIME.tmc">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{08D86E66-7494-608E-AD3B-366AD09CC1C6}" TmcPath="RUNTIME\RUNTIME.tmc">
 					<Name>RUNTIME Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="2" AreaNo="1">
@@ -200,6 +203,7 @@
 						<Name>PlcTask Inputs</Name>
 						<Var>
 							<Name>SETUP.MECA_CHARLIE.MECA_COMM.bInProcessDataValid</Name>
+							<Comment><![CDATA[NOT CONNECTED]]></Comment>
 							<Type>BOOL</Type>
 						</Var>
 						<Var>
@@ -370,22 +374,27 @@
 			</Project>
 		</Plc>
 		<Io>
-			<Device Id="1" DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="192.168.250.37.2.1" RemoteName="Device 1 (EtherCAT)" InfoImageId="2" SimulationMode="true">
+			<Device Id="1" DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="192.168.250.100.2.1" RemoteName="Device 1 (EtherCAT)" InfoImageId="2">
 				<Name>Device 1 (EtherCAT)</Name>
 				<AddressInfo>
 					<Pnp>
-						<DeviceDesc></DeviceDesc>
-						<DeviceName></DeviceName>
-						<DeviceData>000000000000</DeviceData>
+						<DeviceDesc>Ethernet (TwinCAT-Intel PCI Ethernet Adapter (Gigab</DeviceDesc>
+						<DeviceName>\DEVICE\{E864A7C0-A4F8-4EB8-BF63-CA1739F0C915}</DeviceName>
+						<DeviceData>000105753b0c</DeviceData>
 					</Pnp>
 				</AddressInfo>
 				<Image Id="1" AddrType="9" ImageType="3">
 					<Name>Image</Name>
 				</Image>
-				<Box Id="1" BoxType="9099" BoxFlags="#x00000020">
-					<Name>Box 1 (Meca500)</Name>
+				<Box Id="1" BoxType="9099">
+					<Name>Term 1 (EK1100)</Name>
+					<ImageId>1000</ImageId>
+					<EtherCAT SlaveType="1" PdiType="#x0d00" CycleMBoxPollingTime="0" VendorId="#x00000002" ProductCode="#x044c2c52" RevisionNo="#x00120000" PortPhys="305" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EK1100 EtherCAT Coupler (2A E-Bus)" Desc="EK1100" PortABoxInfo="#x00ffffff"/>
+				</Box>
+				<Box Id="2" BoxType="9099" BoxFlags="#x00000020">
+					<Name>Box 2 (Meca500)</Name>
 					<ImageId>547</ImageId>
-					<EtherCAT SlaveType="2" PdiType="#x0e80" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="39" VendorId="#x00ecade1" ProductCode="#x0004d500" RevisionNo="#x00000001" InfoDataAddr="true" TimeoutStateChange1="2000" TimeoutStateChange2="9000" TimeoutMailbox2="2000" PortPhys="17" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="Meca500" Desc="Meca500" PortABoxInfo="#x00ffffff">
+					<EtherCAT SlaveType="2" PdiType="#x0e80" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="39" VendorId="#x00ecade1" ProductCode="#x0004d500" RevisionNo="#x00000001" InfoDataAddr="true" TimeoutStateChange1="2000" TimeoutStateChange2="9000" TimeoutMailbox2="2000" PortPhys="17" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="Meca500" Desc="Meca500" PortABoxInfo="#x02000001">
 						<SyncMan>001080002600010001000000240080008000001026010000</SyncMan>
 						<SyncMan>801080002200010002000000240080008000801022010000</SyncMan>
 						<SyncMan>00113c006400010003000000000000003c00001164010000</SyncMan>
@@ -1025,7 +1034,7 @@
 	<Mappings>
 		<MappingInfo Identifier="{00000000-2001-0850-0020-500810000403}" Id="#x02030010"/>
 		<OwnerA Name="TIPC^RUNTIME^RUNTIME Instance">
-			<OwnerB Name="TIID^Device 1 (EtherCAT)^Box 1 (Meca500)">
+			<OwnerB Name="TIID^Device 1 (EtherCAT)^Box 2 (Meca500)">
 				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInActivated" VarB="Robot Status^Activated"/>
 				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInBusy" VarB="Robot Status^Busy"/>
 				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInCleared" VarB="Motion Status^FIFO Cleared"/>
@@ -1040,6 +1049,10 @@
 				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.bInWorkZone" VarB="Robot Status^WorkZoneStatus"/>
 				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInCheckpointDiscarded" VarB="Motion Status^DiscardedCheckpointId"/>
 				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInCheckpointReached" VarB="Motion Status^ReachedCheckPointId"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInDynamicType0" VarB="Dynamic Data 0^Dynamic Type"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInDynamicType1" VarB="Dynamic Data 1^Dynamic Type"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInDynamicType2" VarB="Dynamic Data 2^Dynamic Type"/>
+				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInDynamicType3" VarB="Dynamic Data 3^Dynamic Type"/>
 				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInErrorCode" VarB="Robot Status^Error"/>
 				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInFifoSpace" VarB="Motion Status^FIFO Space"/>
 				<Link VarA="PlcTask Inputs^SETUP.MECA_CHARLIE.MECA_COMM.nInMoveId" VarB="Motion Status^Move ID"/>
@@ -1068,6 +1081,10 @@
 				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutResume" VarB="Motion Control^Resume Motion"/>
 				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutSetPoint" VarB="Motion Control^SetPoint"/>
 				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.bOutSimMode" VarB="Robot Control^Sim Mode"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.nOutDynamicType0" VarB="Dynamic Data Cfg 0^Dynamic Type"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.nOutDynamicType1" VarB="Dynamic Data Cfg 1^Dynamic Type"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.nOutDynamicType2" VarB="Dynamic Data Cfg 2^Dynamic Type"/>
+				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.nOutDynamicType3" VarB="Dynamic Data Cfg 3^Dynamic Type"/>
 				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.nOutHostTime" VarB="Host Time^Host Time"/>
 				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.nOutMotionCommand" VarB="Move^Move Command"/>
 				<Link VarA="PlcTask Outputs^SETUP.MECA_CHARLIE.MECA_COMM.nOutMoveId" VarB="Motion Control^Move ID"/>
