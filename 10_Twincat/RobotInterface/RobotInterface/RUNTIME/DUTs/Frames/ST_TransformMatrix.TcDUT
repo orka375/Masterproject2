@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_TransformMatrix" Id="{54e91dc3-e3f4-4b00-9d5d-96ab99217473}">
+    <Declaration><![CDATA[TYPE ST_TransformMatrix :
+STRUCT
+    // Rotation
+    r11 : LREAL;
+    r12 : LREAL;
+    r13 : LREAL;
+
+    r21 : LREAL;
+    r22 : LREAL;
+    r23 : LREAL;
+
+    r31 : LREAL;
+    r32 : LREAL;
+    r33 : LREAL;
+
+    // Translation
+    x : LREAL;
+    y : LREAL;
+    z : LREAL;
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

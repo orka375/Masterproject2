@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-  <POU Name="FB_2_COMM_MECA" Id="{fdc4f5ff-d3fa-4aab-86fa-4dd482a8fa00}" SpecialFunc="None">
+  <POU Name="FB_2_COMM_MECA" Id="{1bdf4dfd-4ef8-47df-b08c-596707625c3d}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_2_COMM_MECA EXTENDS FB_1_CommunicationModul
 VAR_OUTPUT
     bInProcessDataValid AT %I*: BOOL := TRUE; //NOT CONNECTED
@@ -97,16 +97,27 @@ END_VAR
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
-    <Method Name="ClearMotion" Id="{f6a7b8c9-d0e1-4234-a5f6-b7c8d9e0f1a2}">
+    <Property Name="AcceptedMoveID" Id="{cd29aabe-d41b-4539-8287-763315ddb793}">
+      <Declaration><![CDATA[PROPERTY AcceptedMoveID : UINT]]></Declaration>
+      <Get Name="Get" Id="{366c6523-6181-4830-852e-c50a632f7dd2}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AcceptedMoveID:= nInMoveId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="ClearMotion" Id="{4e27c0e3-b74a-440c-bebc-156c0921230b}">
       <Declaration><![CDATA[METHOD ClearMotion : BOOL]]></Declaration>
       <Implementation>
         <ST><![CDATA[bRequestClearMove := TRUE;
 ClearMotion := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Property Name="CommandBusy" Id="{89b1c3e9-4d5f-48ab-91c2-3fb5e2b8d1f0}">
+    <Property Name="CommandBusy" Id="{15b9b354-bf2f-4af8-b059-ee2daf68e421}">
       <Declaration><![CDATA[PROPERTY CommandBusy : BOOL]]></Declaration>
-      <Get Name="Get" Id="{1ab2c3d4-e5f6-47a8-90b1-c2d3e4f5a6b7}">
+      <Get Name="Get" Id="{bb36b79d-9311-432a-8bd6-acd21b5d3b67}">
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
@@ -114,7 +125,7 @@ END_VAR]]></Declaration>
         </Implementation>
       </Get>
     </Property>
-    <Action Name="CYCLIC_COMM_MECA" Id="{8b2f0c9c-2be0-4a0a-9f5e-0b1e5b5c7a11}">
+    <Action Name="CYCLIC_COMM_MECA" Id="{d47624df-4e5c-4e1a-b885-310e1f830615}">
       <Implementation>
         <ST><![CDATA[CYCLIC_COMM();
 
@@ -186,25 +197,27 @@ ELSE
         bCommandPending := FALSE;
         bCommandAccepted := TRUE;
     END_IF
+	
+	
 END_IF
 ]]></ST>
       </Implementation>
     </Action>
-    <Method Name="Home" Id="{c3d4e5f6-a7b8-4901-92c3-d4e5f6a7b8c9}">
+    <Method Name="Home" Id="{bde77e6a-1735-404c-a869-5ff38ebb95c0}">
       <Declaration><![CDATA[METHOD Home : BOOL]]></Declaration>
       <Implementation>
         <ST><![CDATA[bRequestHome := TRUE;
 Home := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="PauseMotion" Id="{e5f6a7b8-c9d0-4123-94f6-a7b8c9d0e1f2}">
+    <Method Name="PauseMotion" Id="{4e156774-4bf7-4537-a8b6-5e645b460a3c}">
       <Declaration><![CDATA[METHOD PauseMotion : BOOL]]></Declaration>
       <Implementation>
         <ST><![CDATA[bRequestPause := TRUE;
 PauseMotion := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="QueueMotion" Id="{c30a5e40-17c8-4e1d-a3af-4d4e2b9b7d31}">
+    <Method Name="QueueMotion" Id="{9de68a94-33d3-4af2-a210-56c01ae0dec8}">
       <Declaration><![CDATA[METHOD QueueMotion : UINT
 VAR_INPUT
     nCommand : UDINT;
@@ -246,32 +259,58 @@ QueueMotion := nPendingMoveId;
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="RequestActivate" Id="{a1b2c3d4-e5f6-4789-90ab-c1d2e3f4a5b6}">
+    <Method Name="RequestActivate" Id="{c66231e6-4afe-48ad-b0fa-fca18b028ed5}">
       <Declaration><![CDATA[METHOD RequestActivate : BOOL]]></Declaration>
       <Implementation>
         <ST><![CDATA[bRequestActivate := TRUE;
 RequestActivate := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="RequestDeactivate" Id="{b2c3d4e5-f6a7-4890-a1b2-c3d4e5f6a7b8}">
+    <Method Name="RequestDeactivate" Id="{e6fd8b1a-5efc-44e8-9ca2-4d9f4c10ec0a}">
       <Declaration><![CDATA[METHOD RequestDeactivate : BOOL]]></Declaration>
       <Implementation>
         <ST><![CDATA[bRequestDeactivate := TRUE;
 RequestDeactivate := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="ResetError" Id="{d4e5f6a7-b8c9-4012-83d4-e5f6a7b8c9d0}">
+    <Method Name="ResetError" Id="{c82fc398-7e3e-42b0-b4d2-9c64fac0e508}">
       <Declaration><![CDATA[METHOD ResetError : BOOL]]></Declaration>
       <Implementation>
         <ST><![CDATA[bRequestResetError := TRUE;
 ResetError := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="ResumeMotion" Id="{a7b8c9d0-e1f2-4345-b6a7-c8d9e0f1a2b3}">
+    <Method Name="ResumeMotion" Id="{d3f84a4e-3b2f-440a-9e4d-24f7197092f0}">
       <Declaration><![CDATA[METHOD ResumeMotion : BOOL]]></Declaration>
       <Implementation>
         <ST><![CDATA[bRequestResume := TRUE;
 ResumeMotion := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetCheckpoint" Id="{e73dd7f8-b149-4b46-8569-64a2b7626342}">
+      <Declaration><![CDATA[METHOD SetCheckpoint : UINT
+VAR_INPUT
+	id: UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SetCheckpoint := 0;
+
+// Meca500 checkpoint IDs are 1..8000.
+IF (id < 1) OR (id > 8000) THEN
+    RETURN;
+END_IF
+
+// SetCheckpoint is command 17 and uses the normal SetPoint/MoveID handshake.
+SetCheckpoint := QueueMotion(
+    nCommand := 17,
+    rArgument1 := UINT_TO_REAL(id),
+    rArgument2 := 0.0,
+    rArgument3 := 0.0,
+    rArgument4 := 0.0,
+    rArgument5 := 0.0,
+    rArgument6 := 0.0
+);]]></ST>
       </Implementation>
     </Method>
   </POU>

@@ -12,13 +12,13 @@ STRUCT
     bCmdLoadFile : BOOL;
     bMoveRobotToEditedPoint : BOOL;
 
-    xCurrentTcp : stPoseGeneral;
+    xCurrentTcp : ST_Pose;
 
-    editedPoint : ST_Point;
-    loadedPoint : ST_Point;
+    editedPoint : stStoredPoint;
+    loadedPoint : stStoredPoint;
 
     // Each FB_PointManager instance owns this independent ten-point RAM store.
-    aPoints : ARRAY[1..10] OF ST_Point;
+    aPoints : ARRAY[1..10] OF stStoredPoint;
 
     // Unused rows retain unique placeholder IDs for TcHmiCombobox validation.
     aPointList : ARRAY[1..10] OF ST_PointListEntry :=

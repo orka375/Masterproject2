@@ -27,15 +27,6 @@
     <Compile Include="DUTs\BaseActions\eProgress.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\BaseActions\ITF_BA_6Axis.TcIO">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\BaseActions\ITF_BA_AMR.TcIO">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\BaseActions\ITF_BA_Scara.TcIO">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="DUTs\BaseActions\stBA_Settings.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -45,10 +36,16 @@
     <Compile Include="DUTs\BasicRobot\eMode.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\BasicRobot\stPoseGeneral.TcDUT">
+    <Compile Include="DUTs\BasicRobot\eRefFrame.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\BasicRobot\ST_Pose.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\BasicRobot\stTarget.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\BasicRobot\stStoredPoint.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Communication\E_CommState.TcDUT">
@@ -66,27 +63,6 @@
     <Compile Include="DUTs\DB\E_DBClientState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\DB\E_PointPoseKind.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\DB\ST_CoordSys.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\DB\ST_Plant.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\DB\ST_Point.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\DB\ST_Robot.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\DB\ST_RobotTool.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DUTs\DB\ST_SQLValue.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="DUTs\Error\eErrorReactions.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -97,6 +73,24 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Error\MessageDescription.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Frames\eUnit.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Frames\eUnitCategory.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Frames\ST_Point.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Frames\ST_StandardUnits.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Frames\ST_TransformMatrix.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Frames\ST_Vector3.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Manipulator\E_RobotCommand.TcDUT">
@@ -199,9 +193,6 @@
     <Compile Include="POUs\Communication\FB_1_CommunicationModul.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\DB\FB_DBClient.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="POUs\DB\FB_PointManager.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -250,10 +241,10 @@
     <Compile Include="POUs\Robots\FB_2_ROB_MANIP.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Robots\Mecademic\ROBOT_MECA500.TcPOU">
+    <Compile Include="POUs\Robots\Mecademic\FB_2_COMM_MECA.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Robots\Mecademic\FB_2_COMM_MECA.TcPOU">
+    <Compile Include="POUs\Robots\Mecademic\ROBOT_MECA500.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Robots\Omron\ROBOT_LD90.TcPOU">
@@ -283,25 +274,22 @@
     <Compile Include="POUs\Skills\Skill_Counter\Skill_Counter.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Skills\Skill_Gripper_bistable_digout.TcPOU">
+    <Compile Include="POUs\Skills\Skill_Gripper_bistable_digout\Skill_Gripper_bistable_digout.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Skills\Skill_LoadDeliverReturn.TcPOU">
+    <Compile Include="POUs\Skills\Skill_Gripper_bistable_digout\stParam_Gripper_bistable_digout.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Skills\Skill_Gripper_Gimatic_UR_Kit\Skill_Gripper_Gimatic_UR_Kit.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Skills\Skill_Gripper_Gimatic_UR_Kit\stParam_Gripper_Gimatic_UR_Kit.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Skills\Skill_PickAndPlace\Skill_PickPlace.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Skills\Skill_PickAndPlace\stParam_PickPlace.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Skills\Skill_ROS2_Eyes.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Skills\stParam_Gripper_bistable_digout.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Templates\TEMPLATE_BA_HANDLER.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Test\DEBUG_COMM.TcDUT">
@@ -337,22 +325,20 @@
     <Compile Include="POUs\Test\TEST_Skill_3Points.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Tools\Bistable_Gripper\GRIPPER_BISTABLE.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Tools\FB_1_Tool.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Tools\Gimatic_UR_Gripper\GRIPPER_GIMATIC.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\_TODO.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="RecipeManager.TcRMO">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <PlaceholderReference Include="RecipeManagement">
-      <DefaultResolution>Recipe Management, 3.3.1.0 (System)</DefaultResolution>
-      <Namespace>Recipe_Management</Namespace>
-      <SystemLibrary>true</SystemLibrary>
-    </PlaceholderReference>
     <PlaceholderReference Include="Tc2_OpcUa">
       <DefaultResolution>Tc2_OpcUa, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_OpcUa</Namespace>
@@ -412,6 +398,7 @@
     <Folder Include="DUTs\DB" />
     <Folder Include="DUTs\Error" />
     <Folder Include="DUTs\Manipulator" />
+    <Folder Include="DUTs\Frames" />
     <Folder Include="DUTs\Skill" />
     <Folder Include="DUTs\Skill\ROS2Skills" />
     <Folder Include="DUTs\StateMachine" />
@@ -424,6 +411,9 @@
     <Folder Include="POUs\Helpers" />
     <Folder Include="POUs\Jog" />
     <Folder Include="POUs\Axis" />
+    <Folder Include="POUs\Frames" />
+    <Folder Include="POUs\Skills\Skill_Gripper_bistable_digout" />
+    <Folder Include="POUs\Skills\Skill_Gripper_Gimatic_UR_Kit" />
     <Folder Include="POUs\Skills\Skill_SlowPull" />
     <Folder Include="POUs\Skills\Skill_Dummy" />
     <Folder Include="POUs\Skills\Skill_Counter" />
@@ -435,8 +425,9 @@
     <Folder Include="POUs\Robots\UR" />
     <Folder Include="POUs\Skills" />
     <Folder Include="POUs\Skills\Skill_PickAndPlace" />
-    <Folder Include="POUs\Templates" />
     <Folder Include="POUs\Tools" />
+    <Folder Include="POUs\Tools\Bistable_Gripper" />
+    <Folder Include="POUs\Tools\Gimatic_UR_Gripper" />
     <Folder Include="VISUs" />
   </ItemGroup>
   <ProjectExtensions>

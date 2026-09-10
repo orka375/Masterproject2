@@ -22,6 +22,7 @@ VAR_OUTPUT
 	MyHeartBeat: BOOL;
 	{attribute 'OPC.UA.DA' := '1'}
 	HMI_BASE: stHMI_BASE;
+	rtStateChange: R_TRIG;
 END_VAR
 	
 VAR
@@ -49,6 +50,8 @@ VAR
 	_lsfs: eState;
 	_once: BOOL;
 	i: INT;
+	OldState: ESTATE;
+	bStateChange: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -198,6 +201,14 @@ END_IF
 bAutoConfigure := SETUP.SYSTEMAUTOCONFIGURE;
 
 
+rtStateChange(CLK:=bStateChange);
+
+IF State<>OldState THEN
+	OldState:=State;
+	bStateChange:=TRUE;
+ELSE
+	bStateChange:=FALSE;
+END_IF
 
 
 
@@ -362,9 +373,11 @@ END_VAR
       <Implementation>
         <ST><![CDATA[GetSkillByTag := NONE;
 FOR i:= 1 TO SETUP.MaxNrofSkills DO
-	IF pA_Skills[i]^.Name = sTag THEN
-		GetSkillByTag := pA_Skills[i];
-		RETURN;
+	IF (pA_Skills[i] <> 0) THEN
+		IF (pA_Skills[i]^.Name = sTag) THEN
+			GetSkillByTag := pA_Skills[i];
+			RETURN;
+		END_IF
 	END_IF
 END_FOR]]></ST>
       </Implementation>

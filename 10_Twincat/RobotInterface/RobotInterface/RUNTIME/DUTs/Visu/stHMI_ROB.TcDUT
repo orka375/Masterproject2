@@ -8,12 +8,12 @@ STRUCT
    	bEStop : BOOL;
     bInCollision : BOOL;
     eModus : eMode;	
-	_tcppos : stPoseGeneral;
-	_jointpos: stJoint6;
+	_tcppos : ST_Pose;				//m/rad
+	_jointpos: stJoint6;			//rad
 	_speedOverride : LREAL := 100.0;
 	(* HMI display mirrors of _tcppos/_jointpos: x,y,z in mm, rx,ry,rz/joint in deg. *)
-	_tcppos_display : stPoseGeneral;
-	_jointpos_display : stJoint6;
+	_tcppos_display : ST_Pose;		//mm/deg
+	_jointpos_display : stJoint6;	//deg
 END_STRUCT
 END_TYPE
 ]]></Declaration>

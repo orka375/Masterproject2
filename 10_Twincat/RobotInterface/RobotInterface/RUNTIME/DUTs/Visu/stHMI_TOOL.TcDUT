@@ -9,7 +9,7 @@ STRUCT
 	bOpen: BOOL;
 	bClosed: BOOL;
 	bMounted: BOOL;
-	TCPOffset: stPoseGeneral;
+	TCPOffset: ST_Pose;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

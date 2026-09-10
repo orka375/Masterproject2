@@ -1,20 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-  <POU Name="Skill_PickPlace" Id="{0265789f-44be-4ed2-bfd3-e8ebd7334e24}" SpecialFunc="None">
+  <POU Name="Skill_PickPlace" Id="{19f0d2dc-4f3e-4476-b186-4f85a96e59fa}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK Skill_PickPlace  EXTENDS FB_1_Skill
 // FB_2_Skill_SFC
 VAR_INPUT
 	pRob: POINTER TO FB_2_ROB_MANIP;
 	{attribute 'OPC.UA.DA.StructuredType':=1}
 	{attribute 'OPC.UA.DA' := '1'}
-	Param: stParam_PickPlace;
-
+	Param: POINTER TO stParam_PickPlace;
+	SFCInit: BOOL;
 END_VAR
 VAR_OUTPUT
 	
 END_VAR
 VAR
-	approachpick, approachplace,pickpos,placepos : stPoseGeneral;
+	approachpick, approachplace,pickpos,placepos : ST_Pose;
 
 
 	
@@ -35,11 +35,14 @@ VAR
 	bMovePlaceDone: BOOL;
 	bGripperOpenDone: BOOL;
 	bRetractPlaceDone: BOOL;
-	middlepoint: stPoseGeneral;
+	middlepoint: ST_Pose;
 	bGotMiddlePoint: BOOL;
 	bveMiddlePointDone: BOOL;
 	bMoveMiddlePointDone: BOOL;
-	SFCInit: BOOL;
+	T_Point: ST_TransformMatrix;
+	
+	T_Offset: ST_TransformMatrix;
+	T_Result: ST_TransformMatrix;
 END_VAR]]></Declaration>
     <Implementation>
       <SFC>
@@ -137,7 +140,7 @@ END_VAR]]></Declaration>
                         <o>
                           <v n="AttributeId">{700a583f-b4d4-43e4-8c14-629c7cd3bec8}</v>
                           <o n="Value" t="StringValue">
-                            <v n="Value">""</v>
+                            <v n="Value">"Init_active"</v>
                             <v n="DefaultValue">""</v>
                           </o>
                           <v n="Id">82L</v>
@@ -1277,7 +1280,7 @@ END_VAR]]></Declaration>
                                     <o>
                                       <v n="AttributeId">{38391c6d-6d4a-42f8-8ee7-9f45e5adafa8}</v>
                                       <o n="Value" t="StringValue">
-                                        <v n="Value">"NOT Param.bPassTroughMiddlePoint"</v>
+                                        <v n="Value">"NOT Param^.bPassTroughMiddlePoint"</v>
                                         <v n="DefaultValue">""</v>
                                       </o>
                                       <v n="Id">413L</v>
@@ -1564,7 +1567,7 @@ END_VAR]]></Declaration>
                                     <o>
                                       <v n="AttributeId">{38391c6d-6d4a-42f8-8ee7-9f45e5adafa8}</v>
                                       <o n="Value" t="StringValue">
-                                        <v n="Value">"Param.bPassTroughMiddlePoint"</v>
+                                        <v n="Value">"Param^.bPassTroughMiddlePoint"</v>
                                         <v n="DefaultValue">""</v>
                                       </o>
                                       <v n="Id">420L</v>
@@ -3336,7 +3339,8 @@ END_VAR]]></Declaration>
         </XmlArchive>
       </SFC>
     </Implementation>
-    <Action Name="_aCalc_Approach_active" Id="{c610297e-b0c5-446e-b796-de2f48063471}">
+    <Folder Name="StateControl" Id="{b8625484-5b9d-403b-b98f-c4de5899beed}" />
+    <Action Name="_aCalc_Approach_active" Id="{37dfacd0-5ddb-427e-a6d5-ffb024477c13}">
       <Implementation>
         <ST><![CDATA[// TODO: Resolve Param.PickPositionName / Param.PlacePositionName to base poses.
 // Apply PickPositionOffset / PlacePositionOffset and calculate approachpick / approachplace
@@ -3344,11 +3348,19 @@ END_VAR]]></Declaration>
 // Set bCalcApproachDone := TRUE when both poses are valid.
 
 IF phase = 0 THEN
-	IF Param.PickPositionName<>'' THEN
-		res := pRob^.PM.Load(Param.PickPositionName);
+	IF Param^.PickPositionName<>'' THEN
+		res := pRob^.PM.Load(Param^.PickPositionName);
 		
 		IF res=SUCCESS THEN
-			pickpos := pROB^.PM.LoadedPoint + Param.PickPositionOffset;
+			T_Point  := FromPose(pRob^.PM.LoadedPoint);
+			T_Offset := FromPose(Param^.PickPositionOffset);
+			
+			T_Result := Multiply(
+				A := T_Point,
+				B := T_Offset
+			);
+			
+			pickpos := ToPose(T_Result);
 			phase := 10;
 		ELSE
 			ExecutionDone:=TRUE;
@@ -3363,11 +3375,17 @@ END_IF
 
 
 IF phase = 10 THEN
-	IF Param.PlacePositionName<>'' THEN
-		res := pRob^.PM.Load(Param.PlacePositionName);
+	IF Param^.PlacePositionName<>'' THEN
+		res := pRob^.PM.Load(Param^.PlacePositionName);
 		
 		IF res=SUCCESS THEN
-			placepos := pROB^.PM.LoadedPoint + Param.PlacePositionOffset;
+      placepos := pROB^.PM.LoadedPoint;
+      placepos.x := placepos.x + Param^.PlacePositionOffset.x;
+      placepos.y := placepos.y + Param^.PlacePositionOffset.y;
+      placepos.z := placepos.z + Param^.PlacePositionOffset.z;
+      placepos.roll := placepos.roll + Param^.PlacePositionOffset.roll;
+      placepos.pitch := placepos.pitch + Param^.PlacePositionOffset.pitch;
+      placepos.yaw := placepos.yaw + Param^.PlacePositionOffset.yaw;
 			phase := 20;
 		ELSE
 			ExecutionDone:=TRUE;
@@ -3383,35 +3401,37 @@ END_IF
 
 
 IF phase = 20 THEN
-	approachpick := F_CalcOffsetPose(pickpos,Param.PickApproachDirection,Param.PickApproachOffset);
-	approachplace := F_CalcOffsetPose(placepos,Param.PlaceApproachDirection,Param.PlaceApproachOffset);
-
+	approachpick := F_CalcOffsetPose(pickpos,Param^.PickApproachDirection,Param^.PickApproachOffset);
+	approachplace := F_CalcOffsetPose(placepos,Param^.PlaceApproachDirection,Param^.PlaceApproachOffset);
+	bCalcApproachDone := TRUE;
 END_IF
 
 
 
-bCalcApproachDone := TRUE;]]></ST>
+]]></ST>
       </Implementation>
     </Action>
-    <Action Name="_aDone_active" Id="{8cc09e95-81d1-4c95-9401-9dad7329a2fb}">
+    <Action Name="_aDone_active" Id="{e89f9719-0119-4542-a78a-a5b9a7f93659}">
       <Implementation>
         <ST><![CDATA[ExecutionDone:=TRUE;
 ExecutionResult:=SUCCESS;]]></ST>
       </Implementation>
     </Action>
-    <Action Name="_aGripper_Close_active" Id="{240ec866-18a9-4aaa-abcf-de4b842bc541}">
+    <Action Name="_aGripper_Close_active" Id="{9ee85894-a04e-49cb-9fef-a6b3351f6680}">
       <Implementation>
         <ST><![CDATA[
 
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="_aGripper_Open_active" Id="{f4f61ada-7f86-4844-809b-0d512a8cd7b3}">
+    <Action Name="_aGripper_Open_active" Id="{cf90c9f8-9efe-4b16-b87d-425e4fed125f}">
       <Implementation>
-        <ST><![CDATA[ExecuteSubSkill(pRob^.TOOL^.GetSkillByTag('GRIP'),ADR(bGripperOpenDone));]]></ST>
+        <ST><![CDATA[IF pRob^.TOOL^.Release() = SUCCESS THEN
+	bGripperOpenDone:=TRUE;
+END_IF]]></ST>
       </Implementation>
     </Action>
-    <Action Name="_aMoveJ_PickApproach_active" Id="{b02205c2-ce1c-467c-8de4-e276c1f84ac4}">
+    <Action Name="_aMoveJ_PickApproach_active" Id="{92d00584-9814-4e39-8fa3-8493e89622e3}">
       <Implementation>
         <ST><![CDATA[
 IF pRob^.CurrentMoveID = nCalledMoveID THEN
@@ -3424,7 +3444,7 @@ END_IF
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="_aMoveJ_PlaceApproach_active" Id="{09f63627-3e07-434a-bc9c-7a2f14493360}">
+    <Action Name="_aMoveJ_PlaceApproach_active" Id="{a42b9b23-6938-4b16-8ea5-134746ad2288}">
       <Implementation>
         <ST><![CDATA[
 IF pRob^.CurrentMoveID = nCalledMoveID THEN
@@ -3437,7 +3457,7 @@ END_IF
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="_aMoveL_Pick_active" Id="{32d0e9c6-f61f-4688-a9cf-7d9a0394ffe4}">
+    <Action Name="_aMoveL_Pick_active" Id="{73b9f592-c1d9-4003-92ee-e278bc29956d}">
       <Implementation>
         <ST><![CDATA[IF pRob^.CurrentMoveID = nCalledMoveID THEN
 	bMoveInProcess:= TRUE;
@@ -3450,7 +3470,7 @@ END_IF
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="_aMoveL_Place_active" Id="{3a1b5090-5a78-4cd1-a068-c8a85a2a9f89}">
+    <Action Name="_aMoveL_Place_active" Id="{2c5e09cd-59b9-42e3-be17-fb01c6d6beaf}">
       <Implementation>
         <ST><![CDATA[
 IF pRob^.CurrentMoveID = nCalledMoveID THEN
@@ -3463,7 +3483,7 @@ END_IF
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="_aMoveL_RetractPick_active" Id="{4d65175a-d9ca-4e0a-a845-003d3a87d7b4}">
+    <Action Name="_aMoveL_RetractPick_active" Id="{cffa91e5-3624-4087-864a-9d66af7cbc22}">
       <Implementation>
         <ST><![CDATA[
 IF pRob^.CurrentMoveID = nCalledMoveID THEN
@@ -3476,7 +3496,7 @@ END_IF
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="_aMoveL_RetractPlace_active" Id="{4c9c4be7-47c7-484f-a5c6-c02df40fa66e}">
+    <Action Name="_aMoveL_RetractPlace_active" Id="{7ddb2123-18b0-4656-a4f2-c9374296db50}">
       <Implementation>
         <ST><![CDATA[
 IF pRob^.CurrentMoveID = nCalledMoveID THEN
@@ -3489,15 +3509,15 @@ END_IF
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="GetMiddlePoint_active" Id="{a82ef1f6-9c5f-4594-9097-f6ab3bdd00cb}">
+    <Action Name="GetMiddlePoint_active" Id="{f4d50aa2-832a-4fa3-a8a2-72d5c28f6d4c}">
       <Implementation>
         <ST><![CDATA[// TODO: Resolve Param.PickPositionName / Param.PlacePositionName to base poses.
 // Apply PickPositionOffset / PlacePositionOffset and calculate approachpick / approachplace
 // from PickApproachDirection / PlaceApproachDirection and the configured offsets.
 // Set bCalcApproachDone := TRUE when both poses are valid.
 
-IF Param.MiddlePointName<>'' THEN
-	res := pRob^.PM.Load(Param.MiddlePointName);
+IF Param^.MiddlePointName<>'' THEN
+	res := pRob^.PM.Load(Param^.MiddlePointName);
 	
 	IF res=SUCCESS THEN
 		middlepoint := pROB^.PM.LoadedPoint;
@@ -3509,7 +3529,7 @@ END_IF
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="GoOverMiddleState_active" Id="{c06af9cd-6f31-4ddd-9acf-4a8a3e19e98c}">
+    <Action Name="GoOverMiddleState_active" Id="{7db3ba8f-331b-4fb1-bdef-854308e83b1d}">
       <Implementation>
         <ST><![CDATA[
 IF pRob^.CurrentMoveID = nCalledMoveID THEN
@@ -3517,116 +3537,160 @@ IF pRob^.CurrentMoveID = nCalledMoveID THEN
 END_IF
 
 IF bMoveInProcess AND pRob^.CurrentMoveResult = SUCCESS THEN
-	bMovePlaceApproachDone:= TRUE;
+	bMoveMiddlePointDone:= TRUE;
 END_IF
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="GoOverMiddleState_entry" Id="{81b16433-7df7-4faa-a52d-fcff47e64ba5}">
+    <Action Name="GoOverMiddleState_entry" Id="{26f5b4c1-e04f-4111-8bad-0c088371fe18}">
       <Implementation>
-        <ST><![CDATA[
-Settings.Pose:=middlepoint;
-Settings.Velocity:=Param.FastVelocity;
+        <ST><![CDATA[Settings.Target.pose:=middlepoint;
+Settings.Target.frame_id:= eRefFrame.BRF;
+Settings.Velocity:=Param^.FastVelocity;
 
 
 nCalledMoveID := pRob^.BA_Handler(Cmd:=eBA.MoveJ,Settings);
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="GoOverMiddleState_exit" Id="{63e49ffa-16a4-4b60-9190-9c70c9f7cb1c}">
+    <Action Name="GoOverMiddleState_exit" Id="{c627f6fa-cc85-4a31-8f6e-63da895398bc}">
       <Implementation>
         <ST><![CDATA[nCalledMoveID:=0;
 bMoveInProcess:=FALSE;
 bMoveMiddlePointDone:=FALSE;]]></ST>
       </Implementation>
     </Action>
-    <Action Name="Gripper_Close_active" Id="{0017962a-8841-4c99-8b10-c3a162b573ea}">
+    <Action Name="Gripper_Close_active" Id="{b462e5a3-d3e4-40a1-b1d0-970ba279ea7b}">
       <Implementation>
-        <ST><![CDATA[ExecuteSubSkill(pRob^.TOOL^.GetSkillByTag('GRIP'),ADR(bGripperCloseDone));]]></ST>
+        <ST><![CDATA[IF pRob^.TOOL^.Grip() = SUCCESS THEN
+	bGripperCloseDone:=TRUE;
+END_IF]]></ST>
       </Implementation>
     </Action>
-    <Action Name="Gripper_Close_entry" Id="{6da00b31-9925-42ed-a251-3b77c8795423}">
+    <Action Name="Gripper_Close_entry" Id="{dfa66bf6-7f5b-4a42-b3f9-0a95de0f88f9}">
       <Implementation>
         <ST><![CDATA[]]></ST>
       </Implementation>
     </Action>
-    <Action Name="Gripper_Close_exit" Id="{69e0863b-598d-4886-8804-3062673c3e05}">
+    <Action Name="Gripper_Close_exit" Id="{1a37bfea-119a-434a-994d-1e022c907901}">
       <Implementation>
         <ST><![CDATA[bSubSkillRunning:=FALSE;]]></ST>
       </Implementation>
     </Action>
-    <Action Name="Init_exit" Id="{f8caabf2-2d5d-49aa-97dd-2f797364cd58}">
+    <Action Name="Init_active" Id="{bb9d285b-87dd-4209-82d5-a350113088c8}">
       <Implementation>
-        <ST><![CDATA[ExecutionDone:=FALSE;
-ExecutionResult:=NONE;]]></ST>
+        <ST><![CDATA[phase:=0;
+nCalledMoveID := 0;
+bMoveInProcess := FALSE;
+
+bMovePickApproachDone	:=FALSE;
+bMovePickDone			:=FALSE;
+bGripperCloseDone		:=FALSE;
+bRetractPickDone		:=FALSE;
+bMovePlaceApproachDone	:=FALSE;
+bMovePlaceDone			:=FALSE;
+bGripperOpenDone		:=FALSE;
+bRetractPlaceDone		:=FALSE;
+bGotMiddlePoint			:=FALSE;
+bveMiddlePointDone		:=FALSE;
+bMoveMiddlePointDone	:=FALSE;]]></ST>
       </Implementation>
     </Action>
-    <Action Name="MoveJ_PickApproach_entry" Id="{50c6579a-bab3-4299-838e-ee68ad4a9943}">
+    <Action Name="Init_exit" Id="{d8ae8678-7787-4082-8e7b-633a4307d317}">
       <Implementation>
-        <ST><![CDATA[
-Settings.Pose:=approachpick;
-Settings.Velocity:=Param.FastVelocity;
+        <ST><![CDATA[ExecutionDone:=FALSE;
+ExecutionResult:=NONE;
+
+phase:=0;
+nCalledMoveID := 0;
+bMoveInProcess := FALSE;
+
+bMovePickApproachDone	:=FALSE;
+bMovePickDone			:=FALSE;
+bGripperCloseDone		:=FALSE;
+bRetractPickDone		:=FALSE;
+bMovePlaceApproachDone	:=FALSE;
+bMovePlaceDone			:=FALSE;
+bGripperOpenDone		:=FALSE;
+bRetractPlaceDone		:=FALSE;
+bGotMiddlePoint			:=FALSE;
+bveMiddlePointDone		:=FALSE;
+bMoveMiddlePointDone	:=FALSE;]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="MoveJ_PickApproach_entry" Id="{81ae2925-3ee5-40ec-bd66-01c408ed70f4}">
+      <Implementation>
+        <ST><![CDATA[bCalcApproachDone:=FALSE;
+
+
+Settings.Target.pose:=approachpick;
+Settings.Target.frame_id:= eRefFrame.BRF;
+Settings.Velocity:=Param^.FastVelocity;
 
 
 nCalledMoveID := pRob^.BA_Handler(Cmd:=eBA.MoveJ,Settings);
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="MoveJ_PickApproach_exit" Id="{da086f8f-f3e6-444e-be8e-73230ffc7228}">
+    <Action Name="MoveJ_PickApproach_exit" Id="{e2f5d488-d4c7-4a0e-a42e-a26a64f7b9c5}">
       <Implementation>
         <ST><![CDATA[nCalledMoveID:=0;
 bMoveInProcess:=FALSE;
 bMovePickApproachDone := FALSE;]]></ST>
       </Implementation>
     </Action>
-    <Action Name="MoveJ_PlaceApproach_entry" Id="{2b077a60-a42d-4a67-bab5-967d3efda7a8}">
+    <Action Name="MoveJ_PlaceApproach_entry" Id="{832e16b5-ffc9-47bb-8153-73fd53b7df55}">
       <Implementation>
-        <ST><![CDATA[
-Settings.Pose:=approachplace;
-Settings.Velocity:=Param.FastVelocity;
+        <ST><![CDATA[Settings.Target.pose:=approachplace;
+Settings.Target.frame_id:= eRefFrame.BRF;
+
+Settings.Velocity:=Param^.FastVelocity;
 
 
 nCalledMoveID := pRob^.BA_Handler(Cmd:=eBA.MoveJ,Settings);
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="MoveJ_PlaceApproach_exit" Id="{9ab862d5-5587-4195-a2be-9b3895f7fc63}">
-      <Implementation>
-        <ST><![CDATA[nCalledMoveID:=0;
-bMoveInProcess:=FALSE;
-bMovePickDone := FALSE;]]></ST>
-      </Implementation>
-    </Action>
-    <Action Name="MoveL_Pick_entry" Id="{03bbedf4-b792-4a10-a1cf-8fe670507f15}">
-      <Implementation>
-        <ST><![CDATA[
-Settings.Pose:=pickpos;
-Settings.Velocity:=Param.SlowVelocity;
-
-
-nCalledMoveID := pRob^.BA_Handler(Cmd:=eBA.MoveL,Settings);
-]]></ST>
-      </Implementation>
-    </Action>
-    <Action Name="MoveL_Pick_exit" Id="{3dcc5bf9-6758-4d00-829a-aba7338bcb1c}">
+    <Action Name="MoveJ_PlaceApproach_exit" Id="{5229f4b1-1f3d-4f1d-bbe3-c51f7e0fb745}">
       <Implementation>
         <ST><![CDATA[nCalledMoveID:=0;
 bMoveInProcess:=FALSE;
 bMovePlaceApproachDone := FALSE;]]></ST>
       </Implementation>
     </Action>
-    <Action Name="MoveL_Place_entry" Id="{1bb416b9-6b52-4db5-9e5b-97c87ba1bedc}">
+    <Action Name="MoveL_Pick_entry" Id="{0cdfa23a-60a7-423e-9402-9b391ce28731}">
       <Implementation>
         <ST><![CDATA[
-Settings.Pose:=placepos;
-Settings.Velocity:=Param.SlowVelocity;
+
+Settings.Target.pose:=pickpos;
+Settings.Target.frame_id:= eRefFrame.BRF;
+Settings.Velocity:=Param^.SlowVelocity;
 
 
 nCalledMoveID := pRob^.BA_Handler(Cmd:=eBA.MoveL,Settings);
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="MoveL_Place_exit" Id="{b2f94280-6384-4afa-b567-0aac86af3af6}">
+    <Action Name="MoveL_Pick_exit" Id="{73135b79-08b7-4530-8720-be518dca25f8}">
+      <Implementation>
+        <ST><![CDATA[nCalledMoveID:=0;
+bMoveInProcess:=FALSE;
+bMovePickDone := FALSE;]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="MoveL_Place_entry" Id="{a4302577-19dd-47de-9f54-8cd72711ffe8}">
+      <Implementation>
+        <ST><![CDATA[Settings.Target.pose:=placepos;
+Settings.Target.frame_id:= eRefFrame.BRF;
+
+Settings.Velocity:=Param^.SlowVelocity;
+
+
+nCalledMoveID := pRob^.BA_Handler(Cmd:=eBA.MoveL,Settings);
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="MoveL_Place_exit" Id="{84a61dec-1718-453c-a818-66168ad7e659}">
       <Implementation>
         <ST><![CDATA[nCalledMoveID:=0;
 bMoveInProcess:=FALSE;
@@ -3634,36 +3698,37 @@ bMovePlaceDone := FALSE;
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="MoveL_RetractPick_entry" Id="{297d809a-74f9-4209-a1ca-cacdba6b0792}">
+    <Action Name="MoveL_RetractPick_entry" Id="{17e20099-1738-4082-955e-656ad5d96d34}">
       <Implementation>
-        <ST><![CDATA[
-Settings.Pose:=approachpick;
-Settings.Velocity:=Param.SlowVelocity;
+        <ST><![CDATA[Settings.Target.pose:=approachpick;
+Settings.Target.frame_id:= eRefFrame.BRF;
+Settings.Velocity:=Param^.SlowVelocity;
 
 
 nCalledMoveID := pRob^.BA_Handler(Cmd:=eBA.MoveL,Settings);
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="MoveL_RetractPick_exit" Id="{de70290f-3e07-4afd-910c-2771d68eebbc}">
+    <Action Name="MoveL_RetractPick_exit" Id="{a05a6f6a-3c5c-4092-86c8-c0c55643a997}">
       <Implementation>
         <ST><![CDATA[nCalledMoveID:=0;
 bMoveInProcess:=FALSE;
 bRetractPickDone := FALSE;]]></ST>
       </Implementation>
     </Action>
-    <Action Name="MoveL_RetractPlace_entry" Id="{f6264435-9799-41cd-82d7-fd0f2a556662}">
+    <Action Name="MoveL_RetractPlace_entry" Id="{48b6db56-5e1b-4e06-960d-59187aa3853a}">
       <Implementation>
-        <ST><![CDATA[
-Settings.Pose:=approachplace;
-Settings.Velocity:=Param.SlowVelocity;
+        <ST><![CDATA[Settings.Target.pose:=approachplace;
+Settings.Target.frame_id:= eRefFrame.BRF;
+
+Settings.Velocity:=Param^.SlowVelocity;
 
 
 nCalledMoveID := pRob^.BA_Handler(Cmd:=eBA.MoveL,Settings);
 ]]></ST>
       </Implementation>
     </Action>
-    <Action Name="MoveL_RetractPlace_exit" Id="{fa77b75a-e64b-4e15-932d-48050b00b6df}">
+    <Action Name="MoveL_RetractPlace_exit" Id="{5c7fa900-9614-4520-a58b-fa98fb8c9bc2}">
       <Implementation>
         <ST><![CDATA[nCalledMoveID:=0;
 bMoveInProcess:=FALSE;
@@ -3671,6 +3736,121 @@ bRetractPlaceDone := FALSE;
 ]]></ST>
       </Implementation>
     </Action>
+    <Method Name="OnActivate" Id="{fe361160-cff6-4374-b8d5-b6aa8065f810}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnActivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+SFCInit:=FALSE;
+myResult:=SUCCESS;
+
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnActivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{b3c5dbd6-4410-45d6-8fa7-b9583ee78948}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+SFCInit:=TRUE;
+myResult:=SUCCESS;
+bMoveInProcess:=FALSE;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnDeactivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{399d5806-abb9-4580-87f6-befc1c718003}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnError();
+
+myResult := NONE;
+
+// ----- YOUR CODE HERE -----------------------------
+SFCInit:=TRUE;
+myResult := SUCCESS;
+
+// ----- END YOUR CODE ------------------------------
+
+OnError := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnShutdown" Id="{8cf91fc1-76e2-44cf-a181-f40f308b193c}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+VAR_INPUT
+END_VAR
+
+    VAR
+    	eParentResult: eResult;
+    	myResult: ERESULT;
+    END_VAR
+
+    VAR //YOUR CODE
+    	succ : BOOL;
+    END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+
+SFCInit:=TRUE;
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnShutdown := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
     <ObjectProperties>
       <XmlArchive>
         <Data>
@@ -3691,7 +3871,7 @@ bRetractPlaceDone := FALSE;
               </o>
               <v>Init</v>
               <o>
-                <v n="Use">false</v>
+                <v n="Use">true</v>
                 <v n="Declare">true</v>
               </o>
               <v>Reset</v>
@@ -3759,9 +3939,14 @@ bRetractPlaceDone := FALSE;
                 <v n="Use">false</v>
                 <v n="Declare">true</v>
               </o>
+              <v>MetaSteps</v>
+              <o>
+                <v n="Use">false</v>
+                <v n="Declare">false</v>
+              </o>
             </d2>
             <v n="CalcActiveTransOnly">true</v>
-            <v n="UseDefaults">true</v>
+            <v n="UseDefaults">false</v>
           </o>
         </Data>
         <TypeList>

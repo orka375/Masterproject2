@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="F_CalcOffsetPose" Id="{8e716b24-c7a7-4c98-977e-1d0892ef2893}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION F_CalcOffsetPose : stPoseGeneral
+    <Declaration><![CDATA[FUNCTION F_CalcOffsetPose : ST_Pose
 VAR_INPUT
-	Pose      : stPoseGeneral;
+	Pose      : ST_Pose;
     Direction : eDirections;
     Offset    : LREAL;
 END_VAR

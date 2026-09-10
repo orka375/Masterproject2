@@ -5,9 +5,6 @@
 VAR
 	
 
-    _state_LD90 : eState;
-    _state_LD90_sLDR : eState;
-    _state_LD90_sEyes : eState;
 
 	// Cell robot loop index.
 	iRobot : INT;

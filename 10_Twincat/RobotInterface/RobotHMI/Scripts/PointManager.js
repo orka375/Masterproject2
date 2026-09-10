@@ -1,16 +1,18 @@
 (function () {
     'use strict';
 
-    function bind(sourceControlId, listExpression) {
+    function bind(sourceControlId, listExpression, frameExpression) {
         var sourceControl = TcHmi.Controls.get(sourceControlId);
         var root = sourceControl ? sourceControl.getElement().closest('[data-tchmi-type="TcHmi.Controls.System.TcHmiUserControl"]') : null;
         var element = root && root.length ? root.find('[id$="PointManagerPointSelector"]') : null;
         var selector = element && element.length ? TcHmi.Controls.get(element.attr('id')) : null;
-        if (!selector) {
+        var frameElement = root && root.length ? root.find('[id$="PointManagerReferenceFrameEdited"]') : null;
+        var frameSelector = frameElement && frameElement.length ? TcHmi.Controls.get(frameElement.attr('id')) : null;
+        if (!selector || !frameSelector) {
             return null;
         }
 
-        return new TcHmi.Symbol(listExpression).watch(function (data) {
+        var listWatch = new TcHmi.Symbol(listExpression).watch(function (data) {
             var source = data && data.error === TcHmi.Errors.NONE && Array.isArray(data.value) ? data.value : [];
             var seenIds = Object.create(null);
             var items = [];
@@ -29,6 +31,14 @@
 
             selector.setSrcData(items);
         });
+
+        var frameWatch = new TcHmi.Symbol(frameExpression).watch(function (data) {
+            if (data && data.error === TcHmi.Errors.NONE && data.value !== undefined && data.value !== null) {
+                frameSelector.setSelectedId(Number(data.value));
+            }
+        });
+
+        return { listWatch: listWatch, frameWatch: frameWatch };
     }
 
     window.PointManager = {

@@ -25,12 +25,26 @@ VAR
     _baActiveCmd  : eBA;
     _tonBAStart   : TON;
     _baStopPending : BOOL;
+
+    _urFeedbackPose : ST_Pose;
+    _urFeedbackRPY  : ST_Pose;
 END_VAR
 
 
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[UR_COMM.Config.sIpAddress := sRobotIp;
+      <ST><![CDATA[// UR native units: SI throughout (m, rad, m/s, rad/s, m/s^2, rad/s^2).
+StandardUnits.Position            := eUnit.m;
+StandardUnits.Orientation         := eUnit.rad;
+StandardUnits.Joint               := eUnit.rad;
+StandardUnits.LinearVelocity      := eUnit.m;
+StandardUnits.AngularVelocity     := eUnit.rad;
+StandardUnits.JointVelocity       := eUnit.rad;
+StandardUnits.LinearAcceleration  := eUnit.m;
+StandardUnits.AngularAcceleration := eUnit.rad;
+StandardUnits.JointAcceleration   := eUnit.rad;
+
+UR_COMM.Config.sIpAddress := sRobotIp;
 UR_COMM();
 
 COMM := ADR(UR_COMM);
@@ -48,22 +62,39 @@ IF _baStopPending AND NOT UR_COMM.Script.bBusy THEN
     END_IF
 END_IF
 
-(* Map the RTDE Cartesian feedback into the generic robot abstraction. *)
+(* Map the RTDE Cartesian feedback into the generic robot abstraction.
+   UR native pose = (m, rotation-vector rad); PLC standard = (m, RPY rad). *)
 IF UR_COMM.RTDE.bNewData THEN
-    HMI_ROB._tcppos.x  := UR_COMM.RTDE.aActualTCPPose[0];
-    HMI_ROB._tcppos.y  := UR_COMM.RTDE.aActualTCPPose[1];
-    HMI_ROB._tcppos.z  := UR_COMM.RTDE.aActualTCPPose[2];
-    HMI_ROB._tcppos.rx := UR_COMM.RTDE.aActualTCPPose[3];
-    HMI_ROB._tcppos.ry := UR_COMM.RTDE.aActualTCPPose[4];
-    HMI_ROB._tcppos.rz := UR_COMM.RTDE.aActualTCPPose[5];
+    // Rotation-vector -> RPY. Position stays in metres (UR native == PLC standard).
+    _urFeedbackRPY := URRotVecToRPY(
+        rx := UR_COMM.RTDE.aActualTCPPose[3],
+        ry := UR_COMM.RTDE.aActualTCPPose[4],
+        rz := UR_COMM.RTDE.aActualTCPPose[5]);
 
-    (* Actual joint angles (rad) for HMI joint display and joint jog. *)
-    HMI_ROB._jointpos.joint1 := UR_COMM.RTDE.aActualQ[0];
-    HMI_ROB._jointpos.joint2 := UR_COMM.RTDE.aActualQ[1];
-    HMI_ROB._jointpos.joint3 := UR_COMM.RTDE.aActualQ[2];
-    HMI_ROB._jointpos.joint4 := UR_COMM.RTDE.aActualQ[3];
-    HMI_ROB._jointpos.joint5 := UR_COMM.RTDE.aActualQ[4];
-    HMI_ROB._jointpos.joint6 := UR_COMM.RTDE.aActualQ[5];
+    _urFeedbackPose.x := UR_COMM.RTDE.aActualTCPPose[0];
+    _urFeedbackPose.y := UR_COMM.RTDE.aActualTCPPose[1];
+    _urFeedbackPose.z := UR_COMM.RTDE.aActualTCPPose[2];
+    _urFeedbackPose.roll  := _urFeedbackRPY.roll;
+    _urFeedbackPose.pitch := _urFeedbackRPY.pitch;
+    _urFeedbackPose.yaw   := _urFeedbackRPY.yaw;
+
+    // UR native == PLC standard numerically; explicit for symmetry with other adapters.
+    HMI_ROB._tcppos := ChangePoseFromRobotStandard(
+        Pose := _urFeedbackPose,
+        RobotStandardUnits := StandardUnits);
+
+    HMI_ROB._jointpos.joint1 := ChangeRealFromRobotStandard(
+        Value := UR_COMM.RTDE.aActualQ[0], Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+    HMI_ROB._jointpos.joint2 := ChangeRealFromRobotStandard(
+        Value := UR_COMM.RTDE.aActualQ[1], Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+    HMI_ROB._jointpos.joint3 := ChangeRealFromRobotStandard(
+        Value := UR_COMM.RTDE.aActualQ[2], Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+    HMI_ROB._jointpos.joint4 := ChangeRealFromRobotStandard(
+        Value := UR_COMM.RTDE.aActualQ[3], Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+    HMI_ROB._jointpos.joint5 := ChangeRealFromRobotStandard(
+        Value := UR_COMM.RTDE.aActualQ[4], Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+    HMI_ROB._jointpos.joint6 := ChangeRealFromRobotStandard(
+        Value := UR_COMM.RTDE.aActualQ[5], Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
 END_IF
 
 (* Basic Action feedback. The generated URScript writes registers 24..27. *)
@@ -165,6 +196,11 @@ VAR
     fVelocity : LREAL;
     fAcceleration : LREAL;
     nCommand : DINT;
+    NativePose : ST_Pose;
+    NativeJoints : stJoint6;
+    UR_RV : ST_Vector3;
+    LinVelCat : eUnitCategory;
+    LinAccCat : eUnitCategory;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -174,8 +210,9 @@ END_VAR
     Command transport : dynamically generated URScript over TCP 30002
     Completion/status : RTDE output_int_register_24..27
 
-    One BA is allowed at a time. A successful return value is the generated BA/Execute ID.
-    0 means the request was not accepted.
+    Incoming Settings are in PLC standard (m, rad, m/s, rad/s, m/s^2, rad/s^2).
+    This method converts orientation (generic RPY -> UR rotation vector) and units
+    (PLC standard -> UR native = SI, no-op numerically) before emitting URScript.
 *)
 BA_Handler := 0;
 bSupported := FALSE;
@@ -185,24 +222,28 @@ IF _baActive OR UR_COMM.Script.bBusy THEN
     RETURN;
 END_IF
 
-(* The RTDE stream is required for the completion handshake. *)
 IF NOT UR_COMM.RTDE.bStreaming THEN
     RETURN;
 END_IF
 
-(* Decide which generic actions have an unambiguous UR implementation today. *)
 CASE Cmd OF
     eBA.MoveL:
         bSupported := TRUE;
         nCommand := 0;
+        LinVelCat := eUnitCategory.LinearVelocity;
+        LinAccCat := eUnitCategory.LinearAcceleration;
 
     eBA.MoveJ:
         bSupported := TRUE;
         nCommand := 1;
+        LinVelCat := eUnitCategory.JointVelocity;
+        LinAccCat := eUnitCategory.JointAcceleration;
 
     eBA.MoveJJoints:
         bSupported := TRUE;
         nCommand := 1;
+        LinVelCat := eUnitCategory.JointVelocity;
+        LinAccCat := eUnitCategory.JointAcceleration;
 
     eBA.SetDO:
         IF Settings.Pin <= 7 THEN
@@ -218,8 +259,7 @@ CASE Cmd OF
 
     (*
         Deliberately not guessed yet:
-        - MoveLRelativ: base-frame relative or TCP-frame relative?
-        - MoveJRelativ: stTarget contains a pose, not six joint deltas.
+        - MoveLRelativ / MoveJRelativ: FB_2_ROB_MANIP now pre-resolves relative moves.
         - Home: no home target was supplied.
     *)
 END_CASE
@@ -228,9 +268,44 @@ IF NOT bSupported THEN
     RETURN;
 END_IF
 
-(* stTarget.frameId cannot yet be transformed by the UR adapter. 0 is treated as UR base. *)
-IF ((Cmd = eBA.MoveL) OR (Cmd = eBA.MoveJ)) AND (Settings.Target.frameId <> 0) THEN
+(* Cartesian targets must arrive already resolved into BRF by FB_2_ROB_MANIP. *)
+IF ((Cmd = eBA.MoveL) OR (Cmd = eBA.MoveJ)) AND (Settings.Target.frame_id <> eRefFrame.BRF) THEN
     RETURN;
+END_IF
+
+(* --- Orientation representation: generic RPY -> UR axis-angle rotation vector. --- *)
+IF (Cmd = eBA.MoveL) OR (Cmd = eBA.MoveJ) THEN
+    UR_RV := RPYToURRotVec(
+        roll  := Settings.Target.pose.roll,
+        pitch := Settings.Target.pose.pitch,
+        yaw   := Settings.Target.pose.yaw);
+
+    NativePose.x := Settings.Target.pose.x;
+    NativePose.y := Settings.Target.pose.y;
+    NativePose.z := Settings.Target.pose.z;
+    NativePose.roll  := UR_RV.x;
+    NativePose.pitch := UR_RV.y;
+    NativePose.yaw   := UR_RV.z;
+
+    // Unit conversion PLC standard -> UR native (numerical no-op for UR, explicit and safe).
+    NativePose := ChangePoseToRobotStandard(
+        Pose := NativePose,
+        RobotStandardUnits := StandardUnits);
+END_IF
+
+IF Cmd = eBA.MoveJJoints THEN
+    NativeJoints.joint1 := ChangeRealToRobotStandard(
+        Value := Settings.Joints.joint1, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+    NativeJoints.joint2 := ChangeRealToRobotStandard(
+        Value := Settings.Joints.joint2, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+    NativeJoints.joint3 := ChangeRealToRobotStandard(
+        Value := Settings.Joints.joint3, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+    NativeJoints.joint4 := ChangeRealToRobotStandard(
+        Value := Settings.Joints.joint4, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+    NativeJoints.joint5 := ChangeRealToRobotStandard(
+        Value := Settings.Joints.joint5, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+    NativeJoints.joint6 := ChangeRealToRobotStandard(
+        Value := Settings.Joints.joint6, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
 END_IF
 
 (* Allocate a non-zero 16-bit ExecuteID. *)
@@ -248,10 +323,6 @@ END_IF
 
 bOk := UR_COMM.Script.AppendLine(sLine := 'def plc_ba():');
 
-(*
-    Write status before changing ExecuteID. This prevents a new ID from being sampled together
-    with the previous command's DONE status.
-*)
 sLine := '  write_output_integer_register(26,1)';
 bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
 
@@ -272,23 +343,25 @@ bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
 CASE Cmd OF
 
     eBA.MoveL:
-        fVelocity := Settings.Velocity;
+        fVelocity := ChangeRealToRobotStandard(
+            Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := StandardUnits);
         IF fVelocity <= 0.0 THEN fVelocity := 0.25; END_IF
-        fAcceleration := Settings.Acceleration;
+        fAcceleration := ChangeRealToRobotStandard(
+            Value := Settings.Acceleration, Category := LinAccCat, RobotStandardUnits := StandardUnits);
         IF fAcceleration <= 0.0 THEN fAcceleration := 1.2; END_IF
 
         sLine := '  movel(p[';
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Target.pose.x));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativePose.x));
         sLine := CONCAT(sLine, ',');
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Target.pose.y));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativePose.y));
         sLine := CONCAT(sLine, ',');
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Target.pose.z));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativePose.z));
         sLine := CONCAT(sLine, ',');
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Target.pose.rx));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativePose.roll));
         sLine := CONCAT(sLine, ',');
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Target.pose.ry));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativePose.pitch));
         sLine := CONCAT(sLine, ',');
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Target.pose.rz));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativePose.yaw));
         sLine := CONCAT(sLine, '],a=');
         sLine := CONCAT(sLine, LREAL_TO_STRING(fAcceleration));
         sLine := CONCAT(sLine, ',v=');
@@ -297,24 +370,26 @@ CASE Cmd OF
         bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
 
     eBA.MoveJ:
-        fVelocity := Settings.Velocity;
+        fVelocity := ChangeRealToRobotStandard(
+            Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := StandardUnits);
         IF fVelocity <= 0.0 THEN fVelocity := 1.05; END_IF
-        fAcceleration := Settings.Acceleration;
+        fAcceleration := ChangeRealToRobotStandard(
+            Value := Settings.Acceleration, Category := LinAccCat, RobotStandardUnits := StandardUnits);
         IF fAcceleration <= 0.0 THEN fAcceleration := 1.4; END_IF
 
         (* URScript movej accepts a pose; UR performs inverse kinematics for it. *)
         sLine := '  movej(p[';
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Target.pose.x));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativePose.x));
         sLine := CONCAT(sLine, ',');
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Target.pose.y));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativePose.y));
         sLine := CONCAT(sLine, ',');
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Target.pose.z));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativePose.z));
         sLine := CONCAT(sLine, ',');
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Target.pose.rx));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativePose.roll));
         sLine := CONCAT(sLine, ',');
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Target.pose.ry));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativePose.pitch));
         sLine := CONCAT(sLine, ',');
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Target.pose.rz));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativePose.yaw));
         sLine := CONCAT(sLine, '],a=');
         sLine := CONCAT(sLine, LREAL_TO_STRING(fAcceleration));
         sLine := CONCAT(sLine, ',v=');
@@ -323,24 +398,26 @@ CASE Cmd OF
         bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
 
     eBA.MoveJJoints:
-        fVelocity := Settings.Velocity;
+        fVelocity := ChangeRealToRobotStandard(
+            Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := StandardUnits);
         IF fVelocity <= 0.0 THEN fVelocity := 1.05; END_IF
-        fAcceleration := Settings.Acceleration;
+        fAcceleration := ChangeRealToRobotStandard(
+            Value := Settings.Acceleration, Category := LinAccCat, RobotStandardUnits := StandardUnits);
         IF fAcceleration <= 0.0 THEN fAcceleration := 1.4; END_IF
 
-        (* Joint-space movej: joint angles in radians. *)
+        (* Joint-space movej: joint angles in UR native units (rad). *)
         sLine := '  movej([';
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Joints.joint1));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativeJoints.joint1));
         sLine := CONCAT(sLine, ',');
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Joints.joint2));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativeJoints.joint2));
         sLine := CONCAT(sLine, ',');
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Joints.joint3));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativeJoints.joint3));
         sLine := CONCAT(sLine, ',');
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Joints.joint4));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativeJoints.joint4));
         sLine := CONCAT(sLine, ',');
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Joints.joint5));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativeJoints.joint5));
         sLine := CONCAT(sLine, ',');
-        sLine := CONCAT(sLine, LREAL_TO_STRING(Settings.Joints.joint6));
+        sLine := CONCAT(sLine, LREAL_TO_STRING(NativeJoints.joint6));
         sLine := CONCAT(sLine, '],a=');
         sLine := CONCAT(sLine, LREAL_TO_STRING(fAcceleration));
         sLine := CONCAT(sLine, ',v=');
@@ -404,6 +481,128 @@ BA_Handler := BA_ID;
         <ST><![CDATA[HMI_ROB.bEStop := TRUE;
 _baStopPending := TRUE;
 EStop := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RPYToURRotVec" Id="{7f000001-1111-2222-3333-000000000001}">
+      <Declaration><![CDATA[// Convert generic RPY (Rz*Ry*Rx composition, rad) to a UR axis-angle rotation vector (rad).
+METHOD PUBLIC RPYToURRotVec : ST_Vector3
+VAR_INPUT
+    roll  : LREAL;
+    pitch : LREAL;
+    yaw   : LREAL;
+END_VAR
+VAR
+    T      : ST_TransformMatrix;
+    trace  : LREAL;
+    cosT   : LREAL;
+    theta  : LREAL;
+    ss      : LREAL;
+    twoSin : LREAL;
+    ax, ay, az : LREAL;
+    RV     : ST_Vector3;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[T := FromXYZRPY(x := 0.0, y := 0.0, z := 0.0, roll := roll, pitch := pitch, yaw := yaw);
+
+trace := T.r11 + T.r22 + T.r33;
+cosT := 0.5 * (trace - 1.0);
+IF cosT > 1.0 THEN
+    cosT := 1.0;
+ELSIF cosT < -1.0 THEN
+    cosT := -1.0;
+END_IF
+theta := ACOS(cosT);
+
+IF theta < 1E-9 THEN
+    // Zero rotation.
+    RV.x := 0.0;
+    RV.y := 0.0;
+    RV.z := 0.0;
+
+ELSIF ABS(theta - 3.14159265358979323846) < 1E-6 THEN
+    // theta ~ pi: pick axis from largest diagonal to avoid divide-by-zero.
+    IF (T.r11 >= T.r22) AND (T.r11 >= T.r33) THEN
+        ss := SQRT(T.r11 - T.r22 - T.r33 + 1.0);
+        ax := 0.5 * ss;
+        ay := (T.r12 + T.r21) / (2.0 * ss);
+        az := (T.r13 + T.r31) / (2.0 * ss);
+    ELSIF T.r22 >= T.r33 THEN
+        ss := SQRT(T.r22 - T.r11 - T.r33 + 1.0);
+        ay := 0.5 * ss;
+        ax := (T.r12 + T.r21) / (2.0 * ss);
+        az := (T.r23 + T.r32) / (2.0 * ss);
+    ELSE
+        ss := SQRT(T.r33 - T.r11 - T.r22 + 1.0);
+        az := 0.5 * ss;
+        ax := (T.r13 + T.r31) / (2.0 * ss);
+        ay := (T.r23 + T.r32) / (2.0 * ss);
+    END_IF
+    RV.x := theta * ax;
+    RV.y := theta * ay;
+    RV.z := theta * az;
+
+ELSE
+    twoSin := 2.0 * SIN(theta);
+    RV.x := theta * (T.r32 - T.r23) / twoSin;
+    RV.y := theta * (T.r13 - T.r31) / twoSin;
+    RV.z := theta * (T.r21 - T.r12) / twoSin;
+END_IF
+
+RPYToURRotVec := RV;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="URRotVecToRPY" Id="{7f000001-1111-2222-3333-000000000002}">
+      <Declaration><![CDATA[// Convert a UR axis-angle rotation vector (rad) into generic RPY (Rz*Ry*Rx composition, rad).
+METHOD PUBLIC URRotVecToRPY : ST_Pose
+VAR_INPUT
+    rx : LREAL;
+    ry : LREAL;
+    rz : LREAL;
+END_VAR
+VAR
+    theta : LREAL;
+    kx, ky, kz : LREAL;
+    c, si, oneC : LREAL;
+    T : ST_TransformMatrix;
+    P : ST_Pose;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[theta := SQRT(rx*rx + ry*ry + rz*rz);
+
+IF theta < 1E-12 THEN
+    // Identity rotation.
+    T := Identity();
+ELSE
+    kx := rx / theta;
+    ky := ry / theta;
+    kz := rz / theta;
+
+    c := COS(theta);
+    si := SIN(theta);
+    oneC := 1.0 - c;
+
+    // Rodrigues -> rotation matrix (only rotation part; translation stays zero).
+    T.r11 := c + kx*kx*oneC;
+    T.r12 := kx*ky*oneC - kz*si;
+    T.r13 := kx*kz*oneC + ky*si;
+
+    T.r21 := ky*kx*oneC + kz*si;
+    T.r22 := c + ky*ky*oneC;
+    T.r23 := ky*kz*oneC - kx*si;
+
+    T.r31 := kz*kx*oneC - ky*si;
+    T.r32 := kz*ky*oneC + kx*si;
+    T.r33 := c + kz*kz*oneC;
+
+    T.x := 0.0;
+    T.y := 0.0;
+    T.z := 0.0;
+END_IF
+
+P := ToPose(T := T);
+URRotVecToRPY := P;
 ]]></ST>
       </Implementation>
     </Method>

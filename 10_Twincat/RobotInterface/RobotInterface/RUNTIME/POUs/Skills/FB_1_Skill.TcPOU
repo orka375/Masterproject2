@@ -175,6 +175,11 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[
 
+IF pOwner = 0 THEN
+  Execute := ERROR;
+  Messenger.AddError(eMessageCategories.MissingData,Path,'Skill owner is not assigned');
+  RETURN;
+END_IF
 
 pOwner^.ActivSkill:= THIS;
 
@@ -204,16 +209,31 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[//ENTRY
+        <ST><![CDATA[ExecuteSubSkill := FALSE;
+
+IF (pSkillToExecute = 0) OR (pbTransition = 0) THEN
+  ExecutionDone := TRUE;
+  ExecutionResult := FAILURE;
+  Messenger.AddError(eMessageCategories.MissingData,Path,'Subskill or transition pointer is not assigned');
+  RETURN;
+END_IF
 
 IF SubSkillPhase= 0 THEN
-	pSkillToExecute^.Execute();
+  SubSkill := pSkillToExecute;
+  SubSkill^.Execute();
 	bSubSkillRunning:=TRUE;
 	SubSkillPhase := 10;
 END_IF
 
 IF SubSkillPhase= 10 THEN		//DO
-	IF SubSkill^.ExecutionDone AND SubSkill^.ExecutionResult=SUCCESS THEN
+  IF SubSkill = 0 THEN
+    ExecutionDone := TRUE;
+    ExecutionResult := FAILURE;
+    Messenger.AddError(eMessageCategories.MissingData,Path,'Active subskill pointer is not assigned');
+    RETURN;
+  END_IF
+
+  IF SubSkill^.ExecutionDone AND SubSkill^.ExecutionResult=SUCCESS THEN
 		SubSkillPhase := 20;
 	END_IF
 	
@@ -233,6 +253,7 @@ IF SubSkillPhase= 20 THEN
 	SubSkill:=0;
 	SubSkillPhase := 0;
 	pbTransition^:=TRUE;
+  ExecuteSubSkill := TRUE;
 END_IF]]></ST>
       </Implementation>
     </Method>
@@ -357,7 +378,10 @@ ELSE
 END_IF
 
 
-IF pOwner^.State <>eState.Active AND pOwner^.State <>eState.Activating  THEN
+IF pOwner = 0 THEN
+  MEssenger.AddWarn(eMessageCategories.StateMachine,Path,'On_XX not possible because owner is not assigned');
+  myResult:=FAILURE;
+ELSIF pOwner^.State <>eState.Active AND pOwner^.State <>eState.Activating  THEN
 	MEssenger.AddWarn(eMessageCategories.StateMachine,Path,'On_XX not possible because _owner/pRob is not ready');
 	myResult:=FAILURE;
 END_IF
@@ -417,7 +441,10 @@ myResult:=NONE;
 
 myResult:=SUCCESS;
 
-IF pOwner^.State <>eState.Inactive AND pOwner^.State <>eState.Configuring  THEN
+IF pOwner = 0 THEN
+  MEssenger.AddWarn(eMessageCategories.StateMachine,Path,'On_XX not possible because owner is not assigned');
+  myResult:=FAILURE;
+ELSIF pOwner^.State <>eState.Inactive AND pOwner^.State <>eState.Configuring  THEN
 	MEssenger.AddWarn(eMessageCategories.StateMachine,Path,'On_XX not possible because _owner/pRob is not ready');
 	myResult:=None;
 END_IF
@@ -456,7 +483,7 @@ IF State>=eState.Deactivating THEN
 	END_IF
 // ELSIF State=eState.Deactivating	THEN
 // 	myResult:=SUCCESS;
-// 	
+
 ELSE
 	Messenger.AddWarn(eMessageCategories.StateMachine,Path,'OnDeactivate hat nichts gebracht, weil nicht >Inactive');
 	myResult:=FAILURE;
@@ -555,7 +582,9 @@ VAR
 	i: INT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[pOwner^.ActivSkill:= 0;
+        <ST><![CDATA[IF pOwner <> 0 THEN
+      	pOwner^.ActivSkill:= 0;
+      END_IF
 
 IF State = eState.Active THEN
 	Deactivate();

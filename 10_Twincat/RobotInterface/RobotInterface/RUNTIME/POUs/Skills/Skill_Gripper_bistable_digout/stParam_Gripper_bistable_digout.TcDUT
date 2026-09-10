@@ -5,6 +5,7 @@
 STRUCT
 	Pin: UINT;
 	ValueIfActiv: BOOL;
+	TimeoutFailure: TIME := T#3S;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

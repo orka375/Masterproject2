@@ -3,9 +3,8 @@
   <DUT Name="stTarget" Id="{c1b2c3d4-2222-2222-2222-222222222222}">
     <Declaration><![CDATA[TYPE stTarget :
 STRUCT
-	name : STRING(80);
-	frameId : INT;
-	pose: stPoseGeneral;
+	frame_id : eRefFrame;
+	pose: ST_Pose;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

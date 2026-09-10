@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Skill_Gripper_Gimatic_UR_Kit" Id="{ce15827c-4a54-44a5-a7c0-10a5ab034bd8}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Skill_Gripper_Gimatic_UR_Kit EXTENDS FB_1_Skill
+VAR_INPUT
+	Param : stParam_Gripper_Gimatic_UR_Kit;
+	pTool: Pointer to FB_1_TOOL;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	Phase: INT;
+	Settings: stBA_Settings;
+	
+	tTimeout: TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+
+IF rtStateChange.Q AND State = eState.Active THEN
+	Phase := 10;
+	ExecutionDone:=FALSE;
+	ExecutionResult:=NONE;
+END_IF
+
+IF State <> eState.Active THEN
+	Phase := 0;
+END_IF
+
+IF (Phase = 10) OR (Phase = 20) THEN
+	IF pTool = 0 THEN
+		ExecutionDone := TRUE;
+		ExecutionResult := FAILURE;
+		Messenger.AddError(eMessageCategories.MissingData,Path,'Gripper tool is not assigned');
+		Phase := 0;
+	ELSIF pTool^.pROB = 0 THEN
+		ExecutionDone := TRUE;
+		ExecutionResult := FAILURE;
+		Messenger.AddError(eMessageCategories.MissingData,Path,'Gripper robot is not assigned');
+		Phase := 0;
+	END_IF
+END_IF
+
+IF Phase=10 THEN
+	Settings.Pin:=Param.Pin;
+	Settings.bValue:= Param.ValueIfActiv;
+	nCalledMoveID := pTool^.pROB^.BA_Handler(eBA.SetDO,Settings);
+	Phase:=20;
+	tTimeout(IN:=TRUE,PT:=Param.TimeoutFailure);
+END_IF
+
+
+IF Phase=20 THEN
+	tTimeout();
+	IF nCalledMoveID = pTool^.pROB^.CurrentMoveID AND pTool^.pROB^.CurrentMoveResult=SUCCESS THEN
+		ExecutionDone:=TRUE;
+		ExecutionResult:=SUCCESS;
+		Phase:=0;
+	END_IF
+	
+	
+	//TIMEOUT OR FaILURE
+	IF tTimeOut.Q THEN
+		//Failure or Error
+		ExecutionDone:=TRUE;
+		ExecutionResult:=FAILURE;
+		Messenger.AddWarn(eMessageCategories.TimeoutFailure,Path,'Failed because timeout');
+		Phase:=0;
+	END_IF
+	
+	IF (nCalledMoveID = pTool^.pROB^.CurrentMoveID AND pTool^.pROB^.CurrentMoveResult>=FAILURE) THEN
+		ExecutionDone:=TRUE;
+		ExecutionResult:=FAILURE;
+		Messenger.AddWarn(eMessageCategories.ParentFailed,Path,'Failed because of bad return');
+		Phase:=0;
+	END_IF
+END_IF
+
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

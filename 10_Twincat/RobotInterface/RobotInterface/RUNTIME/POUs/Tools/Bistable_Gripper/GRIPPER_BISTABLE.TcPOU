@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="GRIPPER_BISTABLE" Id="{5015e23a-405c-4252-afeb-faec032bd3c9}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK GRIPPER_BISTABLE EXTENDS FB_1_Tool
+VAR_INPUT
+	nToolOutput: UINT;
+	bGripLevel: BOOL := TRUE;
+	tTimeoutFailure: TIME := T#3S;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	Phase: INT;
+	tTimeout: TON;
+	nCalledMoveID: UINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Grip" Id="{ad323367-69ff-4ac8-99da-5dc7d1653eb4}">
+      <Declaration><![CDATA[METHOD Grip : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	
+	Settings: stBA_Settings;
+	
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Grip:= NONE;
+// 
+// 
+// IF Phase=0 THEN
+// 	Settings.Pin:=nToolOutput;
+// 	Settings.bValue:= bGripLevel;
+// 	nCalledMoveID := pROB^.BA_Handler(eBA.SetDO,Settings);
+// 	Phase:=20;
+// 	tTimeout(IN:=TRUE,PT:=tTimeoutFailure);
+// END_IF
+// 
+// 
+// IF Phase=20 THEN
+// 	tTimeout();
+// 	IF nCalledMoveID = pROB^.CurrentMoveID AND pROB^.CurrentMoveResult=SUCCESS THEN
+// 		tTimeout(IN:=FALSE);
+// 		Grip:=SUCCESS;
+// 		Phase:=0;
+// 		RETURN;
+// 	END_IF
+// 	
+// 	//TIMEOUT OR FaILURE
+// 	IF tTimeOut.Q THEN
+// 		tTimeout(IN:=FALSE);
+// 		Grip:=FAILURE;
+// 		Messenger.AddWarn(eMessageCategories.TimeoutFailure,Path,'Failed because timeout');
+// 		Phase:=0;
+// 		RETURN;
+// 	END_IF
+// 	
+// 	IF (nCalledMoveID = pROB^.CurrentMoveID AND pROB^.CurrentMoveResult>=FAILURE) THEN
+// 		Grip:=FAILURE;
+// 		tTimeout(IN:=FALSE);
+// 		Messenger.AddWarn(eMessageCategories.ParentFailed,Path,'Failed because of bad return');
+// 		Phase:=0;
+// 	END_IF
+// END_IF
+// 
+
+Grip:=SUCCESS;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Release" Id="{79b29922-2baa-422c-ba7c-5ca89fee3bb8}">
+      <Declaration><![CDATA[METHOD Release : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	Settings: STBA_SETTINGS;
+	
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Release:= NONE;
+// 
+// 
+// IF Phase=0 THEN
+// 	Settings.Pin:=nToolOutput;
+// 	Settings.bValue:= bGripLevel;
+// 	nCalledMoveID := pROB^.BA_Handler(eBA.SetDO,Settings);
+// 	Phase:=20;
+// 	tTimeout(IN:=TRUE,PT:=tTimeoutFailure);
+// END_IF
+// 
+// 
+// IF Phase=20 THEN
+// 	tTimeout();
+// 	IF nCalledMoveID = pROB^.CurrentMoveID AND pROB^.CurrentMoveResult=SUCCESS THEN
+// 		tTimeout(IN:=FALSE);
+// 		Release:=SUCCESS;
+// 		Phase:=0;
+// 		RETURN;
+// 	END_IF
+// 	
+// 	//TIMEOUT OR FaILURE
+// 	IF tTimeOut.Q THEN
+// 		tTimeout(IN:=FALSE);
+// 		Release:=FAILURE;
+// 		Messenger.AddWarn(eMessageCategories.TimeoutFailure,Path,'Failed because timeout');
+// 		Phase:=0;
+// 		RETURN;
+// 	END_IF
+// 	
+// 	IF (nCalledMoveID = pROB^.CurrentMoveID AND pROB^.CurrentMoveResult>=FAILURE) THEN
+// 		tTimeout(IN:=FALSE);
+// 		Release:=FAILURE;
+// 		Messenger.AddWarn(eMessageCategories.ParentFailed,Path,'Failed because of bad return');
+// 		Phase:=0;
+// 	END_IF
+// END_IF
+// 
+
+Release:=SUCCESS;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

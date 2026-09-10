@@ -11,8 +11,11 @@ VAR_GLOBAL CONSTANT
 	MaxNrofManipulators: 	UINT 	:= 16;
 	MaxNrofAMRs: 			UINT 	:= 16;
 	MaxNrofTools: 			UINT 	:= 16;
+
 	emptySkill : 			FB_1_Skill; 			//Dummy Instance of Skill
 	emptyCOMM: 				FB_1_CommunicationModul; //Dummy Instance of Comm
+	emptyTool:				FB_1_Tool;				//Dummy Instance of Tool
+	emptyManip:				FB_2_ROB_MANIP;
 END_VAR
 
 // --------------- PLANT VALUES ----------------------
@@ -49,73 +52,73 @@ VAR_GLOBAL
 	R1_PP_para : stParam_PickPlace:= (MiddlePointName:='Pick'); //INIT
 	R1_PP: Skill_PickPlace := (
 		Tag:='PICKPLACE',
-		Param:=R1_PP_para
+		Param:=ADR(R1_PP_para),
+		pRob:=ADR(emptyManip)
 	);
 	
 	R1_Counter_para: stParam_Counter:= (nMax:= 2);
 	R1_Counter: Skill_Counter := (
 		Tag:='COUNTER',
-		Param:=R1_Counter_para
+		Param:=ADR(R1_Counter_para)
 	);
 	
 	R2_PP_para : stParam_PickPlace := (MiddlePointName:='Pick'); //INIT
 	R2_PP: Skill_PickPlace := (
 		Tag:='PICKPLACE',
-		Param:=R2_PP_para
+		Param:=ADR(R2_PP_para),
+		pRob:=ADR(emptyManip)
 	);
 	
 	R2_Counter_para: stParam_Counter:= (nMax:= 8);
 	R2_Counter: Skill_Counter := (
 		Tag:='COUNTER',
-		Param:=R2_Counter_para
+		Param:=ADR(R2_Counter_para)
+		
 	);
-	
-	R1_Tool_Grip_para : stParam_Gripper_bistable_digout := (Pin:=9,ValueIfActiv:=TRUE);
-	R1_Tool_Grip : Skill_Gripper_bistable_digout := (
-		TAG:='GRIP',
-		Param:=R1_Tool_Grip_para
-	);
-	
-	R1_Tool_Release_para : stParam_Gripper_bistable_digout := (Pin:=9,ValueIfActiv:=FALSE);
-	R1_Tool_Release : Skill_Gripper_bistable_digout := (
-		TAG:='RELEASE',
-		Param:=R1_Tool_Release_para
-	);
-	
-	
 	
 END_VAR
-
-
-// ---------------  TOOLS ----------------------
-VAR_GLOBAL
-	GREIFER_ALPHA : FB_1_TOOL := (pA_Skills:=[ADR(R1_Tool_Grip),ADR(R1_Tool_Release)]);
-END_VAR
-
 
 
 {attribute 'global_init_slot' := '40700'} 
+// ---------------  TOOLS ----------------------
+VAR_GLOBAL
+// 	GREIFER_ALPHA : GRIPPER_GIMATIC := (pUR := ADR(UR_ALPHA),nToolOutput:= 0,bGripLevel:=TRUE);
+	GREIFER_CHARLIE: GRIPPER_BISTABLE := (nToolOutput:=9,bGripLevel:=TRUE);
+END_VAR
+
+
+
+{attribute 'global_init_slot' := '40800'} 
 // ---------------  ROBOTS ----------------------
 VAR_GLOBAL
-	UR_ALPHA: ROBOT_UR :=(
-		sRobotIp:='192.168.250.2',
-		pA_Skills:= [ADR(R1_PP),ADR(R1_Counter)],
-		TOOL:= ADR(GREIFER_ALPHA)
+	PositionAlpha: ST_Pose := (
+		x	:=1000,
+		y	:=500,
+		z	:=0,
+		roll 	:=0,
+		pitch	:=0,
+		yaw 	:=0
 	);
-
-// 	UR_BRAVO: ROBOT_UR :=(
-// 		sRobotIp:='192.168.250.3',
-// 		pA_Skills:= [ADR(R2_PP),ADR(R2_Counter)]
+ 		
+// 	UR_ALPHA: ROBOT_UR :=(
+// 		sRobotIp:='192.168.250.2',
+// 		pA_Skills:= [ADR(R1_PP),ADR(R1_Counter)],
+// 		InstallationPose := PositionAlpha
+// 		
 // 	);
-	
+// 
+// // 	UR_BRAVO: ROBOT_UR :=(
+// // 		sRobotIp:='192.168.250.3',
+// // 		pA_Skills:= [ADR(R2_PP),ADR(R2_Counter)]
+// // 	);
+// 	
 	MECA_CHARLIE: ROBOT_MECA500 := (
-		pA_Skills:= [ADR(R1_PP),ADR(R1_Counter)]
+		pA_Skills:= [ADR(R2_PP),ADR(R2_Counter)],
+		Tool := ADR(GREIFER_CHARLIE)
 	);
-	
-	
-	
 
 END_VAR
+
 
 
 
@@ -132,8 +135,8 @@ VAR_GLOBAL
 			pWrittenFor := ADR(LIBRARY.Param_PickPlace.WrittenFor),
 			nDestinationCount := 2,
 			aDestination := [
-				(sRobotName := 'UR_ALPHA', pSkillParameter := ADR(R1_PP.Param)),
-				(sRobotName := 'UR_BRAVO', pSkillParameter := ADR(R2_PP.Param))
+				(sRobotName := 'UR_ALPHA', pSkillParameter := ADR(R1_PP.Param^)),
+				(sRobotName := 'UR_BRAVO', pSkillParameter := ADR(R2_PP.Param^))
 			]
 		),
 		(
@@ -143,8 +146,8 @@ VAR_GLOBAL
 			pWrittenFor := ADR(LIBRARY.Param_Counter.WrittenFor),
 			nDestinationCount := 2,
 			aDestination := [
-				(sRobotName := 'UR_ALPHA', pSkillParameter := ADR(R1_Counter.Param)),
-				(sRobotName := 'UR_BRAVO', pSkillParameter := ADR(R2_Counter.Param))
+				(sRobotName := 'UR_ALPHA', pSkillParameter := ADR(R1_Counter.Param^)),
+				(sRobotName := 'UR_BRAVO', pSkillParameter := ADR(R2_Counter.Param^))
 			]
 		)
 	];

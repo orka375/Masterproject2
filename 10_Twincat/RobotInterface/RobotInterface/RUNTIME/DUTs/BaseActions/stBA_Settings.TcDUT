@@ -8,7 +8,7 @@ STRUCT
 	Acceleration: LREAL;
 	Target: stTarget;
 	Joints: stJoint6;
-	Pose: stPoseGeneral;
+	Pose: ST_Pose;
 	Pin: UINT;
 	bValue: BOOL;
 	fValue: REAL;

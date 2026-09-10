@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-  <POU Name="ROBOT_MECA500" Id="{2f3ce915-1e6f-4cc8-9a5b-aaacdfe77a55}" SpecialFunc="None">
+  <POU Name="ROBOT_MECA500" Id="{c3aebb32-8fd7-4db3-b325-72217b951a63}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK ROBOT_MECA500 EXTENDS FB_2_ROB_MANIP
 
 VAR_INPUT
@@ -9,37 +9,111 @@ END_VAR
 
 VAR
 	configure_process: INT;
+	_mecaRawPose      : ST_Pose;
+	_mecaFeedbackPose : ST_Pose;
+	_mecaRPY          : ST_Pose;
+
+    // Completion monitor for discrete BA motions.
+    // No checkpoint is inserted automatically; this keeps jogging responsive.
+    nTrackedMoveId      : UINT;
+    bTrackedAccepted    : BOOL;
+    bTrackedWasBusy     : BOOL;
+    eTrackedMoveResult  : eResult;
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[COMM := ADR(MECA_COMM);
+      <ST><![CDATA[//Skills Pointer
+SETUP.R2_PP.pRob:=THIS;
+
+
+// Meca500 native units: mm / deg / mm-s^-1 / deg-s^-1 / mm-s^-2 / deg-s^-2.
+StandardUnits.Position            := eUnit.mm;
+StandardUnits.Orientation         := eUnit.deg;
+StandardUnits.Joint               := eUnit.deg;
+StandardUnits.LinearVelocity      := eUnit.mm;
+StandardUnits.AngularVelocity     := eUnit.deg;
+StandardUnits.JointVelocity       := eUnit.deg;
+StandardUnits.LinearAcceleration  := eUnit.mm;
+StandardUnits.AngularAcceleration := eUnit.deg;
+StandardUnits.JointAcceleration   := eUnit.deg;
+
+COMM := ADR(MECA_COMM);
 MECA_COMM.CYCLIC_COMM_MECA();
 
-HMI_ROB._jointpos.joint1 := REAL_TO_LREAL(MECA_COMM.rInJoint1) * 0.0174532925199433;
-HMI_ROB._jointpos.joint2 := REAL_TO_LREAL(MECA_COMM.rInJoint2) * 0.0174532925199433;
-HMI_ROB._jointpos.joint3 := REAL_TO_LREAL(MECA_COMM.rInJoint3) * 0.0174532925199433;
-HMI_ROB._jointpos.joint4 := REAL_TO_LREAL(MECA_COMM.rInJoint4) * 0.0174532925199433;
-HMI_ROB._jointpos.joint5 := REAL_TO_LREAL(MECA_COMM.rInJoint5) * 0.0174532925199433;
-HMI_ROB._jointpos.joint6 := REAL_TO_LREAL(MECA_COMM.rInJoint6) * 0.0174532925199433;
+// Track completion of the last successfully queued BA motion.
+// Acceptance is nInMoveId == nTrackedMoveId.
+// Completion is only declared after actual motion was observed and EOM becomes true again.
+IF nTrackedMoveId <> 0 THEN
+    IF MECA_COMM.nInErrorCode <> 0 THEN
+        eTrackedMoveResult := FAILURE;
+    ELSE
+        IF MECA_COMM.nInMoveId = nTrackedMoveId THEN
+            bTrackedAccepted := TRUE;
+        END_IF
 
-HMI_ROB._tcppos.x := REAL_TO_LREAL(MECA_COMM.rInTcpX) * 0.001;
-HMI_ROB._tcppos.y := REAL_TO_LREAL(MECA_COMM.rInTcpY) * 0.001;
-HMI_ROB._tcppos.z := REAL_TO_LREAL(MECA_COMM.rInTcpZ) * 0.001;
-HMI_ROB._tcppos.rx := REAL_TO_LREAL(MECA_COMM.rInTcpRx) * 0.0174532925199433;
-HMI_ROB._tcppos.ry := REAL_TO_LREAL(MECA_COMM.rInTcpRy) * 0.0174532925199433;
-HMI_ROB._tcppos.rz := REAL_TO_LREAL(MECA_COMM.rInTcpRz) * 0.0174532925199433;
+        IF bTrackedAccepted THEN
+            IF MECA_COMM.bInBusy OR NOT MECA_COMM.bInEom THEN
+                bTrackedWasBusy := TRUE;
+            END_IF
+
+            IF bTrackedWasBusy AND NOT MECA_COMM.bInBusy AND MECA_COMM.bInEom THEN
+                eTrackedMoveResult := SUCCESS;
+            END_IF
+        END_IF
+    END_IF
+END_IF
+
+// Joint feedback: deg -> rad through central helper.
+HMI_ROB._jointpos.joint1 := ChangeRealFromRobotStandard(
+    Value := REAL_TO_LREAL(MECA_COMM.rInJoint1), Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+HMI_ROB._jointpos.joint2 := ChangeRealFromRobotStandard(
+    Value := REAL_TO_LREAL(MECA_COMM.rInJoint2), Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+HMI_ROB._jointpos.joint3 := ChangeRealFromRobotStandard(
+    Value := REAL_TO_LREAL(MECA_COMM.rInJoint3), Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+HMI_ROB._jointpos.joint4 := ChangeRealFromRobotStandard(
+    Value := REAL_TO_LREAL(MECA_COMM.rInJoint4), Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+HMI_ROB._jointpos.joint5 := ChangeRealFromRobotStandard(
+    Value := REAL_TO_LREAL(MECA_COMM.rInJoint5), Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+HMI_ROB._jointpos.joint6 := ChangeRealFromRobotStandard(
+    Value := REAL_TO_LREAL(MECA_COMM.rInJoint6), Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+
+// TCP feedback: MECA native (mm, deg, MECA Euler) -> PLC standard (m, rad, RPY).
+_mecaRawPose.x    := REAL_TO_LREAL(MECA_COMM.rInTcpX);
+_mecaRawPose.y    := REAL_TO_LREAL(MECA_COMM.rInTcpY);
+_mecaRawPose.z    := REAL_TO_LREAL(MECA_COMM.rInTcpZ);
+_mecaRawPose.roll := REAL_TO_LREAL(MECA_COMM.rInTcpRx);
+_mecaRawPose.pitch:= REAL_TO_LREAL(MECA_COMM.rInTcpRy);
+_mecaRawPose.yaw  := REAL_TO_LREAL(MECA_COMM.rInTcpRz);
+
+// Unit conversion first (mm/deg -> m/rad), then representation (MECA Euler -> RPY).
+_mecaFeedbackPose := ChangePoseFromRobotStandard(
+    Pose := _mecaRawPose, RobotStandardUnits := StandardUnits);
+
+_mecaRPY := MECAEulerToRPY(
+    ex := _mecaFeedbackPose.roll,
+    ey := _mecaFeedbackPose.pitch,
+    ez := _mecaFeedbackPose.yaw);
+
+HMI_ROB._tcppos.x     := _mecaFeedbackPose.x;
+HMI_ROB._tcppos.y     := _mecaFeedbackPose.y;
+HMI_ROB._tcppos.z     := _mecaFeedbackPose.z;
+HMI_ROB._tcppos.roll  := _mecaRPY.roll;
+HMI_ROB._tcppos.pitch := _mecaRPY.pitch;
+HMI_ROB._tcppos.yaw   := _mecaRPY.yaw;
 
 HMI_ROB.bEStop := MECA_COMM.bInEStop;
 HMI_ROB.bInCollision := MECA_COMM.bInCollision;
 HMI_ROB.bReady := MECA_COMM.HMI_COMM._CommunicationReady
     AND MECA_COMM.bInActivated
     AND MECA_COMM.bInHomed
+    AND NOT MECA_COMM.bInPaused
+    AND (MECA_COMM.nInErrorCode = 0)
     AND NOT MECA_COMM.bInBusy;
 
 CYCLIC_MANIP();
 ]]></ST>
     </Implementation>
-    <Folder Name="StateControl" Id="{0690a919-5712-4fb8-9a65-51b10c3302d0}" />
-    <Method Name="BA_Handler" Id="{7c1d2e3f-4a5b-6c7d-8e9f-0a1b2c3d4e5f}">
+    <Folder Name="StateControl" Id="{dc5e676b-6d2e-4f78-98e2-7555bc30d8c3}" />
+    <Method Name="BA_Handler" Id="{6b7375b8-b338-41ba-b16d-a1e5607dd647}">
       <Declaration><![CDATA[METHOD BA_Handler : UINT
 VAR_INPUT
     Cmd : eBA;
@@ -53,6 +127,8 @@ VAR
     rArgument4 : REAL;
     rArgument5 : REAL;
     rArgument6 : REAL;
+    MECAEuler : ST_Pose;
+    NativePose : ST_Pose;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[BA_Handler := 0;
@@ -60,43 +136,78 @@ nCommand := 0;
 
 CASE Cmd OF
     eBA.MoveJ:
-        IF Settings.Target.frameId <> 0 THEN
+        IF Settings.Target.frame_id <> eRefFrame.BRF THEN
             RETURN;
         END_IF
         nCommand := 2;
-        rArgument1 := LREAL_TO_REAL(Settings.Target.pose.x * 1000.0);
-        rArgument2 := LREAL_TO_REAL(Settings.Target.pose.y * 1000.0);
-        rArgument3 := LREAL_TO_REAL(Settings.Target.pose.z * 1000.0);
-        rArgument4 := LREAL_TO_REAL(Settings.Target.pose.rx * 57.2957795130823);
-        rArgument5 := LREAL_TO_REAL(Settings.Target.pose.ry * 57.2957795130823);
-        rArgument6 := LREAL_TO_REAL(Settings.Target.pose.rz * 57.2957795130823);
+        // Representation: generic RPY -> MECA Euler (currently pass-through).
+        MECAEuler := RPYToMECAEuler(
+            roll := Settings.Target.pose.roll,
+            pitch := Settings.Target.pose.pitch,
+            yaw := Settings.Target.pose.yaw);
+        NativePose.x := Settings.Target.pose.x;
+        NativePose.y := Settings.Target.pose.y;
+        NativePose.z := Settings.Target.pose.z;
+        NativePose.roll  := MECAEuler.roll;
+        NativePose.pitch := MECAEuler.pitch;
+        NativePose.yaw   := MECAEuler.yaw;
+        // Units: PLC standard -> MECA native (mm, deg).
+        NativePose := ChangePoseToRobotStandard(
+            Pose := NativePose,
+            RobotStandardUnits := StandardUnits);
+        rArgument1 := LREAL_TO_REAL(NativePose.x);
+        rArgument2 := LREAL_TO_REAL(NativePose.y);
+        rArgument3 := LREAL_TO_REAL(NativePose.z);
+        rArgument4 := LREAL_TO_REAL(NativePose.roll);
+        rArgument5 := LREAL_TO_REAL(NativePose.pitch);
+        rArgument6 := LREAL_TO_REAL(NativePose.yaw);
 
     eBA.MoveL:
-        IF Settings.Target.frameId <> 0 THEN
+        IF Settings.Target.frame_id <> eRefFrame.BRF THEN
             RETURN;
         END_IF
         nCommand := 3;
-        rArgument1 := LREAL_TO_REAL(Settings.Target.pose.x * 1000.0);
-        rArgument2 := LREAL_TO_REAL(Settings.Target.pose.y * 1000.0);
-        rArgument3 := LREAL_TO_REAL(Settings.Target.pose.z * 1000.0);
-        rArgument4 := LREAL_TO_REAL(Settings.Target.pose.rx * 57.2957795130823);
-        rArgument5 := LREAL_TO_REAL(Settings.Target.pose.ry * 57.2957795130823);
-        rArgument6 := LREAL_TO_REAL(Settings.Target.pose.rz * 57.2957795130823);
+        MECAEuler := RPYToMECAEuler(
+            roll := Settings.Target.pose.roll,
+            pitch := Settings.Target.pose.pitch,
+            yaw := Settings.Target.pose.yaw);
+        NativePose.x := Settings.Target.pose.x;
+        NativePose.y := Settings.Target.pose.y;
+        NativePose.z := Settings.Target.pose.z;
+        NativePose.roll  := MECAEuler.roll;
+        NativePose.pitch := MECAEuler.pitch;
+        NativePose.yaw   := MECAEuler.yaw;
+        NativePose := ChangePoseToRobotStandard(
+            Pose := NativePose,
+            RobotStandardUnits := StandardUnits);
+        rArgument1 := LREAL_TO_REAL(NativePose.x);
+        rArgument2 := LREAL_TO_REAL(NativePose.y);
+        rArgument3 := LREAL_TO_REAL(NativePose.z);
+        rArgument4 := LREAL_TO_REAL(NativePose.roll);
+        rArgument5 := LREAL_TO_REAL(NativePose.pitch);
+        rArgument6 := LREAL_TO_REAL(NativePose.yaw);
 
     eBA.MoveJJoints:
         nCommand := 1;
-        rArgument1 := LREAL_TO_REAL(Settings.Joints.joint1 * 57.2957795130823);
-        rArgument2 := LREAL_TO_REAL(Settings.Joints.joint2 * 57.2957795130823);
-        rArgument3 := LREAL_TO_REAL(Settings.Joints.joint3 * 57.2957795130823);
-        rArgument4 := LREAL_TO_REAL(Settings.Joints.joint4 * 57.2957795130823);
-        rArgument5 := LREAL_TO_REAL(Settings.Joints.joint5 * 57.2957795130823);
-        rArgument6 := LREAL_TO_REAL(Settings.Joints.joint6 * 57.2957795130823);
+        rArgument1 := LREAL_TO_REAL(ChangeRealToRobotStandard(
+            Value := Settings.Joints.joint1, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits));
+        rArgument2 := LREAL_TO_REAL(ChangeRealToRobotStandard(
+            Value := Settings.Joints.joint2, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits));
+        rArgument3 := LREAL_TO_REAL(ChangeRealToRobotStandard(
+            Value := Settings.Joints.joint3, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits));
+        rArgument4 := LREAL_TO_REAL(ChangeRealToRobotStandard(
+            Value := Settings.Joints.joint4, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits));
+        rArgument5 := LREAL_TO_REAL(ChangeRealToRobotStandard(
+            Value := Settings.Joints.joint5, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits));
+        rArgument6 := LREAL_TO_REAL(ChangeRealToRobotStandard(
+            Value := Settings.Joints.joint6, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits));
 
     eBA.Home:
         MECA_COMM.Home();
         BA_Handler := UINT#1;
         RETURN;
-
+	
+	
     ELSE
         RETURN;
 END_CASE
@@ -110,10 +221,68 @@ BA_Handler := MECA_COMM.QueueMotion(
     rArgument5 := rArgument5,
     rArgument6 := rArgument6
 );
+
+// Only start a new completion monitor when the command was really queued.
+// If QueueMotion returns 0 (e.g. while another command is pending), keep the
+// previous state untouched. This is important for jogging.
+IF BA_Handler <> 0 THEN
+    nTrackedMoveId := BA_Handler;
+    bTrackedAccepted := FALSE;
+    bTrackedWasBusy := FALSE;
+    eTrackedMoveResult := NONE;
+END_IF
+
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnActivate" Id="{08e021be-8352-4a14-9c35-bbd66cfe1db1}" FolderPath="StateControl\">
+    <Property Name="CurrentMoveID" Id="{5e4f4034-baa1-4c08-b5ea-91e3b04b499a}">
+      <Declaration><![CDATA[PROPERTY CurrentMoveID : UINT]]></Declaration>
+      <Get Name="Get" Id="{535178a4-2d3a-453e-9cc9-9277673152b8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF (nTrackedMoveId <> 0) AND (MECA_COMM.nInMoveId = nTrackedMoveId) THEN
+    CurrentMoveID := nTrackedMoveId;
+ELSE
+    CurrentMoveID := 0;
+END_IF
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="CurrentMoveResult" Id="{3a96bae9-72cb-4f78-ba4c-e990de2b7367}">
+      <Declaration><![CDATA[PROPERTY CurrentMoveResult : eResult]]></Declaration>
+      <Get Name="Get" Id="{3a0d426d-df44-4632-a761-b44789560eb9}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CurrentMoveResult := eTrackedMoveResult;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="MECAEulerToRPY" Id="{8d0654bd-b80c-447b-87ad-4760774a7534}">
+      <Declaration><![CDATA[// TODO verify Meca500 Euler convention. Pass-through until confirmed against manufacturer docs.
+METHOD PUBLIC MECAEulerToRPY : ST_Pose
+VAR_INPUT
+    ex : LREAL;
+    ey : LREAL;
+    ez : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MECAEulerToRPY.x := 0.0;
+MECAEulerToRPY.y := 0.0;
+MECAEulerToRPY.z := 0.0;
+MECAEulerToRPY.roll  := ex;
+MECAEulerToRPY.pitch := ey;
+MECAEulerToRPY.yaw   := ez;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnActivate" Id="{b364b99e-dbf0-4040-8423-a20fd6a66988}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
 VAR_INPUT
 END_VAR
@@ -132,10 +301,10 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-MECA_COMM.bOutActivate:=TRUE;
-
-IF MECA_COMM.bInActivated THEN
-	myResult:=SUCCESS;
+IF NOT MECA_COMM.bInActivated THEN
+    MECA_COMM.RequestActivate();
+ELSE
+    myResult := SUCCESS;
 END_IF
 
 
@@ -145,7 +314,7 @@ OnActivate := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnCleanup" Id="{2007c120-967e-48a1-b60a-b2d63d6ff5f6}" FolderPath="StateControl\">
+    <Method Name="OnCleanup" Id="{f660392d-3a49-4302-94ef-fdc40b7fa7a3}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
 VAR_INPUT
 END_VAR
@@ -172,7 +341,7 @@ OnCleanup := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnConfigure" Id="{12e6af47-d1b4-4666-a03f-4950e73b358a}" FolderPath="StateControl\">
+    <Method Name="OnConfigure" Id="{0feda703-7699-45f8-8f76-44c854c951e2}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
 VAR_INPUT
 END_VAR
@@ -191,9 +360,11 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
+
+
 IF configure_process=0 THEN
-	//Activate
 	MECA_COMM.bOutActivate:=TRUE;
+
 	IF MECA_COMM.bInActivated THEN
 		configure_process:=1;
 		MECA_COMM.bOutActivate:=FALSE;
@@ -201,8 +372,8 @@ IF configure_process=0 THEN
 END_IF
 
 IF configure_process=1 THEN
-	//Home
 	MECA_COMM.bOutHome:=TRUE;
+
 	IF MECA_COMM.bInHomed THEN
 		configure_process:=2;
 		MECA_COMM.bOutHome:=FALSE;
@@ -210,8 +381,8 @@ IF configure_process=1 THEN
 END_IF
 
 IF configure_process=2 THEN
-	//Home
 	MECA_COMM.bOutDeactivate:=TRUE;
+
 	IF NOT MECA_COMM.bInActivated THEN
 		configure_process:=0;
 		MECA_COMM.bOutDeactivate:=FALSE;
@@ -220,15 +391,13 @@ IF configure_process=2 THEN
 END_IF
 
 
-
-
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
 OnConfigure := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnDeactivate" Id="{f3781e3e-cbdd-4bc5-8406-27f9edc3aec2}" FolderPath="StateControl\">
+    <Method Name="OnDeactivate" Id="{30cb0293-fc7f-4cd5-adf7-0ee993d71213}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
 VAR_INPUT
 END_VAR
@@ -247,10 +416,10 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-MECA_COMM.bOutDeactivate:=TRUE;
-IF NOT MECA_COMM.bInActivated THEN
-	MECA_COMM.bOutDeactivate:=FALSE;
-	myResult:=SUCCESS;
+IF MECA_COMM.bInActivated THEN
+    MECA_COMM.RequestDeactivate();
+ELSE
+    myResult := SUCCESS;
 END_IF
 
 // ----- END YOUR CODE -----------------------------
@@ -259,7 +428,7 @@ OnDeactivate := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnError" Id="{c7584c09-77b1-407e-8727-1d3e80f5fb7f}" FolderPath="StateControl\">
+    <Method Name="OnError" Id="{261bad01-0f06-46db-9176-4060c0d897de}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
 VAR_INPUT
 END_VAR
@@ -286,7 +455,7 @@ myResult := SUCCESS;
 OnError := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnShutdown" Id="{0c754bf0-1e9e-4b2e-b2a1-47364e3994e0}" FolderPath="StateControl\">
+    <Method Name="OnShutdown" Id="{075e8a25-3518-4a19-a48c-95cb7b6d607e}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
 VAR_INPUT
 END_VAR
@@ -311,6 +480,25 @@ myResult:=SUCCESS;
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
 OnShutdown := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RPYToMECAEuler" Id="{ffda5a15-9305-4ff9-98bb-020166ec8fd0}">
+      <Declaration><![CDATA[// TODO verify Meca500 Euler convention. Pass-through until confirmed against manufacturer docs.
+METHOD PUBLIC RPYToMECAEuler : ST_Pose
+VAR_INPUT
+    roll  : LREAL;
+    pitch : LREAL;
+    yaw   : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RPYToMECAEuler.x := 0.0;
+RPYToMECAEuler.y := 0.0;
+RPYToMECAEuler.z := 0.0;
+RPYToMECAEuler.roll  := roll;
+RPYToMECAEuler.pitch := pitch;
+RPYToMECAEuler.yaw   := yaw;
 ]]></ST>
       </Implementation>
     </Method>

@@ -3,7 +3,7 @@
   <POU Name="FB_1_Tool" Id="{b1d965f9-80c9-4ed1-8c86-7d42c5c70293}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_1_Tool EXTENDS FB_0_Base
 VAR_INPUT
-	pROB: POINTER TO FB_1_ROB;
+	pROB: POINTER TO FB_2_ROB_MANIP;
 
 END_VAR
 VAR_OUTPUT
@@ -12,6 +12,7 @@ END_VAR
 VAR
 
 
+	_INIT_TOOL: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -20,7 +21,12 @@ END_VAR
     <Folder Name="StateControl" Id="{53ff33b6-3262-41f7-b537-f1feb7ee1671}" />
     <Action Name="CYCLIC_TOOL" Id="{dff3f002-2f5f-470a-8757-89415d48f543}">
       <Implementation>
-        <ST><![CDATA[CYCLIC_BASE();
+        <ST><![CDATA[IF NOT _INIT_TOOL THEN
+	_INIT_TOOL:=TRUE;
+	SETUP_TOOL();
+END_IF
+
+CYCLIC_BASE();
 ]]></ST>
       </Implementation>
     </Action>
@@ -43,6 +49,8 @@ END_VAR
       <Implementation>
         <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
 
+
+
 FOR iTool := 1 TO SETUP.nToolCount DO
   IF SETUP.apTool[iTool] = THIS THEN
     FB_Init := TRUE;
@@ -55,6 +63,15 @@ IF SETUP.nToolCount < SETUP.MaxNrofTools THEN
   SETUP.apTool[SETUP.nToolCount] := THIS;
   FB_Init := TRUE;
 END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Grip" Id="{b6c5bb7f-22e7-4c31-9f2e-f07dddb91a0b}">
+      <Declaration><![CDATA[METHOD Grip : eResult
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
       </Implementation>
     </Method>
     <Method Name="Mount" Id="{9841653f-1fe3-4f46-893d-a32680152253}">
@@ -243,10 +260,26 @@ onShutdown := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="TargetPositionWithToolOffset" Id="{47faa6d6-4e1d-4c32-a622-b5aa7432a7c5}">
-      <Declaration><![CDATA[METHOD TargetPositionWithToolOffset : stPoseGeneral
+    <Method Name="Release" Id="{ee7504c7-55c3-4538-9835-937ed2b0639a}">
+      <Declaration><![CDATA[METHOD Release : eResult
 VAR_INPUT
-	currPos: stPoseGeneral;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Action Name="SETUP_TOOL" Id="{6e784858-7b28-4c31-b491-b9381b007a9e}">
+      <Implementation>
+        <ST><![CDATA[IF pRob <> 0 THEN
+  pRob^.TOOL := THIS;
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="TargetPositionWithToolOffset" Id="{47faa6d6-4e1d-4c32-a622-b5aa7432a7c5}">
+      <Declaration><![CDATA[METHOD TargetPositionWithToolOffset : ST_Pose
+VAR_INPUT
+	currPos: ST_Pose;
 END_VAR
   VAR
     crx : LREAL;
@@ -262,12 +295,12 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF HMI_TOOL.bMounted THEN
-    crx := COS(currPos.rx);
-    srx := SIN(currPos.rx);
-    cry := COS(currPos.ry);
-    sry := SIN(currPos.ry);
-    crz := COS(currPos.rz);
-    srz := SIN(currPos.rz);
+    crx := COS(currPos.roll);
+    srx := SIN(currPos.roll);
+    cry := COS(currPos.pitch);
+    sry := SIN(currPos.pitch);
+    crz := COS(currPos.yaw);
+    srz := SIN(currPos.yaw);
 
     (* Rz * Ry * Rx: rotate the tool-frame offset into the base frame. *)
     offsetX := (cry * crz) * HMI_TOOL.TCPOffset.x
@@ -283,16 +316,16 @@ END_VAR
     TargetPositionWithToolOffset.x := currPos.x + offsetX;
     TargetPositionWithToolOffset.y := currPos.y + offsetY;
     TargetPositionWithToolOffset.z := currPos.z + offsetZ;
-    TargetPositionWithToolOffset.rx := currPos.rx + HMI_TOOL.TCPOffset.rx;
-    TargetPositionWithToolOffset.ry := currPos.ry + HMI_TOOL.TCPOffset.ry;
-    TargetPositionWithToolOffset.rz := currPos.rz + HMI_TOOL.TCPOffset.rz;
+    TargetPositionWithToolOffset.roll := currPos.roll + HMI_TOOL.TCPOffset.roll;
+    TargetPositionWithToolOffset.pitch := currPos.pitch + HMI_TOOL.TCPOffset.pitch;
+    TargetPositionWithToolOffset.yaw := currPos.yaw + HMI_TOOL.TCPOffset.yaw;
 ELSE
     TargetPositionWithToolOffset := currPos;
 END_IF]]></ST>
       </Implementation>
     </Method>
     <Property Name="ToolTCPOffset" Id="{e0b49844-92df-4ecd-a4dd-cf580748e257}">
-      <Declaration><![CDATA[PROPERTY ToolTCPOffset : stPoseGeneral]]></Declaration>
+      <Declaration><![CDATA[PROPERTY ToolTCPOffset : ST_Pose]]></Declaration>
       <Get Name="Get" Id="{e3c27ee2-288c-4d73-95fb-cfba1b3a20ce}">
         <Declaration><![CDATA[VAR
 END_VAR

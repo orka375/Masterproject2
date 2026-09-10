@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="eUnitCategory" Id="{a8e5f521-c1b2-4a73-87a0-100000000002}">
+    <Declaration><![CDATA[TYPE eUnitCategory :
+(
+    Position            := 0,
+    Orientation         := 1,
+    Joint               := 2,
+    LinearVelocity      := 3,
+    AngularVelocity     := 4,
+    JointVelocity       := 5,
+    LinearAcceleration  := 6,
+    AngularAcceleration := 7,
+    JointAcceleration   := 8
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

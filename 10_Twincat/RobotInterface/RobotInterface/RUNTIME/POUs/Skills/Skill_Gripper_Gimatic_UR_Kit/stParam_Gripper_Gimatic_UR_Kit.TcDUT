@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stParam_Gripper_Gimatic_UR_Kit" Id="{85c6050d-8023-418a-bb6e-1043ed33af6d}">
+    <Declaration><![CDATA[TYPE stParam_Gripper_Gimatic_UR_Kit :
+STRUCT
+	Pin: UINT;
+	ValueIfActiv: BOOL;
+	TimeoutFailure: TIME := T#3S;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

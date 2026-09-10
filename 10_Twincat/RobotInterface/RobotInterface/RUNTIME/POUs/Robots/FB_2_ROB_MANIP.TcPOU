@@ -18,10 +18,8 @@ VAR
 
 	
 	//TODO What is this for?
-	_command : ST_RobotCommand;
 	_commandState : E_RobotCommandState := E_RobotCommandState.Idle;
-	_commandErrorId : UDINT;
-	_nextExecuteId : UDINT := 1;		
+	
 END_VAR
 
 ]]></Declaration>
@@ -30,10 +28,89 @@ END_VAR
     </Implementation>
     <Folder Name="MotionControl" Id="{fc8c0aca-629b-4848-a20d-78e9ce6e9fda}" />
     <Folder Name="StateControl" Id="{4f99cba4-d44f-4086-b21c-31fe1a3d2978}" />
+    <Method Name="AlignTcpZToBrfZ" Id="{bc2132e6-39c8-42b1-8dcb-1b232e67fc01}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD PUBLIC AlignTcpZToBrfZ : UINT
+  VAR_INPUT
+    Velocity : REAL;
+  END_VAR
+  VAR
+	Target : stTarget;
+    CurrentMatrix : ST_TransformMatrix;
+    TargetMatrix : ST_TransformMatrix;
+    TargetPose : ST_Pose;
+    XLength : LREAL;
+    YLength : LREAL;
+    Xx : LREAL;
+    Xy : LREAL;
+    Yx : LREAL;
+    Yy : LREAL;
+    Zx : LREAL;
+    Zy : LREAL;
+  END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[AlignTcpZToBrfZ := 0;
+
+  IF NOT IsReady THEN
+    RETURN;
+  END_IF
+
+  CurrentMatrix := FromPose(Pose := HMI_ROB._tcppos);
+
+  // Project the current TCP X axis onto the BRF XY plane.
+  Xx := CurrentMatrix.r11;
+  Xy := CurrentMatrix.r21;
+  XLength := SQRT(Xx * Xx + Xy * Xy);
+
+  IF XLength > 1E-9 THEN
+    Xx := Xx / XLength;
+    Xy := Xy / XLength;
+  ELSE
+    // Singular X projection: use the current TCP Y axis instead.
+    Yx := CurrentMatrix.r12;
+    Yy := CurrentMatrix.r22;
+    YLength := SQRT(Yx * Yx + Yy * Yy);
+    IF YLength <= 1E-9 THEN
+      RETURN;
+    END_IF
+    Xx := -Yy / YLength;
+    Xy := Yx / YLength;
+  END_IF
+
+  // Znew = BRF +Z; Ynew = Znew x Xnew; Xnew = Ynew x Znew.
+  Zx := 0.0;
+  Zy := 0.0;
+  Yx := -Xy;
+  Yy := Xx;
+
+  TargetMatrix := CurrentMatrix;
+  TargetMatrix.r11 := Xx;
+  TargetMatrix.r21 := Xy;
+  TargetMatrix.r31 := 0.0;
+  TargetMatrix.r12 := Yx;
+  TargetMatrix.r22 := Yy;
+  TargetMatrix.r32 := 0.0;
+  TargetMatrix.r13 := Zx;
+  TargetMatrix.r23 := Zy;
+  TargetMatrix.r33 := 1.0;
+
+  TargetPose := ToPose(T := TargetMatrix);
+  
+  Target.frame_id:= eRefFrame.BRF;
+  Target.pose := TargetPose;
+
+  AlignTcpZToBrfZ := MoveJoint(Target,Velocity);
+  ]]></ST>
+      </Implementation>
+    </Method>
     <Action Name="CYCLIC_MANIP" Id="{c5ea77dd-14da-4015-9108-0744e50afbab}">
       <Implementation>
         <ST><![CDATA[CYCLIC_ROB();
-TOOL^.CYCLIC_TOOL();
+
+IF TOOL <> 0 THEN
+  TOOL^.CYCLIC_TOOL();
+END_IF
+
+
 JOG(pRobot:=THIS);
 
 
@@ -103,13 +180,28 @@ END_VAR
 
 VAR
 	Config: stBA_Settings;
+	Resolved: ST_Pose;
+	IdentityCustom : ST_TransformMatrix;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Config.Velocity:=Velocity;
-Config.Target:=Target;
+        <ST><![CDATA[Config.Velocity := Velocity;
 
+// Resolve absolute target into BRF; adapters see only BRF targets in PLC standard units.
+IdentityCustom := Identity();
+IF NOT ResolveAbsoluteTarget(
+        TargetIn := Target.pose,
+        Frame := Target.frame_id,
+        T_W_B := T_W_B,
+        T_B_Custom := IdentityCustom,
+        Target => Resolved) THEN
+    MoveJoint := 0;
+    RETURN;
+END_IF
 
-MoveJoint := BA_Handler(Cmd:=eBA.MoveJ,Settings:=Config); //HAndler returns a UINT ID of the BA
+Config.Target.frame_id := eRefFrame.BRF;
+Config.Target.pose := Resolved;
+
+MoveJoint := BA_Handler(Cmd:=eBA.MoveJ, Settings:=Config);
 ]]></ST>
       </Implementation>
     </Method>
@@ -137,19 +229,34 @@ MoveJointAbsolute := BA_Handler(Cmd:=eBA.MoveJJoints, Settings:=Config);]]></ST>
       <Declaration><![CDATA[
 METHOD MoveJointRelative : UINT
 VAR_INPUT
-    Target : stTarget;
-	Velocity: REAL;
+    Offset   : ST_Pose;
+    Frame    : eRefFrame := eRefFrame.TRF;
+    Velocity : REAL;
 END_VAR
 
 VAR
 	Config: stBA_Settings;
+	Resolved: ST_Pose;
+	IdentityCustom : ST_TransformMatrix;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Config.Velocity:=Velocity;
-Config.Target:=Target;
+        <ST><![CDATA[Config.Velocity := Velocity;
 
+IdentityCustom := Identity();
+IF NOT ResolveRelativeTarget(
+        Delta := Offset,
+        Frame := Frame,
+//         T_B_Custom := IdentityCustom,
+        Target => Resolved,) THEN
+    MoveJointRelative := 0;
+    RETURN;
+END_IF
 
-MoveJointRelative:= BA_Handler(Cmd:=eBA.MoveJRelativ,Settings:=Config);]]></ST>
+Config.Target.frame_id := eRefFrame.BRF;
+Config.Target.pose := Resolved;
+
+MoveJointRelative := BA_Handler(Cmd:=eBA.MoveJ, Settings:=Config);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="MoveLinear" Id="{af96fe73-c0fb-4331-8a41-58ccd3cdc293}" FolderPath="MotionControl\">
@@ -161,49 +268,70 @@ END_VAR
 
 VAR
 	Config: stBA_Settings;
+	Resolved: ST_Pose;
+	IdentityCustom : ST_TransformMatrix;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Config.Velocity:=Velocity;
-Config.Target:=Target;
+        <ST><![CDATA[Config.Velocity := Velocity;
 
+IdentityCustom := Identity();
+IF NOT ResolveAbsoluteTarget(
+        TargetIn := Target.pose,
+        Frame := Target.frame_id,
+        T_W_B := T_W_B,
+        T_B_Custom := IdentityCustom,
+        Target => Resolved) THEN
+    MoveLinear := 0;
+    RETURN;
+END_IF
 
-MoveLinear:= BA_Handler(Cmd:=eBA.MoveL,Settings:=Config);]]></ST>
+Config.Target.frame_id := eRefFrame.BRF;
+Config.Target.pose := Resolved;
+
+MoveLinear := BA_Handler(Cmd:=eBA.MoveL, Settings:=Config);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="MoveLinearRelative" Id="{bc2132e6-39c8-42b1-8dcb-1b232e67fc7a}" FolderPath="MotionControl\">
       <Declaration><![CDATA[METHOD MoveLinearRelative : UINT
 VAR_INPUT
-    Offset : stPoseGeneral;
-	Velocity: REAL;
+    Offset     : ST_Pose;
+    Frame      : eRefFrame := eRefFrame.TRF;
+    // Only meaningful when Frame = eRefFrame.CRF. Custom frame expressed in BRF.
+    T_B_Custom : ST_TransformMatrix;
+    Velocity   : REAL;
 END_VAR
 
 VAR
 	Config: stBA_Settings;
-END_VAR
-
-VAR
-    Target : stTarget;
-	apos : stPoseGeneral;
+	Resolved: ST_Pose;
+	IdentityCustom : ST_TransformMatrix;
+	CustomFrame : ST_TransformMatrix;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Config.Velocity:=Velocity;
-Config.Pose:=Offset;
+        <ST><![CDATA[Config.Velocity := Velocity;
+Config.Pose := Offset;
 
-MEMCPY(ADR(apos),ADR(HMI_ROB._tcppos),SIZEOF(apos));
+// If caller left T_B_Custom zeroed, fall back to identity so BRF/WRF/TRF paths still work.
+IF (T_B_Custom.r11 = 0.0) AND (T_B_Custom.r22 = 0.0) AND (T_B_Custom.r33 = 0.0) THEN
+    CustomFrame := Identity();
+ELSE
+    CustomFrame := T_B_Custom;
+END_IF
 
+IF NOT ResolveRelativeTarget(
+        Delta := Offset,
+        Frame := Frame,
+//         T_B_Custom := CustomFrame,
+        Target => Resolved) THEN
+    MoveLinearRelative := 0;
+    RETURN;
+END_IF
 
-Target.pose.x  := apos.x  + Offset.x;
-Target.pose.y  := apos.y  + Offset.y;
-Target.pose.z  := apos.z  + Offset.z;
-Target.pose.rx := apos.rx + Offset.rx;
-Target.pose.ry := apos.ry + Offset.ry;
-Target.pose.rz := apos.rz + Offset.rz;
+Config.Target.frame_id := eRefFrame.BRF;
+Config.Target.pose := Resolved;
 
-MoveLinearRelative := MoveLinear(
-    Target   := Target,
-    Velocity := Velocity
-);
-
+MoveLinearRelative := BA_Handler(Cmd:=eBA.MoveL, Settings:=Config);
 ]]></ST>
       </Implementation>
     </Method>
@@ -227,7 +355,9 @@ myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
 
-IF TOOL^.LastTransitionType = eTransitions.Activate THEN
+IF TOOL = 0 THEN
+  myResult := SUCCESS;
+ELSIF TOOL^.LastTransitionType = eTransitions.Activate THEN
 	IF TOOL^.LastTransitionResult = SUCCESS THEN
 		myResult:=SUCCESS;
 	END_IF
@@ -265,7 +395,9 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-IF TOOL^.LastTransitionType = eTransitions.Cleanup THEN
+IF TOOL = 0 THEN
+  myResult := SUCCESS;
+ELSIF TOOL^.LastTransitionType = eTransitions.Cleanup THEN
 	IF TOOL^.LastTransitionResult = SUCCESS THEN
 		myResult:=SUCCESS;
 	END_IF
@@ -300,7 +432,9 @@ myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
 
-IF TOOL^.LastTransitionType = eTransitions.Configure THEN
+IF TOOL = 0 THEN
+  myResult := SUCCESS;
+ELSIF TOOL^.LastTransitionType = eTransitions.Configure THEN
 	IF TOOL^.LastTransitionResult = SUCCESS  THEN
 		myResult:=SUCCESS;
 	END_IF
@@ -339,7 +473,9 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-IF TOOL^.LastTransitionType = eTransitions.Deactivate THEN
+IF TOOL = 0 THEN
+  myResult := SUCCESS;
+ELSIF TOOL^.LastTransitionType = eTransitions.Deactivate THEN
 	IF TOOL^.LastTransitionResult = SUCCESS THEN
 		myResult:=SUCCESS;
 	END_IF
@@ -402,7 +538,9 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-IF TOOL^.LastTransitionType = eTransitions.Shutdown THEN
+IF TOOL = 0 THEN
+  myResult := SUCCESS;
+ELSIF TOOL^.LastTransitionType = eTransitions.Shutdown THEN
 	IF TOOL^.LastTransitionResult = SUCCESS THEN
 		myResult:=SUCCESS;
 	END_IF

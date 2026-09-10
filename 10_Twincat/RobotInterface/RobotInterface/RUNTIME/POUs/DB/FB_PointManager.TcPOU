@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_PointManager" Id="{9ded34ee-ef83-4142-8634-94e63622f962}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_PointManager
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_PointManager EXTENDS FB_Utilities
 VAR_INPUT
     {attribute 'OPC.UA.DA' := '1'}
     HMI_PM : stHMI_PM;
@@ -16,11 +16,13 @@ VAR_OUTPUT
     nErrorID   	: UDINT;
 
     bFound    	: BOOL;
-    pPoint     	: POINTER TO ST_Point;
+    pPoint     	: POINTER TO stStoredPoint;
     nPointCount : UINT;
 END_VAR
 
 VAR
+	editedPointPLC : stStoredPoint;	
+
     _sName         : STRING(80);
     _sDatabasePath : STRING(255);
     _bConfigured   : BOOL;
@@ -38,12 +40,13 @@ VAR
 
     _moveToEditedPointSettings : stBA_Settings;
     _moveToEditedPointExecuteId : UINT;
+    _moveToEditedPointPLC : stStoredPoint;
 
     // Editing identity. ID is kept privately so HMI writes can never change it.
     _nEditingId : DINT;
     _bEditingNew : BOOL;
     _nLastSelectedPointId : UDINT;
-    _emptyPoint : ST_Point;
+    _emptyPoint : stStoredPoint;
 
     // File state machines.
     _bReadFileActive  : BOOL;
@@ -67,7 +70,7 @@ VAR
     _overflowByte : BYTE;
 
     // File data is validated here first and only committed to aPoints on success.
-    _loadPoints : ARRAY[1..10] OF ST_Point;
+    _loadPoints : ARRAY[1..10] OF stStoredPoint;
     _nLoadPointCount : UINT;
 END_VAR
 ]]></Declaration>
@@ -112,20 +115,23 @@ IF _rMoveToEditedPoint.Q THEN
         IF pRobot^.IsReady
            AND NOT bBusy
            AND (_nEditingId >= 1) AND (_nEditingId <= 10)
-           AND (HMI_PM.editedPoint.frame_id >= 0)
-           AND (HMI_PM.editedPoint.frame_id <= 32767) THEN
+         AND ((HMI_PM.editedPoint.frame_id = eRefFrame.BRF)
+             OR (HMI_PM.editedPoint.frame_id = eRefFrame.WRF)
+             OR (HMI_PM.editedPoint.frame_id = eRefFrame.TRF)) THEN
+//              OR (HMI_PM.editedPoint.frame_id = eRefFrame.CRF)) 
 
             _moveToEditedPointSettings.Name := HMI_PM.editedPoint.name;
             _moveToEditedPointSettings.Velocity := 0.05;
             _moveToEditedPointSettings.Acceleration := 0.5;
-            _moveToEditedPointSettings.Target.name := HMI_PM.editedPoint.name;
-            _moveToEditedPointSettings.Target.frameId := DINT_TO_INT(HMI_PM.editedPoint.frame_id);
-            _moveToEditedPointSettings.Target.pose.x := HMI_PM.editedPoint.x;
-            _moveToEditedPointSettings.Target.pose.y := HMI_PM.editedPoint.y;
-            _moveToEditedPointSettings.Target.pose.z := HMI_PM.editedPoint.z;
-            _moveToEditedPointSettings.Target.pose.rx := HMI_PM.editedPoint.rx;
-            _moveToEditedPointSettings.Target.pose.ry := HMI_PM.editedPoint.ry;
-            _moveToEditedPointSettings.Target.pose.rz := HMI_PM.editedPoint.rz;
+   
+            _moveToEditedPointSettings.Target.frame_id := HMI_PM.editedPoint.frame_id;
+            _moveToEditedPointPLC := PointFromHMI(Point := HMI_PM.editedPoint);
+            _moveToEditedPointSettings.Target.pose.x := _moveToEditedPointPLC.x;
+            _moveToEditedPointSettings.Target.pose.y := _moveToEditedPointPLC.y;
+            _moveToEditedPointSettings.Target.pose.z := _moveToEditedPointPLC.z;
+            _moveToEditedPointSettings.Target.pose.roll := _moveToEditedPointPLC.rx;
+            _moveToEditedPointSettings.Target.pose.pitch := _moveToEditedPointPLC.ry;
+            _moveToEditedPointSettings.Target.pose.yaw := _moveToEditedPointPLC.rz;
 
             _moveToEditedPointExecuteId := pRobot^.BA_Handler(
                 Cmd := eBA.MoveJ,
@@ -183,7 +189,7 @@ END_IF
 IF _rNew.Q THEN
     bError := FALSE;
     nErrorID := 0;
-    Create3D(sName := 'dummy', pose := HMI_PM.xCurrentTcp, frameId := 0);
+    Create(sName := 'dummy', pose := HMI_PM.xCurrentTcp, frameId := eRefFrame.BRF);
 
 ELSIF _rLoad.Q THEN
     bError := FALSE;
@@ -195,7 +201,7 @@ ELSIF _rLoad.Q THEN
 ELSIF _rTeach.Q THEN
     bError := FALSE;
     nErrorID := 0;
-    Touchup3D(pose := HMI_PM.xCurrentTcp);
+    Touchup(pose := HMI_PM.xCurrentTcp);
 
 ELSIF _rSave.Q THEN
     bError := FALSE;
@@ -236,7 +242,7 @@ END_IF
     <Method Name="AppendPointToSaveBuffer" Id="{02bde899-187e-49a8-8b98-6023034b73df}">
       <Declaration><![CDATA[METHOD PRIVATE AppendPointToSaveBuffer : BOOL
 VAR_INPUT
-    point : ST_Point;
+    point : stStoredPoint;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -324,60 +330,16 @@ CheckName := TRUE;
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Create2D" Id="{c5ce6bc2-7584-42fc-b421-42451b550ac7}">
-      <Declaration><![CDATA[METHOD PUBLIC Create2D : BOOL
+    <Method Name="Create" Id="{2665e7b7-d388-4ca0-bb53-22244b7661b0}">
+      <Declaration><![CDATA[METHOD PUBLIC Create : BOOL
 VAR_INPUT
     sName   : STRING(80);
-    pose    : stPoseGeneral;
-    frameId : UINT;
+    pose    : ST_Pose;
+    frameId : eRefFrame;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Create2D := PrepareNewPoint(
-    sName := sName,
-    pose := pose,
-    frameId := frameId,
-    sPoseKind := 'POSE_2D'
-);
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="Create2DValues" Id="{f54fc4e2-d85b-4d68-b1d3-eef3b348390e}">
-      <Declaration><![CDATA[METHOD PUBLIC Create2DValues : BOOL
-VAR_INPUT
-    sName   : STRING(80);
-    x       : LREAL;
-    y       : LREAL;
-    rz      : LREAL;
-    frameId : UINT;
-END_VAR
-VAR
-    pose : stPoseGeneral;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[pose.x := x;
-pose.y := y;
-pose.rz := rz;
-
-Create2DValues := Create2D(
-    sName := sName,
-    pose := pose,
-    frameId := frameId
-);
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="Create3D" Id="{2665e7b7-d388-4ca0-bb53-22244b7661b0}">
-      <Declaration><![CDATA[METHOD PUBLIC Create3D : BOOL
-VAR_INPUT
-    sName   : STRING(80);
-    pose    : stPoseGeneral;
-    frameId : UINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Create3D := PrepareNewPoint(
+        <ST><![CDATA[Create := PrepareNewPoint(
     sName := sName,
     pose := pose,
     frameId := frameId,
@@ -386,8 +348,8 @@ END_VAR
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Create3DValues" Id="{f87acb6b-3e09-47b5-a923-1600b499a817}">
-      <Declaration><![CDATA[METHOD PUBLIC Create3DValues : BOOL
+    <Method Name="CreateByValues" Id="{f87acb6b-3e09-47b5-a923-1600b499a817}">
+      <Declaration><![CDATA[METHOD PUBLIC CreateByValues : BOOL
 VAR_INPUT
     sName   : STRING(80);
     x       : LREAL;
@@ -396,21 +358,21 @@ VAR_INPUT
     rx      : LREAL;
     ry      : LREAL;
     rz      : LREAL;
-    frameId : UINT;
+    frameId : eRefFrame;
 END_VAR
 VAR
-    pose : stPoseGeneral;
+    pose : ST_Pose;
 END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[pose.x := x;
 pose.y := y;
 pose.z := z;
-pose.rx := rx;
-pose.ry := ry;
-pose.rz := rz;
+pose.roll := rx;
+pose.pitch := ry;
+pose.yaw := rz;
 
-Create3DValues := Create3D(
+CreateByValues := Create(
     sName := sName,
     pose := pose,
     frameId := frameId
@@ -518,6 +480,7 @@ VAR_INPUT
 END_VAR
 VAR
     nIndex : UINT;
+    editedPointPLC : stStoredPoint;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -1096,7 +1059,7 @@ IF nIndex = 0 THEN
 END_IF
 
 // Stored RAM value is authoritative. Loading makes a fresh editable copy.
-HMI_PM.loadedPoint := HMI_PM.aPoints[nIndex];
+HMI_PM.loadedPoint := PointToHMI(Point := HMI_PM.aPoints[nIndex]);
 HMI_PM.editedPoint := HMI_PM.loadedPoint;
 
 _nEditingId := HMI_PM.loadedPoint.id;
@@ -1121,7 +1084,7 @@ LoadById := SUCCESS;
       </Implementation>
     </Method>
     <Property Name="LoadedPoint" Id="{ea20c9ff-92ea-4122-931a-45e49ef164f8}">
-      <Declaration><![CDATA[PROPERTY LoadedPoint : stPoseGeneral]]></Declaration>
+      <Declaration><![CDATA[PROPERTY LoadedPoint : ST_Pose]]></Declaration>
       <Get Name="Get" Id="{bf2f00be-2b86-46ea-90a3-3f38e1e8b036}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -1130,9 +1093,9 @@ END_VAR
           <ST><![CDATA[LoadedPoint.x := HMI_PM.loadedPoint.x;
 LoadedPoint.y := HMI_PM.loadedPoint.y;
 LoadedPoint.z := HMI_PM.loadedPoint.z;
-LoadedPoint.rx := HMI_PM.loadedPoint.rx;
-LoadedPoint.ry := HMI_PM.loadedPoint.ry;
-LoadedPoint.rz := HMI_PM.loadedPoint.rz;
+LoadedPoint.roll := HMI_PM.loadedPoint.rx;
+LoadedPoint.pitch := HMI_PM.loadedPoint.ry;
+LoadedPoint.yaw := HMI_PM.loadedPoint.rz;
 ]]></ST>
         </Implementation>
       </Get>
@@ -1142,7 +1105,8 @@ LoadedPoint.rz := HMI_PM.loadedPoint.rz;
 VAR
     sField     : STRING(255);
     bEnd       : BOOL;
-    point      : ST_Point;
+    point      : stStoredPoint;
+    nFrameId   : DINT;
     i          : UINT;
     j          : UINT;
 END_VAR
@@ -1235,7 +1199,14 @@ WHILE TRUE DO
     IF NOT CsvGetField(bFirst := FALSE, sValue := sField, bEndRecord := bEnd) THEN SetFileParseError(); RETURN; END_IF
     IF bEnd THEN SetFileParseError(); RETURN; END_IF
     IF NOT IsValidDintText(sValue := sField) THEN SetFileParseError(); RETURN; END_IF
-    point.frame_id := STRING_TO_DINT(sField);
+    nFrameId := STRING_TO_DINT(sField);
+    CASE nFrameId OF
+        0: point.frame_id := eRefFrame.BRF;
+        1: point.frame_id := eRefFrame.WRF;
+        2: point.frame_id := eRefFrame.TRF;
+//         3: point.frame_id := eRefFrame.CRF;
+        ELSE SetFileParseError(); RETURN;
+    END_CASE
 
     IF NOT CsvGetField(bFirst := FALSE, sValue := sField, bEndRecord := bEnd) THEN SetFileParseError(); RETURN; END_IF
     IF bEnd THEN SetFileParseError(); RETURN; END_IF
@@ -1323,6 +1294,29 @@ ParseLoadBuffer := TRUE;
 ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="PointFromHMI" Id="{9f000001-1111-2222-3333-000000000001}">
+      <Declaration><![CDATA[METHOD PRIVATE PointFromHMI : stStoredPoint
+VAR_INPUT
+    Point : stStoredPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[PointFromHMI := Point;
+PointFromHMI.x := ChangeRealFromHMIStandard(
+    Value := Point.x, Category := eUnitCategory.Position);
+PointFromHMI.y := ChangeRealFromHMIStandard(
+    Value := Point.y, Category := eUnitCategory.Position);
+PointFromHMI.z := ChangeRealFromHMIStandard(
+    Value := Point.z, Category := eUnitCategory.Position);
+PointFromHMI.rx := ChangeRealFromHMIStandard(
+    Value := Point.rx, Category := eUnitCategory.Orientation);
+PointFromHMI.ry := ChangeRealFromHMIStandard(
+    Value := Point.ry, Category := eUnitCategory.Orientation);
+PointFromHMI.rz := ChangeRealFromHMIStandard(
+    Value := Point.rz, Category := eUnitCategory.Orientation);
+]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="PointName" Id="{ad3378e0-c724-4815-93f8-aff42bab454d}">
       <Declaration><![CDATA[METHOD PRIVATE PointName : STRING(80)
 VAR_INPUT
@@ -1339,12 +1333,35 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="PointToHMI" Id="{9f000001-1111-2222-3333-000000000002}">
+      <Declaration><![CDATA[METHOD PRIVATE PointToHMI : stStoredPoint
+VAR_INPUT
+    Point : stStoredPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[PointToHMI := Point;
+PointToHMI.x := ChangeRealToHMIStandard(
+    Value := Point.x, Category := eUnitCategory.Position);
+PointToHMI.y := ChangeRealToHMIStandard(
+    Value := Point.y, Category := eUnitCategory.Position);
+PointToHMI.z := ChangeRealToHMIStandard(
+    Value := Point.z, Category := eUnitCategory.Position);
+PointToHMI.rx := ChangeRealToHMIStandard(
+    Value := Point.rx, Category := eUnitCategory.Orientation);
+PointToHMI.ry := ChangeRealToHMIStandard(
+    Value := Point.ry, Category := eUnitCategory.Orientation);
+PointToHMI.rz := ChangeRealToHMIStandard(
+    Value := Point.rz, Category := eUnitCategory.Orientation);
+]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="PrepareNewPoint" Id="{80738700-e5c4-418d-9db6-ba053e98625f}">
       <Declaration><![CDATA[METHOD PRIVATE PrepareNewPoint : BOOL
 VAR_INPUT
     sName     : STRING(80);
-    pose      : stPoseGeneral;
-    frameId   : UINT;
+    pose      : ST_Pose;
+    frameId   : eRefFrame;
     sPoseKind : STRING(16);
 END_VAR
 VAR
@@ -1382,7 +1399,7 @@ HMI_PM.editedPoint := _emptyPoint;
 HMI_PM.editedPoint.id := _nEditingId;
 HMI_PM.editedPoint.name := PointName(sName := sName, nId := _nEditingId);
 HMI_PM.editedPoint.pose_kind := sPoseKind;
-HMI_PM.editedPoint.frame_id := UINT_TO_DINT(frameId);
+HMI_PM.editedPoint.frame_id := frameId;
 
 HMI_PM.editedPoint.x := pose.x;
 HMI_PM.editedPoint.y := pose.y;
@@ -1391,12 +1408,12 @@ IF sPoseKind = 'POSE_2D' THEN
     HMI_PM.editedPoint.z := 0;
     HMI_PM.editedPoint.rx := 0;
     HMI_PM.editedPoint.ry := 0;
-    HMI_PM.editedPoint.rz := pose.rz;
+    HMI_PM.editedPoint.rz := pose.yaw;
 ELSE
     HMI_PM.editedPoint.z := pose.z;
-    HMI_PM.editedPoint.rx := pose.rx;
-    HMI_PM.editedPoint.ry := pose.ry;
-    HMI_PM.editedPoint.rz := pose.rz;
+    HMI_PM.editedPoint.rx := pose.roll;
+    HMI_PM.editedPoint.ry := pose.pitch;
+    HMI_PM.editedPoint.rz := pose.yaw;
 END_IF
 
 // Unsaved new point is not a stored selection yet.
@@ -1404,6 +1421,7 @@ END_IF
 // _nLastSelectedPointId := 0;
 
 MEMCPY(ADR(HMI_PM.aPoints[nId]),ADR(HMI_PM.editedPoint),SIZEOF(HMI_PM.editedPoint));
+HMI_PM.editedPoint := PointToHMI(Point := HMI_PM.aPoints[nId]);
 
 pPoint := 0;
 bFound := FALSE;
@@ -1428,6 +1446,7 @@ VAR_INPUT
 END_VAR
 VAR
     nIndex : UINT;
+    editedPointPLC : stStoredPoint;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -1469,53 +1488,20 @@ Rename := TRUE;
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Retouch2D" Id="{3c6af672-d8ea-4619-8d9e-b3b7ec0404a5}">
-      <Declaration><![CDATA[METHOD PUBLIC Retouch2D : BOOL
+    <Method Name="Retouch" Id="{63fdd3b1-f468-4569-b1fd-921c9228feef}">
+      <Declaration><![CDATA[METHOD PUBLIC Retouch : BOOL
 VAR_INPUT
     sCurrentName : STRING(80);
     sNewName     : STRING(80);
-    pose         : stPoseGeneral;
-    frameId      : UINT;
+    pose         : ST_Pose;
+    frameId      : eRefFrame;
 END_VAR
 VAR
     nIndex : UINT;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Retouch2D := FALSE;
-
-IF (_nEditingId = 0) AND (sCurrentName <> '') THEN
-    nIndex := FindIndex(sName := sCurrentName);
-    IF nIndex = 0 THEN
-        bError := TRUE;
-        nErrorID := 16#E802;
-        Result := ERROR;
-        HMI_PM.sLastOperation := 'Point not found';
-        RETURN;
-    END_IF
-    IF NOT (SUCCESS = LoadById(nId := HMI_PM.aPoints[nIndex].id)) THEN
-        RETURN;
-    END_IF
-END_IF
-
-Retouch2D := Touchup2D(pose := pose);
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="Retouch3D" Id="{63fdd3b1-f468-4569-b1fd-921c9228feef}">
-      <Declaration><![CDATA[METHOD PUBLIC Retouch3D : BOOL
-VAR_INPUT
-    sCurrentName : STRING(80);
-    sNewName     : STRING(80);
-    pose         : stPoseGeneral;
-    frameId      : UINT;
-END_VAR
-VAR
-    nIndex : UINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Retouch3D := FALSE;
+        <ST><![CDATA[Retouch := FALSE;
 
 // Compatibility wrapper: make sure the requested point is the edit target.
 IF (_nEditingId = 0) AND (sCurrentName <> '') THEN
@@ -1532,7 +1518,7 @@ IF (_nEditingId = 0) AND (sCurrentName <> '') THEN
     END_IF
 END_IF
 
-Retouch3D := Touchup3D(pose := pose);
+Retouch := Touchup(pose := pose);
 ]]></ST>
       </Implementation>
     </Method>
@@ -1704,6 +1690,8 @@ END_IF
 
 // HMI is never authoritative for ID.
 HMI_PM.editedPoint.id := _nEditingId;
+editedPointPLC := PointFromHMI(Point := HMI_PM.editedPoint);
+editedPointPLC.id := _nEditingId;
 
 nIndex := FindIndexById(nId := _nEditingId);
 
@@ -1730,26 +1718,26 @@ IF nIndex = 0 THEN
 
     // Metadata is created by the PLC, not by the HMI.
     HMI_PM.aPoints[nIndex].id := _nEditingId;
-    HMI_PM.aPoints[nIndex].pose_kind := HMI_PM.editedPoint.pose_kind;
-    HMI_PM.aPoints[nIndex].frame_id := HMI_PM.editedPoint.frame_id;
+    HMI_PM.aPoints[nIndex].pose_kind := editedPointPLC.pose_kind;
+    HMI_PM.aPoints[nIndex].frame_id := editedPointPLC.frame_id;
 END_IF
 
 // Existing point metadata and ID remain untouched.
 // Only fields intended to be editable are committed.
-HMI_PM.aPoints[nIndex].name := HMI_PM.editedPoint.name;
-HMI_PM.aPoints[nIndex].x := HMI_PM.editedPoint.x;
-HMI_PM.aPoints[nIndex].y := HMI_PM.editedPoint.y;
-HMI_PM.aPoints[nIndex].z := HMI_PM.editedPoint.z;
-HMI_PM.aPoints[nIndex].rx := HMI_PM.editedPoint.rx;
-HMI_PM.aPoints[nIndex].ry := HMI_PM.editedPoint.ry;
-HMI_PM.aPoints[nIndex].rz := HMI_PM.editedPoint.rz;
+HMI_PM.aPoints[nIndex].name := editedPointPLC.name;
+HMI_PM.aPoints[nIndex].x := editedPointPLC.x;
+HMI_PM.aPoints[nIndex].y := editedPointPLC.y;
+HMI_PM.aPoints[nIndex].z := editedPointPLC.z;
+HMI_PM.aPoints[nIndex].rx := editedPointPLC.rx;
+HMI_PM.aPoints[nIndex].ry := editedPointPLC.ry;
+HMI_PM.aPoints[nIndex].rz := editedPointPLC.rz;
 
 // Reassert immutable identity after commit.
 HMI_PM.aPoints[nIndex].id := _nEditingId;
 
 // The newly stored RAM value becomes the read-only loaded version.
 // Clear the edit buffer after SAVE POINT.
-HMI_PM.loadedPoint := HMI_PM.aPoints[nIndex];
+HMI_PM.loadedPoint := PointToHMI(Point := HMI_PM.aPoints[nIndex]);
 HMI_PM.editedPoint := _emptyPoint;
 _bEditingNew := FALSE;
 
@@ -1874,49 +1862,14 @@ IF NOT bSelectionSeen THEN
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Touchup2D" Id="{4d3d9206-649b-4f7d-aecc-5cb19152cc5d}">
-      <Declaration><![CDATA[METHOD PUBLIC Touchup2D : BOOL
+    <Method Name="Touchup" Id="{8f0ff160-e543-4f29-852c-514a30a0cc4a}">
+      <Declaration><![CDATA[METHOD PUBLIC Touchup : BOOL
 VAR_INPUT
-    pose : stPoseGeneral;
+    pose : ST_Pose;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Touchup2D := FALSE;
-
-IF (_nEditingId < 1) OR (_nEditingId > 10) THEN
-    bError := TRUE;
-    nErrorID := 16#E802;
-    Result := ERROR;
-    HMI_PM.sLastOperation := 'No point loaded or prepared for editing';
-    RETURN;
-END_IF
-
-HMI_PM.editedPoint.id := _nEditingId;
-HMI_PM.editedPoint.x := pose.x;
-HMI_PM.editedPoint.y := pose.y;
-HMI_PM.editedPoint.z := 0;
-HMI_PM.editedPoint.rx := 0;
-HMI_PM.editedPoint.ry := 0;
-HMI_PM.editedPoint.rz := pose.rz;
-
-bError := FALSE;
-nErrorID := 0;
-Result := SUCCESS;
-bDone := TRUE;
-HMI_PM.sLastOperation := 'Current robot TCP copied to edited 2D coordinates only';
-
-Touchup2D := TRUE;
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="Touchup3D" Id="{8f0ff160-e543-4f29-852c-514a30a0cc4a}">
-      <Declaration><![CDATA[METHOD PUBLIC Touchup3D : BOOL
-VAR_INPUT
-    pose : stPoseGeneral;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Touchup3D := FALSE;
+        <ST><![CDATA[Touchup := FALSE;
 
 IF (_nEditingId < 1) OR (_nEditingId > 10) THEN
     bError := TRUE;
@@ -1931,9 +1884,11 @@ HMI_PM.editedPoint.id := _nEditingId;
 HMI_PM.editedPoint.x := pose.x;
 HMI_PM.editedPoint.y := pose.y;
 HMI_PM.editedPoint.z := pose.z;
-HMI_PM.editedPoint.rx := pose.rx;
-HMI_PM.editedPoint.ry := pose.ry;
-HMI_PM.editedPoint.rz := pose.rz;
+HMI_PM.editedPoint.rx := pose.roll;
+HMI_PM.editedPoint.ry := pose.pitch;
+HMI_PM.editedPoint.rz := pose.yaw;
+
+HMI_PM.editedPoint := PointToHMI(Point := HMI_PM.editedPoint);
 
 bError := FALSE;
 nErrorID := 0;
@@ -1941,7 +1896,7 @@ Result := SUCCESS;
 bDone := TRUE;
 HMI_PM.sLastOperation := 'Current robot TCP copied to edited point only';
 
-Touchup3D := TRUE;
+Touchup := TRUE;
 ]]></ST>
       </Implementation>
     </Method>

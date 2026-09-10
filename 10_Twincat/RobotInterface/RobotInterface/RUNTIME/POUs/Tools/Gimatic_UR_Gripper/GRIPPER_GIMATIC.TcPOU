@@ -1,0 +1,467 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="GRIPPER_GIMATIC" Id="{befc1911-49ee-4aa2-9869-a561c1fc2106}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK GRIPPER_GIMATIC EXTENDS FB_1_Tool
+VAR_INPUT
+	    
+    pUR : POINTER TO ROBOT_UR; // UR instance that physically carries this gripper.
+    nToolOutput : USINT := 0; // Tool output used by the Gimatic interface.
+    bGripLevel : BOOL := TRUE; // Electrical level that means "grip".
+END_VAR
+VAR_OUTPUT
+    bConfigured : BOOL;
+    bGripCmd     : BOOL;
+END_VAR
+
+VAR
+    _nConfigState : USINT := 0;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="StateControl" Id="{523b0350-c1ac-489e-b1b9-8e56cf3492cc}" />
+    <Method Name="Grip" Id="{299eaac2-c77e-45ca-9d5b-726f9f712b2e}">
+      <Declaration><![CDATA[METHOD Grip : eResult
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bGripLevel THEN
+	Grip := SetGripperOutput(TRUE);
+ELSE
+	Grip := SetGripperOutput(FALSE);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onActivate" Id="{92f80a54-c2e8-4ef0-8099-da80346a4861}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onActivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onActivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+IF (pUR = 0) OR NOT bConfigured THEN
+    myResult := ERROR;
+ELSE
+    myResult := SUCCESS;
+END_IF
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onActivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onCleanup" Id="{54299e02-9203-4a72-ad75-ec243ec029a6}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onCleanup : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onCleanup();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+bConfigured := FALSE;
+bGripCmd := FALSE;
+_nConfigState := 0;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onCleanup := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onConfigure" Id="{e3c6eab6-7f06-41e4-9710-2d10778b37ca}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onConfigure : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onConfigure();
+
+//--------------------------------------------------
+myResult := NONE;
+//--------------------------------------------------
+
+IF pUR = 0 THEN
+
+    Messenger.AddError(
+        eMessageCategories.Undefined,
+        Name,
+        'Gimatic gripper: pUR is not assigned'
+    );
+
+    bConfigured := FALSE;
+    _nConfigState := 0;
+    myResult := ERROR;
+
+ELSIF nToolOutput > 1 THEN
+
+    Messenger.AddError(
+        eMessageCategories.Undefined,
+        Name,
+        'Gimatic gripper: nToolOutput must be 0 or 1'
+    );
+
+    bConfigured := FALSE;
+    _nConfigState := 0;
+    myResult := ERROR;
+
+ELSIF pUR^.UR_COMM.Script.bError THEN
+
+    Messenger.AddError(
+        eMessageCategories.HardwareFailure,
+        Name,
+        'Gimatic gripper: URScript interface error'
+    );
+
+    bConfigured := FALSE;
+    _nConfigState := 0;
+    myResult := ERROR;
+
+ELSE
+
+    CASE _nConfigState OF
+
+        0:
+            bConfigured := FALSE;
+
+            // Wait until URScript interface is available.
+            IF pUR^.UR_COMM.Script.bReady THEN
+
+                succ :=
+                    pUR^.UR_COMM.Script.ClearScript()
+                    AND pUR^.UR_COMM.Script.AppendLine(
+                        sLine := 'def plc_gripper_config():'
+                    )
+                    AND pUR^.UR_COMM.Script.AppendLine(
+                        sLine := '  set_tool_voltage(24)'
+                    );
+
+                IF succ THEN
+
+                    IF nToolOutput = 0 THEN
+
+                        succ :=
+                            pUR^.UR_COMM.Script.AppendLine(
+                                sLine := '  set_tool_digital_output_mode(0,1)'
+                            );
+
+                    ELSE
+
+                        succ :=
+                            pUR^.UR_COMM.Script.AppendLine(
+                                sLine := '  set_tool_digital_output_mode(1,1)'
+                            );
+
+                    END_IF
+
+                END_IF
+
+                succ := succ
+                    AND pUR^.UR_COMM.Script.AppendLine(
+                        sLine := 'end'
+                    )
+                    AND pUR^.UR_COMM.Script.SendBuffered();
+
+                IF succ THEN
+                    _nConfigState := 10;
+                END_IF
+
+            END_IF
+
+
+        10:
+            // Wait until the script FB starts sending.
+            IF pUR^.UR_COMM.Script.bScriptSent THEN
+
+                bConfigured := TRUE;
+                _nConfigState := 100;
+
+            ELSIF pUR^.UR_COMM.Script.bBusy THEN
+
+                _nConfigState := 20;
+
+            END_IF
+
+
+        20:
+            // Wait until sending is finished.
+            IF pUR^.UR_COMM.Script.bError THEN
+
+                _nConfigState := 0;
+                bConfigured := FALSE;
+                myResult := ERROR;
+
+            ELSIF
+                pUR^.UR_COMM.Script.bScriptSent
+                OR NOT pUR^.UR_COMM.Script.bBusy
+            THEN
+
+                bConfigured := TRUE;
+                _nConfigState := 100;
+
+            END_IF
+
+
+        100:
+            bConfigured := TRUE;
+
+            Messenger.Clear(
+                Name,
+                'Gimatic gripper: pUR is not assigned'
+            );
+
+            Messenger.Clear(
+                Name,
+                'Gimatic gripper: nToolOutput must be 0 or 1'
+            );
+
+            Messenger.Clear(
+                Name,
+                'Gimatic gripper: URScript interface error'
+            );
+
+            myResult := SUCCESS;
+
+    END_CASE
+
+END_IF
+
+//--------------------------------------------------
+
+onConfigure := CombineResults(
+    eParentResult,
+    myResult
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onDeactivate" Id="{84bd92e9-04cb-4af4-bda6-a1092828e72a}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onDeactivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onDeactivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onDeactivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onError" Id="{9e9e8299-356c-4f00-8b8b-69a7f98e5a3a}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onError : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onError();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+// Do not force a release on error.
+// Keep the physical gripper state unchanged.
+bConfigured := FALSE;
+_nConfigState := 0;
+
+myResult:=SUCCESS;
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onError := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onShutdown" Id="{72ae2591-2fbb-4176-82c0-98cf4de0cac0}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onShutdown : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onShutdown();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+// Do not release automatically on shutdown.
+bConfigured := FALSE;
+_nConfigState := 0;
+
+myResult:=SUCCESS;
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onShutdown := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Release" Id="{c9ffbe63-9dac-4121-909c-f842eb850f45}">
+      <Declaration><![CDATA[METHOD Release : eResult
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF bGripLevel THEN
+	Release := SetGripperOutput(FALSE);
+ELSE
+	Release := SetGripperOutput(TRUE);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetGripperOutput" Id="{2bf51a20-cf39-4143-8eaa-eeb8a51db0c5}">
+      <Declaration><![CDATA[METHOD SetGripperOutput : eResult
+VAR_INPUT
+	bValue: BOOL;
+END_VAR
+VAR
+    succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+SetGripperOutput := NONE;
+
+IF pUR = 0 THEN
+    SetGripperOutput := ERROR;
+	Messenger.AddError(eMessageCategories.MissingData,Path,'pUR is 0');
+    RETURN;
+END_IF
+
+IF NOT bConfigured THEN
+    SetGripperOutput := ERROR;
+	Messenger.AddError(eMessageCategories.StateMachine,Path,'Gripper is not configured: OnConfigure');
+    RETURN;
+END_IF
+
+IF pUR^.UR_COMM.Script.bError THEN
+    SetGripperOutput := ERROR;
+	Messenger.AddError(eMessageCategories.Undefined,Path,'UR_COMM is in Error');
+    RETURN;
+END_IF
+
+// Do not overwrite a URScript command that is already being transmitted.
+IF pUR^.UR_COMM.Script.bBusy THEN
+    RETURN;
+END_IF
+
+IF NOT pUR^.UR_COMM.Script.ClearScript() THEN
+    RETURN;
+END_IF
+
+IF NOT pUR^.UR_COMM.Script.AppendLine(
+    sLine := 'def plc_grip():'
+) THEN
+    SetGripperOutput := ERROR;
+    RETURN;
+END_IF
+
+IF nToolOutput = 0 THEN
+
+    IF bValue THEN
+        succ := pUR^.UR_COMM.Script.AppendLine(
+            sLine := '  set_tool_digital_out(0,True)'
+        );
+    ELSE
+        succ := pUR^.UR_COMM.Script.AppendLine(
+            sLine := '  set_tool_digital_out(0,False)'
+        );
+    END_IF
+
+ELSIF nToolOutput = 1 THEN
+
+    IF bValue THEN
+        succ := pUR^.UR_COMM.Script.AppendLine(
+            sLine := '  set_tool_digital_out(1,True)'
+        );
+    ELSE
+        succ := pUR^.UR_COMM.Script.AppendLine(
+            sLine := '  set_tool_digital_out(1,False)'
+        );
+    END_IF
+
+ELSE
+    SetGripperOutput := ERROR;
+    RETURN;
+END_IF
+
+succ := succ
+    AND pUR^.UR_COMM.Script.AppendLine(
+        sLine := 'end'
+    )
+    AND pUR^.UR_COMM.Script.SendBuffered();
+
+IF succ THEN
+    bGripCmd := TRUE;
+    SetGripperOutput := SUCCESS;
+ELSE
+    SetGripperOutput := ERROR;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

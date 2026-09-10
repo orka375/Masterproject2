@@ -5,8 +5,8 @@
 STRUCT
     Command : E_RobotCommand;
     ExecuteId : UDINT;
-    Pose : stPoseGeneral;
-    RelativePose : stPoseGeneral;
+    Pose : ST_Pose;
+    RelativePose : ST_Pose;
     Joints : stJoint6;
     SpeedOverride : LREAL;
     DigitalOutput : UINT;

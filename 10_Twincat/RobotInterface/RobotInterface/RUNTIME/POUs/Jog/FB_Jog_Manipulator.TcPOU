@@ -7,20 +7,21 @@ VAR_INPUT
     // Existing manipulator abstraction. The jog FB only calls
     // MotionControl methods from FB_2_ROB_MANIP.
     pRobot : POINTER TO FB_2_ROB_MANIP;
+    bAlignTcpZ : BOOL;
 END_VAR
 
 VAR
-    // Hold-to-run: buttons are read directly every cycle. No edge
-    // detection - a held button keeps jogging, release stops.
-    _offsetLocal  : stPoseGeneral;
-    _offsetBase   : stPoseGeneral;
-    _framePose    : stPoseGeneral;
+    // Step jog produces a pose delta (not a velocity vector), so translation IS
+    // meaningfully transformed by ResolveRelativeTarget.
+    _offsetLocal  : ST_Pose;
+    _framePose    : ST_Pose;
     _jointTarget  : stJoint6;
 
     _nActiveTcp   : INT;
     _nActiveJoint : INT;
     _bAnyTcp      : BOOL;
     _bAnyJoint    : BOOL;
+    _rAlignTcpZ   : R_TRIG;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[CYCLIC_JOG_MANIP();]]></ST>
@@ -28,8 +29,11 @@ END_VAR]]></Declaration>
     <Folder Name="JogControl" Id="{1c021ab3-4c12-4486-8807-370f307ce83d}" />
     <Action Name="CYCLIC_JOG_MANIP" Id="{bf95fbc2-1e1a-4222-953f-b510186d86b9}">
       <Implementation>
-        <ST><![CDATA[fLinearStep := fLinearStep_mm / 1000.0;
-fAngularStep := fAngularStep_deg * 0.0174532925199433;
+        <ST><![CDATA[// Step values from HMI (mm / deg) converted to PLC standard (m / rad).
+fLinearStep  := LREAL_TO_REAL(ChangeRealFromHMIStandard(
+    Value := fLinearStep_mm, Category := eUnitCategory.Position));
+fAngularStep := LREAL_TO_REAL(ChangeRealFromHMIStandard(
+    Value := fAngularStep_deg, Category := eUnitCategory.Orientation));
 
 // ----------------------------------------------------------
 // Capabilities / behavior for HMI
@@ -48,10 +52,11 @@ bContinuousJog := TRUE;
 
 bCommandIssued := FALSE;
 
+_rAlignTcpZ(CLK := bAlignTcpZ);
+
 // ----------------------------------------------------------
 // Count active direction buttons. Jogging is only allowed when
-// EXACTLY ONE direction (TCP or joint) is held, so the HMI can
-// never drive multiple axes simultaneously.
+// EXACTLY ONE direction (TCP or joint) is held.
 // ----------------------------------------------------------
 _nActiveTcp := 0;
 IF bJogXPlus  THEN _nActiveTcp := _nActiveTcp + 1; END_IF
@@ -96,71 +101,74 @@ IF pRobot <> 0 THEN
     bMoving := pRobot^.IsMoving;
     bReady := bEnable AND pRobot^.IsReady AND NOT bMoving;
 
-    // Selected frame visible for HMI / diagnostics.
-    CASE nFrame OF
-        0: // Base
+    IF bReady AND _rAlignTcpZ.Q THEN
+        nLastCommandID := pRobot^.AlignTcpZToBrfZ(
+            Velocity := fAngularVelocity
+        );
+        bCommandIssued := nLastCommandID <> 0;
+    ELSE
+        // Selected frame visible for HMI / diagnostics.
+        CASE nFrame OF
+        eRefFrame.BRF, eRefFrame.WRF:
             _framePose.x := 0.0;
             _framePose.y := 0.0;
             _framePose.z := 0.0;
-            _framePose.rx := 0.0;
-            _framePose.ry := 0.0;
-            _framePose.rz := 0.0;
+            _framePose.roll := 0.0;
+            _framePose.pitch := 0.0;
+            _framePose.yaw := 0.0;
 
-        1: // Tool / local TCP
+        eRefFrame.TRF:
             _framePose := ActualPose;
 
-        2: // Custom
-            _framePose := CustomFrame;
+//         eRefFrame.CRF:
+//             _framePose := CustomFrame;
 
         ELSE
-            // Invalid HMI value: safe fallback to Base.
             _framePose.x := 0.0;
             _framePose.y := 0.0;
             _framePose.z := 0.0;
-            _framePose.rx := 0.0;
-            _framePose.ry := 0.0;
-            _framePose.rz := 0.0;
-    END_CASE
+            _framePose.roll := 0.0;
+            _framePose.pitch := 0.0;
+            _framePose.yaw := 0.0;
+        END_CASE
 
-    ActiveFramePose := _framePose;
+        ActiveFramePose := _framePose;
 
     // ------------------------------------------------------
-    // Hold-to-run motion.
-    // Issue the next motion increment only when the robot is
-    // ready and exactly one direction is held. The underlying
-    // UR motion is blocking, so the next increment is issued
-    // once the previous one finishes - continuous motion while
-    // held, immediate stop on release (no latched command).
+    // Hold-to-run motion. Reference-frame resolution is done
+    // inside pRobot^.MoveLinearRelative(); the offset here is
+    // always expressed in the selected nFrame.
+    // For a step jog the offset is a pose delta, so translation
+    // is part of the transform (unlike a velocity vector).
     // ------------------------------------------------------
-    IF bReady AND ((_nActiveTcp + _nActiveJoint) = 1) THEN
+        IF bReady AND ((_nActiveTcp + _nActiveJoint) = 1) THEN
 
         IF _bAnyJoint THEN
-            // ----- Joint jog: absolute target = actual + step -----
             _jointTarget := pRobot^.ActualJointPosition;
 
             IF bJogJoint1Plus THEN
                 _jointTarget.joint1 := _jointTarget.joint1 + ABS(fAngularStep);
-            ELSIF bJogJoint1Minus THEN                                       
+            ELSIF bJogJoint1Minus THEN
                 _jointTarget.joint1 := _jointTarget.joint1 - ABS(fAngularStep);
-            ELSIF bJogJoint2Plus THEN                                        
+            ELSIF bJogJoint2Plus THEN
                 _jointTarget.joint2 := _jointTarget.joint2 + ABS(fAngularStep);
-            ELSIF bJogJoint2Minus THEN                                       
+            ELSIF bJogJoint2Minus THEN
                 _jointTarget.joint2 := _jointTarget.joint2 - ABS(fAngularStep);
-            ELSIF bJogJoint3Plus THEN                                        
+            ELSIF bJogJoint3Plus THEN
                 _jointTarget.joint3 := _jointTarget.joint3 + ABS(fAngularStep);
-            ELSIF bJogJoint3Minus THEN                                       
+            ELSIF bJogJoint3Minus THEN
                 _jointTarget.joint3 := _jointTarget.joint3 - ABS(fAngularStep);
-            ELSIF bJogJoint4Plus THEN                                        
+            ELSIF bJogJoint4Plus THEN
                 _jointTarget.joint4 := _jointTarget.joint4 + ABS(fAngularStep);
-            ELSIF bJogJoint4Minus THEN                                       
+            ELSIF bJogJoint4Minus THEN
                 _jointTarget.joint4 := _jointTarget.joint4 - ABS(fAngularStep);
-            ELSIF bJogJoint5Plus THEN                                        
+            ELSIF bJogJoint5Plus THEN
                 _jointTarget.joint5 := _jointTarget.joint5 + ABS(fAngularStep);
-            ELSIF bJogJoint5Minus THEN                                       
+            ELSIF bJogJoint5Minus THEN
                 _jointTarget.joint5 := _jointTarget.joint5 - ABS(fAngularStep);
-            ELSIF bJogJoint6Plus THEN                                        
+            ELSIF bJogJoint6Plus THEN
                 _jointTarget.joint6 := _jointTarget.joint6 + ABS(fAngularStep);
-            ELSIF bJogJoint6Minus THEN                                       
+            ELSIF bJogJoint6Minus THEN
                 _jointTarget.joint6 := _jointTarget.joint6 - ABS(fAngularStep);
             END_IF
 
@@ -171,13 +179,12 @@ IF pRobot <> 0 THEN
             bCommandIssued := TRUE;
 
         ELSE
-            // ----- TCP jog: single-axis local offset -----
             _offsetLocal.x := 0.0;
             _offsetLocal.y := 0.0;
             _offsetLocal.z := 0.0;
-            _offsetLocal.rx := 0.0;
-            _offsetLocal.ry := 0.0;
-            _offsetLocal.rz := 0.0;
+            _offsetLocal.roll := 0.0;
+            _offsetLocal.pitch := 0.0;
+            _offsetLocal.yaw := 0.0;
 
             IF bJogXPlus THEN
                 _offsetLocal.x := ABS(fLinearStep);
@@ -192,128 +199,31 @@ IF pRobot <> 0 THEN
             ELSIF bJogZMinus THEN
                 _offsetLocal.z := -ABS(fLinearStep);
             ELSIF bJogRxPlus THEN
-                _offsetLocal.rx := ABS(fAngularStep);
+                _offsetLocal.roll := ABS(fAngularStep);
             ELSIF bJogRxMinus THEN
-                _offsetLocal.rx := -ABS(fAngularStep);
+                _offsetLocal.roll := -ABS(fAngularStep);
             ELSIF bJogRyPlus THEN
-                _offsetLocal.ry := ABS(fAngularStep);
+                _offsetLocal.pitch := ABS(fAngularStep);
             ELSIF bJogRyMinus THEN
-                _offsetLocal.ry := -ABS(fAngularStep);
+                _offsetLocal.pitch := -ABS(fAngularStep);
             ELSIF bJogRzPlus THEN
-                _offsetLocal.rz := ABS(fAngularStep);
+                _offsetLocal.yaw := ABS(fAngularStep);
             ELSIF bJogRzMinus THEN
-                _offsetLocal.rz := -ABS(fAngularStep);
+                _offsetLocal.yaw := -ABS(fAngularStep);
             END_IF
 
-            CASE nFrame OF
-                0: // Base
-                    _offsetBase := _offsetLocal;
-
-                1, 2: // Tool or Custom
-                    _offsetBase := TransformJogOffset(
-                        LocalOffset := _offsetLocal,
-                        FramePose := _framePose
-                    );
-
-                ELSE
-                    _offsetBase := _offsetLocal;
-            END_CASE
-
             nLastCommandID := pRobot^.MoveLinearRelative(
-                Offset := _offsetBase,
+                Offset := _offsetLocal,
+                Frame := nFrame,
+                T_B_Custom := pRobot^.FromPose(Pose := CustomFrame),
                 Velocity := fLinearVelocity
             );
             bCommandIssued := TRUE;
+        END_IF
         END_IF
     END_IF
 END_IF]]></ST>
       </Implementation>
     </Action>
-    <Method Name="TransformJogOffset" Id="{3dd819c1-b83a-4a1f-b40e-d2fa2498e4e5}" FolderPath="JogControl\">
-      <Declaration><![CDATA[METHOD PRIVATE TransformJogOffset : stPoseGeneral
-VAR_INPUT
-    LocalOffset : stPoseGeneral;
-    FramePose   : stPoseGeneral;
-END_VAR
-VAR
-    theta  : LREAL;
-    kx     : LREAL;
-    ky     : LREAL;
-    kz     : LREAL;
-    c      : LREAL;
-    si      : LREAL;
-    oneC   : LREAL;
-
-    vx     : LREAL;
-    vy     : LREAL;
-    vz     : LREAL;
-    dot    : LREAL;
-    crossX : LREAL;
-    crossY : LREAL;
-    crossZ : LREAL;
-
-    Result : stPoseGeneral;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[// FramePose.Rx/Ry/Rz is treated as an axis-angle rotation vector.
-// Rodrigues' formula rotates both translational and incremental
-// rotational jog vectors from the selected frame into Base axes.
-
-Result.X := 0.0;
-Result.Y := 0.0;
-Result.Z := 0.0;
-Result.Rx := 0.0;
-Result.Ry := 0.0;
-Result.Rz := 0.0;
-
-theta := SQRT(
-    FramePose.Rx * FramePose.Rx +
-    FramePose.Ry * FramePose.Ry +
-    FramePose.Rz * FramePose.Rz
-);
-
-IF theta < 0.000000001 THEN
-    Result := LocalOffset;
-ELSE
-    kx := FramePose.Rx / theta;
-    ky := FramePose.Ry / theta;
-    kz := FramePose.Rz / theta;
-
-    c := COS(theta);
-    si := SIN(theta);
-    oneC := 1.0 - c;
-
-    // Translation
-    vx := LocalOffset.X;
-    vy := LocalOffset.Y;
-    vz := LocalOffset.Z;
-
-    crossX := ky * vz - kz * vy;
-    crossY := kz * vx - kx * vz;
-    crossZ := kx * vy - ky * vx;
-    dot := kx * vx + ky * vy + kz * vz;
-
-    Result.X := vx * c + crossX * si + kx * dot * oneC;
-    Result.Y := vy * c + crossY * si + ky * dot * oneC;
-    Result.Z := vz * c + crossZ * si + kz * dot * oneC;
-
-    // Incremental rotation axis
-    vx := LocalOffset.Rx;
-    vy := LocalOffset.Ry;
-    vz := LocalOffset.Rz;
-
-    crossX := ky * vz - kz * vy;
-    crossY := kz * vx - kx * vz;
-    crossZ := kx * vy - ky * vx;
-    dot := kx * vx + ky * vy + kz * vz;
-
-    Result.Rx := vx * c + crossX * si + kx * dot * oneC;
-    Result.Ry := vy * c + crossY * si + ky * dot * oneC;
-    Result.Rz := vz * c + crossZ * si + kz * dot * oneC;
-END_IF
-
-TransformJogOffset := Result;]]></ST>
-      </Implementation>
-    </Method>
   </POU>
 </TcPlcObject>

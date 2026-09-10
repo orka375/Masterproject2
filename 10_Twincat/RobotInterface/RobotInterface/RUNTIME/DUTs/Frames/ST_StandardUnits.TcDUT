@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="ST_StandardUnits" Id="{a8e5f521-c1b2-4a73-87a0-100000000003}">
+    <Declaration><![CDATA[TYPE ST_StandardUnits :
+STRUCT
+    // Spatial / angular / joint bases carry the s^-1 and s^-2 factors implicitly.
+    Position            : eUnit;
+    Orientation         : eUnit;
+    Joint               : eUnit;
+    LinearVelocity      : eUnit;
+    AngularVelocity     : eUnit;
+    JointVelocity       : eUnit;
+    LinearAcceleration  : eUnit;
+    AngularAcceleration : eUnit;
+    JointAcceleration   : eUnit;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

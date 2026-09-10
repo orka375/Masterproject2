@@ -4,7 +4,19 @@
 [
   {
     "event": "%ctx%owner::Id|EventRegistrationMode=Resolve%/ctx%.onInitialized",
-    "actions": []
+		"actions": [
+			{
+				"objectType": "WriteToSymbol",
+				"active": true,
+				"symbolExpression": "%i%SelectedJogFrameIndex%/i%",
+				"value": {
+					"objectType": "Symbol",
+					"valueType": "tchmi:general#/definitions/Number",
+					"symbolExpression": "%pp%J::nFrame%/pp%"
+				},
+				"asyncWait": true
+			}
+		]
   }
 ]
 </script>
@@ -74,11 +86,11 @@
     "widthMode": "Value",
     "widthUnit": "factor"
   },
-  {
     "width": 0.1,
     "widthMode": "Value",
     "widthUnit": "factor"
   },
+	{
   {
     "width": 1,
     "widthMode": "Value",
@@ -409,9 +421,33 @@
 ]
 </script>
 				<script data-tchmi-target-attribute="data-tchmi-column-options" type="application/json">[{"width":0.6,"widthMode":"Value","widthUnit":"factor"},{"width":0.1,"widthMode":"Value","widthUnit":"factor"},{"width":1,"widthMode":"Value","widthUnit":"factor"}]</script>
-				<script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">[{"height":30,"heightMode":"Value","heightUnit":"px"},{"height":0.1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":0.1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":0.1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":0.1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":0.1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":0.1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"}]</script>
-				<div id="TcpPositionTitle" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="TCP POSITION">
+				<script data-tchmi-target-attribute="data-tchmi-row-options" type="application/json">[{"height":30,"heightMode":"Value","heightUnit":"px"},{"height":0.1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":0.1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":0.1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":0.1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":0.1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":0.1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"},{"height":0.1,"heightMode":"Value","heightUnit":"factor"},{"height":1,"heightMode":"Value","heightUnit":"factor"}]</script>
+				<div id="TcpPositionTitle" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="0" data-tchmi-grid-column-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="TCP POSITION - BRF">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-section-title"]</script>
+				</div>
+				<div id="TcpJogFrameSelector" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiCombobox" data-tchmi-grid-row-index="0" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-selected-id="%i%SelectedJogFrameIndex%/i%" data-tchmi-allow-text-input="False" data-tchmi-auto-select-text="False">
+					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-cell-surface"]</script>
+					<script data-tchmi-target-attribute="data-tchmi-src-data" type="application/json">[{"id":0,"text":"BRF","value":0},{"id":1,"text":"WRF","value":1},{"id":2,"text":"TRF","value":2}]</script>
+					<script data-tchmi-target-attribute="data-tchmi-trigger" type="application/json">
+[
+	{
+		"event": "%ctx%owner::Id|EventRegistrationMode=Resolve%/ctx%.onSelectionChanged",
+		"actions": [
+			{
+				"objectType": "WriteToSymbol",
+				"active": true,
+				"symbolExpression": "%pp%J::nFrame|BindingMode=TwoWay%/pp%",
+				"value": {
+					"objectType": "Symbol",
+					"valueType": "tchmi:general#/definitions/Number",
+					"symbolExpression": "%ctrl%TcpJogFrameSelector::SelectedId%/ctrl%"
+				},
+				"asyncWait": true
+			}
+		]
+	}
+]
+</script>
 				</div>
 				<div id="TcpPositionXLabel" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="2" data-tchmi-grid-column-index="0" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-text="X" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">
@@ -457,6 +493,9 @@
 				</div>
 				<div id="TcpPositionRzValue" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-grid-row-index="12" data-tchmi-grid-column-index="2" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-text="%f%FormatString('{0|.2f}', %pp%R::_tcppos_display::rz%/pp%)%/f%" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center" data-tchmi-text-horizontal-alignment="Center">
 					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-readout-native"]</script>
+				</div>
+				<div id="AlignTcpZButton" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton" data-tchmi-grid-row-index="14" data-tchmi-grid-column-index="0" data-tchmi-grid-column-span="3" data-tchmi-left="0" data-tchmi-top="0" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text="ALIGN TCP Z TO BRF Z" data-tchmi-state-symbol="%pp%J::bAlignTcpZ%/pp%">
+					<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["jog-button"]</script>
 				</div>
 			</div>
 		</div>

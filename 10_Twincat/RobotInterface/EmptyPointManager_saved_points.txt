@@ -1,1 +1,0 @@
-id;name;pose_kind;frame_id;x;y;z;rx;ry;rz

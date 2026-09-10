@@ -3,7 +3,7 @@
   <POU Name="Skill_Counter" Id="{9cc805e9-554a-4c3c-ae9d-761e6423e9f0}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK Skill_Counter EXTENDS FB_1_Skill
 VAR_INPUT
-    Param     : stParam_Counter;
+    Param     : POINTER TO stParam_Counter;
 END_VAR
 
 VAR_OUTPUT
@@ -77,7 +77,7 @@ ELSE
 
 
             // Maximum reached
-            IF nCounter >= Param.nMax THEN
+            IF nCounter >= Param^.nMax THEN
                 HMI_BASE.bBusy := FALSE;
 				ExecutionDone:=TRUE;
 				ExecutionResult:= SUCCESS;

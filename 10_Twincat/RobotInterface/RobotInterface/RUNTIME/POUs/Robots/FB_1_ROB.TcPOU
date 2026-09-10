@@ -9,13 +9,13 @@ VAR_INPUT
 	PM: FB_PointManager;
 	COMM: POINTER TO FB_1_CommunicationModul := ADR(emptyCOMM);
 
-	
 	StandStillLimit: REAL := 0.001;
 	SafePosition: stJoint6;
 	SafePositionTolerance: LREAL := 0.001;
 	RegisterAsTopLevelRobot: BOOL := TRUE;
 	
 
+	InstallationPose : ST_Pose; // BRF expressed in WRF : stVector3d
 END_VAR
 
 
@@ -26,24 +26,41 @@ VAR_OUTPUT
 	BA_STATUS: eProgress;
 	
 	 _jointvel: stJoint6;
-     _tcpvel : stPoseGeneral;
+     _tcpvel : ST_Pose;
 END_VAR
 
 VAR
-
+	CurrentTCP : REFERENCE TO ST_Pose;		//Set Reference in ROB fb_Init
+    T_W_B      : ST_TransformMatrix;		//Set in fb_Init
 	index: INT;
 	
 	//BAHANDLER
 	Idcounter: UINT:=1000;
+
+	// Native unit standard of THIS robot. Subclasses overwrite in their declaration/FB_Init.
+	// Base default = PLC standard so generic conversions are a no-op if not overridden.
+	StandardUnits : ST_StandardUnits := (
+		Position            := eUnit.m,
+		Orientation         := eUnit.rad,
+		Joint               := eUnit.rad,
+		LinearVelocity      := eUnit.m,
+		AngularVelocity     := eUnit.rad,
+		JointVelocity       := eUnit.rad,
+		LinearAcceleration  := eUnit.m,
+		AngularAcceleration := eUnit.rad,
+		JointAcceleration   := eUnit.rad
+	);
 	
-	
+	_INIT_ROB: BOOL;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Folder Name="Frames" Id="{b403a138-b05f-4ad7-9a1c-9d14c9d2177d}" />
     <Folder Name="Generic Control" Id="{d269719e-4481-455b-8abd-a0a346547cd3}" />
     <Folder Name="Generic Status" Id="{c1e8e35a-1828-4d72-a2cb-3aa1cc7ab721}" />
     <Folder Name="StateControl" Id="{306f9b72-2cb2-4dec-88a3-0a1776eb8cb9}" />
+    <Folder Name="Transformations" Id="{12df3c52-cfe6-44d7-9d03-72f041d59ebd}" />
     <Property Name="ActualJointPosition" Id="{c68b9d82-514b-4e83-b58e-69cf77564b19}" FolderPath="Generic Status\">
       <Declaration><![CDATA[{warning 'Add property implementation'}
 PROPERTY ActualJointPosition : stJoint6
@@ -72,7 +89,7 @@ END_VAR
     </Property>
     <Property Name="ActualTcpPose" Id="{0ea3c3d9-9984-43b2-ac68-a1a8d409d11e}" FolderPath="Generic Status\">
       <Declaration><![CDATA[{warning 'Add property implementation'}
-  PROPERTY ActualTcpPose : stPoseGeneral
+  PROPERTY ActualTcpPose : ST_Pose
 ]]></Declaration>
       <Get Name="Get" Id="{019c7e94-91db-4b36-9e6e-9be7d9fb51c3}">
         <Declaration><![CDATA[VAR
@@ -85,7 +102,7 @@ END_VAR
     </Property>
     <Property Name="ActualTcpVelocity" Id="{cd04f35a-047d-478b-8cf7-b18ee8d2a4f9}" FolderPath="Generic Status\">
       <Declaration><![CDATA[{warning 'Add property implementation'}
- PROPERTY ActualTcpVelocity : stPoseGeneral
+ PROPERTY ActualTcpVelocity : ST_Pose
 ]]></Declaration>
       <Get Name="Get" Id="{c88b221c-0030-413b-abf3-a401e3f71088}">
         <Declaration><![CDATA[VAR
@@ -130,17 +147,10 @@ BA_Handler := 0;
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[]]></ST>
+          <ST><![CDATA[CurrentMoveID:= BA_ID;
+]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{e81d17f1-0268-481c-8c57-d2dc0dca6c2c}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[]]></ST>
-        </Implementation>
-      </Set>
     </Property>
     <Property Name="CurrentMoveResult" Id="{645ad862-eb02-444d-b382-2e86a3e7f77a}">
       <Declaration><![CDATA[PROPERTY CurrentMoveResult : eResult]]></Declaration>
@@ -152,34 +162,35 @@ END_VAR
           <ST><![CDATA[]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{f48444c7-6cbe-4c01-a7ef-e7522ca0a6b8}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[]]></ST>
-        </Implementation>
-      </Set>
     </Property>
     <Action Name="CYCLIC_ROB" Id="{ebf16c89-c511-406b-9426-1ade99c4f730}">
       <Implementation>
-        <ST><![CDATA[CYCLIC_BASE();
-// COMM^.CYCLIC_COMM(); //CHANGED
+        <ST><![CDATA[IF NOT _INIT_ROB THEN
+	_INIT_ROB:=TRUE;
+	SETUP_ROB();
+END_IF
 
-// HMI display mirrors: x,y,z in mm, rx,ry,rz/joint in deg (native _tcppos/_jointpos stay in m/rad).
-HMI_ROB._tcppos_display.x  := HMI_ROB._tcppos.x * 1000.0;
-HMI_ROB._tcppos_display.y  := HMI_ROB._tcppos.y * 1000.0;
-HMI_ROB._tcppos_display.z  := HMI_ROB._tcppos.z * 1000.0;
-HMI_ROB._tcppos_display.rx := HMI_ROB._tcppos.rx / 0.0174532925199433;
-HMI_ROB._tcppos_display.ry := HMI_ROB._tcppos.ry / 0.0174532925199433;
-HMI_ROB._tcppos_display.rz := HMI_ROB._tcppos.rz / 0.0174532925199433;
+CYCLIC_BASE();
+PM.HMI_PM.xCurrentTcp := ActualTcpPose;
+PM(pRobot := THIS);
 
-HMI_ROB._jointpos_display.joint1 := HMI_ROB._jointpos.joint1 / 0.0174532925199433;
-HMI_ROB._jointpos_display.joint2 := HMI_ROB._jointpos.joint2 / 0.0174532925199433;
-HMI_ROB._jointpos_display.joint3 := HMI_ROB._jointpos.joint3 / 0.0174532925199433;
-HMI_ROB._jointpos_display.joint4 := HMI_ROB._jointpos.joint4 / 0.0174532925199433;
-HMI_ROB._jointpos_display.joint5 := HMI_ROB._jointpos.joint5 / 0.0174532925199433;
-HMI_ROB._jointpos_display.joint6 := HMI_ROB._jointpos.joint6 / 0.0174532925199433;
+
+
+// HMI display mirrors: native _tcppos/_jointpos stay in PLC standard (m/rad); display in mm/deg.
+HMI_ROB._tcppos_display := ChangePoseToHMIStandard(Pose := HMI_ROB._tcppos);
+
+HMI_ROB._jointpos_display.joint1 := ChangeRealToHMIStandard(
+    Value := HMI_ROB._jointpos.joint1, Category := eUnitCategory.Joint);
+HMI_ROB._jointpos_display.joint2 := ChangeRealToHMIStandard(
+    Value := HMI_ROB._jointpos.joint2, Category := eUnitCategory.Joint);
+HMI_ROB._jointpos_display.joint3 := ChangeRealToHMIStandard(
+    Value := HMI_ROB._jointpos.joint3, Category := eUnitCategory.Joint);
+HMI_ROB._jointpos_display.joint4 := ChangeRealToHMIStandard(
+    Value := HMI_ROB._jointpos.joint4, Category := eUnitCategory.Joint);
+HMI_ROB._jointpos_display.joint5 := ChangeRealToHMIStandard(
+    Value := HMI_ROB._jointpos.joint5, Category := eUnitCategory.Joint);
+HMI_ROB._jointpos_display.joint6 := ChangeRealToHMIStandard(
+    Value := HMI_ROB._jointpos.joint6, Category := eUnitCategory.Joint);
 
 // Adopt communication faults + health so the robot reflects its comm child.
 IF COMM <> 0 AND COMM <> ADR(emptyCOMM) THEN
@@ -193,11 +204,6 @@ IF COMM <> 0 AND COMM <> ADR(emptyCOMM) THEN
 END_IF
 
 
-FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO //fb_init??
-	IF pA_Skills[j]<>0 THEN
-		pA_Skills[j]^.pOwner:=THIS;
-	END_IF
-END_FOR
 
 
 FOR index := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
@@ -207,8 +213,7 @@ FOR index := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 
 END_FOR
 
 
-PM.HMI_PM.xCurrentTcp := ActualTcpPose;
-PM(pRobot := THIS);
+
 
 
 
@@ -226,9 +231,9 @@ HMI_ROB.bMoving :=
     (ABS(_tcpvel.X)  > StandStillLimit) OR
     (ABS(_tcpvel.Y)  > StandStillLimit) OR
     (ABS(_tcpvel.Z)  > StandStillLimit) OR
-    (ABS(_tcpvel.Rx) > StandStillLimit) OR
-    (ABS(_tcpvel.Ry) > StandStillLimit) OR
-    (ABS(_tcpvel.Rz) > StandStillLimit);
+    (ABS(_tcpvel.roll) > StandStillLimit) OR
+    (ABS(_tcpvel.pitch) > StandStillLimit) OR
+    (ABS(_tcpvel.yaw) > StandStillLimit);
 	
 //RobotReady
 HMI_ROB.bReady := ((State=eState.Active) AND (NOT Busy));
@@ -256,23 +261,32 @@ EStop := TRUE;]]></ST>
       <Implementation>
         <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
 
-  IF NOT RegisterAsTopLevelRobot THEN
-    FB_Init := TRUE;
-    RETURN;
-  END_IF
+CurrentTCP REF= HMI_ROB._tcppos;
+T_W_B := FromPose(Installationpose);
 
-  FOR iRobot := 1 TO SETUP.nRobCount DO
-    IF SETUP.apRobot[iRobot] = THIS THEN
-      FB_Init := TRUE;
-      RETURN;
-    END_IF
-  END_FOR
+IF NOT RegisterAsTopLevelRobot THEN
+	FB_Init := TRUE;
+	RETURN;
+END_IF
 
-  IF SETUP.nRobCount < SETUP.MaxNrofRobots THEN
-    SETUP.nRobCount := SETUP.nRobCount + 1;
-    SETUP.apRobot[SETUP.nRobCount] := THIS;
-    FB_Init := TRUE;
-  END_IF]]></ST>
+FOR iRobot := 1 TO SETUP.nRobCount DO
+	IF SETUP.apRobot[iRobot] = THIS THEN
+		FB_Init := TRUE;
+		RETURN;
+	END_IF
+END_FOR
+
+IF SETUP.nRobCount < SETUP.MaxNrofRobots THEN
+	SETUP.nRobCount := SETUP.nRobCount + 1;
+	SETUP.apRobot[SETUP.nRobCount] := THIS;
+	FB_Init := TRUE;
+END_IF
+
+
+
+
+
+]]></ST>
       </Implementation>
     </Method>
     <Property Name="InSavePosition" Id="{0b1ac6ae-f2f1-4986-8684-c6891da4f895}" FolderPath="Generic Status\">
@@ -462,7 +476,7 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-
+PM.LoadAllFromFile();
 
 IF Comm^.LastTransitionType = eTransitions.Configure THEN
 	
@@ -597,6 +611,170 @@ IF COMM <> 0 THEN
 END_IF]]></ST>
       </Implementation>
     </Method>
+    <Method Name="ResolveAbsoluteTarget" Id="{b77bfcd9-1d5b-42ab-9650-d1a07eb2b312}" FolderPath="Transformations\">
+      <Declaration><![CDATA[METHOD PUBLIC ResolveAbsoluteTarget : BOOL
+VAR_INPUT
+    TargetIn : ST_Pose;
+    Frame    : eRefFrame;
+
+    // Transformation of robot BRF expressed in WRF
+    T_W_B    : ST_TransformMatrix;
+
+    // Custom user frame expressed in BRF (only used for eRefFrame.CRF).
+    T_B_Custom : ST_TransformMatrix;
+END_VAR
+
+VAR_OUTPUT
+    Target : ST_Pose;
+END_VAR
+
+VAR
+    T_W_Target : ST_TransformMatrix;
+    T_B_Target : ST_TransformMatrix;
+    T_B_W      : ST_TransformMatrix;
+    T_C_Target : ST_TransformMatrix;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ResolveAbsoluteTarget := FALSE;
+
+
+//--------------------------------------------------
+// Resolve absolute Cartesian target into BRF.
+// Output is ALWAYS in PLC standard units (m, rad).
+//--------------------------------------------------
+
+CASE Frame OF
+
+
+    eRefFrame.BRF:
+
+        Target := TargetIn;
+
+
+    eRefFrame.WRF:
+
+        // T_B_Target = inv(T_W_B) * T_W_Target
+        T_W_Target := FromPose(Pose := TargetIn);
+        T_B_W := Inverse(T := T_W_B);
+        T_B_Target := Multiply(A := T_B_W, B := T_W_Target);
+        Target := ToPose(T := T_B_Target);
+
+
+//     eRefFrame.CRF:
+// 
+//         // Target expressed in custom frame; T_B_Custom is that frame in BRF.
+//         // T_B_Target = T_B_Custom * T_C_Target
+//         T_C_Target := FromPose(Pose := TargetIn);
+//         T_B_Target := Multiply(A := T_B_Custom, B := T_C_Target);
+//         Target := ToPose(T := T_B_Target);
+
+
+    eRefFrame.TRF:
+
+        // Absolute TRF is intentionally undefined; use ResolveRelativeTarget instead.
+        RETURN;
+
+
+    ELSE
+
+        RETURN;
+
+END_CASE
+
+
+ResolveAbsoluteTarget := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResolveRelativeTarget" Id="{7316aa83-122c-4f87-a413-cdf614e4c220}" FolderPath="Transformations\">
+      <Declaration><![CDATA[METHOD PUBLIC ResolveRelativeTarget : BOOL
+VAR_INPUT
+    Delta      : ST_Pose;		//Offset expressed in the selected Frame
+    Frame      : eRefFrame;
+
+   
+//     T_B_Custom : ST_TransformMatrix;  // Custom user frame expressed in BRF (only used for eRefFrame.CRF).
+END_VAR
+
+VAR_OUTPUT
+    Target : ST_Pose;
+END_VAR
+
+VAR
+    TCurrent    : ST_TransformMatrix;
+    TDelta      : ST_TransformMatrix;
+    TResult     : ST_TransformMatrix;
+
+    T_W_Current : ST_TransformMatrix;
+    T_W_Target  : ST_TransformMatrix;
+    T_B_W       : ST_TransformMatrix;
+
+    T_C_B       : ST_TransformMatrix;
+    T_C_Current : ST_TransformMatrix;
+    T_C_Target  : ST_TransformMatrix;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ResolveRelativeTarget := FALSE;
+
+
+// CurrentTCP is always expected in BRF (PLC standard units).
+TCurrent := FromPose(Pose := CurrentTCP);
+TDelta   := FromPose(Pose := Delta);
+
+
+CASE Frame OF
+
+
+    eRefFrame.BRF:
+
+        // T_B_Target = T_B_Delta * T_B_Current
+        TResult := Multiply(A := TDelta, B := TCurrent);
+
+
+    eRefFrame.WRF:
+
+        // T_W_Current = T_W_B * T_B_Current
+        T_W_Current := Multiply(A := T_W_B, B := TCurrent);
+
+        // T_W_Target = T_W_Delta * T_W_Current
+        T_W_Target := Multiply(A := TDelta, B := T_W_Current);
+
+        // T_B_Target = inv(T_W_B) * T_W_Target
+        T_B_W := Inverse(T := T_W_B);
+        TResult := Multiply(A := T_B_W, B := T_W_Target);
+
+
+    eRefFrame.TRF:
+
+        // Delta in current tool frame: T_B_Target = T_B_Current * T_T_Delta
+        TResult := Multiply(A := TCurrent, B := TDelta);
+
+// 
+//     eRefFrame.CRF:
+// 
+//         // Delta expressed in a custom frame given by T_B_Custom.
+//         // T_C_Current = inv(T_B_Custom) * T_B_Current
+//         // T_C_Target  = T_C_Delta * T_C_Current
+//         // T_B_Target  = T_B_Custom * T_C_Target
+//         T_C_B := Inverse(T := T_B_Custom);
+//         T_C_Current := Multiply(A := T_C_B, B := TCurrent);
+//         T_C_Target  := Multiply(A := TDelta, B := T_C_Current);
+//         TResult := Multiply(A := T_B_Custom, B := T_C_Target);
+// 
+
+    ELSE
+
+        RETURN;
+
+END_CASE
+
+
+// Result is ALWAYS expressed in BRF, in PLC standard units.
+Target := ToPose(T := TResult);
+
+
+ResolveRelativeTarget := TRUE;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="SetOperationMode" Id="{a36cbff6-922e-4670-8cae-63446b6e1765}" FolderPath="Generic Control\">
       <Declaration><![CDATA[{warning 'OVERRIDE'}
 METHOD SetOperationMode : eResult
@@ -633,5 +811,16 @@ HMI_ROB._speedOverride := prozent; // depend on Robot Type //TODO
 SetSpeedOverride := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <Action Name="SETUP_ROB" Id="{a4cb3038-46c5-4081-b870-1e91e16123a5}">
+      <Implementation>
+        <ST><![CDATA[FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO //fb_init??
+	IF pA_Skills[j]<>0 THEN
+		pA_Skills[j]^.pOwner:=THIS;
+	END_IF
+END_FOR
+
+]]></ST>
+      </Implementation>
+    </Action>
   </POU>
 </TcPlcObject>

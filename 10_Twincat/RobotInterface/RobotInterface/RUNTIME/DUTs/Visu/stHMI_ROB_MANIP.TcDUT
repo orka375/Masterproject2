@@ -5,8 +5,8 @@
 {attribute 'OPC.UA.DA' := '1'}
 TYPE stHMI_ROB_MANIP :
 STRUCT
-	
-	TCPPosition: stPoseGeneral;
+	RefFrame: eRefFrame;
+	TCPPosition: ST_Pose;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

@@ -54,7 +54,7 @@ END_IF]]></ST>
     </Method>
     <Action Name="CYCLIC_JOG_AMR" Id="{654e51da-3e56-403f-b3b1-30c87ed192f9}">
       <Implementation>
-                                <ST><![CDATA[// ----------------------------------------------------------
+        <ST><![CDATA[// ----------------------------------------------------------
 // Capabilities / behavior for HMI
 // ----------------------------------------------------------
 bSupportsX := TRUE;
@@ -74,7 +74,7 @@ nLastCommandID := 0;
 // ----------------------------------------------------------
 IF pStatusRobot <> 0 THEN
     ActualPose := pStatusRobot^.ActualTcpPose;
-    _yawRobot := ActualPose.Rz;
+    _yawRobot := ActualPose.yaw;
     bMoving := pStatusRobot^.IsMoving;
     bReady := bEnable AND pStatusRobot^.IsReady;
 ELSE
@@ -131,29 +131,30 @@ END_IF
 // ----------------------------------------------------------
 // Frame transform.
 // Output is always ROBOT-LOCAL velocity:
-//   nFrame = 0 -> Map / World axes
-//   nFrame = 1 -> Robot-local axes
-//   nFrame = 2 -> CustomFrame.Rz axes
+//   eRefFrame.WRF -> Map / world axes
+//   eRefFrame.BRF -> Robot-local axes (AMR "local" == robot base)
+//   eRefFrame.TRF -> follows AMR chassis yaw (same as BRF for planar AMR)
+//   eRefFrame.CRF -> CustomFrame.yaw axes
 //
 // v_robot = R(frameYaw - robotYaw) * v_frame
 // ----------------------------------------------------------
 CASE nFrame OF
-    0: // Map / world
+    eRefFrame.WRF:
         _yawFrame := 0.0;
         ActiveFramePose.X := 0.0;
         ActiveFramePose.Y := 0.0;
         ActiveFramePose.Z := 0.0;
-        ActiveFramePose.Rx := 0.0;
-        ActiveFramePose.Ry := 0.0;
-        ActiveFramePose.Rz := 0.0;
+        ActiveFramePose.roll := 0.0;
+        ActiveFramePose.pitch := 0.0;
+        ActiveFramePose.yaw := 0.0;
 
-    1: // Robot local
+    eRefFrame.BRF, eRefFrame.TRF:
         _yawFrame := _yawRobot;
         ActiveFramePose := ActualPose;
 
-    2: // Custom
-        _yawFrame := CustomFrame.Rz;
-        ActiveFramePose := CustomFrame;
+//     eRefFrame.CRF:
+//         _yawFrame := CustomFrame.yaw;
+//         ActiveFramePose := CustomFrame;
 
     ELSE
         _yawFrame := _yawRobot;

@@ -7,11 +7,532 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
+	PLCStandardUnits : ST_StandardUnits := (
+        Position            := eUnit.m,
+        Orientation         := eUnit.rad,
+        Joint               := eUnit.rad,
+        LinearVelocity      := eUnit.m,
+        AngularVelocity     := eUnit.rad,
+        JointVelocity       := eUnit.rad,
+        LinearAcceleration  := eUnit.m,
+        AngularAcceleration := eUnit.rad,
+        JointAcceleration   := eUnit.rad
+    );
+
+    HMIStandardUnits : ST_StandardUnits := (
+        Position            := eUnit.mm,
+        Orientation         := eUnit.deg,
+        Joint               := eUnit.deg,
+        LinearVelocity      := eUnit.mm,
+        AngularVelocity     := eUnit.deg,
+        JointVelocity       := eUnit.deg,
+        LinearAcceleration  := eUnit.mm,
+        AngularAcceleration := eUnit.deg,
+        JointAcceleration   := eUnit.deg
+    );
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Folder Name="Transformations" Id="{0f35416c-425e-4895-8ca7-e79ef5060dff}" />
+    <Folder Name="UnitsHandling" Id="{1f9b8cac-4895-49e0-847a-3b08ee3b77fa}" />
+    <Method Name="ATAN2" Id="{0055c2f1-7ac2-4dfc-a141-471d222df1fa}" FolderPath="Transformations\">
+      <Declaration><![CDATA[METHOD PRIVATE ATAN2 : LREAL
+VAR_INPUT
+    y : LREAL;
+    x : LREAL;
+END_VAR
+VAR CONSTANT
+    PI      : LREAL := 3.14159265358979323846;
+    HALF_PI : LREAL := 1.57079632679489661923;
+    EPS     : LREAL := 1E-12;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+IF x > EPS THEN
+
+    // Quadrant I or IV
+    ATAN2 := ATAN(y / x);
+
+
+ELSIF x < -EPS THEN
+
+    IF y >= 0.0 THEN
+        // Quadrant II
+        ATAN2 := ATAN(y / x) + PI;
+    ELSE
+        // Quadrant III
+        ATAN2 := ATAN(y / x) - PI;
+    END_IF
+
+
+ELSE
+
+    // x approximately zero
+
+    IF y > EPS THEN
+        ATAN2 := HALF_PI;
+
+    ELSIF y < -EPS THEN
+        ATAN2 := -HALF_PI;
+
+    ELSE
+        // x = 0 and y = 0:
+        // mathematically undefined, but 0 is practical here.
+        ATAN2 := 0.0;
+
+    END_IF
+
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangePointFromHMIStandard" Id="{d0a3c073-2878-4daa-958b-46413eb7c001}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangePointFromHMIStandard : ST_Point
+VAR_INPUT
+    Point : ST_Point;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ChangePointFromHMIStandard := ChangePointUnits(
+    Point := Point,
+    FromUnits := HMIStandardUnits,
+    ToUnits := PLCStandardUnits
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangePointFromRobotStandard" Id="{d0a3c073-2878-4daa-958b-46413eb7bacf}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangePointFromRobotStandard : ST_Point
+VAR_INPUT
+    Point              : ST_Point;
+    RobotStandardUnits : ST_StandardUnits;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ChangePointFromRobotStandard := ChangePointUnits(
+    Point := Point,
+    FromUnits := RobotStandardUnits,
+    ToUnits := PLCStandardUnits
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangePointToHMIStandard" Id="{67a33fcd-78ea-446e-a7a7-9f7b40a3c5b5}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangePointToHMIStandard : ST_Point
+VAR_INPUT
+    Point : ST_Point;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ChangePointToHMIStandard := ChangePointUnits(
+    Point := Point,
+    FromUnits := PLCStandardUnits,
+    ToUnits := HMIStandardUnits
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangePointToRobotStandard" Id="{5677d35c-c59a-42d2-acc5-180ea3cc2e88}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangePointToRobotStandard : ST_Point
+VAR_INPUT
+    Point              : ST_Point;
+    RobotStandardUnits : ST_StandardUnits;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ChangePointToRobotStandard := ChangePointUnits(
+    Point := Point,
+    FromUnits := PLCStandardUnits,
+    ToUnits := RobotStandardUnits
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangePointUnits" Id="{a642afa2-480c-4f17-a884-44fd555fb170}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangePointUnits : ST_Point
+VAR_INPUT
+    Point     : ST_Point;
+    FromUnits : ST_StandardUnits;
+    ToUnits   : ST_StandardUnits;
+END_VAR
+VAR
+    Result : ST_Point;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Result.x := ChangeValueUnit(Value := Point.x, FromUnit := FromUnits.Position, ToUnit := ToUnits.Position);
+Result.y := ChangeValueUnit(Value := Point.y, FromUnit := FromUnits.Position, ToUnit := ToUnits.Position);
+Result.z := ChangeValueUnit(Value := Point.z, FromUnit := FromUnits.Position, ToUnit := ToUnits.Position);
+
+ChangePointUnits := Result;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangePoseFromHMIStandard" Id="{cde985c4-25b0-429e-88b5-4b336f5d8f01}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangePoseFromHMIStandard : ST_Pose
+VAR_INPUT
+    Pose : ST_Pose;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ChangePoseFromHMIStandard := ChangePoseUnits(
+    Pose := Pose,
+    FromUnits := HMIStandardUnits,
+    ToUnits := PLCStandardUnits
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangePoseFromRobotStandard" Id="{cde985c4-25b0-429e-88b5-4b336f5d8ef6}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangePoseFromRobotStandard : ST_Pose
+VAR_INPUT
+    Pose               : ST_Pose;
+    RobotStandardUnits : ST_StandardUnits;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ChangePoseFromRobotStandard := ChangePoseUnits(
+    Pose := Pose,
+    FromUnits := RobotStandardUnits,
+    ToUnits := PLCStandardUnits
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangePoseToHMIStandard" Id="{cb85de71-babf-426a-8a9c-cd2b555916fc}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangePoseToHMIStandard : ST_Pose
+VAR_INPUT
+    Pose : ST_Pose;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ChangePoseToHMIStandard := ChangePoseUnits(
+    Pose := Pose,
+    FromUnits := PLCStandardUnits,
+    ToUnits := HMIStandardUnits
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangePoseToRobotStandard" Id="{40e62b9b-47d4-4ad4-89c0-8f8478233b1e}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangePoseToRobotStandard : ST_Pose
+VAR_INPUT
+    Pose               : ST_Pose;
+    RobotStandardUnits : ST_StandardUnits;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ChangePoseToRobotStandard := ChangePoseUnits(
+    Pose := Pose,
+    FromUnits := PLCStandardUnits,
+    ToUnits := RobotStandardUnits
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangePoseUnits" Id="{0fa847d3-0245-4e07-9dd4-030c493801af}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangePoseUnits : ST_Pose
+VAR_INPUT
+    Pose      : ST_Pose;
+    FromUnits : ST_StandardUnits;
+    ToUnits   : ST_StandardUnits;
+END_VAR
+VAR
+    Result : ST_Pose;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Result.x := ChangeValueUnit(Value := Pose.x, FromUnit := FromUnits.Position, ToUnit := ToUnits.Position);
+Result.y := ChangeValueUnit(Value := Pose.y, FromUnit := FromUnits.Position, ToUnit := ToUnits.Position);
+Result.z := ChangeValueUnit(Value := Pose.z, FromUnit := FromUnits.Position, ToUnit := ToUnits.Position);
+
+Result.roll := ChangeValueUnit(Value := Pose.roll, FromUnit := FromUnits.Orientation, ToUnit := ToUnits.Orientation);
+Result.pitch := ChangeValueUnit(Value := Pose.pitch, FromUnit := FromUnits.Orientation, ToUnit := ToUnits.Orientation);
+Result.yaw := ChangeValueUnit(Value := Pose.yaw, FromUnit := FromUnits.Orientation, ToUnit := ToUnits.Orientation);
+
+ChangePoseUnits := Result;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangeRealFromHMIStandard" Id="{c330b571-1640-40b5-9dcc-76859d66c001}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangeRealFromHMIStandard : LREAL
+VAR_INPUT
+    Value    : LREAL;
+    Category : eUnitCategory;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ChangeRealFromHMIStandard := ChangeRealUnits(
+    Value := Value,
+    Category := Category,
+    FromUnits := HMIStandardUnits,
+    ToUnits := PLCStandardUnits
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangeRealFromRobotStandard" Id="{c330b571-1640-40b5-9dcc-76859d66c002}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangeRealFromRobotStandard : LREAL
+VAR_INPUT
+    Value              : LREAL;
+    Category           : eUnitCategory;
+    RobotStandardUnits : ST_StandardUnits;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ChangeRealFromRobotStandard := ChangeRealUnits(
+    Value := Value,
+    Category := Category,
+    FromUnits := RobotStandardUnits,
+    ToUnits := PLCStandardUnits
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangeRealToHMIStandard" Id="{c330b571-1640-40b5-9dcc-76859d66c003}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangeRealToHMIStandard : LREAL
+VAR_INPUT
+    Value    : LREAL;
+    Category : eUnitCategory;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ChangeRealToHMIStandard := ChangeRealUnits(
+    Value := Value,
+    Category := Category,
+    FromUnits := PLCStandardUnits,
+    ToUnits := HMIStandardUnits
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangeRealToRobotStandard" Id="{c330b571-1640-40b5-9dcc-76859d66c004}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangeRealToRobotStandard : LREAL
+VAR_INPUT
+    Value              : LREAL;
+    Category           : eUnitCategory;
+    RobotStandardUnits : ST_StandardUnits;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ChangeRealToRobotStandard := ChangeRealUnits(
+    Value := Value,
+    Category := Category,
+    FromUnits := PLCStandardUnits,
+    ToUnits := RobotStandardUnits
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangeRealUnits" Id="{c330b571-1640-40b5-9dcc-76859d662808}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangeRealUnits : LREAL
+VAR_INPUT
+    Value     : LREAL;
+    Category  : eUnitCategory;
+    FromUnits : ST_StandardUnits;
+    ToUnits   : ST_StandardUnits;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE Category OF
+    eUnitCategory.Position:
+        ChangeRealUnits := ChangeValueUnit(
+            Value := Value,
+            FromUnit := FromUnits.Position,
+            ToUnit := ToUnits.Position
+        );
+
+    eUnitCategory.Orientation:
+        ChangeRealUnits := ChangeValueUnit(
+            Value := Value,
+            FromUnit := FromUnits.Orientation,
+            ToUnit := ToUnits.Orientation
+        );
+
+    eUnitCategory.Joint:
+        ChangeRealUnits := ChangeValueUnit(
+            Value := Value,
+            FromUnit := FromUnits.Joint,
+            ToUnit := ToUnits.Joint
+        );
+
+    eUnitCategory.LinearVelocity:
+        ChangeRealUnits := ChangeValueUnit(
+            Value := Value,
+            FromUnit := FromUnits.LinearVelocity,
+            ToUnit := ToUnits.LinearVelocity
+        );
+
+    eUnitCategory.AngularVelocity:
+        ChangeRealUnits := ChangeValueUnit(
+            Value := Value,
+            FromUnit := FromUnits.AngularVelocity,
+            ToUnit := ToUnits.AngularVelocity
+        );
+
+    eUnitCategory.JointVelocity:
+        ChangeRealUnits := ChangeValueUnit(
+            Value := Value,
+            FromUnit := FromUnits.JointVelocity,
+            ToUnit := ToUnits.JointVelocity
+        );
+
+    eUnitCategory.LinearAcceleration:
+        ChangeRealUnits := ChangeValueUnit(
+            Value := Value,
+            FromUnit := FromUnits.LinearAcceleration,
+            ToUnit := ToUnits.LinearAcceleration
+        );
+
+    eUnitCategory.AngularAcceleration:
+        ChangeRealUnits := ChangeValueUnit(
+            Value := Value,
+            FromUnit := FromUnits.AngularAcceleration,
+            ToUnit := ToUnits.AngularAcceleration
+        );
+
+    eUnitCategory.JointAcceleration:
+        ChangeRealUnits := ChangeValueUnit(
+            Value := Value,
+            FromUnit := FromUnits.JointAcceleration,
+            ToUnit := ToUnits.JointAcceleration
+        );
+
+    ELSE
+        ChangeRealUnits := Value;
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangeTransformFromHMIStandard" Id="{c97829bf-5267-47b7-a82b-e7f600655001}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangeTransformFromHMIStandard : ST_TransformMatrix
+VAR_INPUT
+    Transform : ST_TransformMatrix;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ChangeTransformFromHMIStandard := ChangeTransformMatrixUnits(
+    Transform := Transform,
+    FromUnits := HMIStandardUnits,
+    ToUnits := PLCStandardUnits
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangeTransformFromRobotStandard" Id="{c97829bf-5267-47b7-a82b-e7f600655555}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangeTransformFromRobotStandard : ST_TransformMatrix
+VAR_INPUT
+    Transform          : ST_TransformMatrix;
+    RobotStandardUnits : ST_StandardUnits;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ChangeTransformFromRobotStandard := ChangeTransformMatrixUnits(
+    Transform := Transform,
+    FromUnits := RobotStandardUnits,
+    ToUnits := PLCStandardUnits
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangeTransformMatrixUnits" Id="{54c16076-24ff-4451-8acb-5f1592079cf3}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangeTransformMatrixUnits : ST_TransformMatrix
+VAR_INPUT
+    Transform : ST_TransformMatrix;
+    FromUnits : ST_StandardUnits;
+    ToUnits   : ST_StandardUnits;
+END_VAR
+VAR
+    Result : ST_TransformMatrix;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Rotation matrix elements r11..r33 are dimensionless and must never be scaled.
+Result := Transform;
+
+Result.x := ChangeValueUnit(Value := Transform.x, FromUnit := FromUnits.Position, ToUnit := ToUnits.Position);
+Result.y := ChangeValueUnit(Value := Transform.y, FromUnit := FromUnits.Position, ToUnit := ToUnits.Position);
+Result.z := ChangeValueUnit(Value := Transform.z, FromUnit := FromUnits.Position, ToUnit := ToUnits.Position);
+
+ChangeTransformMatrixUnits := Result;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangeTransformToHMIStandard" Id="{fce897c6-9717-487a-984f-ee3315c9223a}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangeTransformToHMIStandard : ST_TransformMatrix
+VAR_INPUT
+    Transform : ST_TransformMatrix;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ChangeTransformToHMIStandard := ChangeTransformMatrixUnits(
+    Transform := Transform,
+    FromUnits := PLCStandardUnits,
+    ToUnits := HMIStandardUnits
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangeTransformToRobotStandard" Id="{7126adec-2b7f-4b79-8649-7f0703157266}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangeTransformToRobotStandard : ST_TransformMatrix
+VAR_INPUT
+    Transform          : ST_TransformMatrix;
+    RobotStandardUnits : ST_StandardUnits;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ChangeTransformToRobotStandard := ChangeTransformMatrixUnits(
+    Transform := Transform,
+    FromUnits := PLCStandardUnits,
+    ToUnits := RobotStandardUnits
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ChangeValueUnit" Id="{8dc1db31-058d-41e3-8c60-f262cc93663c}" FolderPath="UnitsHandling\">
+      <Declaration><![CDATA[METHOD PUBLIC ChangeValueUnit : LREAL
+VAR_INPUT
+    Value    : LREAL;
+    FromUnit : eUnit;
+    ToUnit   : eUnit;
+END_VAR
+VAR CONSTANT
+    PI : LREAL := 3.14159265358979323846;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF FromUnit = ToUnit THEN
+    ChangeValueUnit := Value;
+    RETURN;
+END_IF;
+
+IF (FromUnit = eUnit.m) AND (ToUnit = eUnit.mm) THEN
+    ChangeValueUnit := Value * 1000.0;
+    RETURN;
+END_IF;
+
+IF (FromUnit = eUnit.mm) AND (ToUnit = eUnit.m) THEN
+    ChangeValueUnit := Value / 1000.0;
+    RETURN;
+END_IF;
+
+IF (FromUnit = eUnit.rad) AND (ToUnit = eUnit.deg) THEN
+    ChangeValueUnit := Value * 180.0 / PI;
+    RETURN;
+END_IF;
+
+IF (FromUnit = eUnit.deg) AND (ToUnit = eUnit.rad) THEN
+    ChangeValueUnit := Value * PI / 180.0;
+    RETURN;
+END_IF;
+
+ChangeValueUnit := Value;
+]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="CombineResults" Id="{49654499-5a32-4770-953e-524c6c42196d}">
       <Declaration><![CDATA[METHOD CombineResults : eResult
 VAR_INPUT
@@ -32,20 +553,69 @@ ELSE
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="ProposeHealth" Id="{7aa2f37d-3bc5-465a-8b0b-206f6885d607}">
-      <Declaration><![CDATA[// Returns the worse of two health levels (by severity rank, not raw enum value).
-METHOD ProposeHealth : eHealth
+    <Method Name="FromPose" Id="{6efa89f2-d704-47c1-801f-9ae91ceec8e7}" FolderPath="Transformations\">
+      <Declaration><![CDATA[METHOD PUBLIC FromPose : ST_TransformMatrix
 VAR_INPUT
-	current  : eHealth;
-	proposed : eHealth;
+    Pose : ST_Pose;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF HealthRank(proposed) < HealthRank(current) THEN
-	ProposeHealth := proposed;
-ELSE
-	ProposeHealth := current;
-END_IF]]></ST>
+        <ST><![CDATA[FromPose := FromXYZRPY(
+    x     := Pose.x,
+    y     := Pose.y,
+    z     := Pose.z,
+    roll  := Pose.roll,
+    pitch := Pose.pitch,
+    yaw   := Pose.yaw
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FromXYZRPY" Id="{5fbcc109-d897-4d16-8641-3cd9cc831b6b}" FolderPath="Transformations\">
+      <Declaration><![CDATA[METHOD PUBLIC FromXYZRPY : ST_TransformMatrix
+VAR_INPUT
+    x     : LREAL;
+    y     : LREAL;
+    z     : LREAL;
+    roll  : LREAL;
+    pitch : LREAL;
+    yaw   : LREAL;
+END_VAR
+VAR
+    cr : LREAL;
+    sr : LREAL;
+    cp : LREAL;
+    sp : LREAL;
+    cy : LREAL;
+    sy : LREAL;
+    T  : ST_TransformMatrix;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[cr := COS(roll);
+sr := SIN(roll);
+cp := COS(pitch);
+sp := SIN(pitch);
+cy := COS(yaw);
+sy := SIN(yaw);
+
+// R = Rz(yaw) * Ry(pitch) * Rx(roll)
+T.r11 := cy * cp;
+T.r12 := cy * sp * sr - sy * cr;
+T.r13 := cy * sp * cr + sy * sr;
+
+T.r21 := sy * cp;
+T.r22 := sy * sp * sr + cy * cr;
+T.r23 := sy * sp * cr - cy * sr;
+
+T.r31 := -sp;
+T.r32 := cp * sr;
+T.r33 := cp * cr;
+
+T.x := x;
+T.y := y;
+T.z := z;
+
+FromXYZRPY := T;]]></ST>
       </Implementation>
     </Method>
     <Method Name="HealthRank" Id="{7aa2f37d-3bc5-465a-8b0b-206f6885d608}">
@@ -65,6 +635,187 @@ END_VAR
 ELSE
 	HealthRank := 3;
 END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Identity" Id="{082c5415-02f0-465a-8f38-47846cdb81bf}" FolderPath="Transformations\">
+      <Declaration><![CDATA[METHOD PUBLIC Identity : ST_TransformMatrix
+VAR
+    T : ST_TransformMatrix;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[T.r11 := 1.0;
+T.r12 := 0.0;
+T.r13 := 0.0;
+T.r21 := 0.0;
+T.r22 := 1.0;
+T.r23 := 0.0;
+T.r31 := 0.0;
+T.r32 := 0.0;
+T.r33 := 1.0;
+
+T.x := 0.0;
+T.y := 0.0;
+T.z := 0.0;
+
+Identity := T;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Inverse" Id="{8ef26d85-a00a-4547-bcac-ea1d7f67b03b}" FolderPath="Transformations\">
+      <Declaration><![CDATA[METHOD PUBLIC Inverse : ST_TransformMatrix
+VAR_INPUT
+    T : ST_TransformMatrix;
+END_VAR
+VAR
+    Inv : ST_TransformMatrix;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// For a rigid transform:
+// inv(T) = [ R^T  -R^T*t ]
+
+Inv.r11 := T.r11;
+Inv.r12 := T.r21;
+Inv.r13 := T.r31;
+
+Inv.r21 := T.r12;
+Inv.r22 := T.r22;
+Inv.r23 := T.r32;
+
+Inv.r31 := T.r13;
+Inv.r32 := T.r23;
+Inv.r33 := T.r33;
+
+Inv.x := -(Inv.r11*T.x + Inv.r12*T.y + Inv.r13*T.z);
+Inv.y := -(Inv.r21*T.x + Inv.r22*T.y + Inv.r23*T.z);
+Inv.z := -(Inv.r31*T.x + Inv.r32*T.y + Inv.r33*T.z);
+
+Inverse := Inv;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Multiply" Id="{558458a2-628c-49fe-b7a6-bfe7a802f29e}" FolderPath="Transformations\">
+      <Declaration><![CDATA[METHOD PUBLIC Multiply : ST_TransformMatrix
+VAR_INPUT
+    A : ST_TransformMatrix;
+    B : ST_TransformMatrix;
+END_VAR
+VAR
+    C : ST_TransformMatrix;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Rotation: C.R = A.R * B.R
+C.r11 := A.r11*B.r11 + A.r12*B.r21 + A.r13*B.r31;
+C.r12 := A.r11*B.r12 + A.r12*B.r22 + A.r13*B.r32;
+C.r13 := A.r11*B.r13 + A.r12*B.r23 + A.r13*B.r33;
+
+C.r21 := A.r21*B.r11 + A.r22*B.r21 + A.r23*B.r31;
+C.r22 := A.r21*B.r12 + A.r22*B.r22 + A.r23*B.r32;
+C.r23 := A.r21*B.r13 + A.r22*B.r23 + A.r23*B.r33;
+
+C.r31 := A.r31*B.r11 + A.r32*B.r21 + A.r33*B.r31;
+C.r32 := A.r31*B.r12 + A.r32*B.r22 + A.r33*B.r32;
+C.r33 := A.r31*B.r13 + A.r32*B.r23 + A.r33*B.r33;
+
+// Translation: C.t = A.R * B.t + A.t
+C.x := A.r11*B.x + A.r12*B.y + A.r13*B.z + A.x;
+C.y := A.r21*B.x + A.r22*B.y + A.r23*B.z + A.y;
+C.z := A.r31*B.x + A.r32*B.y + A.r33*B.z + A.z;
+
+Multiply := C;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ProposeHealth" Id="{7aa2f37d-3bc5-465a-8b0b-206f6885d607}">
+      <Declaration><![CDATA[// Returns the worse of two health levels (by severity rank, not raw enum value).
+METHOD ProposeHealth : eHealth
+VAR_INPUT
+	current  : eHealth;
+	proposed : eHealth;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF HealthRank(proposed) < HealthRank(current) THEN
+	ProposeHealth := proposed;
+ELSE
+	ProposeHealth := current;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ToPose" Id="{a2361769-a73b-4c79-8aed-d424bd5ba8f9}" FolderPath="Transformations\">
+      <Declaration><![CDATA[METHOD PUBLIC ToPose : ST_Pose
+VAR_INPUT
+    T : ST_TransformMatrix;
+END_VAR
+VAR
+    P  : ST_Pose;
+    cp : LREAL;
+    v  : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[P.x := T.x;
+P.y := T.y;
+P.z := T.z;
+
+// Clamp before ASIN to protect against small floating-point errors.
+v := -T.r31;
+IF v > 1.0 THEN
+    v := 1.0;
+ELSIF v < -1.0 THEN
+    v := -1.0;
+END_IF
+
+P.pitch := ASIN(v);
+cp := COS(P.pitch);
+
+IF ABS(cp) > 1E-9 THEN
+    P.roll := ATAN2(T.r32, T.r33);
+    P.yaw  := ATAN2(T.r21, T.r11);
+ELSE
+    // Gimbal lock: choose roll = 0 and solve yaw from remaining terms.
+    P.roll := 0.0;
+    P.yaw  := ATAN2(-T.r12, T.r22);
+END_IF
+
+ToPose := P;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TransformPoint" Id="{c02f9720-fd79-4af6-85ea-fc0de5935a7b}" FolderPath="Transformations\">
+      <Declaration><![CDATA[METHOD PUBLIC TransformPoint : ST_Vector3
+VAR_INPUT
+    T : ST_TransformMatrix;
+    P : ST_Vector3;
+END_VAR
+VAR
+    Result : ST_Vector3;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Point: p_out = R*p_in + t
+Result.x := T.r11*P.x + T.r12*P.y + T.r13*P.z + T.x;
+Result.y := T.r21*P.x + T.r22*P.y + T.r23*P.z + T.y;
+Result.z := T.r31*P.x + T.r32*P.y + T.r33*P.z + T.z;
+
+TransformPoint := Result;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TransformVector" Id="{6c8293cf-c388-4d1c-8aab-fc0dcd16a6d5}" FolderPath="Transformations\">
+      <Declaration><![CDATA[METHOD PUBLIC TransformVector : ST_Vector3
+VAR_INPUT
+    T : ST_TransformMatrix;
+    V : ST_Vector3;
+END_VAR
+VAR
+    Result : ST_Vector3;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Direction/vector: translation is intentionally ignored.
+Result.x := T.r11*V.x + T.r12*V.y + T.r13*V.z;
+Result.y := T.r21*V.x + T.r22*V.y + T.r23*V.z;
+Result.z := T.r31*V.x + T.r32*V.y + T.r33*V.z;
+
+TransformVector := Result;]]></ST>
       </Implementation>
     </Method>
   </POU>

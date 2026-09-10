@@ -2,7 +2,7 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_Jog_Base" Id="{07510ab4-87e0-41b7-8fcd-b7762a6b0059}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'hide_all_locals'}
-FUNCTION_BLOCK FB_Jog_Base
+FUNCTION_BLOCK FB_Jog_Base EXTENDS FB_Utilities
 VAR_INPUT
     // ==========================================================
     // HMI / COMMON JOG SETTINGS
@@ -11,11 +11,8 @@ VAR_INPUT
     // ==========================================================
     bEnable             : BOOL := TRUE;
 
-    // Frame convention used by both derived jog FBs:
-    // 0 = Base / Map / World
-    // 1 = Local / Tool / Robot
-    // 2 = Custom
-    nFrame              : USINT := 0;
+    // Reference frame used by both derived jog FBs. eRefFrame.CRF uses CustomFrame.
+    nFrame              : eRefFrame := eRefFrame.TRF;
 
     // Step values are used by the manipulator jog.
     // SI recommendation:
@@ -44,7 +41,7 @@ VAR_INPUT
     // Orientation is used for Custom-frame jogging.
     // Manipulator: Rx/Ry/Rz is a rotation vector.
     // AMR: Rz is interpreted as planar yaw.
-    CustomFrame         : stPoseGeneral;
+    CustomFrame         : ST_Pose;
 
     // ==========================================================
     // HMI DIRECTION BUTTONS
@@ -91,8 +88,8 @@ VAR_OUTPUT
     bCommandIssued      : BOOL;
     nLastCommandID      : UINT;
 
-    ActualPose          : stPoseGeneral;
-    ActiveFramePose     : stPoseGeneral;
+    ActualPose          : ST_Pose;
+    ActiveFramePose     : ST_Pose;
 
     // HMI can use these to show/hide unsupported axes.
     bSupportsX          : BOOL;
@@ -135,6 +132,16 @@ END_VAR]]></Declaration>
     </Implementation>
     <Folder Name="JogControl" Id="{0bb8744c-dd3e-4f73-af01-358647a64a2d}" />
     <Folder Name="Settings" Id="{cf64427a-c3e1-4c53-98a0-3f6895990465}" />
+    <Method Name="ConvertStepUnits" Id="{a3f0a1c1-5b8e-4f1a-9c2d-7e6f4a2b1c3d}" FolderPath="Settings\">
+      <Declaration><![CDATA[METHOD PUBLIC ConvertStepUnits : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fLinearStep := LREAL_TO_REAL(ChangeRealFromHMIStandard(
+    Value := fLinearStep_mm, Category := eUnitCategory.Position));
+fAngularStep := LREAL_TO_REAL(ChangeRealFromHMIStandard(
+    Value := fAngularStep_deg, Category := eUnitCategory.Orientation));
+ConvertStepUnits := TRUE;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="JogRxMinus" Id="{e2d6aa2d-55ce-4228-9225-2c8ab22b7e11}" FolderPath="JogControl\">
       <Declaration><![CDATA[METHOD PUBLIC JogRxMinus : BOOL]]></Declaration>
       <Implementation>
@@ -298,7 +305,7 @@ END_IF]]></ST>
     <Method Name="SetCustomFrame" Id="{e8d0868c-cc69-482a-a293-e92a06f0bd47}" FolderPath="Settings\">
       <Declaration><![CDATA[METHOD PUBLIC SetCustomFrame : BOOL
 VAR_INPUT
-    Frame : stPoseGeneral;
+    Frame : ST_Pose;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[CustomFrame := Frame;
@@ -308,15 +315,11 @@ SetCustomFrame := TRUE;]]></ST>
     <Method Name="SetFrame" Id="{6afaa23b-088d-47d0-b258-1bfc2c824540}" FolderPath="Settings\">
       <Declaration><![CDATA[METHOD PUBLIC SetFrame : BOOL
 VAR_INPUT
-    nValue : USINT;
+    Value : eRefFrame;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF nValue <= 2 THEN
-    nFrame := nValue;
-    SetFrame := TRUE;
-ELSE
-    SetFrame := FALSE;
-END_IF]]></ST>
+        <ST><![CDATA[nFrame := Value;
+SetFrame := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="SetLinearStep" Id="{d677e68d-e354-4bc6-9cb4-7fbb9eb1e97a}" FolderPath="Settings\">
@@ -345,14 +348,6 @@ END_VAR]]></Declaration>
 ELSE
     SetLinearVelocity := FALSE;
 END_IF]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="ConvertStepUnits" Id="{a3f0a1c1-5b8e-4f1a-9c2d-7e6f4a2b1c3d}" FolderPath="Settings\">
-      <Declaration><![CDATA[METHOD PUBLIC ConvertStepUnits : BOOL]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[fLinearStep := fLinearStep_mm / 1000.0;
-fAngularStep := fAngularStep_deg * 0.0174532925199433;
-ConvertStepUnits := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="StopJog" Id="{275159c4-fdb9-47b2-a70b-1c291e3b6d7e}" FolderPath="JogControl\">

@@ -6,23 +6,23 @@ STRUCT
 	WrittenFor: STRING := '';
 	
 	
-	PickPositionName: STRING;
-	PickPositionOffset: stPoseGeneral;
+	PickPositionName: STRING := 'Pick';
+	PickPositionOffset: ST_Pose;
 	
-	PlacePositionName: STRING;
-	PlacePositionOffset: stPoseGeneral;
+	PlacePositionName: STRING := 'Place';
+	PlacePositionOffset: ST_Pose;
 	
 	PickApproachDirection: eDirections := eDirections.Zplus;
-	PickApproachOffset: REAL := 20; 			//mm
+	PickApproachOffset: REAL := 0.01; 			//m
 	
 	PlaceApproachDirection: eDirections := eDirections.Zplus;
-	PlaceApproachOffset: REAL := 20; 			//mm
+	PlaceApproachOffset: REAL := 0.01; 			//m
 	
 	bPassTroughMiddlePoint: BOOL := FALSE;
 	MiddlePointName: STRING;
 	
-	FastVelocity: REAL:= 20;			//mm/s
-	SlowVelocity: REAL:= 10;			//mm/s
+	FastVelocity: REAL:= 0.01;			//m/s
+	SlowVelocity: REAL:= 0.01;			//m/s
 	
 END_STRUCT
 END_TYPE

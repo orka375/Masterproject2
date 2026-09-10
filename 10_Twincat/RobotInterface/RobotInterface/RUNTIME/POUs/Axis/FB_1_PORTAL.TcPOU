@@ -6,7 +6,7 @@ FUNCTION_BLOCK FB_1_PORTAL EXTENDS FB_1_ROB
 VAR_INPUT
     nAxisCount : UINT := 0;
     aAxis : ARRAY[1..6] OF stCombineAxisConfig;
-    BaseOffset : stPoseGeneral;
+    BaseOffset : ST_Pose;
     DirectionTolerance : LREAL := 0.001;
 END_VAR
 VAR_OUTPUT
@@ -62,7 +62,7 @@ FOR index := 1 TO _activeAxisCount DO
     5: childTarget := Settings.Joints.joint5;
     6: childTarget := Settings.Joints.joint6;
   END_CASE
-  childSettings := ();
+  
   childSettings.Velocity := Settings.Velocity;
   childSettings.Joints.joint1 := childTarget;
   _aChildBAID[index] := aAxis[index].pAxis^.BA_Handler(Cmd := eBA.MoveJJoints, Settings := childSettings);
@@ -96,9 +96,7 @@ _allSafeMovesFinalized := TRUE;
 _anyAxisMoving := FALSE;
 _anyAxisError := FALSE;
 HMI_ROB._tcppos := BaseOffset;
-_tcpvel := ();
-HMI_ROB._jointpos := ();
-_jointvel := ();
+
 
 FOR _index := 1 TO _activeAxisCount DO
     IF NOT aAxis[_index].bEnabled THEN
@@ -115,7 +113,7 @@ FOR _index := 1 TO _activeAxisCount DO
         CONTINUE;
     END_IF
 
-    aAxis[_index].pAxis^();
+
     _position := aAxis[_index].pAxis^.HMI_ROB._jointpos.joint1;
     _velocity := aAxis[_index].pAxis^._jointvel.joint1;
     aAxisStatus[_index].bEnabled := TRUE;
