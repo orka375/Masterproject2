@@ -18,7 +18,7 @@ VAR
     nTrackedMoveId      : UINT;
     bTrackedAccepted    : BOOL;
     bTrackedWasBusy     : BOOL;
-    eTrackedMoveResult  : eResult;
+    bTrackedHome        : BOOL;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[//Skills Pointer
@@ -39,25 +39,33 @@ StandardUnits.JointAcceleration   := eUnit.deg;
 COMM := ADR(MECA_COMM);
 MECA_COMM.CYCLIC_COMM_MECA();
 
-// Track completion of the last successfully queued BA motion.
-// Acceptance is nInMoveId == nTrackedMoveId.
-// Completion is only declared after actual motion was observed and EOM becomes true again.
-IF nTrackedMoveId <> 0 THEN
-    IF MECA_COMM.nInErrorCode <> 0 THEN
-        eTrackedMoveResult := FAILURE;
+// Track only the active semantic command; terminal values remain latched.
+IF (nTrackedMoveId <> 0) AND (BA_STATUS <> FINALIZED) AND (BA_STATUS <> ABORTED) THEN
+    IF NOT MECA_COMM.CommunicationReady OR (MECA_COMM.nInErrorCode <> 0) THEN
+        BA_STATUS := FINALIZED;
+        BA_RESULT := ERROR;
+    ELSIF bTrackedHome THEN
+        IF MECA_COMM.bInHomed THEN
+            BA_STATUS := FINALIZED;
+            BA_RESULT := SUCCESS;
+        ELSE
+            BA_STATUS := RUNNING;
+        END_IF
     ELSE
-        IF MECA_COMM.nInMoveId = nTrackedMoveId THEN
+        IF MECA_COMM.AcceptedCommandID = nTrackedMoveId THEN
             bTrackedAccepted := TRUE;
+            BA_STATUS := ACKNOWLEDGE;
         END_IF
 
-        IF bTrackedAccepted THEN
-            IF MECA_COMM.bInBusy OR NOT MECA_COMM.bInEom THEN
-                bTrackedWasBusy := TRUE;
-            END_IF
+        IF bTrackedAccepted AND (MECA_COMM.bInBusy OR NOT MECA_COMM.bInEom) THEN
+            bTrackedWasBusy := TRUE;
+            BA_STATUS := RUNNING;
+        END_IF
 
-            IF bTrackedWasBusy AND NOT MECA_COMM.bInBusy AND MECA_COMM.bInEom THEN
-                eTrackedMoveResult := SUCCESS;
-            END_IF
+        IF bTrackedAccepted AND bTrackedWasBusy
+            AND NOT MECA_COMM.bInBusy AND MECA_COMM.bInEom THEN
+            BA_STATUS := FINALIZED;
+            BA_RESULT := SUCCESS;
         END_IF
     END_IF
 END_IF
@@ -127,12 +135,17 @@ VAR
     rArgument4 : REAL;
     rArgument5 : REAL;
     rArgument6 : REAL;
+    NewCommandID : UINT;
     MECAEuler : ST_Pose;
     NativePose : ST_Pose;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[BA_Handler := 0;
-nCommand := 0;
+    nCommand := 0;
+
+    IF (nTrackedMoveId <> 0) AND (BA_STATUS <> FINALIZED) AND (BA_STATUS <> ABORTED) THEN
+        RETURN;
+    END_IF
 
 CASE Cmd OF
     eBA.MoveJ:
@@ -203,8 +216,28 @@ CASE Cmd OF
             Value := Settings.Joints.joint6, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits));
 
     eBA.Home:
-        MECA_COMM.Home();
-        BA_Handler := UINT#1;
+        IF NOT MECA_COMM.CommunicationReady
+            OR NOT MECA_COMM.bInActivated
+            OR MECA_COMM.bInPaused
+            OR MECA_COMM.bInBusy
+            OR (MECA_COMM.nInErrorCode <> 0)
+            OR MECA_COMM.bInHomed THEN
+            RETURN;
+        END_IF
+
+        NewCommandID := AllocateCommandID();
+        IF NOT MECA_COMM.Home() THEN
+            RETURN;
+        END_IF
+
+        BA_ID := NewCommandID;
+        BA_STATUS := INIT;
+        BA_RESULT := NONE;
+        nTrackedMoveId := NewCommandID;
+        bTrackedAccepted := FALSE;
+        bTrackedWasBusy := FALSE;
+        bTrackedHome := TRUE;
+        BA_Handler := NewCommandID;
         RETURN;
 	
 	
@@ -212,7 +245,9 @@ CASE Cmd OF
         RETURN;
 END_CASE
 
-BA_Handler := MECA_COMM.QueueMotion(
+NewCommandID := AllocateCommandID();
+IF NOT MECA_COMM.QueueMotion(
+    CommandID := NewCommandID,
     nCommand := nCommand,
     rArgument1 := rArgument1,
     rArgument2 := rArgument2,
@@ -220,17 +255,18 @@ BA_Handler := MECA_COMM.QueueMotion(
     rArgument4 := rArgument4,
     rArgument5 := rArgument5,
     rArgument6 := rArgument6
-);
-
-// Only start a new completion monitor when the command was really queued.
-// If QueueMotion returns 0 (e.g. while another command is pending), keep the
-// previous state untouched. This is important for jogging.
-IF BA_Handler <> 0 THEN
-    nTrackedMoveId := BA_Handler;
-    bTrackedAccepted := FALSE;
-    bTrackedWasBusy := FALSE;
-    eTrackedMoveResult := NONE;
+) THEN
+    RETURN;
 END_IF
+
+BA_ID := NewCommandID;
+BA_STATUS := INIT;
+BA_RESULT := NONE;
+nTrackedMoveId := NewCommandID;
+bTrackedAccepted := FALSE;
+bTrackedWasBusy := FALSE;
+bTrackedHome := FALSE;
+BA_Handler := NewCommandID;
 
 ]]></ST>
       </Implementation>
@@ -242,11 +278,7 @@ END_IF
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[IF (nTrackedMoveId <> 0) AND (MECA_COMM.nInMoveId = nTrackedMoveId) THEN
-    CurrentMoveID := nTrackedMoveId;
-ELSE
-    CurrentMoveID := 0;
-END_IF
+          <ST><![CDATA[CurrentMoveID := CommandID;
 ]]></ST>
         </Implementation>
       </Get>
@@ -258,7 +290,7 @@ END_IF
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[CurrentMoveResult := eTrackedMoveResult;
+          <ST><![CDATA[CurrentMoveResult := CommandResult;
 ]]></ST>
         </Implementation>
       </Get>

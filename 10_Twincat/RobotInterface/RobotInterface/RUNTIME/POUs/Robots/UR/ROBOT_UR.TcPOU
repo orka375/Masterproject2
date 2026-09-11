@@ -14,7 +14,7 @@ VAR_OUTPUT
     (* Raw UR Basic Action handshake. BA_STATUS mapping is left to your eProgress definition. *)
     BA_Active     : BOOL;
     BA_Command    : DINT;
-    BA_Result     : DINT;
+    UR_BA_ResultRaw : DINT;
 END_VAR
 
 VAR
@@ -100,7 +100,7 @@ END_IF
 (* Basic Action feedback. The generated URScript writes registers 24..27. *)
 BA_Active  := _baActive;
 BA_Command := UR_COMM.RTDE.nBACommand;
-BA_Result  := UR_COMM.RTDE.nBAResult;
+UR_BA_ResultRaw := UR_COMM.RTDE.nBAResult;
 
 IF _baActive AND UR_COMM.Script.bScriptSent THEN
     _baTransportSent := TRUE;
@@ -116,8 +116,9 @@ IF _baActive THEN
     IF UR_COMM.Script.bError THEN
         _baActive := FALSE;
         BA_Active := FALSE;
-        BA_Result := -513;
-        _commandState := E_RobotCommandState.Idle;
+        UR_BA_ResultRaw := -513;
+        BA_STATUS := FINALIZED;
+        BA_RESULT := ERROR;
         Messenger.AddError(eMessageCategories.External, Name, 'UR Basic Action script error');
 
     ELSIF UR_COMM.RTDE.nBAExecuteID = UINT_TO_DINT(_baActiveID) THEN
@@ -125,21 +126,25 @@ IF _baActive THEN
         CASE UR_COMM.RTDE.nBAStatus OF
             1: // preparing / accepted
                 _baStartSeen := TRUE;
+                BA_STATUS := ACKNOWLEDGE;
 
             2: // running
                 _baStartSeen := TRUE;
+                BA_STATUS := RUNNING;
 
             3: // done
                 _baStartSeen := TRUE;
                 _baActive := FALSE;
                 BA_Active := FALSE;
-                _commandState := E_RobotCommandState.Done;
+                BA_STATUS := FINALIZED;
+                BA_RESULT := SUCCESS;
 
             4: // robot-side error (reserved for future generated scripts)
                 _baStartSeen := TRUE;
                 _baActive := FALSE;
                 BA_Active := FALSE;
-                _commandState := E_RobotCommandState.Idle;
+                BA_STATUS := FINALIZED;
+                BA_RESULT := ERROR;
                 Messenger.AddError(eMessageCategories.HardwareFailure, Name, 'UR Basic Action robot-side error');
         END_CASE
 
@@ -147,13 +152,12 @@ IF _baActive THEN
         (* TCP send succeeded or is no longer busy, but the robot never published this BA ID. *)
         _baActive := FALSE;
         BA_Active := FALSE;
-        BA_Result := -514;
-        _commandState := E_RobotCommandState.Idle;
+        UR_BA_ResultRaw := -514;
+        BA_STATUS := FINALIZED;
+        BA_RESULT := ERROR;
         Messenger.AddError(eMessageCategories.TimeoutFailure, Name, 'UR Basic Action start timeout');
     END_IF
 END_IF
-
-(* BA_STATUS is intentionally not assigned here because the eProgress DUT was not supplied. *)
 
 CYCLIC_MANIP();
 ]]></ST>
@@ -176,9 +180,11 @@ END_IF
 _baActive := FALSE;
 _baStartSeen := FALSE;
 _baTransportSent := FALSE;
+_baActiveID := 0;
 BA_Active := FALSE;
-BA_Result := 0;
-_commandState := E_RobotCommandState.Idle;
+UR_BA_ResultRaw := 0;
+BA_STATUS := ABORTED;
+BA_RESULT := FAILURE;
 BA_Annulate := TRUE;
 ]]></ST>
       </Implementation>
@@ -192,6 +198,7 @@ END_VAR
 VAR
     bOk      : BOOL;
     bSupported : BOOL;
+    NewCommandID : UINT;
     sLine    : STRING(255);
     fVelocity : LREAL;
     fAcceleration : LREAL;
@@ -218,11 +225,7 @@ BA_Handler := 0;
 bSupported := FALSE;
 nCommand := -1;
 
-IF _baActive OR UR_COMM.Script.bBusy THEN
-    RETURN;
-END_IF
-
-IF NOT UR_COMM.RTDE.bStreaming THEN
+IF _baActive OR NOT UR_COMM.CanAcceptCommand THEN
     RETURN;
 END_IF
 
@@ -308,16 +311,9 @@ IF Cmd = eBA.MoveJJoints THEN
         Value := Settings.Joints.joint6, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
 END_IF
 
-(* Allocate a non-zero 16-bit ExecuteID. *)
-IF Idcounter >= 65534 THEN
-    Idcounter := 1000;
-ELSE
-    Idcounter := Idcounter + 1;
-END_IF
-BA_ID := Idcounter;
+NewCommandID := AllocateCommandID();
 
 IF NOT UR_COMM.Script.ClearScript() THEN
-    BA_ID := 0;
     RETURN;
 END_IF
 
@@ -333,7 +329,7 @@ bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
 sLine := '  write_output_integer_register(27,0)';
 bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
 
-sLine := CONCAT('  write_output_integer_register(24,', UINT_TO_STRING(BA_ID));
+sLine := CONCAT('  write_output_integer_register(24,', UINT_TO_STRING(NewCommandID));
 sLine := CONCAT(sLine, ')');
 bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
 
@@ -452,26 +448,26 @@ bOk := bOk AND UR_COMM.Script.AppendLine(sLine := 'end');
 
 IF NOT bOk THEN
     UR_COMM.Script.ClearScript();
-    BA_ID := 0;
     RETURN;
 END_IF
 
 IF NOT UR_COMM.Script.SendBuffered() THEN
     UR_COMM.Script.ClearScript();
-    BA_ID := 0;
     RETURN;
 END_IF
 
+BA_ID := NewCommandID;
+BA_STATUS := INIT;
+BA_RESULT := NONE;
 _baActive := TRUE;
 _baStartSeen := FALSE;
 _baTransportSent := FALSE;
-_baActiveID := BA_ID;
+_baActiveID := NewCommandID;
 _baActiveCmd := Cmd;
 BA_Active := TRUE;
-BA_Result := 0;
-_commandState := E_RobotCommandState.Idle;
+UR_BA_ResultRaw := 0;
 
-BA_Handler := BA_ID;
+BA_Handler := NewCommandID;
 ]]></ST>
       </Implementation>
     </Method>

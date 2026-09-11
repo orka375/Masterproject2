@@ -202,7 +202,8 @@ IF (LastTransitionType=eTransitions.Activate AND LastTransitionResult<=SUCCESS) 
       </Implementation>
     </Method>
     <Method Name="ExecuteSubSkill" Id="{7f3779b3-4459-41d6-adfb-6aa7e70bc5db}">
-      <Declaration><![CDATA[METHOD ExecuteSubSkill : BOOL
+      <Declaration><![CDATA[// LEGACY: new skills call Execute once and poll ExecutionDone/ExecutionResult directly.
+    METHOD ExecuteSubSkill : BOOL
 VAR_INPUT
 	pSkillToExecute: POINTER TO FB_1_Skill;
 	pbTransition: POINTER TO BOOL;

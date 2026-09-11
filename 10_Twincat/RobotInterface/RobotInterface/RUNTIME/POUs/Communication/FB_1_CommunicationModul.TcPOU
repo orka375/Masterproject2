@@ -59,6 +59,67 @@ END_IF]]></ST>
         </Implementation>
       </Get>
     </Property>
+    <Property Name="CanAcceptCommand" Id="{4eca24bb-c5db-4347-81dd-639bf13bfeda}">
+      <Declaration><![CDATA[PROPERTY CanAcceptCommand : BOOL]]></Declaration>
+      <Get Name="Get" Id="{63d1cae0-f96f-45cf-9954-4014733d1dcd}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CanAcceptCommand := CommunicationReady;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="AcceptedCommandID" Id="{f6fa51c2-5fe2-4555-b51f-7442aeebd35a}">
+      <Declaration><![CDATA[PROPERTY AcceptedCommandID : UINT]]></Declaration>
+      <Get Name="Get" Id="{729ac197-11c0-4ea9-9461-41931b9eeb8d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AcceptedCommandID := 0;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ActiveCommandID" Id="{ff8d03ae-5aca-4151-a900-301b163b7f8b}">
+      <Declaration><![CDATA[PROPERTY ActiveCommandID : UINT]]></Declaration>
+      <Get Name="Get" Id="{35a68362-1500-4754-a3c2-623438c421d9}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActiveCommandID := 0;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="CommandBusy" Id="{9b3ecf88-f63c-4b76-b478-c8c9cfb56d4e}">
+      <Declaration><![CDATA[PROPERTY CommandBusy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7be087e0-681c-41c7-b95f-dfbf184d49eb}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CommandBusy := FALSE;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CancelCommand" Id="{32195099-2cb5-4c67-b16e-a28477fb529e}">
+      <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
+VAR_INPUT
+	CommandID : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CancelCommand := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StopMotion" Id="{6024ef0d-a981-48d0-ad2c-d07103294416}">
+      <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StopMotion := FALSE;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="Connect" Id="{48cddc0e-90b0-47e7-b3f4-033f55fc4faf}">
       <Declaration><![CDATA[METHOD Connect : BOOL
 ]]></Declaration>

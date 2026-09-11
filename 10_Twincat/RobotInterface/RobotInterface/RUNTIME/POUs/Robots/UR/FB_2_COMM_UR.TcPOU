@@ -109,6 +109,58 @@ END_IF
 ]]></ST>
     </Implementation>
     <Folder Name="StateControl" Id="{76d61647-738d-4b23-8853-f6e5794603cd}" />
+        <Property Name="CanAcceptCommand" Id="{2baf7552-803f-4c16-84dd-a767fc97f723}">
+            <Declaration><![CDATA[PROPERTY CanAcceptCommand : BOOL]]></Declaration>
+            <Get Name="Get" Id="{05619431-53c3-4c43-83e7-09a9104233b7}">
+                <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+                <Implementation>
+                    <ST><![CDATA[CanAcceptCommand := CommunicationReady AND NOT Script.bBusy AND NOT Script.bError;]]></ST>
+                </Implementation>
+            </Get>
+        </Property>
+        <Property Name="AcceptedCommandID" Id="{10698100-18db-4a93-bf22-bb7820492763}">
+            <Declaration><![CDATA[PROPERTY AcceptedCommandID : UINT]]></Declaration>
+            <Get Name="Get" Id="{ff7993dd-d5e4-4527-b4b7-7467420f5cd8}">
+                <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+                <Implementation>
+                    <ST><![CDATA[IF (RTDE.nBAExecuteID > 0) AND (RTDE.nBAExecuteID <= 65534) AND (RTDE.nBAStatus >= 1) THEN
+        AcceptedCommandID := DINT_TO_UINT(RTDE.nBAExecuteID);
+ELSE
+        AcceptedCommandID := 0;
+END_IF]]></ST>
+                </Implementation>
+            </Get>
+        </Property>
+        <Property Name="ActiveCommandID" Id="{9007860a-3771-4484-aa6d-26416c061b34}">
+            <Declaration><![CDATA[PROPERTY ActiveCommandID : UINT]]></Declaration>
+            <Get Name="Get" Id="{7ae4b847-df8a-44fd-9c58-08bb1ce02674}">
+                <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+                <Implementation>
+                    <ST><![CDATA[IF (RTDE.nBAStatus = 1) OR (RTDE.nBAStatus = 2) THEN
+        ActiveCommandID := AcceptedCommandID;
+ELSE
+        ActiveCommandID := 0;
+END_IF]]></ST>
+                </Implementation>
+            </Get>
+        </Property>
+        <Property Name="CommandBusy" Id="{c3bd00d4-fd2a-4c21-a08b-605397026e74}">
+            <Declaration><![CDATA[PROPERTY CommandBusy : BOOL]]></Declaration>
+            <Get Name="Get" Id="{74f0b11f-2a14-4f51-a48f-70db5c65c48d}">
+                <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+                <Implementation>
+                    <ST><![CDATA[CommandBusy := Script.bBusy OR (RTDE.nBAStatus = 1) OR (RTDE.nBAStatus = 2);]]></ST>
+                </Implementation>
+            </Get>
+        </Property>
     <Action Name="CYCLIC_COMM_UR" Id="{e079c791-bd51-481e-8c49-3586c05afcb2}">
       <Implementation>
         <ST><![CDATA[ // ==================================================

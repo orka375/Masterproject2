@@ -10,8 +10,6 @@ VAR_OUTPUT
 END_VAR
 VAR
 	Phase: INT;
-	Settings: stBA_Settings;
-	
 	tTimeout: TON;
 END_VAR
 ]]></Declaration>
@@ -22,10 +20,12 @@ IF rtStateChange.Q AND State = eState.Active THEN
 	Phase := 10;
 	ExecutionDone:=FALSE;
 	ExecutionResult:=NONE;
+	tTimeout(IN := FALSE);
 END_IF
 
 IF State <> eState.Active THEN
 	Phase := 0;
+	tTimeout(IN := FALSE);
 END_IF
 
 IF (Phase = 10) OR (Phase = 20) THEN
@@ -43,37 +43,48 @@ IF (Phase = 10) OR (Phase = 20) THEN
 END_IF
 
 IF Phase=10 THEN
-	Settings.Pin:=Param.Pin;
-	Settings.bValue:= Param.ValueIfActiv;
-	nCalledMoveID := pTool^.pROB^.BA_Handler(eBA.SetDO,Settings);
-	Phase:=20;
-	tTimeout(IN:=TRUE,PT:=Param.TimeoutFailure);
+	nCalledMoveID := pTool^.pROB^.SetDO(
+		nOutput := Param.Pin,
+		bValue := Param.ValueIfActiv);
+	IF nCalledMoveID = 0 THEN
+		ExecutionDone := TRUE;
+		ExecutionResult := FAILURE;
+		Messenger.AddWarn(eMessageCategories.ParentFailed,Path,'Robot rejected gripper command');
+		Phase := 0;
+	ELSE
+		Phase := 20;
+		tTimeout(IN := TRUE, PT := Param.TimeoutFailure);
+	END_IF
 END_IF
 
 
 IF Phase=20 THEN
-	tTimeout();
-	IF nCalledMoveID = pTool^.pROB^.CurrentMoveID AND pTool^.pROB^.CurrentMoveResult=SUCCESS THEN
-		ExecutionDone:=TRUE;
-		ExecutionResult:=SUCCESS;
-		Phase:=0;
+	tTimeout(IN := TRUE, PT := Param.TimeoutFailure);
+	IF nCalledMoveID = pTool^.pROB^.CommandID THEN
+		CASE pTool^.pROB^.CommandState OF
+			INIT, ACKNOWLEDGE, RUNNING:
+				Phase := 20;
+			FINALIZED:
+				ExecutionDone := TRUE;
+				ExecutionResult := pTool^.pROB^.CommandResult;
+				IF ExecutionResult <> SUCCESS THEN
+					Messenger.AddWarn(eMessageCategories.ParentFailed,Path,'Gripper command failed');
+				END_IF
+				Phase := 0;
+			ABORTED:
+				ExecutionDone := TRUE;
+				ExecutionResult := FAILURE;
+				Messenger.AddWarn(eMessageCategories.ParentFailed,Path,'Gripper command aborted');
+				Phase := 0;
+		END_CASE
 	END_IF
-	
-	
-	//TIMEOUT OR FaILURE
-	IF tTimeOut.Q THEN
-		//Failure or Error
-		ExecutionDone:=TRUE;
-		ExecutionResult:=FAILURE;
+
+	IF (Phase = 20) AND tTimeout.Q THEN
+		pTool^.pROB^.CancelCommand(CommandID := nCalledMoveID);
+		ExecutionDone := TRUE;
+		ExecutionResult := FAILURE;
 		Messenger.AddWarn(eMessageCategories.TimeoutFailure,Path,'Failed because timeout');
-		Phase:=0;
-	END_IF
-	
-	IF (nCalledMoveID = pTool^.pROB^.CurrentMoveID AND pTool^.pROB^.CurrentMoveResult>=FAILURE) THEN
-		ExecutionDone:=TRUE;
-		ExecutionResult:=FAILURE;
-		Messenger.AddWarn(eMessageCategories.ParentFailed,Path,'Failed because of bad return');
-		Phase:=0;
+		Phase := 0;
 	END_IF
 END_IF
 

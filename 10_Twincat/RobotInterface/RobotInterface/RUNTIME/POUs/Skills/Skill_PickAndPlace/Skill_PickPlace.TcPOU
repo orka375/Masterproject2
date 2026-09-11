@@ -3433,79 +3433,37 @@ END_IF]]></ST>
     </Action>
     <Action Name="_aMoveJ_PickApproach_active" Id="{92d00584-9814-4e39-8fa3-8493e89622e3}">
       <Implementation>
-        <ST><![CDATA[
-IF pRob^.CurrentMoveID = nCalledMoveID THEN
-	bMoveInProcess:= TRUE;
-END_IF
-
-IF bMoveInProcess AND pRob^.CurrentMoveResult = SUCCESS THEN
-	bMovePickApproachDone:= TRUE;
-END_IF
+        <ST><![CDATA[PollRobotMove(DoneFlag := bMovePickApproachDone);
 ]]></ST>
       </Implementation>
     </Action>
     <Action Name="_aMoveJ_PlaceApproach_active" Id="{a42b9b23-6938-4b16-8ea5-134746ad2288}">
       <Implementation>
-        <ST><![CDATA[
-IF pRob^.CurrentMoveID = nCalledMoveID THEN
-	bMoveInProcess:= TRUE;
-END_IF
-
-IF bMoveInProcess AND pRob^.CurrentMoveResult = SUCCESS THEN
-	bMovePlaceApproachDone:= TRUE;
-END_IF
+        <ST><![CDATA[PollRobotMove(DoneFlag := bMovePlaceApproachDone);
 ]]></ST>
       </Implementation>
     </Action>
     <Action Name="_aMoveL_Pick_active" Id="{73b9f592-c1d9-4003-92ee-e278bc29956d}">
       <Implementation>
-        <ST><![CDATA[IF pRob^.CurrentMoveID = nCalledMoveID THEN
-	bMoveInProcess:= TRUE;
-END_IF
-
-IF bMoveInProcess AND pRob^.CurrentMoveResult = SUCCESS THEN
-	bMovePickDone:= TRUE;
-END_IF
-
+        <ST><![CDATA[PollRobotMove(DoneFlag := bMovePickDone);
 ]]></ST>
       </Implementation>
     </Action>
     <Action Name="_aMoveL_Place_active" Id="{2c5e09cd-59b9-42e3-be17-fb01c6d6beaf}">
       <Implementation>
-        <ST><![CDATA[
-IF pRob^.CurrentMoveID = nCalledMoveID THEN
-	bMoveInProcess:= TRUE;
-END_IF
-
-IF bMoveInProcess AND pRob^.CurrentMoveResult = SUCCESS THEN
-	bMovePlaceDone:= TRUE;
-END_IF
+        <ST><![CDATA[PollRobotMove(DoneFlag := bMovePlaceDone);
 ]]></ST>
       </Implementation>
     </Action>
     <Action Name="_aMoveL_RetractPick_active" Id="{cffa91e5-3624-4087-864a-9d66af7cbc22}">
       <Implementation>
-        <ST><![CDATA[
-IF pRob^.CurrentMoveID = nCalledMoveID THEN
-	bMoveInProcess:= TRUE;
-END_IF
-
-IF bMoveInProcess AND pRob^.CurrentMoveResult = SUCCESS THEN
-	bRetractPickDone:= TRUE;
-END_IF
+        <ST><![CDATA[PollRobotMove(DoneFlag := bRetractPickDone);
 ]]></ST>
       </Implementation>
     </Action>
     <Action Name="_aMoveL_RetractPlace_active" Id="{7ddb2123-18b0-4656-a4f2-c9374296db50}">
       <Implementation>
-        <ST><![CDATA[
-IF pRob^.CurrentMoveID = nCalledMoveID THEN
-	bMoveInProcess:= TRUE;
-END_IF
-
-IF bMoveInProcess AND pRob^.CurrentMoveResult = SUCCESS THEN
-	bRetractPlaceDone:= TRUE;
-END_IF
+        <ST><![CDATA[PollRobotMove(DoneFlag := bRetractPlaceDone);
 ]]></ST>
       </Implementation>
     </Action>
@@ -3531,14 +3489,7 @@ END_IF
     </Action>
     <Action Name="GoOverMiddleState_active" Id="{7db3ba8f-331b-4fb1-bdef-854308e83b1d}">
       <Implementation>
-        <ST><![CDATA[
-IF pRob^.CurrentMoveID = nCalledMoveID THEN
-	bMoveInProcess:= TRUE;
-END_IF
-
-IF bMoveInProcess AND pRob^.CurrentMoveResult = SUCCESS THEN
-	bMoveMiddlePointDone:= TRUE;
-END_IF
+        <ST><![CDATA[PollRobotMove(DoneFlag := bMoveMiddlePointDone);
 ]]></ST>
       </Implementation>
     </Action>
@@ -3549,7 +3500,10 @@ Settings.Target.frame_id:= eRefFrame.BRF;
 Settings.Velocity:=Param^.FastVelocity;
 
 
-nCalledMoveID := pRob^.BA_Handler(Cmd:=eBA.MoveJ,Settings);
+nCalledMoveID := pRob^.MoveJoint(
+  Target := Settings.Target,
+  Velocity := Param^.FastVelocity);
+HandleMoveStart();
 ]]></ST>
       </Implementation>
     </Action>
@@ -3628,7 +3582,10 @@ Settings.Target.frame_id:= eRefFrame.BRF;
 Settings.Velocity:=Param^.FastVelocity;
 
 
-nCalledMoveID := pRob^.BA_Handler(Cmd:=eBA.MoveJ,Settings);
+nCalledMoveID := pRob^.MoveJoint(
+  Target := Settings.Target,
+  Velocity := Param^.FastVelocity);
+HandleMoveStart();
 ]]></ST>
       </Implementation>
     </Action>
@@ -3647,7 +3604,10 @@ Settings.Target.frame_id:= eRefFrame.BRF;
 Settings.Velocity:=Param^.FastVelocity;
 
 
-nCalledMoveID := pRob^.BA_Handler(Cmd:=eBA.MoveJ,Settings);
+nCalledMoveID := pRob^.MoveJoint(
+  Target := Settings.Target,
+  Velocity := Param^.FastVelocity);
+HandleMoveStart();
 ]]></ST>
       </Implementation>
     </Action>
@@ -3667,7 +3627,10 @@ Settings.Target.frame_id:= eRefFrame.BRF;
 Settings.Velocity:=Param^.SlowVelocity;
 
 
-nCalledMoveID := pRob^.BA_Handler(Cmd:=eBA.MoveL,Settings);
+nCalledMoveID := pRob^.MoveLinear(
+  Target := Settings.Target,
+  Velocity := Param^.SlowVelocity);
+HandleMoveStart();
 ]]></ST>
       </Implementation>
     </Action>
@@ -3686,7 +3649,10 @@ Settings.Target.frame_id:= eRefFrame.BRF;
 Settings.Velocity:=Param^.SlowVelocity;
 
 
-nCalledMoveID := pRob^.BA_Handler(Cmd:=eBA.MoveL,Settings);
+nCalledMoveID := pRob^.MoveLinear(
+  Target := Settings.Target,
+  Velocity := Param^.SlowVelocity);
+HandleMoveStart();
 ]]></ST>
       </Implementation>
     </Action>
@@ -3705,7 +3671,10 @@ Settings.Target.frame_id:= eRefFrame.BRF;
 Settings.Velocity:=Param^.SlowVelocity;
 
 
-nCalledMoveID := pRob^.BA_Handler(Cmd:=eBA.MoveL,Settings);
+nCalledMoveID := pRob^.MoveLinear(
+  Target := Settings.Target,
+  Velocity := Param^.SlowVelocity);
+HandleMoveStart();
 ]]></ST>
       </Implementation>
     </Action>
@@ -3724,7 +3693,10 @@ Settings.Target.frame_id:= eRefFrame.BRF;
 Settings.Velocity:=Param^.SlowVelocity;
 
 
-nCalledMoveID := pRob^.BA_Handler(Cmd:=eBA.MoveL,Settings);
+nCalledMoveID := pRob^.MoveLinear(
+  Target := Settings.Target,
+  Velocity := Param^.SlowVelocity);
+HandleMoveStart();
 ]]></ST>
       </Implementation>
     </Action>
@@ -3736,6 +3708,72 @@ bRetractPlaceDone := FALSE;
 ]]></ST>
       </Implementation>
     </Action>
+      <Method Name="HandleMoveStart" Id="{57dbf99b-ec72-47c9-a087-a8267dfa732e}">
+        <Declaration><![CDATA[METHOD HandleMoveStart : BOOL
+  ]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HandleMoveStart := nCalledMoveID <> 0;
+
+  IF NOT HandleMoveStart THEN
+      ExecutionDone := TRUE;
+      ExecutionResult := FAILURE;
+      Messenger.AddWarn(eMessageCategories.ParentFailed, Path, 'Robot rejected move');
+      SFCInit := TRUE;
+  END_IF
+  ]]></ST>
+        </Implementation>
+      </Method>
+      <Method Name="PollRobotMove" Id="{78fd90e9-ae41-49ae-a2ac-70ab9188a9db}">
+        <Declaration><![CDATA[METHOD PollRobotMove : BOOL
+    VAR_IN_OUT
+      DoneFlag : BOOL;
+    END_VAR
+    ]]></Declaration>
+        <Implementation>
+        <ST><![CDATA[PollRobotMove := FALSE;
+
+    IF pRob = 0 THEN
+      ExecutionDone := TRUE;
+      ExecutionResult := ERROR;
+      Messenger.AddError(eMessageCategories.MissingData, Path, 'Robot is not assigned');
+      SFCInit := TRUE;
+      RETURN;
+    END_IF
+
+    IF (nCalledMoveID = 0) OR (pRob^.CommandID <> nCalledMoveID) THEN
+      RETURN;
+    END_IF
+
+    bMoveInProcess := TRUE;
+
+    CASE pRob^.CommandState OF
+      INIT, ACKNOWLEDGE, RUNNING:
+        PollRobotMove := FALSE;
+
+      FINALIZED:
+        IF pRob^.CommandResult = SUCCESS THEN
+          DoneFlag := TRUE;
+          PollRobotMove := TRUE;
+        ELSE
+          ExecutionDone := TRUE;
+          IF pRob^.CommandResult = NONE THEN
+            ExecutionResult := ERROR;
+          ELSE
+            ExecutionResult := pRob^.CommandResult;
+          END_IF
+          Messenger.AddWarn(eMessageCategories.ParentFailed, Path, 'Robot move failed');
+          SFCInit := TRUE;
+        END_IF
+
+      ABORTED:
+        ExecutionDone := TRUE;
+        ExecutionResult := FAILURE;
+        Messenger.AddWarn(eMessageCategories.ParentFailed, Path, 'Robot move aborted');
+        SFCInit := TRUE;
+    END_CASE
+    ]]></ST>
+        </Implementation>
+      </Method>
     <Method Name="OnActivate" Id="{fe361160-cff6-4374-b8d5-b6aa8065f810}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
 VAR_INPUT

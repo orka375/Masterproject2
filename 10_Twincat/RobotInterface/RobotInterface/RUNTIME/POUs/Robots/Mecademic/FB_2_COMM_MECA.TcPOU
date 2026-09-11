@@ -91,7 +91,6 @@ VAR
     rPendingArgument4 : REAL;
     rPendingArgument5 : REAL;
     rPendingArgument6 : REAL;
-    nNextMoveId : UINT := 1;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -104,7 +103,44 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[AcceptedMoveID:= nInMoveId;]]></ST>
+          <ST><![CDATA[AcceptedMoveID := AcceptedCommandID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="AcceptedCommandID" Id="{c0130030-627a-4279-9d72-c026a40ed59d}">
+      <Declaration><![CDATA[PROPERTY AcceptedCommandID : UINT]]></Declaration>
+      <Get Name="Get" Id="{64e919e5-0c8d-42f6-b3b6-7a72863b4fd1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AcceptedCommandID := nInMoveId;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ActiveCommandID" Id="{75d7614c-4eeb-466f-830b-54dd42a7be56}">
+      <Declaration><![CDATA[PROPERTY ActiveCommandID : UINT]]></Declaration>
+      <Get Name="Get" Id="{02f18ead-bc92-43b4-832e-b4ac776227bd}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF bInBusy OR NOT bInEom THEN
+    ActiveCommandID := nInMoveId;
+ELSE
+    ActiveCommandID := 0;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="CanAcceptCommand" Id="{d54d0d39-e639-4357-855e-b93132e6f045}">
+      <Declaration><![CDATA[PROPERTY CanAcceptCommand : BOOL]]></Declaration>
+      <Get Name="Get" Id="{91be3ccb-9a5b-4fc6-89ca-5937333760c9}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CanAcceptCommand := CommunicationReady AND NOT bCommandPending AND (nInFifoSpace > 0);]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -121,7 +157,7 @@ ClearMotion := TRUE;]]></ST>
         <Declaration><![CDATA[VAR
 END_VAR]]></Declaration>
         <Implementation>
-          <ST><![CDATA[CommandBusy := bCommandPending;]]></ST>
+          <ST><![CDATA[CommandBusy := bCommandPending OR bInBusy OR NOT bInEom;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -218,8 +254,9 @@ PauseMotion := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="QueueMotion" Id="{9de68a94-33d3-4af2-a210-56c01ae0dec8}">
-      <Declaration><![CDATA[METHOD QueueMotion : UINT
+      <Declaration><![CDATA[METHOD QueueMotion : BOOL
 VAR_INPUT
+    CommandID : UINT;
     nCommand : UDINT;
     rArgument1 : REAL;
     rArgument2 : REAL;
@@ -229,24 +266,14 @@ VAR_INPUT
     rArgument6 : REAL;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[QueueMotion := 0;
+        <ST><![CDATA[QueueMotion := FALSE;
 bCommandAccepted := FALSE;
 
-IF NOT HMI_COMM._CommunicationReady OR bCommandPending OR (nInFifoSpace = 0) THEN
+    IF (CommandID = 0) OR NOT CanAcceptCommand THEN
     RETURN;
 END_IF
 
-IF nNextMoveId = 0 THEN
-    nNextMoveId := 1;
-END_IF
-
-nPendingMoveId := nNextMoveId;
-IF nNextMoveId = 65535 THEN
-    nNextMoveId := 1;
-ELSE
-    nNextMoveId := nNextMoveId + 1;
-END_IF
-
+    nPendingMoveId := CommandID;
 nPendingCommand := nCommand;
 rPendingArgument1 := rArgument1;
 rPendingArgument2 := rArgument2;
@@ -255,7 +282,7 @@ rPendingArgument4 := rArgument4;
 rPendingArgument5 := rArgument5;
 rPendingArgument6 := rArgument6;
 bCommandPending := TRUE;
-QueueMotion := nPendingMoveId;
+QueueMotion := TRUE;
 ]]></ST>
       </Implementation>
     </Method>
@@ -301,8 +328,9 @@ IF (id < 1) OR (id > 8000) THEN
     RETURN;
 END_IF
 
-// SetCheckpoint is command 17 and uses the normal SetPoint/MoveID handshake.
-SetCheckpoint := QueueMotion(
+// Legacy protocol helper: the checkpoint ID is also used for the transport handshake.
+IF QueueMotion(
+  CommandID := id,
     nCommand := 17,
     rArgument1 := UINT_TO_REAL(id),
     rArgument2 := 0.0,
@@ -310,7 +338,9 @@ SetCheckpoint := QueueMotion(
     rArgument4 := 0.0,
     rArgument5 := 0.0,
     rArgument6 := 0.0
-);]]></ST>
+  ) THEN
+    SetCheckpoint := id;
+  END_IF]]></ST>
       </Implementation>
     </Method>
   </POU>

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Skill_StandardExample" Id="{8279546a-1e82-4e05-8968-41b62dd50cdc}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Skill_StandardExample EXTENDS FB_1_Skill
+VAR_INPUT
+    pSubSkill : POINTER TO FB_1_Skill;
+    pRob : POINTER TO FB_2_ROB_MANIP;
+    MoveTarget : stTarget;
+    MoveVelocity : REAL;
+    SubSkillTimeout : TIME := T#30S;
+    MoveTimeout : TIME := T#30S;
+END_VAR
+VAR
+    Phase : INT;
+    MoveID : UINT;
+    StartResult : eResult;
+    tonSubSkill : TON;
+    tonMove : TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF rtStateChange.Q AND (State = eState.Active) THEN
+    Phase := 10;
+    MoveID := 0;
+    StartResult := NONE;
+    ExecutionDone := FALSE;
+    ExecutionResult := NONE;
+    tonSubSkill(IN := FALSE);
+    tonMove(IN := FALSE);
+END_IF
+
+IF State <> eState.Active THEN
+    Phase := 0;
+    tonSubSkill(IN := FALSE);
+    tonMove(IN := FALSE);
+END_IF
+
+CASE Phase OF
+    10:
+        IF pSubSkill = 0 THEN
+            ExecutionDone := TRUE;
+            ExecutionResult := FAILURE;
+            Messenger.AddError(eMessageCategories.MissingData, Path, 'Subskill is not assigned');
+            Phase := 0;
+        ELSE
+            StartResult := pSubSkill^.Execute();
+            IF StartResult >= FAILURE THEN
+                ExecutionDone := TRUE;
+                ExecutionResult := StartResult;
+                Phase := 0;
+            ELSE
+                tonSubSkill(IN := TRUE, PT := SubSkillTimeout);
+                Phase := 20;
+            END_IF
+        END_IF
+
+    20:
+        tonSubSkill(IN := TRUE, PT := SubSkillTimeout);
+        IF pSubSkill = 0 THEN
+            ExecutionDone := TRUE;
+            ExecutionResult := ERROR;
+            Messenger.AddError(eMessageCategories.MissingData, Path, 'Subskill was unassigned while running');
+            Phase := 0;
+        ELSE
+            IF pSubSkill^.ExecutionDone THEN
+                tonSubSkill(IN := FALSE);
+                IF pSubSkill^.ExecutionResult = SUCCESS THEN
+                    Phase := 30;
+                ELSE
+                    ExecutionDone := TRUE;
+                    ExecutionResult := pSubSkill^.ExecutionResult;
+                    Phase := 0;
+                END_IF
+            ELSIF tonSubSkill.Q THEN
+                ExecutionDone := TRUE;
+                ExecutionResult := FAILURE;
+                Messenger.AddWarn(eMessageCategories.TimeoutFailure, Path, 'Subskill timeout');
+                Phase := 0;
+            END_IF
+        END_IF
+
+    30:
+        IF pRob = 0 THEN
+            ExecutionDone := TRUE;
+            ExecutionResult := FAILURE;
+            Messenger.AddError(eMessageCategories.MissingData, Path, 'Robot is not assigned');
+            Phase := 0;
+        ELSE
+            MoveID := pRob^.MoveLinear(Target := MoveTarget, Velocity := MoveVelocity);
+            IF MoveID = 0 THEN
+                ExecutionDone := TRUE;
+                ExecutionResult := FAILURE;
+                Messenger.AddWarn(eMessageCategories.ParentFailed, Path, 'Robot rejected move');
+                Phase := 0;
+            ELSE
+                tonMove(IN := TRUE, PT := MoveTimeout);
+                Phase := 40;
+            END_IF
+        END_IF
+
+    40:
+        tonMove(IN := TRUE, PT := MoveTimeout);
+        IF pRob = 0 THEN
+            ExecutionDone := TRUE;
+            ExecutionResult := ERROR;
+            Messenger.AddError(eMessageCategories.MissingData, Path, 'Robot was unassigned while moving');
+            Phase := 0;
+        ELSE
+            IF pRob^.CommandID = MoveID THEN
+                CASE pRob^.CommandState OF
+                    INIT, ACKNOWLEDGE, RUNNING:
+                        Phase := 40;
+                    FINALIZED:
+                        ExecutionDone := TRUE;
+                        IF pRob^.CommandResult = NONE THEN
+                            ExecutionResult := ERROR;
+                        ELSE
+                            ExecutionResult := pRob^.CommandResult;
+                        END_IF
+                        Phase := 0;
+                    ABORTED:
+                        ExecutionDone := TRUE;
+                        ExecutionResult := FAILURE;
+                        Phase := 0;
+                END_CASE
+            END_IF
+
+            IF (Phase = 40) AND tonMove.Q THEN
+                pRob^.CancelCommand(CommandID := MoveID);
+                ExecutionDone := TRUE;
+                ExecutionResult := FAILURE;
+                Messenger.AddWarn(eMessageCategories.TimeoutFailure, Path, 'Robot move timeout');
+                Phase := 0;
+            END_IF
+        END_IF
+END_CASE
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

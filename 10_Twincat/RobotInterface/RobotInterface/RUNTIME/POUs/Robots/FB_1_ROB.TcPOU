@@ -24,6 +24,7 @@ VAR_OUTPUT
 
 	BA_ID: UINT;
 	BA_STATUS: eProgress;
+  BA_RESULT: eResult := NONE;
 	
 	 _jointvel: stJoint6;
      _tcpvel : ST_Pose;
@@ -140,6 +141,67 @@ BA_Handler := 0;
 ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="AllocateCommandID" Id="{4de8c731-a286-4ca0-9f0f-d43282496255}">
+      <Declaration><![CDATA[METHOD PROTECTED AllocateCommandID : UINT
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Idcounter >= 65534 THEN
+  Idcounter := 1001;
+ELSE
+	Idcounter := Idcounter + 1;
+END_IF
+
+AllocateCommandID := Idcounter;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CancelCommand" Id="{b57e3248-65a9-4f87-b25a-fbc0300c26f8}">
+      <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
+VAR_INPUT
+	CommandID : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CancelCommand := BA_Annulate(ExecuteId := CommandID);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="CommandID" Id="{d97dbde2-fb4a-4a46-80b5-95e72bfb597d}">
+      <Declaration><![CDATA[PROPERTY CommandID : UINT]]></Declaration>
+      <Get Name="Get" Id="{f42bf0bc-af24-437d-951f-342952505cbf}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CommandID := BA_ID;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="CommandState" Id="{6c07ca32-53d2-4833-85fe-587d61a168d6}">
+      <Declaration><![CDATA[PROPERTY CommandState : eProgress]]></Declaration>
+      <Get Name="Get" Id="{f225aadd-c904-4018-87ed-75348f6fbad4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CommandState := BA_STATUS;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="CommandResult" Id="{2743123b-b65d-4f7b-9069-9ec61dd72659}">
+      <Declaration><![CDATA[PROPERTY CommandResult : eResult]]></Declaration>
+      <Get Name="Get" Id="{9324d1a7-b98e-458b-8e19-2f6253d717cd}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CommandResult := BA_RESULT;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Property Name="CurrentMoveID" Id="{62784dec-5174-4916-bfb1-149a6471c58a}">
       <Declaration><![CDATA[PROPERTY CurrentMoveID : UINT]]></Declaration>
       <Get Name="Get" Id="{082682ad-76d6-4ec6-87a5-1dc9db09970f}">
@@ -147,7 +209,7 @@ BA_Handler := 0;
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[CurrentMoveID:= BA_ID;
+          <ST><![CDATA[CurrentMoveID := CommandID;
 ]]></ST>
         </Implementation>
       </Get>
@@ -159,10 +221,19 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[]]></ST>
+          <ST><![CDATA[CurrentMoveResult := CommandResult;
+]]></ST>
         </Implementation>
       </Get>
     </Property>
+    <Method Name="StopMotion" Id="{2a9ef1f1-bebf-42b7-9028-b416fb72a19e}">
+      <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StopMotion := FALSE;
+]]></ST>
+      </Implementation>
+    </Method>
     <Action Name="CYCLIC_ROB" Id="{ebf16c89-c511-406b-9426-1ade99c4f730}">
       <Implementation>
         <ST><![CDATA[IF NOT _INIT_ROB THEN

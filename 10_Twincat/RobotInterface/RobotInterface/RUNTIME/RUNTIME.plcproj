@@ -292,6 +292,9 @@
     <Compile Include="POUs\Skills\Skill_PickAndPlace\stParam_PickPlace.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Skills\Skill_StandardExample\Skill_StandardExample.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Test\DEBUG_COMM.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -417,6 +420,7 @@
     <Folder Include="POUs\Skills\Skill_SlowPull" />
     <Folder Include="POUs\Skills\Skill_Dummy" />
     <Folder Include="POUs\Skills\Skill_Counter" />
+    <Folder Include="POUs\Skills\Skill_StandardExample" />
     <Folder Include="POUs\Test" />
     <Folder Include="POUs\Robots" />
     <Folder Include="POUs\Robots\Mecademic" />
