@@ -219,17 +219,13 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.onError();
-//--------------------------------------------------
-myResult:=NONE;
-// ----- YOUR CODE HERE (incl. Alarms) -------------
 
-myResult:=SUCCESS;
+// Generic tool recovery contains no hardware-specific action. Concrete tools may
+// override this method and classify their own communication/physical faults.
+HMI_BASE.bBusy := FALSE;
+myResult := SUCCESS;
 
-
-// ----- END YOUR CODE -----------------------------
-//--------------------------------------------------
-onError := CombineResults(eParentResult,myResult);
-]]></ST>
+onError := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
     <Method Name="onShutdown" Id="{d564eedf-30cf-49ef-bdf9-182cbaf13e45}" FolderPath="StateControl\">
@@ -247,17 +243,9 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.onShutdown();
-//--------------------------------------------------
-myResult:=NONE;
-// ----- YOUR CODE HERE (incl. Alarms) -------------
-
-myResult:=SUCCESS;
-
-
-// ----- END YOUR CODE -----------------------------
-//--------------------------------------------------
-onShutdown := CombineResults(eParentResult,myResult);
-]]></ST>
+HMI_BASE.bBusy := FALSE;
+myResult := SUCCESS;
+onShutdown := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
     <Method Name="Release" Id="{ee7504c7-55c3-4538-9835-937ed2b0639a}">

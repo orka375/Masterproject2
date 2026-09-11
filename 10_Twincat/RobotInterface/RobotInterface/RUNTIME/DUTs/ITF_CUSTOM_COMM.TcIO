@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="ITF_CUSTOM_COMM" Id="{705fbbb0-7e1f-41af-ae6c-5f8a775a245d}">
+    <Declaration><![CDATA[INTERFACE ITF_CUSTOM_COMM
+]]></Declaration>
+    <Method Name="CancelMotion" Id="{23829302-619b-4356-baa1-c2489601722a}">
+      <Declaration><![CDATA[METHOD CancelMotion : BOOl
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="EStop" Id="{a69bb089-1a45-4a91-b2bc-7c3de8586518}">
+      <Declaration><![CDATA[METHOD EStop : BOOl
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="StopMotion" Id="{3b308f0d-1722-4c55-ad45-3e6af059b598}">
+      <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Refactors>
+  <Renames>
+    <RenamedType>
+      <Type guid="bc35b233-21db-489f-a942-4bb4b6b9eb6e">ITF_CUSTOM_ROBOT_1</Type>
+      <From>ITF_CUSTOM_ROBOT_1</From>
+      <To>ITF_CUSTOM_MANIP</To>
+    </RenamedType>
+  </Renames>
+</Refactors>

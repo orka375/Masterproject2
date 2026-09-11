@@ -50,20 +50,17 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.onActivate();
-//--------------------------------------------------
-myResult:=NONE;
-// ----- YOUR CODE HERE (incl. Alarms) -------------
+myResult := NONE;
 
 IF (pUR = 0) OR NOT bConfigured THEN
-    myResult := ERROR;
+    Messenger.AddWarn(eMessageCategories.StateMachine, Path,
+        'Gimatic gripper cannot activate because it is not configured');
+    myResult := FAILURE;
 ELSE
     myResult := SUCCESS;
 END_IF
 
-// ----- END YOUR CODE -----------------------------
-//--------------------------------------------------
-onActivate := CombineResults(eParentResult,myResult);
-]]></ST>
+onActivate := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
     <Method Name="onCleanup" Id="{54299e02-9203-4a72-ad75-ec243ec029a6}" FolderPath="StateControl\">
@@ -81,18 +78,11 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.onCleanup();
-//--------------------------------------------------
-myResult:=NONE;
-// ----- YOUR CODE HERE (incl. Alarms) -------------
-
 bConfigured := FALSE;
 bGripCmd := FALSE;
 _nConfigState := 0;
-
-// ----- END YOUR CODE -----------------------------
-//--------------------------------------------------
-onCleanup := CombineResults(eParentResult,myResult);
-]]></ST>
+myResult := SUCCESS;
+onCleanup := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
     <Method Name="onConfigure" Id="{e3c6eab6-7f06-41e4-9710-2d10778b37ca}" FolderPath="StateControl\">
@@ -117,6 +107,7 @@ myResult := NONE;
 
 IF pUR = 0 THEN
 
+    SetRecoveryMode(Mode := eRecoveryMode.ManualActionRequired);
     Messenger.AddError(
         eMessageCategories.Undefined,
         Name,
@@ -129,6 +120,7 @@ IF pUR = 0 THEN
 
 ELSIF nToolOutput > 1 THEN
 
+    SetRecoveryMode(Mode := eRecoveryMode.ManualActionRequired);
     Messenger.AddError(
         eMessageCategories.Undefined,
         Name,
@@ -141,6 +133,7 @@ ELSIF nToolOutput > 1 THEN
 
 ELSIF pUR^.UR_COMM.Script.bError THEN
 
+    SetRecoveryMode(Mode := eRecoveryMode.Automatic);
     Messenger.AddError(
         eMessageCategories.HardwareFailure,
         Name,
@@ -220,6 +213,9 @@ ELSE
         20:
             // Wait until sending is finished.
             IF pUR^.UR_COMM.Script.bError THEN
+                SetRecoveryMode(Mode := eRecoveryMode.Automatic);
+                Messenger.AddError(eMessageCategories.HardwareFailure, Name,
+                    'Gimatic gripper: URScript interface error');
 
                 _nConfigState := 0;
                 bConfigured := FALSE;
@@ -310,22 +306,23 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.onError();
-//--------------------------------------------------
-myResult:=NONE;
-// ----- YOUR CODE HERE (incl. Alarms) -------------
+myResult := NONE;
 
-// Do not force a release on error.
-// Keep the physical gripper state unchanged.
 bConfigured := FALSE;
 _nConfigState := 0;
 
-myResult:=SUCCESS;
+IF (pUR = 0) OR (nToolOutput > 1) THEN
+    SetRecoveryMode(Mode := eRecoveryMode.ManualActionRequired);
+    RequireNewAcknowledgement();
+ELSIF pUR^.UR_COMM.State = eState.ErrorProcessing THEN
+    SetRecoveryMode(Mode := pUR^.UR_COMM.RecoveryMode);
+ELSIF pUR^.UR_COMM.Script.bBusy OR pUR^.UR_COMM.Script.bError THEN
+    myResult := NONE;
+ELSE
+    myResult := SUCCESS;
+END_IF
 
-
-// ----- END YOUR CODE -----------------------------
-//--------------------------------------------------
-onError := CombineResults(eParentResult,myResult);
-]]></ST>
+onError := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
     <Method Name="onShutdown" Id="{72ae2591-2fbb-4176-82c0-98cf4de0cac0}" FolderPath="StateControl\">
@@ -387,18 +384,21 @@ END_VAR]]></Declaration>
 SetGripperOutput := NONE;
 
 IF pUR = 0 THEN
+    SetRecoveryMode(Mode := eRecoveryMode.ManualActionRequired);
     SetGripperOutput := ERROR;
 	Messenger.AddError(eMessageCategories.MissingData,Path,'pUR is 0');
     RETURN;
 END_IF
 
 IF NOT bConfigured THEN
+    SetRecoveryMode(Mode := eRecoveryMode.AcknowledgeRequired);
     SetGripperOutput := ERROR;
 	Messenger.AddError(eMessageCategories.StateMachine,Path,'Gripper is not configured: OnConfigure');
     RETURN;
 END_IF
 
 IF pUR^.UR_COMM.Script.bError THEN
+    SetRecoveryMode(Mode := eRecoveryMode.AcknowledgeRequired);
     SetGripperOutput := ERROR;
 	Messenger.AddError(eMessageCategories.Undefined,Path,'UR_COMM is in Error');
     RETURN;
@@ -445,7 +445,9 @@ ELSIF nToolOutput = 1 THEN
     END_IF
 
 ELSE
+    SetRecoveryMode(Mode := eRecoveryMode.ManualActionRequired);
     SetGripperOutput := ERROR;
+    Messenger.AddError(eMessageCategories.StateMachine, Path, 'Invalid Gimatic tool output');
     RETURN;
 END_IF
 
@@ -459,7 +461,10 @@ IF succ THEN
     bGripCmd := TRUE;
     SetGripperOutput := SUCCESS;
 ELSE
+    SetRecoveryMode(Mode := eRecoveryMode.AcknowledgeRequired);
     SetGripperOutput := ERROR;
+    Messenger.AddError(eMessageCategories.HardwareFailure, Path,
+        'Gimatic command send failed; physical gripper state is unknown');
 END_IF]]></ST>
       </Implementation>
     </Method>

@@ -16,9 +16,6 @@ VAR
     // Completion monitor for discrete BA motions.
     // No checkpoint is inserted automatically; this keeps jogging responsive.
     nTrackedMoveId      : UINT;
-    bTrackedAccepted    : BOOL;
-    bTrackedWasBusy     : BOOL;
-    bTrackedHome        : BOOL;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[//Skills Pointer
@@ -39,34 +36,29 @@ StandardUnits.JointAcceleration   := eUnit.deg;
 COMM := ADR(MECA_COMM);
 MECA_COMM.CYCLIC_COMM_MECA();
 
-// Track only the active semantic command; terminal values remain latched.
-IF (nTrackedMoveId <> 0) AND (BA_STATUS <> FINALIZED) AND (BA_STATUS <> ABORTED) THEN
-    IF NOT MECA_COMM.CommunicationReady OR (MECA_COMM.nInErrorCode <> 0) THEN
-        BA_STATUS := FINALIZED;
-        BA_RESULT := ERROR;
-    ELSIF bTrackedHome THEN
-        IF MECA_COMM.bInHomed THEN
-            BA_STATUS := FINALIZED;
-            BA_RESULT := SUCCESS;
-        ELSE
-            BA_STATUS := RUNNING;
-        END_IF
-    ELSE
-        IF MECA_COMM.AcceptedCommandID = nTrackedMoveId THEN
-            bTrackedAccepted := TRUE;
-            BA_STATUS := ACKNOWLEDGE;
-        END_IF
+// Controller/safety-related conditions are not silently recovered. A physical
+// stop/collision requires the cause to be removed and a fresh acknowledgement.
+IF MECA_COMM.bInEStop OR MECA_COMM.bInPStop2 OR MECA_COMM.bInCollision THEN
+    SetRecoveryMode(Mode := eRecoveryMode.ManualActionRequired);
+    Messenger.AddError(eMessageCategories.HardwareFailure, Name,
+        'Meca physical/protective stop condition active');
+ELSIF MECA_COMM.nInErrorCode <> 0 THEN
+    SetRecoveryMode(Mode := eRecoveryMode.AcknowledgeRequired);
+    Messenger.AddError(eMessageCategories.HardwareFailure, Name,
+        'Meca controller error requires acknowledgement');
+ELSE
+    Messenger.Clear(Name, 'Meca physical/protective stop condition active');
+    Messenger.Clear(Name, 'Meca controller error requires acknowledgement');
+END_IF
 
-        IF bTrackedAccepted AND (MECA_COMM.bInBusy OR NOT MECA_COMM.bInEom) THEN
-            bTrackedWasBusy := TRUE;
-            BA_STATUS := RUNNING;
-        END_IF
+// Map the adapter-independent COMM lifecycle to the robot lifecycle.
+// The robot owns the semantic ID; COMM owns transport/ack/running/done detection.
+IF (nTrackedMoveId <> 0) AND (eCommandStatus <> FINALIZED) AND (eCommandStatus <> ABORTED) THEN
+    eCommandStatus := MECA_COMM.CommandState;
+    eCommandResult := MECA_COMM.CommandResult;
 
-        IF bTrackedAccepted AND bTrackedWasBusy
-            AND NOT MECA_COMM.bInBusy AND MECA_COMM.bInEom THEN
-            BA_STATUS := FINALIZED;
-            BA_RESULT := SUCCESS;
-        END_IF
+    IF (eCommandStatus = FINALIZED) OR (eCommandStatus = ABORTED) THEN
+        nTrackedMoveId := 0;
     END_IF
 END_IF
 
@@ -121,8 +113,9 @@ CYCLIC_MANIP();
 ]]></ST>
     </Implementation>
     <Folder Name="StateControl" Id="{dc5e676b-6d2e-4f78-98e2-7555bc30d8c3}" />
-    <Method Name="BA_Handler" Id="{6b7375b8-b338-41ba-b16d-a1e5607dd647}">
-      <Declaration><![CDATA[METHOD BA_Handler : UINT
+    <Folder Name="Transformations" Id="{8e8b8b58-e61e-4756-891b-bcb478f79745}" />
+    <Method Name="CommandHandler" Id="{6b7375b8-b338-41ba-b16d-a1e5607dd647}">
+      <Declaration><![CDATA[METHOD CommandHandler : UINT
 VAR_INPUT
     Cmd : eBA;
     Settings : stBA_Settings;
@@ -140,10 +133,14 @@ VAR
     NativePose : ST_Pose;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[BA_Handler := 0;
+        <ST><![CDATA[CommandHandler := 0;
+
+IF NOT CanAcceptCommand THEN
+    RETURN;
+END_IF
     nCommand := 0;
 
-    IF (nTrackedMoveId <> 0) AND (BA_STATUS <> FINALIZED) AND (BA_STATUS <> ABORTED) THEN
+    IF (nTrackedMoveId <> 0) AND (eCommandStatus <> FINALIZED) AND (eCommandStatus <> ABORTED) THEN
         RETURN;
     END_IF
 
@@ -226,18 +223,15 @@ CASE Cmd OF
         END_IF
 
         NewCommandID := AllocateCommandID();
-        IF NOT MECA_COMM.Home() THEN
+        IF NOT MECA_COMM.SendHome(CommandID := NewCommandID) THEN
             RETURN;
         END_IF
 
-        BA_ID := NewCommandID;
-        BA_STATUS := INIT;
-        BA_RESULT := NONE;
+        nCommandID := NewCommandID;
+        eCommandStatus := INIT;
+        eCommandResult := NONE;
         nTrackedMoveId := NewCommandID;
-        bTrackedAccepted := FALSE;
-        bTrackedWasBusy := FALSE;
-        bTrackedHome := TRUE;
-        BA_Handler := NewCommandID;
+        CommandHandler := NewCommandID;
         RETURN;
 	
 	
@@ -246,7 +240,7 @@ CASE Cmd OF
 END_CASE
 
 NewCommandID := AllocateCommandID();
-IF NOT MECA_COMM.QueueMotion(
+IF NOT MECA_COMM.SendCommand(
     CommandID := NewCommandID,
     nCommand := nCommand,
     rArgument1 := rArgument1,
@@ -259,43 +253,16 @@ IF NOT MECA_COMM.QueueMotion(
     RETURN;
 END_IF
 
-BA_ID := NewCommandID;
-BA_STATUS := INIT;
-BA_RESULT := NONE;
+nCommandID := NewCommandID;
+eCommandStatus := INIT;
+eCommandResult := NONE;
 nTrackedMoveId := NewCommandID;
-bTrackedAccepted := FALSE;
-bTrackedWasBusy := FALSE;
-bTrackedHome := FALSE;
-BA_Handler := NewCommandID;
+CommandHandler := NewCommandID;
 
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="CurrentMoveID" Id="{5e4f4034-baa1-4c08-b5ea-91e3b04b499a}">
-      <Declaration><![CDATA[PROPERTY CurrentMoveID : UINT]]></Declaration>
-      <Get Name="Get" Id="{535178a4-2d3a-453e-9cc9-9277673152b8}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[CurrentMoveID := CommandID;
-]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Property Name="CurrentMoveResult" Id="{3a96bae9-72cb-4f78-ba4c-e990de2b7367}">
-      <Declaration><![CDATA[PROPERTY CurrentMoveResult : eResult]]></Declaration>
-      <Get Name="Get" Id="{3a0d426d-df44-4632-a761-b44789560eb9}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[CurrentMoveResult := CommandResult;
-]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Method Name="MECAEulerToRPY" Id="{8d0654bd-b80c-447b-87ad-4760774a7534}">
+    <Method Name="MECAEulerToRPY" Id="{8d0654bd-b80c-447b-87ad-4760774a7534}" FolderPath="Transformations\">
       <Declaration><![CDATA[// TODO verify Meca500 Euler convention. Pass-through until confirmed against manufacturer docs.
 METHOD PUBLIC MECAEulerToRPY : ST_Pose
 VAR_INPUT
@@ -371,6 +338,18 @@ myResult := SUCCESS;
 //--------------------------------------------------
 OnCleanup := CombineResults(eParentResult,myResult);
 ]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCommandCancelled" Id="{13e8209e-5c45-4452-9213-b3ab26f73c2a}">
+      <Declaration><![CDATA[METHOD PROTECTED OnCommandCancelled
+VAR_INPUT
+    CommandID : UINT;
+END_VAR
+
+// Default: nothing to do.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[nTrackedMoveId := 0;]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnConfigure" Id="{0feda703-7699-45f8-8f76-44c854c951e2}" FolderPath="StateControl\">
@@ -475,14 +454,33 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
-
 myResult := NONE;
 
-// ----- YOUR CODE HERE -----------------------------
+// Keep Robot result ABORTED/ERROR from FB_1_ROB, but cancel the concrete COMM job
+// so transport recovery never waits on an interrupted motion indefinitely.
+IF nTrackedMoveId <> 0 THEN
+    MECA_COMM.CancelCommand(CommandID := nTrackedMoveId);
+    nTrackedMoveId := 0;
+END_IF
 
-myResult := SUCCESS;
+IF MECA_COMM.bInEStop OR MECA_COMM.bInPStop2 OR MECA_COMM.bInCollision THEN
+    SetRecoveryMode(Mode := eRecoveryMode.ManualActionRequired);
+    // A reset while the physical condition still exists must not remain latched.
+    RequireNewAcknowledgement();
 
-// ----- END YOUR CODE ------------------------------
+ELSIF MECA_COMM.nInErrorCode <> 0 THEN
+    // The user has authorized recovery. Reset the controller error only now.
+    IF MECA_COMM.bInResetReady THEN
+        MECA_COMM.ResetError();
+    END_IF
+
+ELSE
+    nTrackedMoveId := 0;
+    configure_process := 0;
+    IF NOT MECA_COMM.CommandBusy THEN
+        myResult := SUCCESS;
+    END_IF
+END_IF
 
 OnError := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
@@ -502,20 +500,22 @@ END_VAR
     END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
-//--------------------------------------------------
-myResult:=NONE;
-// ----- YOUR CODE HERE (incl. Alarms) -------------
+myResult := NONE;
 
+// Best effort: stop motion first, then request controller deactivation. Communication
+// shutdown is coordinated by FB_1_ROB through the generic COMM child.
+StopMotion();
 
-myResult:=SUCCESS;
+IF MECA_COMM.bInActivated THEN
+    MECA_COMM.RequestDeactivate();
+ELSE
+    myResult := SUCCESS;
+END_IF
 
-// ----- END YOUR CODE -----------------------------
-//--------------------------------------------------
-OnShutdown := CombineResults(eParentResult,myResult);
-]]></ST>
+OnShutdown := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
-    <Method Name="RPYToMECAEuler" Id="{ffda5a15-9305-4ff9-98bb-020166ec8fd0}">
+    <Method Name="RPYToMECAEuler" Id="{ffda5a15-9305-4ff9-98bb-020166ec8fd0}" FolderPath="Transformations\">
       <Declaration><![CDATA[// TODO verify Meca500 Euler convention. Pass-through until confirmed against manufacturer docs.
 METHOD PUBLIC RPYToMECAEuler : ST_Pose
 VAR_INPUT

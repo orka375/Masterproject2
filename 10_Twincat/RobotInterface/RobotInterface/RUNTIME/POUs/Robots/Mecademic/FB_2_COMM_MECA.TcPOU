@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_2_COMM_MECA" Id="{1bdf4dfd-4ef8-47df-b08c-596707625c3d}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_2_COMM_MECA EXTENDS FB_1_CommunicationModul
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_2_COMM_MECA EXTENDS FB_1_CommunicationModul IMPLEMENTS ITF_CUSTOM_ROBOT
 VAR_OUTPUT
     bInProcessDataValid AT %I*: BOOL := TRUE; //NOT CONNECTED
     bInBusy AT %I*: BOOL;
@@ -91,59 +91,25 @@ VAR
     rPendingArgument4 : REAL;
     rPendingArgument5 : REAL;
     rPendingArgument6 : REAL;
+
+    _mecaCommandWasRunning : BOOL;
+    _mecaHomeCommandActive : BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
-    <Property Name="AcceptedMoveID" Id="{cd29aabe-d41b-4539-8287-763315ddb793}">
-      <Declaration><![CDATA[PROPERTY AcceptedMoveID : UINT]]></Declaration>
-      <Get Name="Get" Id="{366c6523-6181-4830-852e-c50a632f7dd2}">
-        <Declaration><![CDATA[VAR
+    <Folder Name="ITF_Implementation" Id="{6ffca6bc-966b-4926-ae7d-e8326a35d71d}" />
+    <Method Name="CancelCommand" Id="{6f24f5bc-a6da-4f3c-9b54-f4f931d3caba}" FolderPath="ITF_Implementation\">
+      <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
+VAR_INPUT
+	CommandID : UINT;
 END_VAR
 ]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[AcceptedMoveID := AcceptedCommandID;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Property Name="AcceptedCommandID" Id="{c0130030-627a-4279-9d72-c026a40ed59d}">
-      <Declaration><![CDATA[PROPERTY AcceptedCommandID : UINT]]></Declaration>
-      <Get Name="Get" Id="{64e919e5-0c8d-42f6-b3b6-7a72863b4fd1}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[AcceptedCommandID := nInMoveId;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Property Name="ActiveCommandID" Id="{75d7614c-4eeb-466f-830b-54dd42a7be56}">
-      <Declaration><![CDATA[PROPERTY ActiveCommandID : UINT]]></Declaration>
-      <Get Name="Get" Id="{02f18ead-bc92-43b4-832e-b4ac776227bd}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[IF bInBusy OR NOT bInEom THEN
-    ActiveCommandID := nInMoveId;
-ELSE
-    ActiveCommandID := 0;
-END_IF]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Property Name="CanAcceptCommand" Id="{d54d0d39-e639-4357-855e-b93132e6f045}">
-      <Declaration><![CDATA[PROPERTY CanAcceptCommand : BOOL]]></Declaration>
-      <Get Name="Get" Id="{91be3ccb-9a5b-4fc6-89ca-5937333760c9}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[CanAcceptCommand := CommunicationReady AND NOT bCommandPending AND (nInFifoSpace > 0);]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
+      <Implementation>
+        <ST><![CDATA[CancelCommand := FALSE;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="ClearMotion" Id="{4e27c0e3-b74a-440c-bebc-156c0921230b}">
       <Declaration><![CDATA[METHOD ClearMotion : BOOL]]></Declaration>
       <Implementation>
@@ -151,16 +117,6 @@ END_VAR
 ClearMotion := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Property Name="CommandBusy" Id="{15b9b354-bf2f-4af8-b059-ee2daf68e421}">
-      <Declaration><![CDATA[PROPERTY CommandBusy : BOOL]]></Declaration>
-      <Get Name="Get" Id="{bb36b79d-9311-432a-8bd6-acd21b5d3b67}">
-        <Declaration><![CDATA[VAR
-END_VAR]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[CommandBusy := bCommandPending OR bInBusy OR NOT bInEom;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
     <Action Name="CYCLIC_COMM_MECA" Id="{d47624df-4e5c-4e1a-b885-310e1f830615}">
       <Implementation>
         <ST><![CDATA[CYCLIC_COMM();
@@ -232,13 +188,84 @@ ELSE
     IF nInMoveId = nPendingMoveId THEN
         bCommandPending := FALSE;
         bCommandAccepted := TRUE;
+        _commAcceptedCommandID := nPendingMoveId;
+        _commActiveCommandID := nPendingMoveId;
+        _commCommandState := ACKNOWLEDGE;
+        _commCommandResult := NONE;
+        _commCommandBusy := TRUE;
     END_IF
-	
-	
+END_IF
+
+// --------------------------------------------------
+// Generic command lifecycle
+// --------------------------------------------------
+_commCanAcceptCommand :=
+    NOT bCommandPending
+    AND NOT bInBusy
+    AND bInEom
+    AND NOT bInPaused
+    AND NOT bRequestPause
+    AND NOT bRequestClearMove
+    AND (nInFifoSpace > 0);
+
+IF _commCommandBusy THEN
+    IF NOT CommunicationReady
+       OR bInConnectionDropped
+       OR bInEStop
+       OR bInPStop2
+       OR bInCollision
+       OR (nInErrorCode <> 0) THEN
+        _commActiveCommandID := 0;
+        _commCommandState := FINALIZED;
+        _commCommandResult := ERROR;
+        _commCommandBusy := FALSE;
+        bCommandPending := FALSE;
+        _mecaHomeCommandActive := FALSE;
+
+    ELSIF _mecaHomeCommandActive THEN
+        IF bInHomed THEN
+            _commActiveCommandID := 0;
+            _commCommandState := FINALIZED;
+            _commCommandResult := SUCCESS;
+            _commCommandBusy := FALSE;
+            _mecaHomeCommandActive := FALSE;
+        ELSE
+            _commCommandState := RUNNING;
+            _commCommandResult := NONE;
+        END_IF
+
+    ELSIF (_commAcceptedCommandID <> 0) AND (_commAcceptedCommandID = _commActiveCommandID) THEN
+        IF bInBusy OR NOT bInEom THEN
+            _mecaCommandWasRunning := TRUE;
+            _commCommandState := RUNNING;
+            _commCommandResult := NONE;
+        ELSIF _mecaCommandWasRunning AND NOT bInBusy AND bInEom THEN
+            _commActiveCommandID := 0;
+            _commCommandState := FINALIZED;
+            _commCommandResult := SUCCESS;
+            _commCommandBusy := FALSE;
+        ELSE
+            _commCommandState := ACKNOWLEDGE;
+        END_IF
+    END_IF
+END_IF
+
+// After an explicit cancel, block the next command until pause/clear has settled.
+IF _commCommandState = ABORTED THEN
+    _commCommandBusy := bRequestPause OR bRequestClearMove OR bInBusy;
 END_IF
 ]]></ST>
       </Implementation>
     </Action>
+    <Method Name="EStop" Id="{1201c9fe-9f43-4ede-acd9-d1680b76e6d2}" FolderPath="ITF_Implementation\">
+      <Declaration><![CDATA[METHOD EStop : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[EStop:=FALSE;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="Home" Id="{bde77e6a-1735-404c-a869-5ff38ebb95c0}">
       <Declaration><![CDATA[METHOD Home : BOOL]]></Declaration>
       <Implementation>
@@ -266,24 +293,16 @@ VAR_INPUT
     rArgument6 : REAL;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[QueueMotion := FALSE;
-bCommandAccepted := FALSE;
-
-    IF (CommandID = 0) OR NOT CanAcceptCommand THEN
-    RETURN;
-END_IF
-
-    nPendingMoveId := CommandID;
-nPendingCommand := nCommand;
-rPendingArgument1 := rArgument1;
-rPendingArgument2 := rArgument2;
-rPendingArgument3 := rArgument3;
-rPendingArgument4 := rArgument4;
-rPendingArgument5 := rArgument5;
-rPendingArgument6 := rArgument6;
-bCommandPending := TRUE;
-QueueMotion := TRUE;
-]]></ST>
+        <ST><![CDATA[// Legacy adapter alias. New robot code calls SendCommand().
+QueueMotion := SendCommand(
+    CommandID := CommandID,
+    nCommand := nCommand,
+    rArgument1 := rArgument1,
+    rArgument2 := rArgument2,
+    rArgument3 := rArgument3,
+    rArgument4 := rArgument4,
+    rArgument5 := rArgument5,
+    rArgument6 := rArgument6);]]></ST>
       </Implementation>
     </Method>
     <Method Name="RequestActivate" Id="{c66231e6-4afe-48ad-b0fa-fca18b028ed5}">
@@ -300,6 +319,25 @@ RequestActivate := TRUE;]]></ST>
 RequestDeactivate := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="ResetCommunication" Id="{bf2600ed-5f42-4260-8656-ceaca57fb9b2}">
+      <Declaration><![CDATA[METHOD PUBLIC ResetCommunication : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Transport bookkeeping reset only; controller/safety error reset remains explicit ResetError().
+bCommandPending := FALSE;
+bCommandAccepted := FALSE;
+_mecaHomeCommandActive := FALSE;
+_mecaCommandWasRunning := FALSE;
+_commCanAcceptCommand := TRUE;
+_commAcceptedCommandID := 0;
+_commActiveCommandID := 0;
+_commCommandBusy := FALSE;
+_commCommandState := INIT;
+_commCommandResult := NONE;
+Reconnect();
+ResetCommunication := TRUE;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="ResetError" Id="{c82fc398-7e3e-42b0-b4d2-9c64fac0e508}">
       <Declaration><![CDATA[METHOD ResetError : BOOL]]></Declaration>
       <Implementation>
@@ -312,6 +350,76 @@ ResetError := TRUE;]]></ST>
       <Implementation>
         <ST><![CDATA[bRequestResume := TRUE;
 ResumeMotion := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SendCommand" Id="{117a722d-2825-43a2-bbc5-d9c38667f200}">
+      <Declaration><![CDATA[METHOD PUBLIC SendCommand : BOOL
+VAR_INPUT
+    CommandID : UINT;
+    nCommand : UDINT;
+    rArgument1 : REAL;
+    rArgument2 : REAL;
+    rArgument3 : REAL;
+    rArgument4 : REAL;
+    rArgument5 : REAL;
+    rArgument6 : REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// TRUE means only: the EtherCAT command image accepted the command locally.
+SendCommand := FALSE;
+IF (CommandID = 0) OR NOT CanAcceptCommand THEN
+    RETURN;
+END_IF
+
+nPendingMoveId := CommandID;
+nPendingCommand := nCommand;
+rPendingArgument1 := rArgument1;
+rPendingArgument2 := rArgument2;
+rPendingArgument3 := rArgument3;
+rPendingArgument4 := rArgument4;
+rPendingArgument5 := rArgument5;
+rPendingArgument6 := rArgument6;
+bCommandPending := TRUE;
+bCommandAccepted := FALSE;
+_mecaCommandWasRunning := FALSE;
+_mecaHomeCommandActive := FALSE;
+
+_commAcceptedCommandID := 0;
+_commActiveCommandID := CommandID;
+_commCommandState := INIT;
+_commCommandResult := NONE;
+_commCommandBusy := TRUE;
+SendCommand := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SendHome" Id="{33797ff5-e1af-43e3-bb6b-eefdd2e6a706}">
+      <Declaration><![CDATA[METHOD PUBLIC SendHome : BOOL
+VAR_INPUT
+    CommandID : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SendHome := FALSE;
+IF (CommandID = 0)
+   OR NOT CanAcceptCommand
+   OR NOT bInActivated
+   OR bInPaused
+   OR bInBusy
+   OR (nInErrorCode <> 0)
+   OR bInHomed THEN
+    RETURN;
+END_IF
+
+bRequestHome := TRUE;
+_mecaHomeCommandActive := TRUE;
+_mecaCommandWasRunning := FALSE;
+_commAcceptedCommandID := CommandID; // no separate ID echo exists for Home in this EtherCAT profile
+_commActiveCommandID := CommandID;
+_commCommandState := ACKNOWLEDGE;
+_commCommandResult := NONE;
+_commCommandBusy := TRUE;
+SendHome := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="SetCheckpoint" Id="{e73dd7f8-b149-4b46-8569-64a2b7626342}">
@@ -341,6 +449,18 @@ IF QueueMotion(
   ) THEN
     SetCheckpoint := id;
   END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StopMotion" Id="{1ba2ac73-b212-4c1d-8358-2132f604bcef}" FolderPath="ITF_Implementation\">
+      <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StopMotion := FALSE;
+IF NOT CommunicationReady THEN
+    RETURN;
+END_IF
+bRequestPause := TRUE;
+StopMotion := TRUE;]]></ST>
       </Implementation>
     </Method>
   </POU>

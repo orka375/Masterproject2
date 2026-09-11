@@ -10,6 +10,9 @@ VAR_INPUT
     // PLC code or TwinCAT HMI without accessing local FB data.
     // ==========================================================
     bEnable             : BOOL := TRUE;
+    // Lifecycle/recovery interlock from the owning subsystem. HMI inputs may remain TRUE,
+    // but no jog command is issued while this interlock is active.
+    bRecoveryInhibit    : BOOL := FALSE;
 
     // Reference frame used by both derived jog FBs. eRefFrame.CRF uses CustomFrame.
     nFrame              : eRefFrame := eRefFrame.TRF;

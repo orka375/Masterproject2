@@ -99,7 +99,7 @@ bMoving := FALSE;
 IF pRobot <> 0 THEN
     ActualPose := pRobot^.ActualTcpPose;
     bMoving := pRobot^.IsMoving;
-    bReady := bEnable AND pRobot^.IsReady AND NOT bMoving;
+    bReady := bEnable AND NOT bRecoveryInhibit AND pRobot^.IsReady AND NOT bMoving;
 
     IF bReady AND _rAlignTcpZ.Q THEN
         nLastCommandID := pRobot^.AlignTcpZToBrfZ(

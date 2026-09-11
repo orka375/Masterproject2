@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="eRecoveryMode" Id="{5ab3db34-b1ce-4b7f-bf19-ba51a4683044}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE eRecoveryMode :
+(
+    Automatic := 0,
+    AcknowledgeRequired := 1,
+    ManualActionRequired := 2
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

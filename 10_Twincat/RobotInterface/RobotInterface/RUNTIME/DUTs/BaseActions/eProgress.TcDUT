@@ -1,8 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <DUT Name="eProgress" Id="{d1a825b7-0b16-4bfe-bb2c-8862a9623c51}">
-    <Declaration><![CDATA[{attribute 'qualified_only'}
-{attribute 'strict'}
+    <Declaration><![CDATA[{attribute 'strict'}
 {attribute 'to_string'}
 TYPE eProgress :
 (

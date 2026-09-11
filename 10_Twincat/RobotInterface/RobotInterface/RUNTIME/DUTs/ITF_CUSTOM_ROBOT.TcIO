@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="ITF_CUSTOM_ROBOT" Id="{fc88293b-eb8f-4c17-807b-594607297e76}">
+    <Declaration><![CDATA[INTERFACE ITF_CUSTOM_ROBOT
+]]></Declaration>
+    <Method Name="CommandHandler" Id="{853bc402-1800-4453-9f3a-8671a61ed2b0}">
+      <Declaration><![CDATA[METHOD CommandHandler : eResult
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="OnActivate" Id="{fa86eba2-5b8d-4a45-8e61-b3b21db4db3b}">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="OnCleanup" Id="{e3ebf236-b8db-4ec5-95d8-f8fb49f91d85}">
+      <Declaration><![CDATA[METHOD PROTECTED OnCleanup : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="OnCommandCancelled" Id="{fb331ec4-59a9-40d7-a7d5-4a28e6661418}">
+      <Declaration><![CDATA[METHOD PROTECTED OnCommandCancelled
+VAR_INPUT
+    CommandID : UINT;
+END_VAR
+
+// Default: nothing to do.
+]]></Declaration>
+    </Method>
+    <Method Name="OnConfigure" Id="{4129733a-350e-4f50-a819-a627fdd6e8fb}">
+      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="OnDeactivate" Id="{273517e0-2f89-4d6b-93dc-2ea97a3fffa9}">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="OnError" Id="{63bf6269-edb5-480b-b313-a8a6209abfda}">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="OnShutdown" Id="{7587d61f-dc17-4bdc-85b8-660d7b6ccb44}">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+VAR_INPUT
+END_VAR
+
+    VAR
+    	eParentResult: eResult;
+    	myResult: ERESULT;
+    END_VAR
+
+    VAR //YOUR CODE
+    	succ : BOOL;
+    END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

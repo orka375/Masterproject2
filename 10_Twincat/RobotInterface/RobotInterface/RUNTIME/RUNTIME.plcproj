@@ -93,6 +93,15 @@
     <Compile Include="DUTs\Frames\ST_Vector3.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\ITF_CUSTOM_COMM.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ITF_CUSTOM_ROBOT.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ITF_CUSTOM_MANIP.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\Manipulator\E_RobotCommand.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -127,6 +136,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\StateMachine\eInternalTransitions.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\StateMachine\eRecoveryMode.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\StateMachine\eResult.TcDUT">

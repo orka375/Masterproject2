@@ -45,14 +45,14 @@ END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[CYCLIC_AXIS();]]></ST>
     </Implementation>
-    <Method Name="BA_Handler" Id="{e564056b-05af-457a-9f29-c4d0e82f2cf0}">
-      <Declaration><![CDATA[METHOD BA_Handler : UINT
+    <Method Name="CommandHandler" Id="{e564056b-05af-457a-9f29-c4d0e82f2cf0}">
+      <Declaration><![CDATA[METHOD CommandHandler : UINT
 VAR_INPUT
     Cmd : eBA;
     Settings : stBA_Settings;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[BA_Handler := 0;
+        <ST><![CDATA[CommandHandler := 0;
 
 IF State <> eState.Active OR NOT AxisPowered OR AxisError OR _bActionActive OR _bStopExecute THEN
     RETURN;
@@ -92,15 +92,15 @@ ELSE
     Idcounter := Idcounter + 1;
 END_IF
 
-BA_ID := Idcounter;
-BA_STATUS := eProgress.INIT;
+nCommandID := Idcounter;
+eCommandStatus := eProgress.INIT;
 _activeCommand := Cmd;
 IF Cmd <> eBA.MoveJJoints THEN
     _activeSettings := Settings;
 END_IF
 _bActionAccepted := FALSE;
 _bActionActive := TRUE;
-BA_Handler := BA_ID;]]></ST>
+CommandHandler := nCommandID;]]></ST>
       </Implementation>
     </Method>
     <Action Name="CYCLIC_AXIS" Id="{c53fd8f9-3809-4fcd-8eb9-75e58ef91f07}">
@@ -171,7 +171,7 @@ IF _bActionActive THEN
     IF NOT _bActionAccepted THEN
         IF _fbMoveAbsolute.Busy OR _fbMoveRelative.Busy OR _fbHome.Busy THEN
             _bActionAccepted := TRUE;
-            BA_STATUS := eProgress.ACKNOWLEDGE;
+            eCommandStatus := eProgress.ACKNOWLEDGE;
             _bMoveAbsoluteExecute := FALSE;
             _bMoveRelativeExecute := FALSE;
             _bHomeExecute := FALSE;
@@ -183,17 +183,17 @@ IF _bActionActive THEN
             AxisHomed := TRUE;
         END_IF
         _bActionActive := FALSE;
-        BA_STATUS := eProgress.FINALIZED;
+        eCommandStatus := eProgress.FINALIZED;
     ELSIF _fbMoveAbsolute.CommandAborted OR _fbMoveRelative.CommandAborted OR _fbHome.CommandAborted THEN
         _bActionActive := FALSE;
-        BA_STATUS := eProgress.ABORTED;
+        eCommandStatus := eProgress.ABORTED;
     ELSIF AxisError THEN
         AxisHomed := FALSE;
         _bActionActive := FALSE;
-        BA_STATUS := eProgress.ABORTED;
+        eCommandStatus := eProgress.ABORTED;
         Messenger.AddError(eMessageCategories.HardwareFailure, Path, 'NC axis command error');
     ELSIF _bActionAccepted THEN
-        BA_STATUS := eProgress.RUNNING;
+        eCommandStatus := eProgress.RUNNING;
     END_IF
 END_IF
 
@@ -213,7 +213,7 @@ END_IF]]></ST>
 _bMoveRelativeExecute := FALSE;
 _bHomeExecute := FALSE;
 _bActionActive := FALSE;
-BA_STATUS := eProgress.ABORTED;
+eCommandStatus := eProgress.ABORTED;
 _bStopExecute := TRUE;
 HMI_ROB.bEStop := TRUE;
 EStop := TRUE;]]></ST>

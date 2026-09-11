@@ -11,6 +11,7 @@ VAR_INPUT
     tConnectTimeout    : TIME := T#10S;
     tDisconnectTimeout : TIME := T#5S;
     tReconnectDelay    : TIME := T#2S;
+    nMaxAutoReconnectAttempts : UINT := 3;
 END_VAR
 
 
@@ -38,12 +39,102 @@ VAR
     _tonConnectTimeout    : TON;
     _tonDisconnectTimeout : TON;
     _tonReconnectDelay    : TON;
+
+    // Transient communication faults recover automatically. After the configured
+    // number of failed reconnect attempts the fault escalates to ErrorProcessing
+    // and requires an operator Reset/Acknowledge.
+    _nAutoReconnectAttempts : UINT;
+
+    // Generic command transport lifecycle. Concrete COMM adapters update these fields.
+    // IDs/results remain latched until the next command is locally accepted.
+    _commCanAcceptCommand   : BOOL := TRUE;
+    _commAcceptedCommandID  : UINT;
+    _commActiveCommandID    : UINT;
+    _commCommandBusy        : BOOL;
+    _commCommandState       : eProgress := INIT;
+    _commCommandResult      : eResult := NONE;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
-    <Folder Name="Child" Id="{97165f57-2a6b-45d0-8208-1f95b60b5b3e}" />
+    <Folder Name="MotionControl" Id="{6f7f8f5a-3bb9-4abc-ac7f-96940ed271c3}" />
     <Folder Name="StateControl" Id="{ee8ac4a0-f0cf-40ca-b53b-7b5d8eb3bef1}" />
+    <Property Name="AcceptedCommandID" Id="{f6fa51c2-5fe2-4555-b51f-7442aeebd35a}">
+      <Declaration><![CDATA[PROPERTY AcceptedCommandID : UINT]]></Declaration>
+      <Get Name="Get" Id="{729ac197-11c0-4ea9-9461-41931b9eeb8d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AcceptedCommandID := _commAcceptedCommandID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ActiveCommandID" Id="{ff8d03ae-5aca-4151-a900-301b163b7f8b}">
+      <Declaration><![CDATA[PROPERTY ActiveCommandID : UINT]]></Declaration>
+      <Get Name="Get" Id="{35a68362-1500-4754-a3c2-623438c421d9}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActiveCommandID := _commActiveCommandID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="CanAcceptCommand" Id="{4eca24bb-c5db-4347-81dd-639bf13bfeda}">
+      <Declaration><![CDATA[PROPERTY CanAcceptCommand : BOOL]]></Declaration>
+      <Get Name="Get" Id="{63d1cae0-f96f-45cf-9954-4014733d1dcd}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CanAcceptCommand := CommunicationReady AND _commCanAcceptCommand AND NOT _commCommandBusy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CancelCommand" Id="{32195099-2cb5-4c67-b16e-a28477fb529e}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
+VAR_INPUT
+	CommandID : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CancelCommand := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="CommandBusy" Id="{9b3ecf88-f63c-4b76-b478-c8c9cfb56d4e}">
+      <Declaration><![CDATA[PROPERTY CommandBusy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7be087e0-681c-41c7-b95f-dfbf184d49eb}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CommandBusy := _commCommandBusy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="CommandResult" Id="{1d40bfd3-f7dc-4cae-8446-7fd1b8f990eb}">
+      <Declaration><![CDATA[PROPERTY CommandResult : eResult]]></Declaration>
+      <Get Name="Get" Id="{81e718d4-e643-4113-baae-beaaef8b73d0}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CommandResult := _commCommandResult;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="CommandState" Id="{ebc6034f-d6e7-4137-9076-a42b16fdfc84}">
+      <Declaration><![CDATA[PROPERTY CommandState : eProgress]]></Declaration>
+      <Get Name="Get" Id="{7bdea5f2-6baf-47a3-9fe9-4f7ecde91b7d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CommandState := _commCommandState;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Property Name="CommunicationReady" Id="{cd2541e9-c446-41df-86d3-5e7de551597b}">
       <Declaration><![CDATA[PROPERTY CommunicationReady : BOOL]]></Declaration>
       <Get Name="Get" Id="{8777da96-80fa-4c82-8f5c-130cb7162c26}">
@@ -59,67 +150,6 @@ END_IF]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="CanAcceptCommand" Id="{4eca24bb-c5db-4347-81dd-639bf13bfeda}">
-      <Declaration><![CDATA[PROPERTY CanAcceptCommand : BOOL]]></Declaration>
-      <Get Name="Get" Id="{63d1cae0-f96f-45cf-9954-4014733d1dcd}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[CanAcceptCommand := CommunicationReady;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Property Name="AcceptedCommandID" Id="{f6fa51c2-5fe2-4555-b51f-7442aeebd35a}">
-      <Declaration><![CDATA[PROPERTY AcceptedCommandID : UINT]]></Declaration>
-      <Get Name="Get" Id="{729ac197-11c0-4ea9-9461-41931b9eeb8d}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[AcceptedCommandID := 0;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Property Name="ActiveCommandID" Id="{ff8d03ae-5aca-4151-a900-301b163b7f8b}">
-      <Declaration><![CDATA[PROPERTY ActiveCommandID : UINT]]></Declaration>
-      <Get Name="Get" Id="{35a68362-1500-4754-a3c2-623438c421d9}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[ActiveCommandID := 0;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Property Name="CommandBusy" Id="{9b3ecf88-f63c-4b76-b478-c8c9cfb56d4e}">
-      <Declaration><![CDATA[PROPERTY CommandBusy : BOOL]]></Declaration>
-      <Get Name="Get" Id="{7be087e0-681c-41c7-b95f-dfbf184d49eb}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[CommandBusy := FALSE;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Method Name="CancelCommand" Id="{32195099-2cb5-4c67-b16e-a28477fb529e}">
-      <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
-VAR_INPUT
-	CommandID : UINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[CancelCommand := FALSE;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="StopMotion" Id="{6024ef0d-a981-48d0-ad2c-d07103294416}">
-      <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[StopMotion := FALSE;]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="Connect" Id="{48cddc0e-90b0-47e7-b3f4-033f55fc4faf}">
       <Declaration><![CDATA[METHOD Connect : BOOL
 ]]></Declaration>
@@ -232,19 +262,33 @@ CASE _eCommState OF
             // Link healthy again: clear any comm messages this component raised.
             Messenger.Clear(Name);
             _ReconnectRequested := FALSE;
+            _nAutoReconnectAttempts := 0;
             _eCommState := E_CommState.eConnected;
 
 
         // Timeout
         ELSIF _tonConnectTimeout.Q THEN
 
-            // Recoverable: warn (does not freeze the state machine) and let the FSM retry.
-            Messenger.AddWarn(eMessageCategories.TimeoutFailure, Name, 'Connection attempt timed out, retrying');
-
+            _nAutoReconnectAttempts := _nAutoReconnectAttempts + 1;
             bRequestConnection := FALSE;
 
-            IF _ConnectionRequested THEN
-                _ReconnectRequested := TRUE;
+            IF (nMaxAutoReconnectAttempts > 0)
+                AND (_nAutoReconnectAttempts >= nMaxAutoReconnectAttempts) THEN
+
+                // Automatic recovery is exhausted. Escalate once into ErrorProcessing;
+                // the user must acknowledge before another configure/connect sequence.
+                SetRecoveryMode(Mode := eRecoveryMode.AcknowledgeRequired);
+                Messenger.AddError(eMessageCategories.TimeoutFailure, Name,
+                    'Automatic communication recovery exhausted; operator reset required');
+                _ReconnectRequested := FALSE;
+                _ConnectionRequested := FALSE;
+            ELSE
+                Messenger.AddWarn(eMessageCategories.TimeoutFailure, Name,
+                    'Connection attempt timed out, retrying automatically');
+
+                IF _ConnectionRequested THEN
+                    _ReconnectRequested := TRUE;
+                END_IF
             END_IF
 
             _eCommState := E_CommState.eDisconnecting;
@@ -277,7 +321,10 @@ CASE _eCommState OF
         // Unexpected loss of communication
         ELSIF NOT HMI_COMM._CommunicationConnected THEN
 
-            Messenger.AddError(eMessageCategories.LostConnection, Name, 'Communication lost');
+            // A single runtime link loss is recoverable. Keep the lifecycle alive and
+            // reconnect internally; repeated connect failures escalate through the timeout path.
+            Messenger.AddWarn(eMessageCategories.LostConnection, Name,
+                'Communication lost; automatic reconnect started');
 
             bRequestConnection := FALSE;
             _ReconnectRequested := TRUE;
@@ -357,6 +404,15 @@ END_CASE]]></ST>
 _ReconnectRequested := FALSE;
 
 Disconnect := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="EStop" Id="{b296453b-571a-4401-8fea-35fc207d1189}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD EStop : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[EStop:=FALSE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnActivate" Id="{eb2d4e14-3804-493f-9198-3fada3407113}" FolderPath="StateControl\">
@@ -490,18 +546,20 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
-
 myResult := NONE;
 
-// ----- YOUR CODE HERE -----------------------------
-
+// Generic communication recovery is always a controlled disconnect. Reconnect is
+// performed later by Configure; OnError never resumes a previous robot command.
 Disconnect();
 
 IF NOT Connected THEN
+    _ReconnectRequested := FALSE;
+    _ConnectionRequested := FALSE;
+    bRequestConnection := FALSE;
+    _eCommState := E_CommState.eDisconnected;
+    _nAutoReconnectAttempts := 0;
     myResult := SUCCESS;
 END_IF
-
-// ----- END YOUR CODE ------------------------------
 
 OnError := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
@@ -544,6 +602,29 @@ END_IF
 _ReconnectRequested := TRUE;
 
 Reconnect := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetCommunication" Id="{87f50915-b5f4-4650-b91e-08cb10eaaf39}">
+      <Declaration><![CDATA[METHOD PUBLIC ResetCommunication : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Generic reset: discard transport-command bookkeeping and request a clean reconnect.
+// This does NOT reset robot/controller safety conditions.
+_commCanAcceptCommand := TRUE;
+_commAcceptedCommandID := 0;
+_commActiveCommandID := 0;
+_commCommandBusy := FALSE;
+_commCommandState := INIT;
+_commCommandResult := NONE;
+Reconnect();
+ResetCommunication := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StopMotion" Id="{6024ef0d-a981-48d0-ad2c-d07103294416}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StopMotion := FALSE;]]></ST>
       </Implementation>
     </Method>
   </POU>

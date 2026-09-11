@@ -107,15 +107,23 @@ END_VAR
         <ST><![CDATA[CYCLIC_ROB();
 
 IF TOOL <> 0 THEN
-  TOOL^.CYCLIC_TOOL();
+    TOOL^.MESSENGER.ParentMessenger := ADR(MESSENGER);
+    TOOL^.CYCLIC_TOOL();
+
+    IF TOOL^.State = eState.ErrorProcessing OR TOOL^.MESSENGER.HasActivError THEN
+        SetRecoveryMode(Mode := TOOL^.RecoveryMode);
+        Messenger.AddError(eMessageCategories.ParentFailed, Path, 'Tool in error');
+    ELSE
+        Messenger.Clear(Path, 'Tool in error');
+    END_IF
 END_IF
 
-
-JOG(pRobot:=THIS);
-
-
-
-]]></ST>
+JOG(
+    pRobot := THIS,
+    bRecoveryInhibit := (State = eState.ErrorProcessing)
+        OR (State = eState.Deactivating)
+        OR (State = eState.ShuttingDown)
+);]]></ST>
       </Implementation>
     </Action>
     <Method Name="FB_Init" Id="{59b2ccf3-d1a8-4248-bdb8-48f7cd1360d5}">
@@ -155,7 +163,7 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[
 
-Home:= BA_Handler(Cmd:=eBA.Home,Settings:=Config);]]></ST>
+Home:= CommandHandler(Cmd:=eBA.Home,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
     <Property Name="IsHomePosition" Id="{0f2fd807-aeed-459c-9c2b-f2325fe045e7}">
@@ -201,7 +209,7 @@ END_IF
 Config.Target.frame_id := eRefFrame.BRF;
 Config.Target.pose := Resolved;
 
-MoveJoint := BA_Handler(Cmd:=eBA.MoveJ, Settings:=Config);
+MoveJoint := CommandHandler(Cmd:=eBA.MoveJ, Settings:=Config);
 ]]></ST>
       </Implementation>
     </Method>
@@ -222,7 +230,7 @@ END_VAR]]></Declaration>
         <ST><![CDATA[Config.Velocity := Velocity;
 Config.Joints := Joints;
 
-MoveJointAbsolute := BA_Handler(Cmd:=eBA.MoveJJoints, Settings:=Config);]]></ST>
+MoveJointAbsolute := CommandHandler(Cmd:=eBA.MoveJJoints, Settings:=Config);]]></ST>
       </Implementation>
     </Method>
     <Method Name="MoveJointRelative" Id="{d4d7d377-1aa7-4fc3-9e59-f55d00fe8d35}" FolderPath="MotionControl\">
@@ -255,7 +263,7 @@ END_IF
 Config.Target.frame_id := eRefFrame.BRF;
 Config.Target.pose := Resolved;
 
-MoveJointRelative := BA_Handler(Cmd:=eBA.MoveJ, Settings:=Config);
+MoveJointRelative := CommandHandler(Cmd:=eBA.MoveJ, Settings:=Config);
 ]]></ST>
       </Implementation>
     </Method>
@@ -288,7 +296,7 @@ END_IF
 Config.Target.frame_id := eRefFrame.BRF;
 Config.Target.pose := Resolved;
 
-MoveLinear := BA_Handler(Cmd:=eBA.MoveL, Settings:=Config);
+MoveLinear := CommandHandler(Cmd:=eBA.MoveL, Settings:=Config);
 ]]></ST>
       </Implementation>
     </Method>
@@ -331,7 +339,7 @@ END_IF
 Config.Target.frame_id := eRefFrame.BRF;
 Config.Target.pose := Resolved;
 
-MoveLinearRelative := BA_Handler(Cmd:=eBA.MoveL, Settings:=Config);
+MoveLinearRelative := CommandHandler(Cmd:=eBA.MoveL, Settings:=Config);
 ]]></ST>
       </Implementation>
     </Method>
@@ -469,6 +477,7 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
+JOG.StopJog();
 //--------------------------------------------------
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
@@ -506,17 +515,35 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
-//--------------------------------------------------
-myResult:=NONE;
-// ----- YOUR CODE HERE (incl. Alarms) -------------
+myResult := NONE;
 
+// Immediately remove all jog requests. The additional bRecoveryInhibit interlock
+// prevents held HMI buttons from reissuing a motion command during recovery.
+JOG.StopJog();
+_commandState := E_RobotCommandState.Idle;
 
-myResult:=SUCCESS;
+IF TOOL = 0 THEN
+    myResult := SUCCESS;
+ELSE
+    CASE TOOL^.State OF
+        eState.Active:
+            TOOL^.Deactivate();
 
-// ----- END YOUR CODE -----------------------------
-//--------------------------------------------------
-OnError := CombineResults(eParentResult,myResult);
-]]></ST>
+        eState.ErrorProcessing:
+            SetRecoveryMode(Mode := TOOL^.RecoveryMode);
+
+        eState.Inactive, eState.Unconfigured, eState.Finalized:
+            IF NOT TOOL^.MESSENGER.HasActivError THEN
+                myResult := SUCCESS;
+            END_IF
+
+        ELSE
+            // Finish any in-progress tool lifecycle without replaying a process action.
+            TOOL^.Shutdown();
+    END_CASE
+END_IF
+
+OnError := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnShutdown" Id="{33fd0fdb-eda0-4636-921c-64c45a1b7fdc}" FolderPath="StateControl\">
@@ -534,6 +561,7 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
+JOG.StopJog();
 //--------------------------------------------------
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
@@ -567,7 +595,21 @@ END_VAR]]></Declaration>
         <ST><![CDATA[Config.Pin:=bPin;
 
 
-ReadDI:= BA_Handler(Cmd:=eBA.ReadDI,Settings:=Config);]]></ST>
+ReadDI:= CommandHandler(Cmd:=eBA.ReadDI,Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{88202b70-34aa-4aa8-a8d9-10b154dbb53a}" FolderPath="StateControl\">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable':='1'}
+METHOD PUBLIC Reset : eResult
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Reset := SUPER^.Reset();
+
+IF TOOL <> 0 AND TOOL^.State = eState.ErrorProcessing THEN
+    TOOL^.Reset();
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="SetDO" Id="{1b1484e8-2eba-4b5a-9bc9-3e9f0cf73af2}" FolderPath="MotionControl\">
@@ -585,7 +627,7 @@ END_VAR]]></Declaration>
 Config.bValue:=bValue;
 
 
-SetDO:= BA_Handler(Cmd:=eBA.SetDO,Settings:=Config);]]></ST>
+SetDO:= CommandHandler(Cmd:=eBA.SetDO,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
     <Property Name="TargetReached" Id="{2237dc56-6e31-4e2f-87fb-158a23ca2344}">

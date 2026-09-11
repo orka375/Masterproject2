@@ -29,8 +29,8 @@ END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[CYCLIC_COMBINE();]]></ST>
     </Implementation>
-    <Method Name="BA_Handler" Id="{c9803211-e0dc-4a82-b0b7-1b2973ca87b1}">
-      <Declaration><![CDATA[METHOD BA_Handler : UINT
+    <Method Name="CommandHandler" Id="{c9803211-e0dc-4a82-b0b7-1b2973ca87b1}">
+      <Declaration><![CDATA[METHOD CommandHandler : UINT
 VAR_INPUT
   Cmd : eBA;
   Settings : stBA_Settings;
@@ -41,7 +41,7 @@ VAR
   childTarget : LREAL;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[BA_Handler := 0;
+        <ST><![CDATA[CommandHandler := 0;
 
 IF Cmd <> eBA.MoveJJoints OR _bSafeMoveActive OR NOT bConfigurationValid OR NOT HMI_ROB.bReady THEN
   RETURN;
@@ -65,7 +65,7 @@ FOR index := 1 TO _activeAxisCount DO
   
   childSettings.Velocity := Settings.Velocity;
   childSettings.Joints.joint1 := childTarget;
-  _aChildBAID[index] := aAxis[index].pAxis^.BA_Handler(Cmd := eBA.MoveJJoints, Settings := childSettings);
+  _aChildBAID[index] := aAxis[index].pAxis^.CommandHandler(Cmd := eBA.MoveJJoints, Settings := childSettings);
   IF _aChildBAID[index] = 0 THEN
     EStop();
     RETURN;
@@ -77,10 +77,10 @@ IF Idcounter >= 65534 THEN
 ELSE
   Idcounter := Idcounter + 1;
 END_IF
-BA_ID := Idcounter;
-BA_STATUS := eProgress.ACKNOWLEDGE;
+nCommandID := Idcounter;
+eCommandStatus := eProgress.ACKNOWLEDGE;
 _bSafeMoveActive := TRUE;
-BA_Handler := BA_ID;]]></ST>
+CommandHandler := nCommandID;]]></ST>
       </Implementation>
     </Method>
     <Action Name="CYCLIC_COMBINE" Id="{c8977b75-3431-40e0-9109-8126ca86e0fc}">
@@ -127,8 +127,8 @@ FOR _index := 1 TO _activeAxisCount DO
     aAxisStatus[_index].fActualVelocity := _velocity;
     aAxisStatus[_index].fZeroPoint := aAxis[_index].fZeroPoint;
     aAxisStatus[_index].fSafePosition := aAxis[_index].pAxis^.SafePosition.joint1;
-    aAxisStatus[_index].nBasicActionID := aAxis[_index].pAxis^.BA_ID;
-    aAxisStatus[_index].eBasicActionStatus := aAxis[_index].pAxis^.BA_STATUS;
+    aAxisStatus[_index].nBasicActionID := aAxis[_index].pAxis^.nCommandID;
+    aAxisStatus[_index].eBasicActionStatus := aAxis[_index].pAxis^.eCommandStatus;
     HMI_ROB._tcppos.x := HMI_ROB._tcppos.x + (_position - aAxis[_index].fZeroPoint) * aAxis[_index].fDirX;
     HMI_ROB._tcppos.y := HMI_ROB._tcppos.y + (_position - aAxis[_index].fZeroPoint) * aAxis[_index].fDirY;
     HMI_ROB._tcppos.z := HMI_ROB._tcppos.z + (_position - aAxis[_index].fZeroPoint) * aAxis[_index].fDirZ;
@@ -153,12 +153,12 @@ END_FOR
     IF _anyAxisError THEN
       EStop();
       _bSafeMoveActive := FALSE;
-      BA_STATUS := eProgress.ABORTED;
+      eCommandStatus := eProgress.ABORTED;
     ELSIF _allSafeMovesFinalized THEN
       _bSafeMoveActive := FALSE;
-      BA_STATUS := eProgress.FINALIZED;
+      eCommandStatus := eProgress.FINALIZED;
     ELSE
-      BA_STATUS := eProgress.RUNNING;
+      eCommandStatus := eProgress.RUNNING;
     END_IF
   END_IF
 
@@ -182,7 +182,7 @@ FOR index := 1 TO _activeAxisCount DO
     END_IF
 END_FOR
 HMI_ROB.bEStop := TRUE;
-BA_STATUS := eProgress.ABORTED;
+eCommandStatus := eProgress.ABORTED;
 EStop := stopped;]]></ST>
       </Implementation>
     </Method>

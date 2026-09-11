@@ -133,7 +133,7 @@ IF _rMoveToEditedPoint.Q THEN
             _moveToEditedPointSettings.Target.pose.pitch := _moveToEditedPointPLC.ry;
             _moveToEditedPointSettings.Target.pose.yaw := _moveToEditedPointPLC.rz;
 
-            _moveToEditedPointExecuteId := pRobot^.BA_Handler(
+            _moveToEditedPointExecuteId := pRobot^.CommandHandler(
                 Cmd := eBA.MoveJ,
                 Settings := _moveToEditedPointSettings
             );

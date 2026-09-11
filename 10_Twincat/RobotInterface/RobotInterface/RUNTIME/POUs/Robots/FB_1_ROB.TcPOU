@@ -22,9 +22,9 @@ END_VAR
 VAR_OUTPUT
 	HMI_ROB: stHMI_ROB;
 
-	BA_ID: UINT;
-	BA_STATUS: eProgress;
-  BA_RESULT: eResult := NONE;
+	nCommandID: UINT;
+	eCommandStatus: eProgress;
+	eCommandResult: eResult := NONE;
 	
 	 _jointvel: stJoint6;
      _tcpvel : ST_Pose;
@@ -57,7 +57,7 @@ END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
-    <Folder Name="Frames" Id="{b403a138-b05f-4ad7-9a1c-9d14c9d2177d}" />
+    <Folder Name="Command" Id="{dbd57985-4d16-4bc8-859d-d7e9147003e9}" />
     <Folder Name="Generic Control" Id="{d269719e-4481-455b-8abd-a0a346547cd3}" />
     <Folder Name="Generic Status" Id="{c1e8e35a-1828-4d72-a2cb-3aa1cc7ab721}" />
     <Folder Name="StateControl" Id="{306f9b72-2cb2-4dec-88a3-0a1776eb8cb9}" />
@@ -114,34 +114,7 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Method Name="BA_Annulate" Id="{c602ca79-3f52-4076-b7d1-475b1f146f1f}">
-      <Declaration><![CDATA[{warning 'Override with your own Method in final FB'}
-METHOD BA_Annulate : BOOL
-VAR_INPUT
-    ExecuteId : UINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[(* Base implementation: unsupported. Final robot FB overrides this method. *)
-BA_Annulate := FALSE;
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="BA_Handler" Id="{83e2d403-4d26-4906-9c94-3843f0c8311a}">
-      <Declaration><![CDATA[{warning 'Override with your own Method in final FB'}
-METHOD BA_Handler : UINT
-VAR_INPUT
-    Cmd      : eBA;
-    Settings : stBA_Settings;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[(* Base implementation: unsupported. Final robot FB overrides this method. *)
-BA_Handler := 0;
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="AllocateCommandID" Id="{4de8c731-a286-4ca0-9f0f-d43282496255}">
+    <Method Name="AllocateCommandID" Id="{4de8c731-a286-4ca0-9f0f-d43282496255}" FolderPath="Command\">
       <Declaration><![CDATA[METHOD PROTECTED AllocateCommandID : UINT
 ]]></Declaration>
       <Implementation>
@@ -155,85 +128,117 @@ AllocateCommandID := Idcounter;
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="CancelCommand" Id="{b57e3248-65a9-4f87-b25a-fbc0300c26f8}">
+    <Property Name="CanAcceptCommand" Id="{ecdb9c1a-5dfb-4d8b-9dc8-7992c493eb98}" FolderPath="Command\">
+      <Declaration><![CDATA[PROPERTY CanAcceptCommand : BOOL]]></Declaration>
+      <Get Name="Get" Id="{5ce2868b-d6c9-486f-9f2d-1ce0bec46b73}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CanAcceptCommand :=
+    (State = eState.Active)
+    AND NOT RecoveryPending
+    AND NOT ((nCommandID <> 0) AND ((eCommandStatus = INIT) OR (eCommandStatus = ACKNOWLEDGE) OR (eCommandStatus = RUNNING)));
+
+IF CanAcceptCommand AND (COMM <> 0) AND (COMM <> ADR(emptyCOMM)) THEN
+    CanAcceptCommand := COMM^.CanAcceptCommand;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CancelCommand" Id="{b57e3248-65a9-4f87-b25a-fbc0300c26f8}" FolderPath="Command\">
       <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
 VAR_INPUT
 	CommandID : UINT;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[CancelCommand := BA_Annulate(ExecuteId := CommandID);
+        <ST><![CDATA[
+CancelCommand := FALSE;
+
+// Invalid command ID.
+IF (CommandID = 0) OR (CommandID <> nCommandID) THEN
+    RETURN;
+END_IF
+
+// Already terminal.
+IF (CommandState = eProgress.FINALIZED)
+    OR (CommandState = eProgress.ABORTED) THEN
+    RETURN;
+END_IF
+
+// Communication layer must exist.
+IF (COMM = 0) OR (COMM = ADR(emptyCOMM)) THEN
+    RETURN;
+END_IF
+
+// COMM performs the technical cancellation.
+IF NOT COMM^.CancelCommand(
+    CommandID := CommandID
+) THEN
+    RETURN;
+END_IF
+
+// Generic command lifecycle.
+eCommandStatus := eProgress.ABORTED;
+eCommandResult := eResult.FAILURE;
+
+// Allow the concrete robot to clear adapter-specific tracking.
+OnCommandCancelled(
+    CommandID := CommandID
+);
+
+CancelCommand := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CommandHandler" Id="{83e2d403-4d26-4906-9c94-3843f0c8311a}" FolderPath="Command\">
+      <Declaration><![CDATA[{warning 'Override with your own Method in final FB'}
+METHOD CommandHandler : UINT
+VAR_INPUT
+    Cmd      : eBA;
+    Settings : stBA_Settings;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* Base implementation: unsupported. Final robot FB overrides this method. *)
+CommandHandler := 0;
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="CommandID" Id="{d97dbde2-fb4a-4a46-80b5-95e72bfb597d}">
+    <Property Name="CommandID" Id="{d97dbde2-fb4a-4a46-80b5-95e72bfb597d}" FolderPath="Command\">
       <Declaration><![CDATA[PROPERTY CommandID : UINT]]></Declaration>
       <Get Name="Get" Id="{f42bf0bc-af24-437d-951f-342952505cbf}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[CommandID := BA_ID;
+          <ST><![CDATA[CommandID := nCommandID;
 ]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="CommandState" Id="{6c07ca32-53d2-4833-85fe-587d61a168d6}">
-      <Declaration><![CDATA[PROPERTY CommandState : eProgress]]></Declaration>
-      <Get Name="Get" Id="{f225aadd-c904-4018-87ed-75348f6fbad4}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[CommandState := BA_STATUS;
-]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Property Name="CommandResult" Id="{2743123b-b65d-4f7b-9069-9ec61dd72659}">
+    <Property Name="CommandResult" Id="{2743123b-b65d-4f7b-9069-9ec61dd72659}" FolderPath="Command\">
       <Declaration><![CDATA[PROPERTY CommandResult : eResult]]></Declaration>
       <Get Name="Get" Id="{9324d1a7-b98e-458b-8e19-2f6253d717cd}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[CommandResult := BA_RESULT;
+          <ST><![CDATA[CommandResult := eCommandResult;
 ]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="CurrentMoveID" Id="{62784dec-5174-4916-bfb1-149a6471c58a}">
-      <Declaration><![CDATA[PROPERTY CurrentMoveID : UINT]]></Declaration>
-      <Get Name="Get" Id="{082682ad-76d6-4ec6-87a5-1dc9db09970f}">
+    <Property Name="CommandState" Id="{6c07ca32-53d2-4833-85fe-587d61a168d6}" FolderPath="Command\">
+      <Declaration><![CDATA[PROPERTY CommandState : eProgress]]></Declaration>
+      <Get Name="Get" Id="{f225aadd-c904-4018-87ed-75348f6fbad4}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[CurrentMoveID := CommandID;
+          <ST><![CDATA[CommandState := eCommandStatus;
 ]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="CurrentMoveResult" Id="{645ad862-eb02-444d-b382-2e86a3e7f77a}">
-      <Declaration><![CDATA[PROPERTY CurrentMoveResult : eResult]]></Declaration>
-      <Get Name="Get" Id="{d87bf5c3-bc66-4957-b961-0125e6316993}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[CurrentMoveResult := CommandResult;
-]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Method Name="StopMotion" Id="{2a9ef1f1-bebf-42b7-9028-b416fb72a19e}">
-      <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[StopMotion := FALSE;
-]]></ST>
-      </Implementation>
-    </Method>
     <Action Name="CYCLIC_ROB" Id="{ebf16c89-c511-406b-9426-1ade99c4f730}">
       <Implementation>
         <ST><![CDATA[IF NOT _INIT_ROB THEN
@@ -267,6 +272,7 @@ HMI_ROB._jointpos_display.joint6 := ChangeRealToHMIStandard(
 IF COMM <> 0 AND COMM <> ADR(emptyCOMM) THEN
   COMM^.MESSENGER.ParentMessenger := ADR(MESSENGER);
 	IF COMM^.State = eState.ErrorProcessing OR COMM^.MESSENGER.HasActivError THEN
+        SetRecoveryMode(Mode := COMM^.RecoveryMode);
 		Messenger.AddError(eMessageCategories.ParentFailed,Path,'Communication module in error');
 	ELSE
 		Messenger.Clear(Path,'Communication module in error');
@@ -306,8 +312,13 @@ HMI_ROB.bMoving :=
     (ABS(_tcpvel.pitch) > StandStillLimit) OR
     (ABS(_tcpvel.yaw) > StandStillLimit);
 	
-//RobotReady
-HMI_ROB.bReady := ((State=eState.Active) AND (NOT Busy));
+// Generic robot command contributes to FB_0_Base.Busy. Terminal command values remain latched,
+// therefore only non-terminal phases make the robot busy.
+HMI_BASE.bBusy := (nCommandID <> 0)
+    AND ((eCommandStatus = INIT) OR (eCommandStatus = ACKNOWLEDGE) OR (eCommandStatus = RUNNING));
+
+// Ready means: the robot can accept a NEW semantic command now.
+HMI_ROB.bReady := CanAcceptCommand;
 
 ]]></ST>
       </Implementation>
@@ -317,7 +328,13 @@ HMI_ROB.bReady := ((State=eState.Active) AND (NOT Busy));
 METHOD EStop : BOOL]]></Declaration>
       <Implementation>
         <ST><![CDATA[HMI_ROB.bEStop := TRUE; //depend on Robot Type //TODO
-EStop := TRUE;]]></ST>
+EStop := FALSE;
+
+IF (COMM = 0) OR (COMM = ADR(emptyCOMM)) THEN
+    RETURN;
+END_IF
+
+EStop := COMM^.EStop();]]></ST>
       </Implementation>
     </Method>
     <Method Name="FB_Init" Id="{7b302bc2-af12-4e54-8aa2-dca07a2dd5cc}">
@@ -418,7 +435,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[IsReady := HMI_ROB.bReady;]]></ST>
+          <ST><![CDATA[IsReady := Ready;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -453,7 +470,7 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[settings.Velocity := Velocity;
 settings.Joints := SafePosition;
-MoveToSafePosition := BA_Handler(Cmd := eBA.MoveJJoints, Settings := settings);]]></ST>
+MoveToSafePosition := CommandHandler(Cmd := eBA.MoveJJoints, Settings := settings);]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnActivate" Id="{c53d2e09-95f6-4470-b92a-1736ae881f81}" FolderPath="StateControl\">
@@ -528,6 +545,18 @@ OnCleanup := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="OnCommandCancelled" Id="{91234baa-4c31-4086-8ac7-29bfb64ae053}" FolderPath="Command\">
+      <Declaration><![CDATA[METHOD PROTECTED OnCommandCancelled
+VAR_INPUT
+    CommandID : UINT;
+END_VAR
+
+// Default: nothing to do.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="OnConfigure" Id="{405f6b01-72da-4ba1-a9bb-82f8cc48639e}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
 VAR_INPUT
@@ -588,6 +617,10 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
+
+IF (eCommandStatus = INIT) OR (eCommandStatus = ACKNOWLEDGE) OR (eCommandStatus = RUNNING) THEN
+    StopMotion();
+END_IF
 //--------------------------------------------------
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
@@ -621,18 +654,31 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
-//--------------------------------------------------
-myResult:=NONE;
-// ----- YOUR CODE HERE (incl. Alarms) -------------
+myResult := NONE;
 
-// Robot layer accepts the reset (mirrors Skill/Tool/MANIP/LD90); without this the
-// CombineResults chain collapses to NONE and the robot can never leave ErrorProcessing.
-myResult:=SUCCESS;
+// Stop the physical capability through the generic robot API. Vendor-specific
+// implementations decide how this is done. The interrupted command is terminal.
+IF (eCommandStatus = INIT) OR (eCommandStatus = ACKNOWLEDGE) OR (eCommandStatus = RUNNING) THEN
+    StopMotion();
+    eCommandStatus := ABORTED;
+    eCommandResult := ERROR;
+END_IF
 
-// ----- END YOUR CODE -----------------------------
-//--------------------------------------------------
-OnError := CombineResults(eParentResult,myResult);
-]]></ST>
+// Communication recovery owns its own policy. The robot only waits for it and
+// propagates a more restrictive recovery mode upward.
+IF (COMM = 0) OR (COMM = ADR(emptyCOMM)) THEN
+    myResult := SUCCESS;
+ELSIF COMM^.State = eState.ErrorProcessing THEN
+    SetRecoveryMode(Mode := COMM^.RecoveryMode);
+    myResult := NONE;
+ELSIF COMM^.MESSENGER.HasActivError THEN
+    SetRecoveryMode(Mode := COMM^.RecoveryMode);
+    myResult := NONE;
+ELSE
+    myResult := SUCCESS;
+END_IF
+
+OnError := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnShutdown" Id="{b65c468a-c599-4af9-bafe-bb502871193c}" FolderPath="StateControl\">
@@ -650,6 +696,10 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
+
+IF (eCommandStatus = INIT) OR (eCommandStatus = ACKNOWLEDGE) OR (eCommandStatus = RUNNING) THEN
+    StopMotion();
+END_IF
 //--------------------------------------------------
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
@@ -668,6 +718,17 @@ OnShutdown := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
+    <Property Name="Ready" Id="{86371d66-1578-41a3-b04b-51033c28cb3d}" FolderPath="Generic Status\">
+      <Declaration><![CDATA[PROPERTY Ready : BOOL]]></Declaration>
+      <Get Name="Get" Id="{6a7426b3-2bd8-4baa-a45a-ec986519b549}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Ready := CanAcceptCommand;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Method Name="Reset" Id="{2c7d1a90-4e33-4b71-9a02-8f1a2b3c4d50}" FolderPath="StateControl\">
       <Declaration><![CDATA[{attribute 'TcRpcEnable':='1'}
 METHOD PUBLIC Reset : eResult
@@ -675,10 +736,12 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[SUPER^.Reset();
-// Cascade the reset to the communication child.
-IF COMM <> 0 THEN
-	COMM^.Reset();
+        <ST><![CDATA[Reset := SUPER^.Reset();
+
+// A robot acknowledgement is propagated only to a communication child that is
+// itself waiting in ErrorProcessing. It is still only permission to recover.
+IF (COMM <> 0) AND (COMM <> ADR(emptyCOMM)) AND (COMM^.State = eState.ErrorProcessing) THEN
+    COMM^.Reset();
 END_IF]]></ST>
       </Implementation>
     </Method>
@@ -893,5 +956,21 @@ END_FOR
 ]]></ST>
       </Implementation>
     </Action>
+    <Method Name="StopMotion" Id="{2a9ef1f1-bebf-42b7-9028-b416fb72a19e}">
+      <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StopMotion := FALSE;
+
+// Communication layer must exist.
+IF (COMM = 0) OR (COMM = ADR(emptyCOMM)) THEN
+    RETURN;
+END_IF
+
+// Functional stop only.
+// No safety reset / no safety bypass.
+StopMotion := COMM^.StopMotion();]]></ST>
+      </Implementation>
+    </Method>
   </POU>
 </TcPlcObject>

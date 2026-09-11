@@ -515,16 +515,50 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.onError();
-//--------------------------------------------------
-myResult:=NONE;
-// ----- YOUR CODE HERE (incl. Alarms) -------------
+myResult := NONE;
 
-myResult:=SUCCESS;
+// A skill never resumes after owner/robot recovery. Terminate all local execution
+// handles and wait for an active subskill to become neutral.
+_startReq := FALSE;
+bMoveRunning := FALSE;
+nCalledMoveID := 0;
 
-// ----- END YOUR CODE -----------------------------
-//--------------------------------------------------
-onError := CombineResults(eParentResult,myResult);
-]]></ST>
+IF pOwner <> 0 AND pOwner^.ActivSkill = THIS THEN
+    pOwner^.ActivSkill := 0;
+END_IF
+
+IF SubSkill <> 0 THEN
+    CASE SubSkill^.State OF
+        eState.Active:
+            SubSkill^.Stop();
+
+        eState.ErrorProcessing:
+            SetRecoveryMode(Mode := SubSkill^.RecoveryMode);
+
+        eState.Inactive, eState.Unconfigured, eState.Finalized:
+            bSubSkillRunning := FALSE;
+            SubSkill := 0;
+            SubSkillPhase := 0;
+            myResult := SUCCESS;
+
+        ELSE
+            SubSkill^.Shutdown();
+    END_CASE
+ELSE
+    bSubSkillRunning := FALSE;
+    SubSkillPhase := 0;
+    myResult := SUCCESS;
+END_IF
+
+IF myResult = SUCCESS THEN
+    ExecutionDone := TRUE;
+    IF ExecutionResult = NONE OR ExecutionResult = SUCCESS THEN
+        ExecutionResult := ERROR;
+    END_IF
+    HMI_BASE.bBusy := FALSE;
+END_IF
+
+onError := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
     <Method Name="onShutdown" Id="{6591556f-e9f3-47e8-a85a-17a8ea0a3b97}" FolderPath="StateControl\">
@@ -542,18 +576,29 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.onShutdown();
-//--------------------------------------------------
-myResult:=NONE;
-// ----- YOUR CODE HERE (incl. Alarms) -------------
+myResult := NONE;
 
-myResult:=SUCCESS;
+_startReq := FALSE;
+bMoveRunning := FALSE;
+nCalledMoveID := 0;
 
+IF HMI_SKILL.ExternalImplementation THEN
+    ExternalStop();
+END_IF
 
+IF SubSkill <> 0 AND SubSkill^.State <> eState.Finalized THEN
+    SubSkill^.Shutdown();
+ELSE
+    SubSkill := 0;
+    bSubSkillRunning := FALSE;
+    SubSkillPhase := 0;
+    ExecutionDone := TRUE;
+    IF ExecutionResult = NONE THEN ExecutionResult := FAILURE; END_IF
+    HMI_BASE.bBusy := FALSE;
+    myResult := SUCCESS;
+END_IF
 
-// ----- END YOUR CODE -----------------------------
-//--------------------------------------------------
-onShutdown := CombineResults(eParentResult,myResult);
-]]></ST>
+onShutdown := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
     <Action Name="RUN_DEBUG_SKILL" Id="{1fa16960-2e47-40ed-acf7-3e974bec9e31}">

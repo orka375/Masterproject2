@@ -3747,10 +3747,10 @@ bRetractPlaceDone := FALSE;
     bMoveInProcess := TRUE;
 
     CASE pRob^.CommandState OF
-      INIT, ACKNOWLEDGE, RUNNING:
+      eProgress.INIT, eProgress.ACKNOWLEDGE, eProgress.RUNNING:
         PollRobotMove := FALSE;
 
-      FINALIZED:
+      eProgress.FINALIZED:
         IF pRob^.CommandResult = SUCCESS THEN
           DoneFlag := TRUE;
           PollRobotMove := TRUE;
@@ -3765,7 +3765,7 @@ bRetractPlaceDone := FALSE;
           SFCInit := TRUE;
         END_IF
 
-      ABORTED:
+      eProgress.ABORTED:
         ExecutionDone := TRUE;
         ExecutionResult := FAILURE;
         Messenger.AddWarn(eMessageCategories.ParentFailed, Path, 'Robot move aborted');

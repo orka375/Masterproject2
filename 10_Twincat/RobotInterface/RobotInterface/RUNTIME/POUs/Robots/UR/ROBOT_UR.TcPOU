@@ -19,12 +19,8 @@ END_VAR
 
 VAR
     _baActive     : BOOL;
-    _baStartSeen      : BOOL;
-    _baTransportSent  : BOOL;
     _baActiveID       : UINT;
     _baActiveCmd  : eBA;
-    _tonBAStart   : TON;
-    _baStopPending : BOOL;
 
     _urFeedbackPose : ST_Pose;
     _urFeedbackRPY  : ST_Pose;
@@ -48,19 +44,6 @@ UR_COMM.Config.sIpAddress := sRobotIp;
 UR_COMM();
 
 COMM := ADR(UR_COMM);
-
-(* EStop is queued until the script transport is idle so a quick release cannot
-    be lost while the original motion script is still being transmitted. *)
-IF _baStopPending AND NOT UR_COMM.Script.bBusy THEN
-    IF UR_COMM.Script.ClearScript()
-         AND UR_COMM.Script.AppendLine(sLine := 'def plc_estop():')
-       AND UR_COMM.Script.AppendLine(sLine := '  stopj(2.0)')
-       AND UR_COMM.Script.AppendLine(sLine := 'end')
-       AND UR_COMM.Script.SendBuffered() THEN
-
-          _baStopPending := FALSE;
-    END_IF
-END_IF
 
 (* Map the RTDE Cartesian feedback into the generic robot abstraction.
    UR native pose = (m, rotation-vector rad); PLC standard = (m, RPY rad). *)
@@ -97,100 +80,29 @@ IF UR_COMM.RTDE.bNewData THEN
         Value := UR_COMM.RTDE.aActualQ[5], Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
 END_IF
 
-(* Basic Action feedback. The generated URScript writes registers 24..27. *)
-BA_Active  := _baActive;
-BA_Command := UR_COMM.RTDE.nBACommand;
-UR_BA_ResultRaw := UR_COMM.RTDE.nBAResult;
-
-IF _baActive AND UR_COMM.Script.bScriptSent THEN
-    _baTransportSent := TRUE;
-END_IF
-
-_tonBAStart(
-    IN := _baActive AND _baTransportSent AND NOT _baStartSeen,
-    PT := T#5S
-);
+(* Generic Basic Action lifecycle. UR_COMM owns transport/RTDE interpretation;
+   this robot adapter only latches the semantic command state/result. *)
+BA_Active := _baActive;
+BA_Command := UR_COMM.RTDE.nBACommand;       // legacy/native diagnostic only
+UR_BA_ResultRaw := UR_COMM.RTDE.nBAResult;   // legacy/native diagnostic only
 
 IF _baActive THEN
+    eCommandStatus := UR_COMM.CommandState;
+    eCommandResult := UR_COMM.CommandResult;
 
-    IF UR_COMM.Script.bError THEN
+    IF (eCommandStatus = FINALIZED) OR (eCommandStatus = ABORTED) THEN
         _baActive := FALSE;
+        _baActiveID := 0;
         BA_Active := FALSE;
-        UR_BA_ResultRaw := -513;
-        BA_STATUS := FINALIZED;
-        BA_RESULT := ERROR;
-        Messenger.AddError(eMessageCategories.External, Name, 'UR Basic Action script error');
-
-    ELSIF UR_COMM.RTDE.nBAExecuteID = UINT_TO_DINT(_baActiveID) THEN
-
-        CASE UR_COMM.RTDE.nBAStatus OF
-            1: // preparing / accepted
-                _baStartSeen := TRUE;
-                BA_STATUS := ACKNOWLEDGE;
-
-            2: // running
-                _baStartSeen := TRUE;
-                BA_STATUS := RUNNING;
-
-            3: // done
-                _baStartSeen := TRUE;
-                _baActive := FALSE;
-                BA_Active := FALSE;
-                BA_STATUS := FINALIZED;
-                BA_RESULT := SUCCESS;
-
-            4: // robot-side error (reserved for future generated scripts)
-                _baStartSeen := TRUE;
-                _baActive := FALSE;
-                BA_Active := FALSE;
-                BA_STATUS := FINALIZED;
-                BA_RESULT := ERROR;
-                Messenger.AddError(eMessageCategories.HardwareFailure, Name, 'UR Basic Action robot-side error');
-        END_CASE
-
-    ELSIF _tonBAStart.Q THEN
-        (* TCP send succeeded or is no longer busy, but the robot never published this BA ID. *)
-        _baActive := FALSE;
-        BA_Active := FALSE;
-        UR_BA_ResultRaw := -514;
-        BA_STATUS := FINALIZED;
-        BA_RESULT := ERROR;
-        Messenger.AddError(eMessageCategories.TimeoutFailure, Name, 'UR Basic Action start timeout');
     END_IF
 END_IF
 
 CYCLIC_MANIP();
 ]]></ST>
     </Implementation>
-    <Method Name="BA_Annulate" Id="{dd616886-0923-4987-bf7f-514faf86324b}">
-      <Declaration><![CDATA[METHOD BA_Annulate : BOOL
-VAR_INPUT
-        ExecuteId : UINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[BA_Annulate := FALSE;
-
-IF (ExecuteId = 0)
-     OR NOT _baActive
-     OR (ExecuteId <> _baActiveID) THEN
-        RETURN;
-END_IF
-
-_baActive := FALSE;
-_baStartSeen := FALSE;
-_baTransportSent := FALSE;
-_baActiveID := 0;
-BA_Active := FALSE;
-UR_BA_ResultRaw := 0;
-BA_STATUS := ABORTED;
-BA_RESULT := FAILURE;
-BA_Annulate := TRUE;
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="BA_Handler" Id="{d7ca35aa-fd04-4db2-bc8f-94c9161e0ebc}">
-      <Declaration><![CDATA[METHOD BA_Handler : UINT
+    <Folder Name="StateControl" Id="{43ee0662-5196-4508-b770-66090b492908}" />
+    <Method Name="CommandHandler" Id="{d7ca35aa-fd04-4db2-bc8f-94c9161e0ebc}">
+      <Declaration><![CDATA[METHOD CommandHandler : UINT
 VAR_INPUT
     Cmd      : eBA;
     Settings : stBA_Settings;
@@ -221,11 +133,11 @@ END_VAR
     This method converts orientation (generic RPY -> UR rotation vector) and units
     (PLC standard -> UR native = SI, no-op numerically) before emitting URScript.
 *)
-BA_Handler := 0;
+CommandHandler := 0;
 bSupported := FALSE;
 nCommand := -1;
 
-IF _baActive OR NOT UR_COMM.CanAcceptCommand THEN
+IF _baActive OR NOT CanAcceptCommand OR NOT UR_COMM.CanAcceptCommand THEN
     RETURN;
 END_IF
 
@@ -313,28 +225,28 @@ END_IF
 
 NewCommandID := AllocateCommandID();
 
-IF NOT UR_COMM.Script.ClearScript() THEN
+IF NOT UR_COMM.BeginCommand(CommandID := NewCommandID) THEN
     RETURN;
 END_IF
 
-bOk := UR_COMM.Script.AppendLine(sLine := 'def plc_ba():');
+bOk := UR_COMM.AppendCommandLine(sLine := 'def plc_ba():');
 
 sLine := '  write_output_integer_register(26,1)';
-bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
+bOk := bOk AND UR_COMM.AppendCommandLine(sLine := sLine);
 
 sLine := CONCAT('  write_output_integer_register(25,', DINT_TO_STRING(nCommand));
 sLine := CONCAT(sLine, ')');
-bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
+bOk := bOk AND UR_COMM.AppendCommandLine(sLine := sLine);
 
 sLine := '  write_output_integer_register(27,0)';
-bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
+bOk := bOk AND UR_COMM.AppendCommandLine(sLine := sLine);
 
 sLine := CONCAT('  write_output_integer_register(24,', UINT_TO_STRING(NewCommandID));
 sLine := CONCAT(sLine, ')');
-bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
+bOk := bOk AND UR_COMM.AppendCommandLine(sLine := sLine);
 
 sLine := '  write_output_integer_register(26,2)';
-bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
+bOk := bOk AND UR_COMM.AppendCommandLine(sLine := sLine);
 
 CASE Cmd OF
 
@@ -363,7 +275,7 @@ CASE Cmd OF
         sLine := CONCAT(sLine, ',v=');
         sLine := CONCAT(sLine, LREAL_TO_STRING(fVelocity));
         sLine := CONCAT(sLine, ')');
-        bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
+        bOk := bOk AND UR_COMM.AppendCommandLine(sLine := sLine);
 
     eBA.MoveJ:
         fVelocity := ChangeRealToRobotStandard(
@@ -391,7 +303,7 @@ CASE Cmd OF
         sLine := CONCAT(sLine, ',v=');
         sLine := CONCAT(sLine, LREAL_TO_STRING(fVelocity));
         sLine := CONCAT(sLine, ')');
-        bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
+        bOk := bOk AND UR_COMM.AppendCommandLine(sLine := sLine);
 
     eBA.MoveJJoints:
         fVelocity := ChangeRealToRobotStandard(
@@ -419,7 +331,7 @@ CASE Cmd OF
         sLine := CONCAT(sLine, ',v=');
         sLine := CONCAT(sLine, LREAL_TO_STRING(fVelocity));
         sLine := CONCAT(sLine, ')');
-        bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
+        bOk := bOk AND UR_COMM.AppendCommandLine(sLine := sLine);
 
     eBA.SetDO:
         sLine := CONCAT('  set_standard_digital_out(', UINT_TO_STRING(Settings.Pin));
@@ -429,55 +341,94 @@ CASE Cmd OF
         ELSE
             sLine := CONCAT(sLine, 'False)');
         END_IF
-        bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
+        bOk := bOk AND UR_COMM.AppendCommandLine(sLine := sLine);
 
     eBA.ReadDI:
         sLine := CONCAT('  if get_standard_digital_in(', UINT_TO_STRING(Settings.Pin));
         sLine := CONCAT(sLine, '):');
-        bOk := bOk AND UR_COMM.Script.AppendLine(sLine := sLine);
-        bOk := bOk AND UR_COMM.Script.AppendLine(sLine := '    write_output_integer_register(27,1)');
-        bOk := bOk AND UR_COMM.Script.AppendLine(sLine := '  else:');
-        bOk := bOk AND UR_COMM.Script.AppendLine(sLine := '    write_output_integer_register(27,0)');
-        bOk := bOk AND UR_COMM.Script.AppendLine(sLine := '  end');
+        bOk := bOk AND UR_COMM.AppendCommandLine(sLine := sLine);
+        bOk := bOk AND UR_COMM.AppendCommandLine(sLine := '    write_output_integer_register(27,1)');
+        bOk := bOk AND UR_COMM.AppendCommandLine(sLine := '  else:');
+        bOk := bOk AND UR_COMM.AppendCommandLine(sLine := '    write_output_integer_register(27,0)');
+        bOk := bOk AND UR_COMM.AppendCommandLine(sLine := '  end');
 
 END_CASE
 
 (* A motion call is blocking in URScript, so DONE is written only after the action returns. *)
-bOk := bOk AND UR_COMM.Script.AppendLine(sLine := '  write_output_integer_register(26,3)');
-bOk := bOk AND UR_COMM.Script.AppendLine(sLine := 'end');
+bOk := bOk AND UR_COMM.AppendCommandLine(sLine := '  write_output_integer_register(26,3)');
+bOk := bOk AND UR_COMM.AppendCommandLine(sLine := 'end');
 
 IF NOT bOk THEN
-    UR_COMM.Script.ClearScript();
+    UR_COMM.ClearCommandBuffer();
     RETURN;
 END_IF
 
-IF NOT UR_COMM.Script.SendBuffered() THEN
-    UR_COMM.Script.ClearScript();
+IF NOT UR_COMM.SendCommand(CommandID := NewCommandID) THEN
+    UR_COMM.ClearCommandBuffer();
     RETURN;
 END_IF
 
-BA_ID := NewCommandID;
-BA_STATUS := INIT;
-BA_RESULT := NONE;
+nCommandID := NewCommandID;
+eCommandStatus := INIT;
+eCommandResult := NONE;
 _baActive := TRUE;
-_baStartSeen := FALSE;
-_baTransportSent := FALSE;
 _baActiveID := NewCommandID;
 _baActiveCmd := Cmd;
 BA_Active := TRUE;
 UR_BA_ResultRaw := 0;
 
-BA_Handler := NewCommandID;
+CommandHandler := NewCommandID;
 ]]></ST>
       </Implementation>
     </Method>
     <Method Name="EStop" Id="{6df22b90-0226-4a6b-8edb-494cabd2419d}">
       <Declaration><![CDATA[METHOD EStop : BOOL]]></Declaration>
       <Implementation>
-        <ST><![CDATA[HMI_ROB.bEStop := TRUE;
-_baStopPending := TRUE;
-EStop := TRUE;
-]]></ST>
+        <ST><![CDATA[// Legacy compatibility only: this is a functional stop, NOT a safety-rated E-Stop.
+EStop := StopMotion();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCommandCancelled" Id="{2e38e3e3-769c-4ea8-9d8a-864eb0df647c}">
+      <Declaration><![CDATA[METHOD PROTECTED OnCommandCancelled
+VAR_INPUT
+    CommandID : UINT;
+END_VAR
+
+// Default: nothing to do.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_baActive := FALSE;
+_baActiveID := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{78e72456-3e0f-4ef5-90ee-9a21bb2238d6}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+VAR_INPUT
+END_VAR
+VAR
+    eParentResult : eResult;
+    myResult      : eResult;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnError();
+myResult := NONE;
+
+// Vendor-specific recovery only. The generic parent has already terminalized the
+// semantic robot command as ABORTED/ERROR. Cancel the corresponding COMM job once;
+// do not requeue a stop every recovery cycle.
+IF _baActiveID <> 0 THEN
+    UR_COMM.CancelCommand(CommandID := _baActiveID);
+END_IF
+_baActive := FALSE;
+_baActiveID := 0;
+BA_Active := FALSE;
+
+IF NOT UR_COMM.CommandBusy THEN
+    myResult := SUCCESS;
+END_IF
+
+OnError := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
     <Method Name="RPYToURRotVec" Id="{7f000001-1111-2222-3333-000000000001}">

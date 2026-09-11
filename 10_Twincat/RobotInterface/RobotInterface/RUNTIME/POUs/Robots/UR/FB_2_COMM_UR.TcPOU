@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_2_COMM_UR" Id="{e695efdc-e187-4f84-8c3d-4878e12ff71c}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_2_COMM_UR EXTENDS FB_1_CommunicationModul
@@ -24,6 +24,13 @@ VAR
     _EnableRTDE      : BOOL;
 	
 	_nRobotStartupState : UINT := 0;
+
+    _urPreparedCommandID : UINT;
+    _urSubmittedCommandID : UINT;
+    _urTransportSent : BOOL;
+    _urStartSeen : BOOL;
+    _urStopMotionPending : BOOL;
+    _tonCommandStart : TON;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[CYCLIC_COMM_UR();
@@ -91,9 +98,94 @@ HMI_COMM._CommunicationReady :=
     AND _RTDEReady
     AND _RTDEStreaming;
 
+// ==================================================
+// 6. Generic command lifecycle (UR protocol -> eProgress/eResult)
+// ==================================================
+_commCanAcceptCommand := NOT Script.bBusy
+    AND NOT Script.bError
+    AND (_urPreparedCommandID = 0)
+    AND NOT _urStopMotionPending;
+
+IF (_urSubmittedCommandID <> 0) AND Script.bScriptSent THEN
+    _urTransportSent := TRUE;
+END_IF
+
+_tonCommandStart(
+    IN := (_urSubmittedCommandID <> 0) AND _urTransportSent AND NOT _urStartSeen,
+    PT := T#5S);
+
+IF _urSubmittedCommandID <> 0 THEN
+    IF Script.bError OR NOT CommunicationReady THEN
+        _commActiveCommandID := 0;
+        _commCommandState := FINALIZED;
+        _commCommandResult := ERROR;
+        _commCommandBusy := FALSE;
+        _urSubmittedCommandID := 0;
+
+    ELSIF RTDE.nBAExecuteID = UINT_TO_DINT(_urSubmittedCommandID) THEN
+        CASE RTDE.nBAStatus OF
+            1:
+                _urStartSeen := TRUE;
+                _commAcceptedCommandID := _urSubmittedCommandID;
+                _commActiveCommandID := _urSubmittedCommandID;
+                _commCommandState := ACKNOWLEDGE;
+                _commCommandResult := NONE;
+                _commCommandBusy := TRUE;
+
+            2:
+                _urStartSeen := TRUE;
+                _commAcceptedCommandID := _urSubmittedCommandID;
+                _commActiveCommandID := _urSubmittedCommandID;
+                _commCommandState := RUNNING;
+                _commCommandResult := NONE;
+                _commCommandBusy := TRUE;
+
+            3:
+                _urStartSeen := TRUE;
+                _commAcceptedCommandID := _urSubmittedCommandID;
+                _commActiveCommandID := 0;
+                _commCommandState := FINALIZED;
+                _commCommandResult := SUCCESS;
+                _commCommandBusy := FALSE;
+                _urSubmittedCommandID := 0;
+
+            4:
+                _urStartSeen := TRUE;
+                _commAcceptedCommandID := _urSubmittedCommandID;
+                _commActiveCommandID := 0;
+                _commCommandState := FINALIZED;
+                _commCommandResult := ERROR;
+                _commCommandBusy := FALSE;
+                _urSubmittedCommandID := 0;
+        END_CASE
+
+    ELSIF _tonCommandStart.Q THEN
+        _commActiveCommandID := 0;
+        _commCommandState := FINALIZED;
+        _commCommandResult := ERROR;
+        _commCommandBusy := FALSE;
+        _urSubmittedCommandID := 0;
+    END_IF
+END_IF
+
+// A functional stop uses its own short URScript. Do not replay the interrupted command.
+IF _urStopMotionPending AND NOT Script.bBusy THEN
+    IF Script.ClearScript()
+       AND Script.AppendLine(sLine := 'def plc_stop_motion():')
+       AND Script.AppendLine(sLine := '  stopj(2.0)')
+       AND Script.AppendLine(sLine := 'end')
+       AND Script.SendBuffered() THEN
+        _urStopMotionPending := FALSE;
+    END_IF
+END_IF
+
+IF (_commCommandState = FINALIZED) OR (_commCommandState = ABORTED) THEN
+    _commCommandBusy := _urStopMotionPending OR Script.bBusy;
+END_IF
+
 
 // ==================================================
-// 6. Communication diagnostics
+// 7. Communication diagnostics
 // ==================================================
 
 // Interface diagnostics are owned here (the UR comm component). De-dup + Clear
@@ -101,6 +193,7 @@ HMI_COMM._CommunicationReady :=
 
 
 IF Script.bError THEN
+    SetRecoveryMode(Mode := eRecoveryMode.AcknowledgeRequired);
     Messenger.AddError(eMessageCategories.HardwareFailure, Name, 'UR Script interface error');
 ELSE
     Messenger.Clear(Name, 'UR Script interface error');
@@ -108,7 +201,7 @@ END_IF
 
 ]]></ST>
     </Implementation>
-    <Folder Name="StateControl" Id="{76d61647-738d-4b23-8853-f6e5794603cd}" />
+    <Folder Name="StateControl" Id="{76d61647-738d-4b23-8853-f6e5794603cd}"/>
         <Property Name="CanAcceptCommand" Id="{2baf7552-803f-4c16-84dd-a767fc97f723}">
             <Declaration><![CDATA[PROPERTY CanAcceptCommand : BOOL]]></Declaration>
             <Get Name="Get" Id="{05619431-53c3-4c43-83e7-09a9104233b7}">
@@ -116,7 +209,7 @@ END_IF
 END_VAR
 ]]></Declaration>
                 <Implementation>
-                    <ST><![CDATA[CanAcceptCommand := CommunicationReady AND NOT Script.bBusy AND NOT Script.bError;]]></ST>
+                    <ST><![CDATA[CanAcceptCommand := CommunicationReady AND _commCanAcceptCommand AND NOT _commCommandBusy;]]></ST>
                 </Implementation>
             </Get>
         </Property>
@@ -127,11 +220,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
                 <Implementation>
-                    <ST><![CDATA[IF (RTDE.nBAExecuteID > 0) AND (RTDE.nBAExecuteID <= 65534) AND (RTDE.nBAStatus >= 1) THEN
-        AcceptedCommandID := DINT_TO_UINT(RTDE.nBAExecuteID);
-ELSE
-        AcceptedCommandID := 0;
-END_IF]]></ST>
+                    <ST><![CDATA[AcceptedCommandID := _commAcceptedCommandID;]]></ST>
                 </Implementation>
             </Get>
         </Property>
@@ -142,11 +231,7 @@ END_IF]]></ST>
 END_VAR
 ]]></Declaration>
                 <Implementation>
-                    <ST><![CDATA[IF (RTDE.nBAStatus = 1) OR (RTDE.nBAStatus = 2) THEN
-        ActiveCommandID := AcceptedCommandID;
-ELSE
-        ActiveCommandID := 0;
-END_IF]]></ST>
+                    <ST><![CDATA[ActiveCommandID := _commActiveCommandID;]]></ST>
                 </Implementation>
             </Get>
         </Property>
@@ -157,11 +242,15 @@ END_IF]]></ST>
 END_VAR
 ]]></Declaration>
                 <Implementation>
-                    <ST><![CDATA[CommandBusy := Script.bBusy OR (RTDE.nBAStatus = 1) OR (RTDE.nBAStatus = 2);]]></ST>
+                    <ST><![CDATA[CommandBusy := _commCommandBusy;]]></ST>
                 </Implementation>
             </Get>
         </Property>
-    <Action Name="CYCLIC_COMM_UR" Id="{e079c791-bd51-481e-8c49-3586c05afcb2}">
+    <Property Name="CommandState" Id="{d89c174c-b397-47a2-b35d-0c363aa4d418}"><Declaration><![CDATA[PROPERTY CommandState : eProgress]]></Declaration><Get Name="Get" Id="{aca94e91-3a1b-45cd-8542-2c05a66a9053}"><Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration><Implementation><ST><![CDATA[CommandState := _commCommandState;]]></ST></Implementation></Get></Property><Property Name="CommandResult" Id="{12f81bc2-449d-4ed2-b4c4-34419a1510ef}"><Declaration><![CDATA[PROPERTY CommandResult : eResult]]></Declaration><Get Name="Get" Id="{be2aff80-8dfd-4982-a7fc-88154434532a}"><Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration><Implementation><ST><![CDATA[CommandResult := _commCommandResult;]]></ST></Implementation></Get></Property><Action Name="CYCLIC_COMM_UR" Id="{e079c791-bd51-481e-8c49-3586c05afcb2}">
       <Implementation>
         <ST><![CDATA[ // ==================================================
 // 1. Generic communication state machine
@@ -172,7 +261,101 @@ CYCLIC_COMM();
 ]]></ST>
       </Implementation>
     </Action>
-    <Method Name="OnActivate" Id="{0ed4d272-2017-43c8-8627-328b7fa74b51}" FolderPath="StateControl\">
+    <Method Name="BeginCommand" Id="{e26fab62-8c08-4661-a60a-ea2ba7912175}"><Declaration><![CDATA[METHOD PUBLIC BeginCommand : BOOL
+VAR_INPUT
+    CommandID : UINT;
+END_VAR
+]]></Declaration><Implementation><ST><![CDATA[BeginCommand := FALSE;
+IF (CommandID = 0) OR NOT CanAcceptCommand THEN
+    RETURN;
+END_IF
+IF NOT Script.ClearScript() THEN
+    RETURN;
+END_IF
+_urPreparedCommandID := CommandID;
+BeginCommand := TRUE;]]></ST></Implementation></Method><Method Name="AppendCommandLine" Id="{a95394b7-2851-4773-bec7-fd729638b9de}"><Declaration><![CDATA[METHOD PUBLIC AppendCommandLine : BOOL
+VAR_INPUT
+    sLine : STRING(255);
+END_VAR
+]]></Declaration><Implementation><ST><![CDATA[AppendCommandLine := FALSE;
+IF _urPreparedCommandID = 0 THEN
+    RETURN;
+END_IF
+AppendCommandLine := Script.AppendLine(sLine := sLine);]]></ST></Implementation></Method><Method Name="ClearCommandBuffer" Id="{1a7241e9-68c7-492e-9051-fd39a397af77}"><Declaration><![CDATA[METHOD PUBLIC ClearCommandBuffer : BOOL
+]]></Declaration><Implementation><ST><![CDATA[ClearCommandBuffer := Script.ClearScript();
+IF ClearCommandBuffer THEN
+    _urPreparedCommandID := 0;
+END_IF]]></ST></Implementation></Method><Method Name="SendCommand" Id="{5e0a4b41-b77d-489f-86a0-ad4d66f0cd18}"><Declaration><![CDATA[METHOD PUBLIC SendCommand : BOOL
+VAR_INPUT
+    CommandID : UINT;
+END_VAR
+]]></Declaration><Implementation><ST><![CDATA[// TRUE means only: COMM accepted the prepared command for transport.
+// Physical completion is reported through CommandState/CommandResult.
+SendCommand := FALSE;
+IF (CommandID = 0) OR (CommandID <> _urPreparedCommandID) OR NOT CanAcceptCommand THEN
+    RETURN;
+END_IF
+IF NOT Script.SendBuffered() THEN
+    RETURN;
+END_IF
+
+_commAcceptedCommandID := 0;
+_commActiveCommandID := CommandID;
+_commCommandState := INIT;
+_commCommandResult := NONE;
+_commCommandBusy := TRUE;
+_urSubmittedCommandID := CommandID;
+_urPreparedCommandID := 0;
+_urTransportSent := FALSE;
+_urStartSeen := FALSE;
+_tonCommandStart(IN := FALSE);
+SendCommand := TRUE;]]></ST></Implementation></Method><Method Name="CancelCommand" Id="{8442ea28-9ac3-4603-9729-cbc01e8341af}"><Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
+VAR_INPUT
+    CommandID : UINT;
+END_VAR
+]]></Declaration><Implementation><ST><![CDATA[CancelCommand := FALSE;
+IF (CommandID = 0)
+   OR (CommandID <> _urSubmittedCommandID)
+   OR ((_commCommandState <> INIT) AND (_commCommandState <> ACKNOWLEDGE) AND (_commCommandState <> RUNNING)) THEN
+    RETURN;
+END_IF
+
+IF NOT StopMotion() THEN
+    RETURN;
+END_IF
+
+_urSubmittedCommandID := 0;
+_commActiveCommandID := 0;
+_commCommandState := ABORTED;
+_commCommandResult := FAILURE;
+// Keep busy until the queued functional stop has been handed to the transport.
+_commCommandBusy := TRUE;
+CancelCommand := TRUE;]]></ST></Implementation></Method><Method Name="StopMotion" Id="{6c944b84-e449-4e6e-ac8a-47dfa56f2ca8}"><Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
+]]></Declaration><Implementation><ST><![CDATA[// Functional, non-safety-rated stop. It never releases a protective/safety stop.
+StopMotion := FALSE;
+IF NOT CommunicationReady THEN
+    RETURN;
+END_IF
+_urStopMotionPending := TRUE;
+_commCommandBusy := TRUE;
+StopMotion := TRUE;]]></ST></Implementation></Method><Method Name="ResetCommunication" Id="{d48ecd8e-ffe3-41a9-ac70-bd6cf13a1941}"><Declaration><![CDATA[METHOD PUBLIC ResetCommunication : BOOL
+]]></Declaration><Implementation><ST><![CDATA[// Reset transport bookkeeping only. Safety/controller recovery is intentionally outside this method.
+IF NOT Script.bBusy THEN
+    Script.ClearScript();
+END_IF
+_urPreparedCommandID := 0;
+_urSubmittedCommandID := 0;
+_urTransportSent := FALSE;
+_urStartSeen := FALSE;
+_urStopMotionPending := FALSE;
+_commCanAcceptCommand := TRUE;
+_commAcceptedCommandID := 0;
+_commActiveCommandID := 0;
+_commCommandBusy := FALSE;
+_commCommandState := INIT;
+_commCommandResult := NONE;
+Reconnect();
+ResetCommunication := TRUE;]]></ST></Implementation></Method><Method Name="OnActivate" Id="{0ed4d272-2017-43c8-8627-328b7fa74b51}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
 VAR_INPUT
 END_VAR
@@ -258,6 +441,7 @@ myResult := NONE;
 
 IF LEN(Config.sIpAddress) = 0 THEN
 
+    SetRecoveryMode(Mode := eRecoveryMode.ManualActionRequired);
     Messenger.AddError(
         eMessageCategories.Undefined,
         sSender := Name,
@@ -269,6 +453,7 @@ IF LEN(Config.sIpAddress) = 0 THEN
 
 ELSIF _EnableDashboard AND Dashboard.bError THEN
 
+    SetRecoveryMode(Mode := eRecoveryMode.Automatic);
     Messenger.AddError(
         eMessageCategories.HardwareFailure,
         Name,
@@ -280,6 +465,7 @@ ELSIF _EnableDashboard AND Dashboard.bError THEN
 
 ELSIF _EnableRTDE AND RTDE.bError THEN
 
+    SetRecoveryMode(Mode := eRecoveryMode.Automatic);
     Messenger.AddError(
         eMessageCategories.HardwareFailure,
         Name,
@@ -517,17 +703,17 @@ VAR //YOUR CODE
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
-//--------------------------------------------------
-myResult:=NONE;
-// ----- YOUR CODE HERE (incl. Alarms) -------------
+myResult := NONE;
 
+// UR-specific recovery resets only transport/startup state. It never issues a
+// protective-stop unlock, brake release, move, Home, or previous URScript again.
+_nRobotStartupState := 0;
 
-myResult:=SUCCESS;
+IF NOT _DashboardConnected AND NOT _RTDEConnected AND NOT Script.bBusy THEN
+    myResult := SUCCESS;
+END_IF
 
-// ----- END YOUR CODE -----------------------------
-//--------------------------------------------------
-OnError := CombineResults(eParentResult,myResult);
-]]></ST>
+OnError := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnShutdown" Id="{f085909e-b37c-4b4c-a9a3-f41132b1f91f}" FolderPath="StateControl\">

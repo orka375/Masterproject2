@@ -76,11 +76,11 @@ IF pStatusRobot <> 0 THEN
     ActualPose := pStatusRobot^.ActualTcpPose;
     _yawRobot := ActualPose.yaw;
     bMoving := pStatusRobot^.IsMoving;
-    bReady := bEnable AND pStatusRobot^.IsReady;
+    bReady := bEnable AND NOT bRecoveryInhibit AND pStatusRobot^.IsReady;
 ELSE
     _yawRobot := fRobotYaw;
     bMoving := bVelocityCommandActive;
-    bReady := bEnable;
+    bReady := bEnable AND NOT bRecoveryInhibit;
 END_IF
 
 // ----------------------------------------------------------
@@ -169,7 +169,7 @@ fCmdVx := LREAL_TO_REAL((_c * _vxFrame) - (_s * _vyFrame));
 fCmdVy := LREAL_TO_REAL((_s * _vxFrame) + (_c * _vyFrame));
 fCmdOmega := LREAL_TO_REAL(_omega);
 
-IF NOT bEnable THEN
+IF NOT bEnable OR bRecoveryInhibit THEN
     fCmdVx := 0.0;
     fCmdVy := 0.0;
     fCmdOmega := 0.0;

@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="ITF_CUSTOM_MANIP" Id="{bc35b233-21db-489f-a942-4bb4b6b9eb6e}">
+    <Declaration><![CDATA[INTERFACE ITF_CUSTOM_MANIP EXTENDS ITF_CUSTOM_ROBOT
+]]></Declaration>
+  </Itf>
+</TcPlcObject>

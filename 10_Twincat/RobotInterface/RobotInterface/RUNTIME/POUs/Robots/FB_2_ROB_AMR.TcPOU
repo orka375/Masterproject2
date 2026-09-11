@@ -21,7 +21,12 @@ END_VAR
     <Action Name="CYCLIC_AMR" Id="{ebcfe1a2-a428-4cd0-a9d1-512be0cd10b6}">
       <Implementation>
         <ST><![CDATA[CYCLIC_ROB();
-JOG(pStatusRobot:=THIS);
+JOG(
+    pStatusRobot := THIS,
+    bRecoveryInhibit := (State = eState.ErrorProcessing)
+        OR (State = eState.Deactivating)
+        OR (State = eState.ShuttingDown)
+);
 
 
 
@@ -50,7 +55,7 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[Config.Name:=NameDockingStation;
-Dock := BA_Handler(Cmd:=eBA.Dock,Settings:=Config);]]></ST>
+Dock := CommandHandler(Cmd:=eBA.Dock,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
     <Method Name="FB_Init" Id="{b8e06504-a9fb-4b69-a42c-c37e4e2687bc}">
@@ -107,7 +112,7 @@ END_VAR]]></Declaration>
 Config.Velocity:=Velocity;
 
 
-NavigateToGoal:=BA_Handler(Cmd:=eBA.NavigateToGoal,Settings:=Config);]]></ST>
+NavigateToGoal:=CommandHandler(Cmd:=eBA.NavigateToGoal,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
     <Method Name="NavigateToPoint" Id="{2db64f24-9a85-44a5-a853-3b922490bedd}" FolderPath="MotionControl\">
@@ -134,7 +139,49 @@ p.yaw:=THETA;
 Config.Pose:=p;
 
 
-NavigateToPoint:= BA_Handler(Cmd:=eBA.NavigateToPoint,Settings:=Config);]]></ST>
+NavigateToPoint:= CommandHandler(Cmd:=eBA.NavigateToPoint,Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{7d2b43bc-1818-4168-8eae-f890a8b9c530}">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+VAR
+    eParentResult : eResult;
+    myResult : eResult;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
+JOG.StopJog();
+myResult := SUCCESS;
+OnDeactivate := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{8c672ee2-224e-4b69-8f6f-871c0fe245f0}">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+VAR
+    eParentResult : eResult;
+    myResult : eResult;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnError();
+JOG.StopJog();
+myResult := SUCCESS;
+OnError := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnShutdown" Id="{33441f0e-d789-4851-b91b-d207842b1f67}">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+VAR
+    eParentResult : eResult;
+    myResult : eResult;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
+JOG.StopJog();
+myResult := SUCCESS;
+OnShutdown := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
     <Property Name="TargetReached" Id="{1ffd5e85-127b-44be-a405-ac0615b395e0}">
@@ -168,7 +215,7 @@ END_VAR
 	Config: stBA_Settings;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Undock:= BA_Handler(Cmd:=eBA.Undock,Settings:=Config);]]></ST>
+        <ST><![CDATA[Undock:= CommandHandler(Cmd:=eBA.Undock,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
   </POU>
