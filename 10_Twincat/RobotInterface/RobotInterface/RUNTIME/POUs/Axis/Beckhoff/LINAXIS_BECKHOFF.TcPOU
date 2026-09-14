@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.2.0.0" ProductVersion="3.1.4026.18">
+  <POU Name="LINAXIS_BECKHOFF" Id="{455244a0-d50f-4d2f-a382-e7e19c641afd}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'hide_all_locals'}
+FUNCTION_BLOCK LINAXIS_BECKHOFF EXTENDS FB_3_ROB_AXIS_LIN
+VAR_IN_OUT
+    // Physical Beckhoff NC axis. All PLCopen/vendor-specific handling stays in AXIS_COMM.
+    NCAxis : AXIS_REF;
+END_VAR
+VAR_OUTPUT
+    // Concrete communication adapter, exposed for diagnostics in the same style as ROBOT_UR.UR_COMM.
+    AXIS_COMM : FB_3_COMM_AXIS_BECKHOFF;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Run the manufacturer-specific adapter first.
+AXIS_COMM(Axis := NCAxis);
+
+// Wire the generic axis and robot communication boundaries to this adapter.
+AxisComm := ADR(AXIS_COMM);
+COMM := ADR(AXIS_COMM);
+
+// Execute the complete manufacturer-neutral linear-axis implementation.
+SUPER^();
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

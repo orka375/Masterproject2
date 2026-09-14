@@ -68,20 +68,28 @@
 ]
 </script>
 <div id="TcHmiTextblock_6" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-text="Montiert" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-word-wrap="True" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-horizontal-alignment="Left" data-tchmi-text-vertical-alignment="Center" data-tchmi-grid-row-index="3" data-tchmi-grid-column-index="0">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-info-label"]</script>
 </div>
 <div id="TcHmiTextblock_2" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-text="Geschlossen" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-word-wrap="True" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-horizontal-alignment="Left" data-tchmi-text-vertical-alignment="Center" data-tchmi-grid-row-index="2" data-tchmi-grid-column-index="0">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-info-label"]</script>
 </div>
 <div id="TcHmiTextblock_5" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-text="Öffnung" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-word-wrap="True" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-horizontal-alignment="Left" data-tchmi-text-vertical-alignment="Center">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-info-label"]</script>
 </div>
 <div id="TcHmiTextblock_7" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-text="Geöffnet" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-word-wrap="True" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-horizontal-alignment="Left" data-tchmi-text-vertical-alignment="Center" data-tchmi-grid-row-index="1" data-tchmi-grid-column-index="0">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-info-label"]</script>
 </div>
 <div id="TcHmiTextblock_8" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-text="%pp%T::Position%/pp%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-word-wrap="True" data-tchmi-grid-row-index="0" data-tchmi-grid-column-index="1" data-tchmi-bottom="0" data-tchmi-right="0" data-tchmi-text-vertical-alignment="Center">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["status-info-value"]</script>
 </div>
-<div id="TcHmiTextblock_9" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-text="%pp%T::bOpen%/pp%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-word-wrap="True" data-tchmi-grid-row-index="1" data-tchmi-grid-column-index="1" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center">
+<div id="TcHmiTextblock_9" data-tchmi-type="TcHmi.Controls.Beckhoff.Industries.Common.TcHmiIndicatorLight" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-grid-row-index="1" data-tchmi-grid-column-index="1" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-state-symbol="%pp%T::bOpen%/pp%">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-indicator","hmi-indicator-ok"]</script>
 </div>
-<div id="TcHmiTextblock_10" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-text="%pp%T::bClosed%/pp%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-word-wrap="True" data-tchmi-grid-row-index="2" data-tchmi-grid-column-index="1" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center">
+<div id="TcHmiTextblock_10" data-tchmi-type="TcHmi.Controls.Beckhoff.Industries.Common.TcHmiIndicatorLight" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-grid-row-index="2" data-tchmi-grid-column-index="1" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-state-symbol="%pp%T::bClosed%/pp%">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-indicator","hmi-indicator-ok"]</script>
 </div>
-<div id="TcHmiTextblock_11" data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiTextblock" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-text="%pp%T::bMounted%/pp%" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-word-wrap="True" data-tchmi-grid-row-index="3" data-tchmi-grid-column-index="1" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-text-vertical-alignment="Center">
+<div id="TcHmiTextblock_11" data-tchmi-type="TcHmi.Controls.Beckhoff.Industries.Common.TcHmiIndicatorLight" data-tchmi-left="0" data-tchmi-left-unit="px" data-tchmi-top="0" data-tchmi-top-unit="px" data-tchmi-grid-row-index="3" data-tchmi-grid-column-index="1" data-tchmi-right="0" data-tchmi-bottom="0" data-tchmi-state-symbol="%pp%T::bMounted%/pp%">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-indicator","hmi-indicator-ok"]</script>
 </div>
 </div>
 </div>

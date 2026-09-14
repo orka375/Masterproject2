@@ -166,19 +166,6 @@ END_VAR]]></Declaration>
 Home:= CommandHandler(Cmd:=eBA.Home,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
-    <Property Name="IsHomePosition" Id="{0f2fd807-aeed-459c-9c2b-f2325fe045e7}">
-      <Declaration><![CDATA[{warning 'Override with your own Method in final FB'}
-  PROPERTY IsHomePosition : BOOL
-]]></Declaration>
-      <Get Name="Get" Id="{cc381350-4b9b-4a45-a9c1-b7537b47d8d7}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
     <Method Name="MoveJoint" Id="{9e0f1a2b-3c4d-4e5f-8a6b-7c8d9e0f1a2b}" FolderPath="MotionControl\">
       <Declaration><![CDATA[METHOD MoveJoint : UINT
 VAR_INPUT
@@ -630,18 +617,5 @@ Config.bValue:=bValue;
 SetDO:= CommandHandler(Cmd:=eBA.SetDO,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
-    <Property Name="TargetReached" Id="{2237dc56-6e31-4e2f-87fb-158a23ca2344}">
-      <Declaration><![CDATA[{warning 'Override with your own Method in final FB'}
-PROPERTY TargetReached : BOOL
-]]></Declaration>
-      <Get Name="Get" Id="{fa9b9558-e97e-4d6d-afa4-8757f8a89ab1}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[TargetReached := _commandState = E_RobotCommandState.Done;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
   </POU>
 </TcPlcObject>

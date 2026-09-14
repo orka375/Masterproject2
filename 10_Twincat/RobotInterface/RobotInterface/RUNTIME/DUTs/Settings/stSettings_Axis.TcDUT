@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stSettings_Axis" Id="{d3c39f93-4238-4849-9615-93563b13f23e}">
+    <Declaration><![CDATA[TYPE stSettings_Axis EXTENDS stSettings_Rob :
+STRUCT
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

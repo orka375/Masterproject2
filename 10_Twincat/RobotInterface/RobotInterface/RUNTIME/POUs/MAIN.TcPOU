@@ -4,7 +4,7 @@
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
 	
-
+	
 
 	// Cell robot loop index.
 	iRobot : INT;
@@ -27,6 +27,7 @@ END_FOR
 
 SETUP.CELL_MESSENGER();
 RECIPE_HANDLER();
+
 ]]></ST>
     </Implementation>
   </POU>

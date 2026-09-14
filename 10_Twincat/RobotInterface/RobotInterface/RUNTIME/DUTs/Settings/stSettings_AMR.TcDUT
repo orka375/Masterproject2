@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stSettings_AMR" Id="{c511243c-3394-41bc-9629-9ccadd27ffaf}">
+    <Declaration><![CDATA[
+TYPE stSettings_AMR EXTENDS stSettings_Rob :
+STRUCT
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

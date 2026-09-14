@@ -96,7 +96,7 @@
       "url": "UserControl/TopBar_RobotSelection.usercontrol"
     },
     {
-      "url": "UserControl/UC_Jog_Manip.usercontrol"
+      "url": "UserControl/UC_Jog.usercontrol"
     },
     {
       "url": "UserControl/UC_Manipulator.usercontrol"

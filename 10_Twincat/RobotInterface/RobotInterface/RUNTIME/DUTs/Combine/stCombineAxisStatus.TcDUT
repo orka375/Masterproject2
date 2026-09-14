@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <DUT Name="stCombineAxisStatus" Id="{01a86c1f-d923-468f-aa17-d769d2d0e6ad}">
     <Declaration><![CDATA[{attribute 'OPC.UA.DA.StructuredType' := '1'}
@@ -16,7 +16,7 @@ STRUCT
     fActualVelocity : LREAL;
     fTargetPosition : LREAL;
     fZeroPoint : LREAL;
-    fSafePosition : LREAL;
+    fSettings.SafePosition : LREAL;
     nBasicActionID : UINT;
     eBasicActionStatus : eProgress;
 END_STRUCT

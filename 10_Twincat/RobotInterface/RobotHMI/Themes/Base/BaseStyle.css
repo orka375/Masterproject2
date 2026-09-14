@@ -1127,3 +1127,64 @@ div[data-tchmi-type="TcHmi.Controls.System.TcHmiView"],
     background: var(--hmi-panel);
     box-shadow: var(--hmi-shadow-panel);
 }
+
+/* ==========================================================
+   Robot HMI - Industries.Common semantic control classes
+   ========================================================== */
+.TcHmi_Controls_Beckhoff_Industries_Common_TcHmiIndicatorLight.hmi-indicator {
+    box-sizing: border-box;
+    padding: 5px;
+    --tchmi-indicator-color-inactive: #8b969f;
+    --tchmi-border-color: #71808b;
+    --tchmi-background-primary: #f7f9fa;
+}
+.TcHmi_Controls_Beckhoff_Industries_Common_TcHmiIndicatorLight.hmi-indicator-compact { padding: 4px; }
+.TcHmi_Controls_Beckhoff_Industries_Common_TcHmiIndicatorLight.hmi-indicator-ok { --tchmi-indicator-color-active: #2e9d50; }
+.TcHmi_Controls_Beckhoff_Industries_Common_TcHmiIndicatorLight.hmi-indicator-info { --tchmi-indicator-color-active: #2f78b7; }
+.TcHmi_Controls_Beckhoff_Industries_Common_TcHmiIndicatorLight.hmi-indicator-busy { --tchmi-indicator-color-active: #d39b19; }
+.TcHmi_Controls_Beckhoff_Industries_Common_TcHmiIndicatorLight.hmi-indicator-fault { --tchmi-indicator-color-active: #d94b3d; }
+
+.TcHmi_Controls_Beckhoff_Industries_Common_TcHmiPushButton.hmi-push-button {
+    box-sizing: border-box;
+    font-size: 13px;
+    font-weight: 700;
+    --tchmi-border-color: #536f83;
+    --tchmi-background-primary: #edf2f5;
+    --tchmi-background-secondary: #d7e3ec;
+    --tchmi-indicator-color-inactive: #87949e;
+    --tchmi-indicator-color-active: #286da8;
+}
+.TcHmi_Controls_Beckhoff_Industries_Common_TcHmiPushButton.hmi-push-primary { --tchmi-indicator-color-active: #286da8; }
+.TcHmi_Controls_Beckhoff_Industries_Common_TcHmiPushButton.hmi-push-start { --tchmi-indicator-color-active: #2e9d50; }
+.TcHmi_Controls_Beckhoff_Industries_Common_TcHmiPushButton.hmi-push-stop,
+.TcHmi_Controls_Beckhoff_Industries_Common_TcHmiPushButton.hmi-push-danger { --tchmi-indicator-color-active: #d94b3d; }
+.TcHmi_Controls_Beckhoff_Industries_Common_TcHmiPushButton.hmi-push-reset { --tchmi-indicator-color-active: #d39b19; }
+.TcHmi_Controls_Beckhoff_Industries_Common_TcHmiPushButton.hmi-push-jog,
+.TcHmi_Controls_Beckhoff_Industries_Common_TcHmiPushButton.hmi-push-motion { --tchmi-indicator-color-active: #2f78b7; }
+
+.TcHmi_Controls_Beckhoff_Industries_Common_TcHmiRockerSwitch.hmi-rocker-enable {
+    --tchmi-indicator-color-inactive: #8b969f;
+    --tchmi-indicator-color-active: #2e9d50;
+    --tchmi-border-color: #71808b;
+    --tchmi-background-primary: #edf2f5;
+    --tchmi-background-secondary: #d7e3ec;
+}
+
+.hmi-section-title {
+    box-sizing: border-box;
+    padding: 7px 10px;
+    border-bottom: 2px solid #2f78b7;
+    color: #16344a;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+.hmi-subsection-title {
+    box-sizing: border-box;
+    padding: 4px 8px;
+    color: #43505b;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+

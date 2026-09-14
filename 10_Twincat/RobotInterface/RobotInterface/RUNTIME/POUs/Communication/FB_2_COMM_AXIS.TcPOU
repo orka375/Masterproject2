@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_2_COMM_AXIS" Id="{b684b6da-9ed5-48c5-85a7-b0532db6e842}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'hide_all_locals'}
+FUNCTION_BLOCK FB_2_COMM_AXIS EXTENDS FB_1_COMM
+VAR
+    // Manufacturer-neutral axis feedback. Concrete adapters own these values.
+    _axisPowered        : BOOL;
+    _axisHomed          : BOOL;
+    _axisError          : BOOL;
+    _axisErrorID        : UDINT;
+    _axisActualPosition : LREAL;
+    _axisActualVelocity : LREAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ActualPosition" Id="{c039944d-4799-4be2-a7a4-7498154a34c7}">
+      <Declaration><![CDATA[PROPERTY ActualPosition : LREAL]]></Declaration>
+      <Get Name="Get" Id="{978a075d-d15a-4a86-978f-4fd1034edb06}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualPosition := _axisActualPosition;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ActualVelocity" Id="{c92bf3a5-1ff0-4411-86bd-8d3fa7de0193}">
+      <Declaration><![CDATA[PROPERTY ActualVelocity : LREAL]]></Declaration>
+      <Get Name="Get" Id="{4e5e9475-3f40-42a3-811c-6334b16abe96}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualVelocity := _axisActualVelocity;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="AxisError" Id="{eb6dddc1-5919-4e89-8a53-9a6976b2b4a8}">
+      <Declaration><![CDATA[PROPERTY AxisError : BOOL]]></Declaration>
+      <Get Name="Get" Id="{1810aba5-61b4-419b-bd29-6bd84fdb731f}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AxisError := _axisError;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="AxisErrorID" Id="{ae8ee0ef-2d16-4831-b3d1-22072ff64537}">
+      <Declaration><![CDATA[PROPERTY AxisErrorID : UDINT]]></Declaration>
+      <Get Name="Get" Id="{cf610b60-eb13-4784-8004-86c669f5d543}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AxisErrorID := _axisErrorID;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="AxisHomed" Id="{55aa6920-598f-4853-b3e4-babd9231cc8d}">
+      <Declaration><![CDATA[PROPERTY AxisHomed : BOOL]]></Declaration>
+      <Get Name="Get" Id="{54af29fd-bd9a-44a7-8a8c-bd64c28b3649}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AxisHomed := _axisHomed;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="AxisMoving" Id="{ede5ad9b-d1c0-48e1-bf1b-32455535ae96}">
+      <Declaration><![CDATA[PROPERTY AxisMoving : BOOL]]></Declaration>
+      <Get Name="Get" Id="{52c9e87c-33a3-42a5-a37d-5e4c1c847c9d}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AxisMoving := ABS(_axisActualVelocity) > 0.000001;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="AxisPowered" Id="{d8d84320-3c1a-4399-a8f1-8406f71b58cd}">
+      <Declaration><![CDATA[PROPERTY AxisPowered : BOOL]]></Declaration>
+      <Get Name="Get" Id="{070751ed-610e-4e48-9f3b-c37aa70f1c6d}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AxisPowered := _axisPowered;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Power" Id="{32f5eb23-2e08-4e8b-833d-c0cf9251ae2a}">
+      <Declaration><![CDATA[METHOD PUBLIC Power : BOOL
+VAR_INPUT
+    Enable : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Generic capability contract. Concrete axis COMM overrides this method.
+Power := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetAxis" Id="{929d2b74-4cbd-4de9-9587-5c23671d70ac}">
+      <Declaration><![CDATA[METHOD PUBLIC ResetAxis : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Axis/controller reset, not generic transport reset.
+ResetAxis := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SendHome" Id="{03abf662-8872-49f2-b6f7-b5039727fd7e}">
+      <Declaration><![CDATA[METHOD PUBLIC SendHome : BOOL
+VAR_INPUT
+    CommandID : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SendHome := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SendMoveAbsolute" Id="{63137701-a6d0-46bd-a2db-f8506f156ddd}">
+      <Declaration><![CDATA[METHOD PUBLIC SendMoveAbsolute : BOOL
+VAR_INPUT
+    CommandID : UINT;
+    Position : LREAL;
+    Velocity : LREAL;
+    Acceleration : LREAL;
+    Deceleration : LREAL;
+    Jerk : LREAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// TRUE means only that the concrete COMM accepted the command locally.
+SendMoveAbsolute := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SendMoveRelative" Id="{6ca44ffa-b4cf-45a6-a292-80ab7487689f}">
+      <Declaration><![CDATA[METHOD PUBLIC SendMoveRelative : BOOL
+VAR_INPUT
+    CommandID : UINT;
+    Distance : LREAL;
+    Velocity : LREAL;
+    Acceleration : LREAL;
+    Deceleration : LREAL;
+    Jerk : LREAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SendMoveRelative := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

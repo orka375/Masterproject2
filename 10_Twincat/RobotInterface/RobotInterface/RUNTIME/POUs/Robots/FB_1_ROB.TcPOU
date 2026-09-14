@@ -6,16 +6,10 @@ FUNCTION_BLOCK FB_1_ROB EXTENDS FB_0_Base
 // IMPLEMENTS ITF_1_Robot
 
 VAR_INPUT
+	Settings_Rob: stSettings_Rob;
 	PM: FB_PointManager;
-	COMM: POINTER TO FB_1_CommunicationModul := ADR(emptyCOMM);
+	COMM: POINTER TO FB_1_COMM := ADR(emptyCOMM);
 
-	StandStillLimit: REAL := 0.001;
-	SafePosition: stJoint6;
-	SafePositionTolerance: LREAL := 0.001;
-	RegisterAsTopLevelRobot: BOOL := TRUE;
-	
-
-	InstallationPose : ST_Pose; // BRF expressed in WRF : stVector3d
 END_VAR
 
 
@@ -38,19 +32,7 @@ VAR
 	//BAHANDLER
 	Idcounter: UINT:=1000;
 
-	// Native unit standard of THIS robot. Subclasses overwrite in their declaration/FB_Init.
-	// Base default = PLC standard so generic conversions are a no-op if not overridden.
-	StandardUnits : ST_StandardUnits := (
-		Position            := eUnit.m,
-		Orientation         := eUnit.rad,
-		Joint               := eUnit.rad,
-		LinearVelocity      := eUnit.m,
-		AngularVelocity     := eUnit.rad,
-		JointVelocity       := eUnit.rad,
-		LinearAcceleration  := eUnit.m,
-		AngularAcceleration := eUnit.rad,
-		JointAcceleration   := eUnit.rad
-	);
+
 	
 	_INIT_ROB: BOOL;
 END_VAR]]></Declaration>
@@ -305,12 +287,12 @@ END_FOR
 
 //RobotMoving:
 HMI_ROB.bMoving :=
-    (ABS(_tcpvel.X)  > StandStillLimit) OR
-    (ABS(_tcpvel.Y)  > StandStillLimit) OR
-    (ABS(_tcpvel.Z)  > StandStillLimit) OR
-    (ABS(_tcpvel.roll) > StandStillLimit) OR
-    (ABS(_tcpvel.pitch) > StandStillLimit) OR
-    (ABS(_tcpvel.yaw) > StandStillLimit);
+    (ABS(_tcpvel.X)  > Settings_Rob.StandStillLimit) OR
+    (ABS(_tcpvel.Y)  > Settings_Rob.StandStillLimit) OR
+    (ABS(_tcpvel.Z)  > Settings_Rob.StandStillLimit) OR
+    (ABS(_tcpvel.roll) > Settings_Rob.StandStillLimit) OR
+    (ABS(_tcpvel.pitch) > Settings_Rob.StandStillLimit) OR
+    (ABS(_tcpvel.yaw) > Settings_Rob.StandStillLimit);
 	
 // Generic robot command contributes to FB_0_Base.Busy. Terminal command values remain latched,
 // therefore only non-terminal phases make the robot busy.
@@ -350,9 +332,9 @@ EStop := COMM^.EStop();]]></ST>
         <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
 
 CurrentTCP REF= HMI_ROB._tcppos;
-T_W_B := FromPose(Installationpose);
+T_W_B := FromPose(Settings_Rob.InstallationPose);
 
-IF NOT RegisterAsTopLevelRobot THEN
+IF NOT Settings_Rob.RegisterAsTopLevelRobot THEN
 	FB_Init := TRUE;
 	RETURN;
 END_IF
@@ -387,12 +369,12 @@ END_VAR]]></Declaration>
           <ST><![CDATA[joints := ActualJointPosition;
 
 InSavePosition :=
-    (ABS(joints.joint1 - SafePosition.joint1) <= SafePositionTolerance) AND
-    (ABS(joints.joint2 - SafePosition.joint2) <= SafePositionTolerance) AND
-    (ABS(joints.joint3 - SafePosition.joint3) <= SafePositionTolerance) AND
-    (ABS(joints.joint4 - SafePosition.joint4) <= SafePositionTolerance) AND
-    (ABS(joints.joint5 - SafePosition.joint5) <= SafePositionTolerance) AND
-    (ABS(joints.joint6 - SafePosition.joint6) <= SafePositionTolerance);]]></ST>
+    (ABS(joints.joint1 - Settings_Rob.SafePosition.joint1) <= Settings_Rob.SafePositionTolerance) AND
+    (ABS(joints.joint2 - Settings_Rob.SafePosition.joint2) <= Settings_Rob.SafePositionTolerance) AND
+    (ABS(joints.joint3 - Settings_Rob.SafePosition.joint3) <= Settings_Rob.SafePositionTolerance) AND
+    (ABS(joints.joint4 - Settings_Rob.SafePosition.joint4) <= Settings_Rob.SafePositionTolerance) AND
+    (ABS(joints.joint5 - Settings_Rob.SafePosition.joint5) <= Settings_Rob.SafePositionTolerance) AND
+    (ABS(joints.joint6 - Settings_Rob.SafePosition.joint6) <= Settings_Rob.SafePositionTolerance);]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -460,7 +442,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="MoveToSafePosition" Id="{1460c5aa-e9ef-4e0e-a2bc-5ac3c6af9cb6}" FolderPath="Generic Control\">
-      <Declaration><![CDATA[METHOD MoveToSafePosition : UINT
+      <Declaration><![CDATA[METHOD MoveToSettings.SafePosition : UINT
 VAR_INPUT
     Velocity : LREAL;
 END_VAR
@@ -469,8 +451,8 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[settings.Velocity := Velocity;
-settings.Joints := SafePosition;
-MoveToSafePosition := CommandHandler(Cmd := eBA.MoveJJoints, Settings := settings);]]></ST>
+settings.Joints := Settings.SafePosition;
+MoveToSettings.SafePosition := CommandHandler(Cmd := eBA.MoveJJoints, Settings := settings);]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnActivate" Id="{c53d2e09-95f6-4470-b92a-1736ae881f81}" FolderPath="StateControl\">

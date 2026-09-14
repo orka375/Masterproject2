@@ -7,13 +7,15 @@ FUNCTION_BLOCK ABSTRACT FB_0_Base EXTENDS FB_Utilities
 // IMPLEMENTS ITF_0_BaseComponent
 
 VAR_INPUT
+	Settings_Base: stSettings_Base;
+	MESSENGER: FB_Messenger;
 	DEBUG_S : DEBUG_STATE;
+	
 	{attribute 'OPC.UA.DA.StructuredType':=1}
 	{attribute 'OPC.UA.DA' := '1'}
 	pA_Skills : ARRAY[1..MaxNrofSkills] OF POINTER TO FB_1_Skill;
-	bAutoConfigure: BOOL:=FALSE;		//If True, StateMachine trys automatic to reach State "INACTIV" otherwise each transition must be called manually
-	nMaxAutoRecoveryAttempts : UINT := 3; // 0 disables automatic ErrorProcessing recovery
-	MESSENGER: FB_Messenger;
+	
+	
 END_VAR
 
 VAR_OUTPUT
@@ -107,7 +109,7 @@ END_VAR
       <Get Name="Get" Id="{ee124298-bcc7-439c-9105-d90c42f3e44b}">
         <Declaration><![CDATA[]]></Declaration>
         <Implementation>
-          <ST><![CDATA[AutoConfigure:=bAutoConfigure;
+          <ST><![CDATA[AutoConfigure:=Settings_Base.bAutoConfigure;
 ]]></ST>
         </Implementation>
       </Get>
@@ -116,7 +118,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[bAutoConfigure:=AutoConfigure;]]></ST>
+          <ST><![CDATA[Settings_Base.bAutoConfigure:=AutoConfigure;]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -192,7 +194,7 @@ END_IF
         <ST><![CDATA[IF NOT _once THEN
 	SETUP_BASE();
 END_IF
-bAutoConfigure := SETUP.SYSTEMAUTOCONFIGURE;
+Settings_Base.bAutoConfigure := SETUP.SYSTEMAUTOCONFIGURE;
 
 
 rtStateChange(CLK:=bStateChange);
@@ -224,7 +226,7 @@ HMI_BASE.bAcknowledgeRequired := HMI_BASE.bRecoveryPending
 HMI_BASE.bManualActionRequired := HMI_BASE.bRecoveryPending
     AND (_recoveryMode = eRecoveryMode.ManualActionRequired);
 HMI_BASE.nRecoveryAttempt := _recoveryAttempt;
-HMI_BASE.nMaxAutoRecoveryAttempts := nMaxAutoRecoveryAttempts;
+HMI_BASE.nMaxAutoRecoveryAttempts := Settings_Base.nMaxAutoRecoveryAttempts;
 
 // Single writer of MyHealth: own condition this scan, then rolled up with the worst child.
 HMI_BASE.MyHealth := DeriveSelfHealth();
@@ -358,11 +360,11 @@ IF _ShutOffStateMachine THEN
 END_IF
 
 IF _recoveryMode = eRecoveryMode.Automatic THEN
-    IF nMaxAutoRecoveryAttempts = 0 THEN
+    IF Settings_Base.nMaxAutoRecoveryAttempts = 0 THEN
         _recoveryMode := eRecoveryMode.AcknowledgeRequired;
     ELSE
         _recoveryAttempt := _recoveryAttempt + 1;
-        IF _recoveryAttempt > nMaxAutoRecoveryAttempts THEN
+        IF _recoveryAttempt > Settings_Base.nMaxAutoRecoveryAttempts THEN
             _recoveryMode := eRecoveryMode.AcknowledgeRequired;
             Messenger.AddError(eMessageCategories.StateMachine, Path,
                 'Automatic recovery exhausted; operator acknowledgement required');
@@ -977,7 +979,7 @@ IF NOT TimeStateMachine.Q1 OR SlowDownTimer.Q THEN
 
     CASE HMI_BASE.eStatus OF
         eState.Unconfigured:
-            IF bAutoConfigure THEN Configure(); END_IF
+            IF Settings_Base.bAutoConfigure THEN Configure(); END_IF
 
         eState.Inactive:
             ;

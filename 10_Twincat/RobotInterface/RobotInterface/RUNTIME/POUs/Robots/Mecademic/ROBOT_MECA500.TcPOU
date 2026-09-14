@@ -4,6 +4,7 @@
     <Declaration><![CDATA[FUNCTION_BLOCK ROBOT_MECA500 EXTENDS FB_2_ROB_MANIP
 
 VAR_INPUT
+	SETTINGS: stSettings_Manip;
     MECA_COMM : FB_2_COMM_MECA;
 END_VAR
 
@@ -23,15 +24,15 @@ SETUP.R2_PP.pRob:=THIS;
 
 
 // Meca500 native units: mm / deg / mm-s^-1 / deg-s^-1 / mm-s^-2 / deg-s^-2.
-StandardUnits.Position            := eUnit.mm;
-StandardUnits.Orientation         := eUnit.deg;
-StandardUnits.Joint               := eUnit.deg;
-StandardUnits.LinearVelocity      := eUnit.mm;
-StandardUnits.AngularVelocity     := eUnit.deg;
-StandardUnits.JointVelocity       := eUnit.deg;
-StandardUnits.LinearAcceleration  := eUnit.mm;
-StandardUnits.AngularAcceleration := eUnit.deg;
-StandardUnits.JointAcceleration   := eUnit.deg;
+Settings_Rob.StandardUnits.Position            := eUnit.mm;
+Settings_Rob.StandardUnits.Orientation         := eUnit.deg;
+Settings_Rob.StandardUnits.Joint               := eUnit.deg;
+Settings_Rob.StandardUnits.LinearVelocity      := eUnit.mm;
+Settings_Rob.StandardUnits.AngularVelocity     := eUnit.deg;
+Settings_Rob.StandardUnits.JointVelocity       := eUnit.deg;
+Settings_Rob.StandardUnits.LinearAcceleration  := eUnit.mm;
+Settings_Rob.StandardUnits.AngularAcceleration := eUnit.deg;
+Settings_Rob.StandardUnits.JointAcceleration   := eUnit.deg;
 
 COMM := ADR(MECA_COMM);
 MECA_COMM.CYCLIC_COMM_MECA();
@@ -64,17 +65,17 @@ END_IF
 
 // Joint feedback: deg -> rad through central helper.
 HMI_ROB._jointpos.joint1 := ChangeRealFromRobotStandard(
-    Value := REAL_TO_LREAL(MECA_COMM.rInJoint1), Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+    Value := REAL_TO_LREAL(MECA_COMM.rInJoint1), Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
 HMI_ROB._jointpos.joint2 := ChangeRealFromRobotStandard(
-    Value := REAL_TO_LREAL(MECA_COMM.rInJoint2), Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+    Value := REAL_TO_LREAL(MECA_COMM.rInJoint2), Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
 HMI_ROB._jointpos.joint3 := ChangeRealFromRobotStandard(
-    Value := REAL_TO_LREAL(MECA_COMM.rInJoint3), Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+    Value := REAL_TO_LREAL(MECA_COMM.rInJoint3), Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
 HMI_ROB._jointpos.joint4 := ChangeRealFromRobotStandard(
-    Value := REAL_TO_LREAL(MECA_COMM.rInJoint4), Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+    Value := REAL_TO_LREAL(MECA_COMM.rInJoint4), Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
 HMI_ROB._jointpos.joint5 := ChangeRealFromRobotStandard(
-    Value := REAL_TO_LREAL(MECA_COMM.rInJoint5), Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+    Value := REAL_TO_LREAL(MECA_COMM.rInJoint5), Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
 HMI_ROB._jointpos.joint6 := ChangeRealFromRobotStandard(
-    Value := REAL_TO_LREAL(MECA_COMM.rInJoint6), Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+    Value := REAL_TO_LREAL(MECA_COMM.rInJoint6), Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
 
 // TCP feedback: MECA native (mm, deg, MECA Euler) -> PLC standard (m, rad, RPY).
 _mecaRawPose.x    := REAL_TO_LREAL(MECA_COMM.rInTcpX);
@@ -86,7 +87,7 @@ _mecaRawPose.yaw  := REAL_TO_LREAL(MECA_COMM.rInTcpRz);
 
 // Unit conversion first (mm/deg -> m/rad), then representation (MECA Euler -> RPY).
 _mecaFeedbackPose := ChangePoseFromRobotStandard(
-    Pose := _mecaRawPose, RobotStandardUnits := StandardUnits);
+    Pose := _mecaRawPose, RobotStandardUnits := Settings_Rob.StandardUnits);
 
 _mecaRPY := MECAEulerToRPY(
     ex := _mecaFeedbackPose.roll,
@@ -164,7 +165,7 @@ CASE Cmd OF
         // Units: PLC standard -> MECA native (mm, deg).
         NativePose := ChangePoseToRobotStandard(
             Pose := NativePose,
-            RobotStandardUnits := StandardUnits);
+            RobotStandardUnits := Settings_Rob.StandardUnits);
         rArgument1 := LREAL_TO_REAL(NativePose.x);
         rArgument2 := LREAL_TO_REAL(NativePose.y);
         rArgument3 := LREAL_TO_REAL(NativePose.z);
@@ -189,7 +190,7 @@ CASE Cmd OF
         NativePose.yaw   := MECAEuler.yaw;
         NativePose := ChangePoseToRobotStandard(
             Pose := NativePose,
-            RobotStandardUnits := StandardUnits);
+            RobotStandardUnits := Settings_Rob.StandardUnits);
         rArgument1 := LREAL_TO_REAL(NativePose.x);
         rArgument2 := LREAL_TO_REAL(NativePose.y);
         rArgument3 := LREAL_TO_REAL(NativePose.z);
@@ -200,17 +201,17 @@ CASE Cmd OF
     eBA.MoveJJoints:
         nCommand := 1;
         rArgument1 := LREAL_TO_REAL(ChangeRealToRobotStandard(
-            Value := Settings.Joints.joint1, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits));
+            Value := Settings.Joints.joint1, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits));
         rArgument2 := LREAL_TO_REAL(ChangeRealToRobotStandard(
-            Value := Settings.Joints.joint2, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits));
+            Value := Settings.Joints.joint2, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits));
         rArgument3 := LREAL_TO_REAL(ChangeRealToRobotStandard(
-            Value := Settings.Joints.joint3, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits));
+            Value := Settings.Joints.joint3, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits));
         rArgument4 := LREAL_TO_REAL(ChangeRealToRobotStandard(
-            Value := Settings.Joints.joint4, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits));
+            Value := Settings.Joints.joint4, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits));
         rArgument5 := LREAL_TO_REAL(ChangeRealToRobotStandard(
-            Value := Settings.Joints.joint5, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits));
+            Value := Settings.Joints.joint5, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits));
         rArgument6 := LREAL_TO_REAL(ChangeRealToRobotStandard(
-            Value := Settings.Joints.joint6, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits));
+            Value := Settings.Joints.joint6, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits));
 
     eBA.Home:
         IF NOT MECA_COMM.CommunicationReady

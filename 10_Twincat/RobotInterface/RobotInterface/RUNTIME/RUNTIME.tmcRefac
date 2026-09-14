@@ -1,10 +1,60 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Refactors>
   <Renames>
+    <RenamedSymbol>
+      <Type guid="7ce28b50-28f8-4d4c-bb25-1006bf064637">FB_1_ROB</Type>
+      <From>Settings</From>
+      <To>Settings_Rob</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="7ce28b50-28f8-4d4c-bb25-1006bf064637">FB_1_ROB</Type>
+      <From>StandardUnits</From>
+      <To>Settings_RobStandardUnits</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="ccfcc891-ed7a-48a9-bb43-020f08aa1f30">FB_0_Base</Type>
+      <From>bAutoConfigure</From>
+      <To>Settings_BasebAutoConfigure</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="ccfcc891-ed7a-48a9-bb43-020f08aa1f30">FB_0_Base</Type>
+      <From>nMaxAutoRecoveryAttempts</From>
+      <To>Settings_BasenMaxAutoRecoveryAttempts</To>
+    </RenamedSymbol>
     <RenamedType>
-      <Type guid="bc35b233-21db-489f-a942-4bb4b6b9eb6e">ITF_CUSTOM_ROBOT_1</Type>
-      <From>ITF_CUSTOM_ROBOT_1</From>
-      <To>ITF_CUSTOM_MANIP</To>
+      <Type guid="7cf866bc-acd8-4ca1-b1b9-cc8d0da034fd">FB_1_AXIS</Type>
+      <From>FB_1_AXIS</From>
+      <To>FB_2_ROB_AXIS</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="b684b6da-9ed5-48c5-85a7-b0532db6e842">FB_1_COMM_AXIS</Type>
+      <From>FB_1_COMM_AXIS</From>
+      <To>FB_2_COMM_AXIS</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="6590ca91-e828-49ed-96d5-a1b6fe08b87c">FB_2_COMM_AXIS_BECKHOFF</Type>
+      <From>FB_2_COMM_AXIS_BECKHOFF</From>
+      <To>FB_3_COMM_AXIS_BECKHOFF</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="8abd6177-0114-4a15-8bc8-4afff152259e">FB_3_COMM_AXIS_JSC_XENAX_1</Type>
+      <From>FB_3_COMM_AXIS_JSC_XENAX_1</From>
+      <To>FB_3_COMM_AXIS_JSC_XENAX</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="73f52913-3875-44cd-a06c-142e4cd90d86">FB_1_COMMUNICATIONMODUL</Type>
+      <From>FB_1_CommunicationModul</From>
+      <To>FB_1_COMM</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="0e318480-45bd-4a60-bef7-a58dd5c55756">LINAXIS</Type>
+      <From>LINAXIS</From>
+      <To>FB_3_ROB_AXIS_LIN</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="317064f0-d9b0-43a6-b27e-f453e25a795f">LINAXIS_BECKHOFF_1</Type>
+      <From>LINAXIS_BECKHOFF_1</From>
+      <To>ROTAXIS_BECKHOFF</To>
     </RenamedType>
   </Renames>
 </Refactors>

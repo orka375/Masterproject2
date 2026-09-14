@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stHMI_ROB_AXIS" Id="{1b002753-a75e-4568-a17d-b12d3acf058e}">
+    <Declaration><![CDATA[TYPE stHMI_ROB_AXIS :
+STRUCT
+    AxisPowered : BOOL;
+    AxisHomed : BOOL;
+    AxisError : BOOL;
+    AxisErrorID : UDINT;
+
+    ActualPosition : LREAL;
+    ActualVelocity : LREAL;
+
+    ActiveCommand : eBA;
+    CommandID : UINT;
+    CommandState : eProgress;
+    CommandResult : eResult;
+
+    ConfigurationValid : BOOL;
+    ReadyForPositioning : BOOL;
+    AtMinLimit : BOOL;
+    AtMaxLimit : BOOL;
+    InPosition : BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

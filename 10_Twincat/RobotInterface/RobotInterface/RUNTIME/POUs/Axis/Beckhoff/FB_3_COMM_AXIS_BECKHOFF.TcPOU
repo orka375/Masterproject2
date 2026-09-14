@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_3_COMM_AXIS_BECKHOFF" Id="{6590ca91-e828-49ed-96d5-a1b6fe08b87c}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'hide_all_locals'}
+FUNCTION_BLOCK FB_3_COMM_AXIS_BECKHOFF EXTENDS FB_2_COMM_AXIS
+VAR_IN_OUT
+    Axis : AXIS_REF;
+END_VAR
+VAR
+    _fbPower : MC_Power;
+    _fbMoveAbsolute : MC_MoveAbsolute;
+    _fbMoveRelative : MC_MoveRelative;
+    _fbHome : MC_Home;
+    _fbStop : MC_Stop;
+    _fbReset : MC_Reset;
+
+    _powerRequest : BOOL;
+    _moveAbsExecute : BOOL;
+    _moveRelExecute : BOOL;
+    _homeExecute : BOOL;
+    _stopExecute : BOOL;
+    _resetExecute : BOOL;
+    _commandAccepted : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CYCLIC_COMM_AXIS_BECKHOFF();]]></ST>
+    </Implementation>
+    <Method Name="CancelCommand" Id="{96ac5415-b35c-4fc1-9ecd-a87a759715ca}">
+      <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
+VAR_INPUT CommandID : UINT; END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CancelCommand := FALSE;
+IF (CommandID = 0) OR (CommandID <> _commActiveCommandID) THEN RETURN; END_IF
+IF NOT StopMotion() THEN RETURN; END_IF
+_moveAbsExecute := FALSE;
+_moveRelExecute := FALSE;
+_homeExecute := FALSE;
+_commActiveCommandID := 0;
+_commCommandState := eProgress.ABORTED;
+_commCommandResult := eResult.FAILURE;
+_commCommandBusy := TRUE;
+CancelCommand := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Action Name="CYCLIC_COMM_AXIS_BECKHOFF" Id="{3ef4d780-b74a-41c3-b13e-c0900c5cb709}">
+      <Implementation>
+        <ST><![CDATA[CYCLIC_COMM();
+
+// Direct TwinCAT NC access is the transport for this adapter.
+HMI_COMM._CommunicationConnected := bRequestConnection;
+HMI_COMM._CommunicationReady := bRequestConnection;
+
+_fbPower(Axis := Axis, Enable := _powerRequest, Enable_Positive := _powerRequest, Enable_Negative := _powerRequest);
+_fbMoveAbsolute(Axis := Axis, Execute := _moveAbsExecute);
+_fbMoveRelative(Axis := Axis, Execute := _moveRelExecute);
+_fbHome(Axis := Axis, Execute := _homeExecute);
+_fbStop(Axis := Axis, Execute := _stopExecute);
+_fbReset(Axis := Axis, Execute := _resetExecute);
+
+_axisPowered := _fbPower.Status;
+_axisActualPosition := Axis.NcToPlc.ActPos;
+_axisActualVelocity := Axis.NcToPlc.ActVelo;
+_axisError := _fbPower.Error OR _fbMoveAbsolute.Error OR _fbMoveRelative.Error OR _fbHome.Error OR _fbStop.Error OR _fbReset.Error;
+
+IF _fbPower.Error THEN _axisErrorID := _fbPower.ErrorID;
+ELSIF _fbMoveAbsolute.Error THEN _axisErrorID := _fbMoveAbsolute.ErrorID;
+ELSIF _fbMoveRelative.Error THEN _axisErrorID := _fbMoveRelative.ErrorID;
+ELSIF _fbHome.Error THEN _axisErrorID := _fbHome.ErrorID;
+ELSIF _fbStop.Error THEN _axisErrorID := _fbStop.ErrorID;
+ELSIF _fbReset.Error THEN _axisErrorID := _fbReset.ErrorID;
+ELSE _axisErrorID := 0;
+END_IF
+
+_commCanAcceptCommand := CommunicationReady AND _axisPowered AND NOT _axisError
+    AND NOT _commCommandBusy AND NOT _fbStop.Busy AND NOT _resetExecute;
+
+IF _commCommandBusy THEN
+    IF _axisError THEN
+        _moveAbsExecute := FALSE;
+        _moveRelExecute := FALSE;
+        _homeExecute := FALSE;
+        _commActiveCommandID := 0;
+        _commCommandState := eProgress.FINALIZED;
+        _commCommandResult := eResult.ERROR;
+        _commCommandBusy := FALSE;
+    ELSIF _fbMoveAbsolute.CommandAborted OR _fbMoveRelative.CommandAborted OR _fbHome.CommandAborted THEN
+        _moveAbsExecute := FALSE;
+        _moveRelExecute := FALSE;
+        _homeExecute := FALSE;
+        _commActiveCommandID := 0;
+        _commCommandState := eProgress.ABORTED;
+        _commCommandResult := eResult.FAILURE;
+        _commCommandBusy := FALSE;
+    ELSIF _fbMoveAbsolute.Done OR _fbMoveRelative.Done OR _fbHome.Done THEN
+        IF _fbHome.Done THEN _axisHomed := TRUE; END_IF
+        _moveAbsExecute := FALSE;
+        _moveRelExecute := FALSE;
+        _homeExecute := FALSE;
+        _commActiveCommandID := 0;
+        _commCommandState := eProgress.FINALIZED;
+        _commCommandResult := eResult.SUCCESS;
+        _commCommandBusy := FALSE;
+    ELSIF NOT _commandAccepted AND (_fbMoveAbsolute.Busy OR _fbMoveRelative.Busy OR _fbHome.Busy) THEN
+        _commandAccepted := TRUE;
+        _commAcceptedCommandID := _commActiveCommandID;
+        _commCommandState := eProgress.ACKNOWLEDGE;
+        _moveAbsExecute := FALSE;
+        _moveRelExecute := FALSE;
+        _homeExecute := FALSE;
+    ELSIF _commandAccepted AND (_fbMoveAbsolute.Busy OR _fbMoveRelative.Busy OR _fbHome.Busy) THEN
+        _commCommandState := eProgress.RUNNING;
+    END_IF
+END_IF
+
+IF _fbStop.Done OR _fbStop.CommandAborted OR _fbStop.Error THEN _stopExecute := FALSE; END_IF
+IF _fbReset.Done OR _fbReset.Error THEN _resetExecute := FALSE; END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="Power" Id="{5009c6e1-2c2e-4e9f-8bd0-48ea7245eeb8}">
+      <Declaration><![CDATA[METHOD PUBLIC Power : BOOL
+VAR_INPUT Enable : BOOL; END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_powerRequest := Enable;
+Power := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetAxis" Id="{8993a558-2273-4b75-9edd-81b579dc1f02}">
+      <Declaration><![CDATA[METHOD PUBLIC ResetAxis : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_resetExecute := TRUE;
+ResetAxis := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetCommunication" Id="{d6df4f8c-4fb8-47c4-8972-2548e217db7f}">
+      <Declaration><![CDATA[METHOD PUBLIC ResetCommunication : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_moveAbsExecute := FALSE;
+_moveRelExecute := FALSE;
+_homeExecute := FALSE;
+_stopExecute := FALSE;
+_commAcceptedCommandID := 0;
+_commActiveCommandID := 0;
+_commCommandBusy := FALSE;
+_commCommandState := eProgress.INIT;
+_commCommandResult := eResult.NONE;
+Reconnect();
+ResetCommunication := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SendHome" Id="{bc5b9968-2431-457c-aab0-516da2c5d033}">
+      <Declaration><![CDATA[METHOD PUBLIC SendHome : BOOL
+VAR_INPUT CommandID : UINT; END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SendHome := FALSE;
+IF (CommandID = 0) OR NOT CanAcceptCommand THEN RETURN; END_IF
+_axisHomed := FALSE;
+_homeExecute := TRUE;
+_commandAccepted := FALSE;
+_commAcceptedCommandID := 0;
+_commActiveCommandID := CommandID;
+_commCommandState := eProgress.INIT;
+_commCommandResult := eResult.NONE;
+_commCommandBusy := TRUE;
+SendHome := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SendMoveAbsolute" Id="{5b81aea5-0ab7-4117-8b92-2d5fae6e40c0}">
+      <Declaration><![CDATA[METHOD PUBLIC SendMoveAbsolute : BOOL
+VAR_INPUT
+    CommandID : UINT; Position : LREAL; Velocity : LREAL; Acceleration : LREAL; Deceleration : LREAL; Jerk : LREAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SendMoveAbsolute := FALSE;
+IF (CommandID = 0) OR NOT CanAcceptCommand THEN RETURN; END_IF
+_fbMoveAbsolute.Position := Position;
+_fbMoveAbsolute.Velocity := Velocity;
+_fbMoveAbsolute.Acceleration := Acceleration;
+_fbMoveAbsolute.Deceleration := Deceleration;
+_fbMoveAbsolute.Jerk := Jerk;
+_moveAbsExecute := TRUE;
+_commandAccepted := FALSE;
+_commAcceptedCommandID := 0;
+_commActiveCommandID := CommandID;
+_commCommandState := eProgress.INIT;
+_commCommandResult := eResult.NONE;
+_commCommandBusy := TRUE;
+SendMoveAbsolute := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SendMoveRelative" Id="{8db40419-b654-4ba0-9a9d-02d59aa67ced}">
+      <Declaration><![CDATA[METHOD PUBLIC SendMoveRelative : BOOL
+VAR_INPUT
+    CommandID : UINT; Distance : LREAL; Velocity : LREAL; Acceleration : LREAL; Deceleration : LREAL; Jerk : LREAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SendMoveRelative := FALSE;
+IF (CommandID = 0) OR NOT CanAcceptCommand THEN RETURN; END_IF
+_fbMoveRelative.Distance := Distance;
+_fbMoveRelative.Velocity := Velocity;
+_fbMoveRelative.Acceleration := Acceleration;
+_fbMoveRelative.Deceleration := Deceleration;
+_fbMoveRelative.Jerk := Jerk;
+_moveRelExecute := TRUE;
+_commandAccepted := FALSE;
+_commAcceptedCommandID := 0;
+_commActiveCommandID := CommandID;
+_commCommandState := eProgress.INIT;
+_commCommandResult := eResult.NONE;
+_commCommandBusy := TRUE;
+SendMoveRelative := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StopMotion" Id="{c0fae11f-2aa8-4051-9726-2a746e1e0326}">
+      <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StopMotion := FALSE;
+IF NOT CommunicationReady THEN RETURN; END_IF
+_moveAbsExecute := FALSE;
+_moveRelExecute := FALSE;
+_homeExecute := FALSE;
+IF _fbStop.Busy OR _stopExecute THEN StopMotion := TRUE; RETURN; END_IF
+IF ABS(_axisActualVelocity) <= 0.000001 THEN StopMotion := TRUE; RETURN; END_IF
+_stopExecute := TRUE;
+StopMotion := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_2_COMM_MECA" Id="{1bdf4dfd-4ef8-47df-b08c-596707625c3d}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_2_COMM_MECA EXTENDS FB_1_CommunicationModul IMPLEMENTS ITF_CUSTOM_ROBOT
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_2_COMM_MECA EXTENDS FB_1_COMM
 VAR_OUTPUT
     bInProcessDataValid AT %I*: BOOL := TRUE; //NOT CONNECTED
     bInBusy AT %I*: BOOL;

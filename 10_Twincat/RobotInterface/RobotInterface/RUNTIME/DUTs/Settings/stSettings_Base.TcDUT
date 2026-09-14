@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stSettings_Base" Id="{76be7f13-c18f-49f3-95fb-08ec41e4d253}">
+    <Declaration><![CDATA[TYPE stSettings_Base :
+STRUCT
+	bAutoConfigure: BOOL:=FALSE;		//If True, StateMachine trys automatic to reach State "INACTIV" otherwise each transition must be called manually
+	nMaxAutoRecoveryAttempts : UINT := 3; // 0 disables automatic ErrorProcessing recovery
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

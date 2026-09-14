@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="LINAXIS_JSC_XENAX" Id="{712fd3e6-7338-4ca3-919d-2d810e67e743}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'hide_all_locals'}
+FUNCTION_BLOCK LINAXIS_JSC_XENAX EXTENDS FB_3_ROB_AXIS_LIN
+VAR_INPUT
+    // JSC/XENAX-specific setup is kept exclusively in this concrete wrapper / COMM.
+    ReferenceMode : INT := gcJS_MC.jsmcREFERENCE_MODE_DONT_CHANGE;
+    PowerOverride : LREAL := 100.0;
+END_VAR
+VAR_OUTPUT
+    // Concrete communication adapter, exposed for diagnostics.
+    AXIS_COMM : FB_3_COMM_AXIS_JSC_XENAX;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Run the manufacturer-specific adapter first.
+AXIS_COMM(
+    ReferenceMode := ReferenceMode,
+    PowerOverride := PowerOverride);
+
+// Wire the generic axis and robot communication boundaries to this adapter.
+AxisComm := ADR(AXIS_COMM);
+COMM := ADR(AXIS_COMM);
+
+// Execute the complete manufacturer-neutral linear-axis implementation.
+SUPER^();
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

@@ -12,7 +12,7 @@
     <HmiTitle>RobotHMI</HmiTitle>
     <HmiVerboseLevel>2</HmiVerboseLevel>
     <HmiVersion>1.0.0.0</HmiVersion>
-    <HmiCommunicationServerPort>3006</HmiCommunicationServerPort>
+    <HmiCommunicationServerPort>3007</HmiCommunicationServerPort>
     <HmiLogTcHmiServerMessages>false</HmiLogTcHmiServerMessages>
     <HmiLogDesignerModeComMessages>false</HmiLogDesignerModeComMessages>
     <HmiDefaultLanguage>client</HmiDefaultLanguage>
@@ -198,12 +198,12 @@
       <SubType>Content</SubType>
       <DependentUpon>UserControl\TopBar_RobotSelection.usercontrol</DependentUpon>
     </Content>
-    <Content Include="UserControl\UC_Jog_Manip.usercontrol">
+    <Content Include="UserControl\UC_Jog.usercontrol">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="UserControl\UC_Jog_Manip.usercontrol.json">
+    <Content Include="UserControl\UC_Jog.usercontrol.json">
       <SubType>Content</SubType>
-      <DependentUpon>UserControl\UC_Jog_Manip.usercontrol</DependentUpon>
+      <DependentUpon>UserControl\UC_Jog.usercontrol</DependentUpon>
     </Content>
     <Content Include="UserControl\UC_PointManager.usercontrol">
       <SubType>Content</SubType>
@@ -341,12 +341,15 @@
     </Content>
     <Content Include="Server\TcHmiLua\TcHmiLua.Config.default.json">
       <SubType>Content</SubType>
+      <Visible>True</Visible>
     </Content>
     <Content Include="Server\TcHmiLua\TcHmiLua.Config.remote.json">
       <SubType>Content</SubType>
+      <Visible>True</Visible>
     </Content>
     <Content Include="Server\TcHmiLua\TcHmiLua.Storage.json">
       <SubType>Content</SubType>
+      <Visible>True</Visible>
     </Content>
     <Content Include="Server\TcHmiRecipeManagement\TcHmiRecipeManagement.Config.default.json">
       <SubType>Content</SubType>
@@ -359,12 +362,15 @@
     </Content>
     <Content Include="Server\TcHmiSqliteLogger\TcHmiSqliteLogger.Config.default.json">
       <SubType>Content</SubType>
+      <Visible>True</Visible>
     </Content>
     <Content Include="Server\TcHmiSqliteLogger\TcHmiSqliteLogger.Config.remote.json">
       <SubType>Content</SubType>
+      <Visible>True</Visible>
     </Content>
     <Content Include="Server\TcHmiSqliteLogger\TcHmiSqliteLogger.Storage.json">
       <SubType>Content</SubType>
+      <Visible>True</Visible>
     </Content>
     <Content Include="Server\TcHmiSrv\TcHmiSrv.Config.default.json">
       <SubType>Content</SubType>
@@ -377,12 +383,15 @@
     </Content>
     <Content Include="Server\TcHmiUserManagement\TcHmiUserManagement.Config.default.json">
       <SubType>Content</SubType>
+      <Visible>True</Visible>
     </Content>
     <Content Include="Server\TcHmiUserManagement\TcHmiUserManagement.Config.remote.json">
       <SubType>Content</SubType>
+      <Visible>True</Visible>
     </Content>
     <Content Include="Server\TcHmiUserManagement\TcHmiUserManagement.Storage.json">
       <SubType>Content</SubType>
+      <Visible>True</Visible>
     </Content>
     <Content Include="Themes\Base-Dark\Base-Dark.theme">
       <SubType>Content</SubType>

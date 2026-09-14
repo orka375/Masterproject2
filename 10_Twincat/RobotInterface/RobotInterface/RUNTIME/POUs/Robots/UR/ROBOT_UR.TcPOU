@@ -4,6 +4,7 @@
     <Declaration><![CDATA[FUNCTION_BLOCK ROBOT_UR EXTENDS FB_2_ROB_MANIP 
 
 VAR_INPUT
+	SETTINGS: stSettings_Manip;
     sRobotIp          : T_IPv4Addr := '192.168.250.2';
 END_VAR
   
@@ -30,15 +31,15 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[// UR native units: SI throughout (m, rad, m/s, rad/s, m/s^2, rad/s^2).
-StandardUnits.Position            := eUnit.m;
-StandardUnits.Orientation         := eUnit.rad;
-StandardUnits.Joint               := eUnit.rad;
-StandardUnits.LinearVelocity      := eUnit.m;
-StandardUnits.AngularVelocity     := eUnit.rad;
-StandardUnits.JointVelocity       := eUnit.rad;
-StandardUnits.LinearAcceleration  := eUnit.m;
-StandardUnits.AngularAcceleration := eUnit.rad;
-StandardUnits.JointAcceleration   := eUnit.rad;
+Settings_Rob.StandardUnits.Position            := eUnit.m;
+Settings_Rob.StandardUnits.Orientation         := eUnit.rad;
+Settings_Rob.StandardUnits.Joint               := eUnit.rad;
+Settings_Rob.StandardUnits.LinearVelocity      := eUnit.m;
+Settings_Rob.StandardUnits.AngularVelocity     := eUnit.rad;
+Settings_Rob.StandardUnits.JointVelocity       := eUnit.rad;
+Settings_Rob.StandardUnits.LinearAcceleration  := eUnit.m;
+Settings_Rob.StandardUnits.AngularAcceleration := eUnit.rad;
+Settings_Rob.StandardUnits.JointAcceleration   := eUnit.rad;
 
 UR_COMM.Config.sIpAddress := sRobotIp;
 UR_COMM();
@@ -64,20 +65,20 @@ IF UR_COMM.RTDE.bNewData THEN
     // UR native == PLC standard numerically; explicit for symmetry with other adapters.
     HMI_ROB._tcppos := ChangePoseFromRobotStandard(
         Pose := _urFeedbackPose,
-        RobotStandardUnits := StandardUnits);
+        RobotStandardUnits := Settings_Rob.StandardUnits);
 
     HMI_ROB._jointpos.joint1 := ChangeRealFromRobotStandard(
-        Value := UR_COMM.RTDE.aActualQ[0], Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+        Value := UR_COMM.RTDE.aActualQ[0], Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
     HMI_ROB._jointpos.joint2 := ChangeRealFromRobotStandard(
-        Value := UR_COMM.RTDE.aActualQ[1], Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+        Value := UR_COMM.RTDE.aActualQ[1], Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
     HMI_ROB._jointpos.joint3 := ChangeRealFromRobotStandard(
-        Value := UR_COMM.RTDE.aActualQ[2], Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+        Value := UR_COMM.RTDE.aActualQ[2], Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
     HMI_ROB._jointpos.joint4 := ChangeRealFromRobotStandard(
-        Value := UR_COMM.RTDE.aActualQ[3], Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+        Value := UR_COMM.RTDE.aActualQ[3], Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
     HMI_ROB._jointpos.joint5 := ChangeRealFromRobotStandard(
-        Value := UR_COMM.RTDE.aActualQ[4], Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+        Value := UR_COMM.RTDE.aActualQ[4], Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
     HMI_ROB._jointpos.joint6 := ChangeRealFromRobotStandard(
-        Value := UR_COMM.RTDE.aActualQ[5], Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+        Value := UR_COMM.RTDE.aActualQ[5], Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
 END_IF
 
 (* Generic Basic Action lifecycle. UR_COMM owns transport/RTDE interpretation;
@@ -205,22 +206,22 @@ IF (Cmd = eBA.MoveL) OR (Cmd = eBA.MoveJ) THEN
     // Unit conversion PLC standard -> UR native (numerical no-op for UR, explicit and safe).
     NativePose := ChangePoseToRobotStandard(
         Pose := NativePose,
-        RobotStandardUnits := StandardUnits);
+        RobotStandardUnits := Settings_Rob.StandardUnits);
 END_IF
 
 IF Cmd = eBA.MoveJJoints THEN
     NativeJoints.joint1 := ChangeRealToRobotStandard(
-        Value := Settings.Joints.joint1, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+        Value := Settings.Joints.joint1, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
     NativeJoints.joint2 := ChangeRealToRobotStandard(
-        Value := Settings.Joints.joint2, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+        Value := Settings.Joints.joint2, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
     NativeJoints.joint3 := ChangeRealToRobotStandard(
-        Value := Settings.Joints.joint3, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+        Value := Settings.Joints.joint3, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
     NativeJoints.joint4 := ChangeRealToRobotStandard(
-        Value := Settings.Joints.joint4, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+        Value := Settings.Joints.joint4, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
     NativeJoints.joint5 := ChangeRealToRobotStandard(
-        Value := Settings.Joints.joint5, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+        Value := Settings.Joints.joint5, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
     NativeJoints.joint6 := ChangeRealToRobotStandard(
-        Value := Settings.Joints.joint6, Category := eUnitCategory.Joint, RobotStandardUnits := StandardUnits);
+        Value := Settings.Joints.joint6, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
 END_IF
 
 NewCommandID := AllocateCommandID();
@@ -252,10 +253,10 @@ CASE Cmd OF
 
     eBA.MoveL:
         fVelocity := ChangeRealToRobotStandard(
-            Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := StandardUnits);
+            Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := Settings_Rob.StandardUnits);
         IF fVelocity <= 0.0 THEN fVelocity := 0.25; END_IF
         fAcceleration := ChangeRealToRobotStandard(
-            Value := Settings.Acceleration, Category := LinAccCat, RobotStandardUnits := StandardUnits);
+            Value := Settings.Acceleration, Category := LinAccCat, RobotStandardUnits := Settings_Rob.StandardUnits);
         IF fAcceleration <= 0.0 THEN fAcceleration := 1.2; END_IF
 
         sLine := '  movel(p[';
@@ -279,10 +280,10 @@ CASE Cmd OF
 
     eBA.MoveJ:
         fVelocity := ChangeRealToRobotStandard(
-            Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := StandardUnits);
+            Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := Settings_Rob.StandardUnits);
         IF fVelocity <= 0.0 THEN fVelocity := 1.05; END_IF
         fAcceleration := ChangeRealToRobotStandard(
-            Value := Settings.Acceleration, Category := LinAccCat, RobotStandardUnits := StandardUnits);
+            Value := Settings.Acceleration, Category := LinAccCat, RobotStandardUnits := Settings_Rob.StandardUnits);
         IF fAcceleration <= 0.0 THEN fAcceleration := 1.4; END_IF
 
         (* URScript movej accepts a pose; UR performs inverse kinematics for it. *)
@@ -307,10 +308,10 @@ CASE Cmd OF
 
     eBA.MoveJJoints:
         fVelocity := ChangeRealToRobotStandard(
-            Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := StandardUnits);
+            Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := Settings_Rob.StandardUnits);
         IF fVelocity <= 0.0 THEN fVelocity := 1.05; END_IF
         fAcceleration := ChangeRealToRobotStandard(
-            Value := Settings.Acceleration, Category := LinAccCat, RobotStandardUnits := StandardUnits);
+            Value := Settings.Acceleration, Category := LinAccCat, RobotStandardUnits := Settings_Rob.StandardUnits);
         IF fAcceleration <= 0.0 THEN fAcceleration := 1.4; END_IF
 
         (* Joint-space movej: joint angles in UR native units (rad). *)

@@ -121,7 +121,7 @@
     </div>
 
     <div id="PointManagerCreateButton"
-         data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton"
+         data-tchmi-type="TcHmi.Controls.Beckhoff.Industries.Common.TcHmiPushButton"
          data-tchmi-grid-column-index="4"
          data-tchmi-grid-row-index="2"
          data-tchmi-left="0"
@@ -129,11 +129,12 @@
          data-tchmi-right="0"
          data-tchmi-bottom="0"
          data-tchmi-text="CREATE"
-         data-tchmi-state-symbol="%pp%PM::bCmdNew%/pp%">
+         data-tchmi-state-symbol="%pp%PM::bCmdNew%/pp%" data-tchmi-tap-mode="Tap">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-push-button","hmi-push-primary"]</script>
     </div>
 
     <div id="PointManagerLoadFileButton"
-         data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton"
+         data-tchmi-type="TcHmi.Controls.Beckhoff.Industries.Common.TcHmiPushButton"
          data-tchmi-grid-column-index="6"
          data-tchmi-grid-row-index="2"
          data-tchmi-left="0"
@@ -141,11 +142,12 @@
          data-tchmi-right="0"
          data-tchmi-bottom="0"
          data-tchmi-text="READ FILE"
-         data-tchmi-state-symbol="%pp%PM::bCmdLoadFile%/pp%">
+         data-tchmi-state-symbol="%pp%PM::bCmdLoadFile%/pp%" data-tchmi-tap-mode="Tap">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-push-button","hmi-push-primary"]</script>
     </div>
 
     <div id="PointManagerLoadPointButton"
-         data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton"
+         data-tchmi-type="TcHmi.Controls.Beckhoff.Industries.Common.TcHmiPushButton"
          data-tchmi-grid-column-index="8"
          data-tchmi-grid-row-index="2"
          data-tchmi-left="0"
@@ -153,7 +155,8 @@
          data-tchmi-right="0"
          data-tchmi-bottom="0"
          data-tchmi-text="LOAD / DISCARD EDITS"
-         data-tchmi-state-symbol="%pp%PM::bCmdLoad%/pp%">
+         data-tchmi-state-symbol="%pp%PM::bCmdLoad%/pp%" data-tchmi-tap-mode="Tap">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-push-button","hmi-push-primary"]</script>
     </div>
 
     <!-- Main comparison grid: edited point vs stored RAM-array point -->
@@ -482,7 +485,7 @@
 
     <!-- Edit actions -->
     <div id="PointManagerDeleteButton"
-         data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton"
+         data-tchmi-type="TcHmi.Controls.Beckhoff.Industries.Common.TcHmiPushButton"
          data-tchmi-grid-column-index="0"
          data-tchmi-grid-row-index="6"
          data-tchmi-left="0"
@@ -490,11 +493,12 @@
          data-tchmi-right="0"
          data-tchmi-bottom="0"
          data-tchmi-text="DELETE"
-         data-tchmi-state-symbol="%pp%PM::bCmdDelete%/pp%">
+         data-tchmi-state-symbol="%pp%PM::bCmdDelete%/pp%" data-tchmi-tap-mode="Tap">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-push-button","hmi-push-danger"]</script>
     </div>
 
     <div id="PointManagerRetouchButton"
-         data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton"
+         data-tchmi-type="TcHmi.Controls.Beckhoff.Industries.Common.TcHmiPushButton"
          data-tchmi-grid-column-index="2"
          data-tchmi-grid-row-index="6"
          data-tchmi-left="0"
@@ -502,11 +506,12 @@
          data-tchmi-right="0"
          data-tchmi-bottom="0"
          data-tchmi-text="RETOUCH FROM ROBOT"
-         data-tchmi-state-symbol="%pp%PM::bCmdTeach%/pp%">
+         data-tchmi-state-symbol="%pp%PM::bCmdTeach%/pp%" data-tchmi-tap-mode="Tap">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-push-button","hmi-push-motion"]</script>
     </div>
 
     <div id="PointManagerMoveRobotButton"
-         data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton"
+         data-tchmi-type="TcHmi.Controls.Beckhoff.Industries.Common.TcHmiPushButton"
          data-tchmi-grid-column-index="4"
          data-tchmi-grid-column-span="3"
          data-tchmi-grid-row-index="6"
@@ -515,11 +520,12 @@
          data-tchmi-right="0"
          data-tchmi-bottom="0"
          data-tchmi-text="MOVE ROBOT TO POSITION"
-         data-tchmi-state-symbol="%pp%PM::bMoveRobotToEditedPoint%/pp%">
+         data-tchmi-state-symbol="%pp%PM::bMoveRobotToEditedPoint%/pp%" data-tchmi-tap-mode="Tap">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-push-button","hmi-push-motion"]</script>
     </div>
 
     <div id="PointManagerSavePointButton"
-         data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton"
+         data-tchmi-type="TcHmi.Controls.Beckhoff.Industries.Common.TcHmiPushButton"
          data-tchmi-grid-column-index="8"
          data-tchmi-grid-row-index="6"
          data-tchmi-left="0"
@@ -527,7 +533,8 @@
          data-tchmi-right="0"
          data-tchmi-bottom="0"
          data-tchmi-text="SAVE POINT"
-         data-tchmi-state-symbol="%pp%PM::bCmdSave%/pp%">
+         data-tchmi-state-symbol="%pp%PM::bCmdSave%/pp%" data-tchmi-tap-mode="Tap">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-push-button","hmi-push-start"]</script>
     </div>
 
     <!-- Bottom status + file save -->
@@ -559,7 +566,7 @@
     </div>
 
     <div id="PointManagerSaveAllButton"
-         data-tchmi-type="TcHmi.Controls.Beckhoff.TcHmiButton"
+         data-tchmi-type="TcHmi.Controls.Beckhoff.Industries.Common.TcHmiPushButton"
          data-tchmi-grid-column-index="8"
          data-tchmi-grid-row-index="8"
          data-tchmi-left="0"
@@ -567,7 +574,8 @@
          data-tchmi-right="0"
          data-tchmi-bottom="0"
          data-tchmi-text="SAVE TO FILE"
-         data-tchmi-state-symbol="%pp%PM::bCmdSaveFile%/pp%">
+         data-tchmi-state-symbol="%pp%PM::bCmdSaveFile%/pp%" data-tchmi-tap-mode="Tap">
+			<script data-tchmi-target-attribute="data-tchmi-class-names" type="application/json">["hmi-push-button","hmi-push-start"]</script>
     </div>
 
   </div>

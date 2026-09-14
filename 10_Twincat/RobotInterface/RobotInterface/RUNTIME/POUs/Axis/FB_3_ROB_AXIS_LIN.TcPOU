@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_3_ROB_AXIS_LIN" Id="{0e318480-45bd-4a60-bef7-a58dd5c55756}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'hide_all_locals'}
+FUNCTION_BLOCK FB_3_ROB_AXIS_LIN EXTENDS FB_2_ROB_AXIS
+VAR_INPUT
+    MaxVelocity : LREAL := 0.0;
+    MaxAcceleration : LREAL := 0.0;
+    MaxDeceleration : LREAL := 0.0;
+    MaxJerk : LREAL := 0.0;
+    PositionTolerance : LREAL := 0.1;
+    RequireHomedForPositioning : BOOL := TRUE;
+END_VAR
+VAR_OUTPUT
+    ConfigurationValid : BOOL;
+    ReadyForPositioning : BOOL;
+    AtMinLimit : BOOL;
+    AtMaxLimit : BOOL;
+    InPosition : BOOL;
+END_VAR
+VAR
+    _linearCommandID : UINT;
+    _linearTargetPosition : LREAL;
+    _linearTargetValid : BOOL;
+    _linearResultEvaluated : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ConfigurationValid := ValidateConfiguration();
+ReadyForPositioning := CanPosition;
+AtMinLimit := ActualPosition <= (MinPosition + PositionTolerance);
+AtMaxLimit := ActualPosition >= (MaxPosition - PositionTolerance);
+
+IF _linearTargetValid THEN
+    InPosition := ABS(ActualPosition - _linearTargetPosition) <= PositionTolerance;
+ELSE
+    InPosition := FALSE;
+END_IF
+
+// Convert a technically successful positioning command into FAILURE when the
+// final physical position is outside the application tolerance.
+IF (_linearCommandID <> 0)
+   AND (_linearCommandID = CommandID)
+   AND (CommandState = eProgress.FINALIZED)
+   AND (CommandResult = eResult.SUCCESS)
+   AND _linearTargetValid
+   AND NOT _linearResultEvaluated THEN
+    IF NOT InPosition THEN
+        eCommandResult := eResult.FAILURE;
+    END_IF
+    _linearResultEvaluated := TRUE;
+END_IF
+]]></ST>
+    </Implementation>
+    <Property Name="CanPosition" Id="{fcdf12bc-9bfa-442c-b168-7a7282157d82}">
+      <Declaration><![CDATA[PROPERTY CanPosition : BOOL]]></Declaration>
+      <Get Name="Get" Id="{9f73bff8-cf55-4330-adfa-52b2b51a2794}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CanPosition := Ready
+    AND ConfigurationValid
+    AND (AxisHomed OR NOT RequireHomedForPositioning);]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Home" Id="{92d5ae31-ae4d-408b-98d3-194a02900ab3}">
+      <Declaration><![CDATA[METHOD PUBLIC Home : UINT
+VAR
+    Settings : stBA_Settings;
+    NewCommandID : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Home := 0;
+IF NOT ConfigurationValid THEN RETURN; END_IF
+NewCommandID := CommandHandler(Cmd := eBA.Home, Settings := Settings);
+IF NewCommandID = 0 THEN RETURN; END_IF
+_linearCommandID := NewCommandID;
+_linearTargetValid := FALSE;
+_linearResultEvaluated := FALSE;
+Home := NewCommandID;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveAbsolute" Id="{53e6d494-20e9-4004-beaa-cb6952787d59}">
+      <Declaration><![CDATA[METHOD PUBLIC MoveAbsolute : UINT
+VAR_INPUT
+    Position : LREAL;
+    Velocity : LREAL := 0.0;
+    Acceleration : LREAL := 0.0;
+END_VAR
+VAR
+    Settings : stBA_Settings;
+    NewCommandID : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MoveAbsolute := 0;
+IF NOT CanPosition THEN RETURN; END_IF
+IF (Position < MinPosition) OR (Position > MaxPosition) THEN RETURN; END_IF
+IF NOT ValidateDynamics(Velocity := Velocity, Acceleration := Acceleration) THEN RETURN; END_IF
+Settings.Velocity := Velocity;
+Settings.Acceleration := Acceleration;
+Settings.Target.pose.x := Position;
+NewCommandID := CommandHandler(Cmd := eBA.MoveL, Settings := Settings);
+IF NewCommandID = 0 THEN RETURN; END_IF
+_linearCommandID := NewCommandID;
+_linearTargetPosition := Position;
+_linearTargetValid := TRUE;
+_linearResultEvaluated := FALSE;
+MoveAbsolute := NewCommandID;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveRelative" Id="{e64da097-a15e-455d-9b6f-45c549955a2c}">
+      <Declaration><![CDATA[METHOD PUBLIC MoveRelative : UINT
+VAR_INPUT
+    Distance : LREAL;
+    Velocity : LREAL := 0.0;
+    Acceleration : LREAL := 0.0;
+END_VAR
+VAR
+    Settings : stBA_Settings;
+    TargetPosition : LREAL;
+    NewCommandID : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MoveRelative := 0;
+IF NOT CanPosition THEN RETURN; END_IF
+TargetPosition := ActualPosition + Distance;
+IF (TargetPosition < MinPosition) OR (TargetPosition > MaxPosition) THEN RETURN; END_IF
+IF NOT ValidateDynamics(Velocity := Velocity, Acceleration := Acceleration) THEN RETURN; END_IF
+Settings.Velocity := Velocity;
+Settings.Acceleration := Acceleration;
+Settings.Pose.x := Distance;
+NewCommandID := CommandHandler(Cmd := eBA.MoveLRelativ, Settings := Settings);
+IF NewCommandID = 0 THEN RETURN; END_IF
+_linearCommandID := NewCommandID;
+_linearTargetPosition := TargetPosition;
+_linearTargetValid := TRUE;
+_linearResultEvaluated := FALSE;
+MoveRelative := NewCommandID;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ValidateConfiguration" Id="{8637ddc2-8443-4a23-a124-b1a4ea35a4ec}">
+      <Declaration><![CDATA[METHOD PROTECTED ValidateConfiguration : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ValidateConfiguration := FALSE;
+IF MinPosition >= MaxPosition THEN RETURN; END_IF
+IF PositionTolerance <= 0.0 THEN RETURN; END_IF
+IF PositionTolerance >= ((MaxPosition - MinPosition) * 0.5) THEN RETURN; END_IF
+IF (DefaultVelocity <= 0.0) OR (DefaultAcceleration <= 0.0) OR (DefaultDeceleration <= 0.0) OR (DefaultJerk <= 0.0) THEN RETURN; END_IF
+IF (MaxVelocity > 0.0) AND (DefaultVelocity > MaxVelocity) THEN RETURN; END_IF
+IF (MaxAcceleration > 0.0) AND (DefaultAcceleration > MaxAcceleration) THEN RETURN; END_IF
+IF (MaxDeceleration > 0.0) AND (DefaultDeceleration > MaxDeceleration) THEN RETURN; END_IF
+IF (MaxJerk > 0.0) AND (DefaultJerk > MaxJerk) THEN RETURN; END_IF
+ValidateConfiguration := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ValidateDynamics" Id="{f0f896ae-bf3e-4876-b041-0388efaa700f}">
+      <Declaration><![CDATA[METHOD PROTECTED ValidateDynamics : BOOL
+VAR_INPUT
+    Velocity : LREAL;
+    Acceleration : LREAL;
+END_VAR
+VAR
+    EffectiveVelocity : LREAL;
+    EffectiveAcceleration : LREAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ValidateDynamics := FALSE;
+IF Velocity < 0.0 OR Acceleration < 0.0 THEN RETURN; END_IF
+EffectiveVelocity := Velocity;
+IF EffectiveVelocity = 0.0 THEN EffectiveVelocity := DefaultVelocity; END_IF
+EffectiveAcceleration := Acceleration;
+IF EffectiveAcceleration = 0.0 THEN EffectiveAcceleration := DefaultAcceleration; END_IF
+IF EffectiveVelocity <= 0.0 OR EffectiveAcceleration <= 0.0 THEN RETURN; END_IF
+IF (MaxVelocity > 0.0) AND (EffectiveVelocity > MaxVelocity) THEN RETURN; END_IF
+IF (MaxAcceleration > 0.0) AND (EffectiveAcceleration > MaxAcceleration) THEN RETURN; END_IF
+ValidateDynamics := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

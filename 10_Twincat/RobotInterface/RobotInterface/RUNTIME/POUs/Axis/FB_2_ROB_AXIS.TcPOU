@@ -1,0 +1,320 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_2_ROB_AXIS" Id="{7cf866bc-acd8-4ca1-b1b9-cc8d0da034fd}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'hide_all_locals'}
+FUNCTION_BLOCK FB_2_ROB_AXIS EXTENDS FB_1_ROB
+VAR_INPUT
+    // The only hardware boundary of the generic axis.
+    AxisComm : POINTER TO FB_2_COMM_AXIS;
+
+    DefaultVelocity : LREAL := 50.0;
+    DefaultAcceleration : LREAL := 100.0;
+    DefaultDeceleration : LREAL := 100.0;
+    DefaultJerk : LREAL := 1000.0;
+    MinPosition : LREAL := -1000000.0;
+    MaxPosition : LREAL := 1000000.0;
+END_VAR
+VAR_OUTPUT
+    AxisPowered : BOOL;
+    AxisHomed : BOOL;
+    AxisError : BOOL;
+    AxisErrorID : UDINT;
+END_VAR
+VAR
+    _axisCommandActive : BOOL;
+    _activeCommand : eBA;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CYCLIC_AXIS();]]></ST>
+    </Implementation>
+    <Property Name="ActualPosition" Id="{2eaa2408-7176-4027-87c1-26a13441422d}">
+      <Declaration><![CDATA[PROPERTY ActualPosition : LREAL]]></Declaration>
+      <Get Name="Get" Id="{d0c7d097-14d2-485b-8815-042d0e32e6dd}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF AxisComm <> 0 THEN
+    ActualPosition := AxisComm^.ActualPosition;
+ELSE
+    ActualPosition := 0.0;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ActualVelocity" Id="{0ecd3b26-9e75-4285-b9fa-c70ef940fd70}">
+      <Declaration><![CDATA[PROPERTY ActualVelocity : LREAL]]></Declaration>
+      <Get Name="Get" Id="{229863ea-504b-403b-b42f-605249439545}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF AxisComm <> 0 THEN
+    ActualVelocity := AxisComm^.ActualVelocity;
+ELSE
+    ActualVelocity := 0.0;
+END_IF]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CommandHandler" Id="{9a9c52bd-58e6-43fb-b575-2402bb098bee}">
+      <Declaration><![CDATA[METHOD CommandHandler : UINT
+VAR_INPUT
+    Cmd : eBA;
+    Settings : stBA_Settings;
+END_VAR
+VAR
+    NewCommandID : UINT;
+    TargetPosition : LREAL;
+    EffectiveVelocity : LREAL;
+    EffectiveAcceleration : LREAL;
+    Accepted : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CommandHandler := 0;
+
+IF (AxisComm = 0) OR NOT Ready OR _axisCommandActive THEN
+    RETURN;
+END_IF
+
+EffectiveVelocity := Settings.Velocity;
+IF EffectiveVelocity <= 0.0 THEN
+    EffectiveVelocity := DefaultVelocity;
+END_IF
+EffectiveAcceleration := Settings.Acceleration;
+IF EffectiveAcceleration <= 0.0 THEN
+    EffectiveAcceleration := DefaultAcceleration;
+END_IF
+
+NewCommandID := AllocateCommandID();
+IF NewCommandID = 0 THEN
+    RETURN;
+END_IF
+
+Accepted := FALSE;
+CASE Cmd OF
+    eBA.MoveL,
+    eBA.MoveJ:
+        TargetPosition := Settings.Target.pose.x;
+        IF (TargetPosition < MinPosition) OR (TargetPosition > MaxPosition) THEN
+            RETURN;
+        END_IF
+        Accepted := AxisComm^.SendMoveAbsolute(
+            CommandID := NewCommandID,
+            Position := TargetPosition,
+            Velocity := EffectiveVelocity,
+            Acceleration := EffectiveAcceleration,
+            Deceleration := DefaultDeceleration,
+            Jerk := DefaultJerk);
+
+    eBA.MoveJJoints:
+        TargetPosition := Settings.Joints.joint1;
+        IF (TargetPosition < MinPosition) OR (TargetPosition > MaxPosition) THEN
+            RETURN;
+        END_IF
+        Accepted := AxisComm^.SendMoveAbsolute(
+            CommandID := NewCommandID,
+            Position := TargetPosition,
+            Velocity := EffectiveVelocity,
+            Acceleration := EffectiveAcceleration,
+            Deceleration := DefaultDeceleration,
+            Jerk := DefaultJerk);
+
+    eBA.MoveLRelativ,
+    eBA.MoveJRelativ:
+        TargetPosition := AxisComm^.ActualPosition + Settings.Pose.x;
+        IF (TargetPosition < MinPosition) OR (TargetPosition > MaxPosition) THEN
+            RETURN;
+        END_IF
+        Accepted := AxisComm^.SendMoveRelative(
+            CommandID := NewCommandID,
+            Distance := Settings.Pose.x,
+            Velocity := EffectiveVelocity,
+            Acceleration := EffectiveAcceleration,
+            Deceleration := DefaultDeceleration,
+            Jerk := DefaultJerk);
+
+    eBA.Home:
+        Accepted := AxisComm^.SendHome(CommandID := NewCommandID);
+
+ELSE
+    Messenger.AddError(eMessageCategories.NotImplemented, Path, 'Basic action not supported by generic axis');
+    RETURN;
+END_CASE
+
+// Failed local acceptance must not destroy the previous latched terminal result.
+IF NOT Accepted THEN
+    RETURN;
+END_IF
+
+nCommandID := NewCommandID;
+eCommandStatus := eProgress.INIT;
+eCommandResult := eResult.NONE;
+_activeCommand := Cmd;
+_axisCommandActive := TRUE;
+CommandHandler := NewCommandID;]]></ST>
+      </Implementation>
+    </Method>
+    <Action Name="CYCLIC_AXIS" Id="{22130f11-3575-4ab1-80b6-a2e493f717bd}">
+      <Implementation>
+        <ST><![CDATA[// Keep the inherited generic robot COMM pointer on the same adapter.
+IF AxisComm <> 0 THEN
+    COMM := AxisComm;
+
+    AxisPowered := AxisComm^.AxisPowered;
+    AxisHomed := AxisComm^.AxisHomed;
+    AxisError := AxisComm^.AxisError;
+    AxisErrorID := AxisComm^.AxisErrorID;
+
+    IF _axisCommandActive THEN
+        // The COMM lifecycle is authoritative after local acceptance.
+        eCommandStatus := AxisComm^.CommandState;
+        eCommandResult := AxisComm^.CommandResult;
+
+        IF (eCommandStatus = eProgress.FINALIZED)
+           OR (eCommandStatus = eProgress.ABORTED) THEN
+            _axisCommandActive := FALSE;
+        END_IF
+    END_IF
+
+    HMI_ROB._jointpos.joint1 := AxisComm^.ActualPosition;
+    HMI_ROB._tcppos.x := AxisComm^.ActualPosition;
+    _jointvel.joint1 := AxisComm^.ActualVelocity;
+    _tcpvel.x := AxisComm^.ActualVelocity;
+END_IF
+
+CYCLIC_ROB();
+
+IF AxisComm <> 0 THEN
+    HMI_ROB.bMoving := AxisComm^.AxisMoving;
+END_IF
+HMI_ROB.bReady := Ready;
+// A functional StopMotion is not a safety-rated E-stop and never sets bEStop here.]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="OnActivate" Id="{d3390fde-8c30-4f7b-b731-26ae87a488dd}">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+VAR
+    eParentResult : eResult;
+    myResult : eResult;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF AxisComm <> 0 THEN
+    COMM := AxisComm;
+END_IF
+
+eParentResult := SUPER^.OnActivate();
+myResult := eResult.NONE;
+
+IF AxisComm = 0 THEN
+    myResult := eResult.FAILURE;
+ELSIF AxisError THEN
+    myResult := eResult.ERROR;
+ELSE
+    AxisComm^.Power(Enable := TRUE);
+    IF AxisComm^.AxisPowered THEN
+        myResult := eResult.SUCCESS;
+    END_IF
+END_IF
+
+OnActivate := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnCommandCancelled" Id="{c04973a0-7c49-42f7-ac66-1da6b2ca83fa}">
+      <Declaration><![CDATA[METHOD PROTECTED OnCommandCancelled
+VAR_INPUT
+    CommandID : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Generic axis only owns semantic tracking; the COMM owns physical cancellation.
+_axisCommandActive := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnConfigure" Id="{58e8f349-71d5-46a4-8fb8-1145251f6bc0}">
+      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
+VAR
+    eParentResult : eResult;
+    myResult : eResult;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// The inherited robot lifecycle must see the same communication adapter.
+IF AxisComm <> 0 THEN
+    COMM := AxisComm;
+END_IF
+
+eParentResult := SUPER^.OnConfigure();
+
+IF AxisComm = 0 THEN
+    myResult := eResult.FAILURE;
+ELSIF MinPosition >= MaxPosition THEN
+    myResult := eResult.FAILURE;
+ELSIF (DefaultVelocity <= 0.0)
+   OR (DefaultAcceleration <= 0.0)
+   OR (DefaultDeceleration <= 0.0)
+   OR (DefaultJerk <= 0.0) THEN
+    myResult := eResult.FAILURE;
+ELSE
+    myResult := eResult.SUCCESS;
+END_IF
+
+OnConfigure := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{b67e3dd4-3ba1-43be-8623-18b43c175c35}">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+VAR
+    eParentResult : eResult;
+    myResult : eResult;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
+myResult := eResult.NONE;
+
+IF AxisComm = 0 THEN
+    myResult := eResult.SUCCESS;
+ELSIF AxisComm^.AxisMoving OR AxisComm^.CommandBusy THEN
+    StopMotion();
+ELSE
+    AxisComm^.Power(Enable := FALSE);
+    IF NOT AxisComm^.AxisPowered THEN
+        myResult := eResult.SUCCESS;
+    END_IF
+END_IF
+
+OnDeactivate := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{aa8b68a9-d2b2-4f45-83c2-654e3b209f25}">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+VAR
+    eParentResult : eResult;
+    myResult : eResult;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnError();
+myResult := eResult.NONE;
+_axisCommandActive := FALSE;
+
+IF AxisComm = 0 THEN
+    myResult := eResult.SUCCESS;
+ELSIF AxisComm^.AxisError THEN
+    AxisComm^.ResetAxis();
+    myResult := eResult.NONE;
+ELSE
+    myResult := eResult.SUCCESS;
+END_IF
+
+OnError := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Ready" Id="{a4b9e2ea-a0aa-4b7c-8f95-cb9e3ba8e755}">
+      <Declaration><![CDATA[PROPERTY Ready : BOOL]]></Declaration>
+      <Get Name="Get" Id="{5a6e0d5b-5086-4932-8129-32006361a60e}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Ready := (AxisComm <> 0)
+    AND CanAcceptCommand
+    AND AxisPowered
+    AND NOT AxisError;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

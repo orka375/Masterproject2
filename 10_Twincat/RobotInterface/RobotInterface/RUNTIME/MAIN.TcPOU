@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="MAIN" Id="{85d06b9d-6930-4657-baf8-8d40974ee2d3}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	
+	
+
+	// Cell robot loop index.
+	iRobot : INT;
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// ----------------------------------------------------------
+// Cell robots (UR5-01 / UR5-02). Each ROBOT_UR call runs its
+// own communication + CYCLIC_MANIP (incl. JOG) internally.
+// ----------------------------------------------------------
+
+
+FOR iRobot := 1 TO TO_INT(SETUP.nRobCount) DO
+	IF SETUP.apRobot[iRobot] <> 0 THEN
+		SETUP.apRobot[iRobot]^.MESSENGER.ParentMessenger := ADR(SETUP.CELL_MESSENGER);
+		SETUP.apRobot[iRobot]^();
+	END_IF
+END_FOR
+
+SETUP.CELL_MESSENGER();
+RECIPE_HANDLER();
+
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

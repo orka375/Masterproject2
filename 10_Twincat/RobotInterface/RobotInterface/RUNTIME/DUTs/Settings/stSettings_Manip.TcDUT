@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stSettings_Manip" Id="{b507a551-34c1-4d94-bab5-726c282dee6e}">
+    <Declaration><![CDATA[TYPE stSettings_Manip EXTENDS stSettings_Rob :
+STRUCT
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>
