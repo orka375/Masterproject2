@@ -442,7 +442,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="MoveToSafePosition" Id="{1460c5aa-e9ef-4e0e-a2bc-5ac3c6af9cb6}" FolderPath="Generic Control\">
-      <Declaration><![CDATA[METHOD MoveToSettings.SafePosition : UINT
+      <Declaration><![CDATA[METHOD MoveToSafePosition : UINT
 VAR_INPUT
     Velocity : LREAL;
 END_VAR
@@ -451,8 +451,8 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[settings.Velocity := Velocity;
-settings.Joints := Settings.SafePosition;
-MoveToSettings.SafePosition := CommandHandler(Cmd := eBA.MoveJJoints, Settings := settings);]]></ST>
+settings.Joints := Settings_Rob.SafePosition;
+MoveToSafePosition := CommandHandler(Cmd := eBA.MoveJJoints, Settings := settings);]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnActivate" Id="{c53d2e09-95f6-4470-b92a-1736ae881f81}" FolderPath="StateControl\">

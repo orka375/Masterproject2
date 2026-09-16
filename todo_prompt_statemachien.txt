@@ -1,0 +1,820 @@
+# Aufgabe
+
+Überarbeite die bestehende StateMachine- und Recovery-Architektur des TwinCAT-3-Projekts **RobotInterface**.
+
+Wichtig: Die bestehende Architektur soll **nicht ersetzt**, sondern konsistent weiterentwickelt werden.
+
+Insbesondere sollen die Verantwortlichkeiten der Ebenen
+
+* `FB_0_*`
+* `FB_1_*`
+* `FB_2_*`
+* konkrete Hardware-/Hersteller-FBs
+
+für folgende Lifecycle-Methoden eindeutig definiert und anschließend im bestehenden Code umgesetzt werden:
+
+* `OnConfigure()`
+* `OnActivate()`
+* `OnDeactivate()`
+* `OnCleanup()`
+* `OnShutdown()`
+* `OnError()`
+
+Besonderer Schwerpunkt ist eine robuste und nachvollziehbare Fehlerbehandlung mit klarer Trennung zwischen:
+
+1. automatisch recoverbaren Fehlern,
+2. Fehlern, die eine Bedienerquittierung benötigen,
+3. Fehlern, bei denen vor einer Quittierung eine manuelle/physische Maßnahme notwendig ist.
+
+---
+
+# 1. Bestehende Architektur zuerst analysieren
+
+Bevor Code geändert wird:
+
+1. Lies die aktuellen Remote-Versionen aller betroffenen Dateien.
+2. Analysiere die komplette Vererbungskette der betroffenen FBs.
+3. Suche projektweit nach allen Überschreibungen von:
+
+   * `OnConfigure`
+   * `OnActivate`
+   * `OnDeactivate`
+   * `OnCleanup`
+   * `OnShutdown`
+   * `OnError`
+   * `Reset`
+4. Prüfe bei jeder Überschreibung, ob und wie `SUPER^.<Method>()` verwendet wird.
+5. Prüfe alle Stellen, die:
+
+   * `Messenger.AddError`
+   * `Messenger.AddWarn`
+   * `Messenger.Clear`
+   * `Reset()`
+   * `_automaticReset`
+   * `_manualResetCalled`
+   * `_ShutOffStateMachine`
+   * `LastError`
+   * `LastFail`
+   * `LastSuccessfullState`
+     verwenden.
+6. Prüfe insbesondere:
+
+   * `FB_0_Base`
+   * `FB_1_ROB`
+   * `FB_2_ROB_MANIP`
+   * `FB_1_CommunicationModul`
+   * `FB_2_COMM_UR`
+   * `FB_2_COMM_MECA`
+   * `ROBOT_UR`
+   * `ROBOT_MECA500`
+   * `FB_1_Tool`
+   * `FB_1_Skill`
+   * konkrete Tools/Skills, sofern sie Lifecycle-Methoden überschreiben.
+
+Keine Signaturänderung durchführen, bevor alle Aufrufer und Überschreibungen bekannt sind.
+
+---
+
+# 2. Bestehende StateMachine beibehalten
+
+Die vorhandene StateMachine von `FB_0_Base` bleibt der zentrale Lifecycle-Controller.
+
+Das bestehende Grundmodell soll erhalten bleiben:
+
+```text
+Unconfigured
+     │ Configure
+     ▼
+Configuring
+     │
+     ▼
+Inactive
+     │ Activate
+     ▼
+Activating
+     │
+     ▼
+Active
+
+Active
+  │ Deactivate
+  ▼
+Deactivating
+  │
+  ▼
+Inactive
+
+Inactive
+  │ Cleanup
+  ▼
+CleaningUp
+  │
+  ▼
+Unconfigured
+
+Unconfigured / Inactive / Active
+  │ Shutdown
+  ▼
+ShuttingDown
+  │
+  ▼
+Finalized
+
+beliebiger Betriebszustand
+  │ ERROR
+  ▼
+ErrorProcessing
+```
+
+Keine zweite parallele StateMachine einführen.
+
+Keine neuen Lifecycle-States einführen, sofern sie nicht zwingend notwendig sind.
+
+---
+
+# 3. Semantik von eResult verbindlich machen
+
+Für Lifecycle-Methoden gilt:
+
+## NONE
+
+```text
+Die Transition läuft noch.
+Die On...-Methode muss im nächsten SPS-Zyklus erneut aufgerufen werden.
+```
+
+`NONE` bedeutet ausdrücklich nicht Fehler.
+
+---
+
+## SUCCESS
+
+```text
+Die komplette Verantwortung dieser Ebene für die Transition
+ist erfolgreich abgeschlossen.
+```
+
+Die Ebene darf erst `SUCCESS` melden, wenn ihre eigenen Voraussetzungen tatsächlich erfüllt sind.
+
+---
+
+## FAILURE
+
+```text
+Die gewünschte Transition konnte nicht erfolgreich abgeschlossen werden,
+aber die Komponente befindet sich weiterhin in einem definierten
+und vertrauenswürdigen Zustand.
+```
+
+Beispiele:
+
+```text
+Activate angefordert, aber Robot ist nicht Ready.
+Tool kann aktuell nicht aktiviert werden.
+Konfiguration ist noch nicht möglich.
+```
+
+`FAILURE` soll nicht automatisch eine Fehler-Recovery auslösen.
+
+---
+
+## ERROR
+
+```text
+Die Komponente befindet sich nicht mehr in einem ausreichend
+vertrauenswürdigen Zustand und benötigt Recovery.
+```
+
+`ERROR` führt in:
+
+```text
+ErrorProcessing
+```
+
+Beispiele:
+
+```text
+Kommunikation unerwartet verloren
+Controller meldet internen Fehler
+Inkonsistenter Command-Zustand
+unerwarteter Hardwarezustand
+Recovery selbst fehlgeschlagen
+```
+
+---
+
+# 4. Verantwortlichkeiten der Vererbungsebenen
+
+Die Architektur soll folgende Regel konsequent umsetzen:
+
+```text
+FB_0
+    Lifecycle-Framework
+
+FB_1
+    generische Semantik einer Komponentengruppe
+
+FB_2
+    Capability-/Subsystem-Semantik
+
+konkreter FB
+    Hardware / Hersteller / Protokoll
+```
+
+Jede Ebene darf nur ihre eigene Verantwortung behandeln.
+
+Keine Herstellerlogik in `FB_0`, `FB_1_ROB` oder `FB_2_ROB_MANIP`.
+
+---
+
+# 5. FB_0 – Framework-Verantwortung
+
+`FB_0_Base` besitzt die Lifecycle-StateMachine.
+
+Seine `On...`-Methoden behandeln ausschließlich generische Frameworkaufgaben.
+
+## FB_0.OnConfigure()
+
+Verantwortung:
+
+```text
+- Child-Komponenten konfigurieren
+- generische interne Zustände initialisieren
+- prüfen, ob Child-Komponenten ausreichend konfiguriert sind
+- generische Konfigurationsvoraussetzungen validieren
+```
+
+Nicht erlaubt:
+
+```text
+- Robot herstellerspezifisch verbinden
+- UR Dashboard Commands
+- Mecademic Commands
+- Hardware Homing
+- Motion Commands
+```
+
+---
+
+## FB_0.OnActivate()
+
+Verantwortung:
+
+```text
+- notwendige Children aktivieren
+- warten, bis Children ihren erforderlichen Lifecycle-Zustand erreicht haben
+- generische Frameworkvoraussetzungen prüfen
+```
+
+Keine Prozessbewegungen starten.
+
+---
+
+## FB_0.OnDeactivate()
+
+Verantwortung:
+
+```text
+- aktive Skills/Children kontrolliert deaktivieren
+- warten, bis Children keinen aktiven Lifecycle mehr besitzen
+- weitere fachliche Ausführung verhindern
+```
+
+---
+
+## FB_0.OnCleanup()
+
+Verantwortung:
+
+```text
+- Children cleanup ausführen
+- generische temporäre Laufzeitdaten freigeben
+- in einen sauberen Unconfigured-Zustand zurückführen
+```
+
+---
+
+## FB_0.OnShutdown()
+
+Verantwortung:
+
+```text
+- Children best effort herunterfahren
+- laufende generische Ausführungen beenden
+- Frameworkzustand abschließen
+```
+
+Shutdown soll robuster als normale Lifecycle-Transitions sein.
+
+Wenn möglich, sollen mehrere unabhängige Shutdown-Aktionen weiterhin ausgeführt werden, auch wenn eine Teilaktion fehlschlägt.
+
+---
+
+# 6. FB_1 – Komponententyp-Semantik
+
+`FB_1_*` enthält die gemeinsame fachliche Semantik des jeweiligen Komponententyps.
+
+Beispiele:
+
+```text
+FB_1_ROB
+FB_1_CommunicationModul
+FB_1_Tool
+FB_1_Skill
+```
+
+---
+
+# 7. FB_1_ROB
+
+## OnConfigure()
+
+Generische Robotvorbereitung:
+
+```text
+- generische Robotdaten initialisieren
+- COMM konfigurieren
+- PointManager bzw. generische Child-Komponenten konfigurieren
+- prüfen, ob generische Robotvoraussetzungen erfüllt sind
+```
+
+Kein UR-/Meca-spezifischer Code.
+
+---
+
+## OnActivate()
+
+```text
+- COMM muss grundsätzlich betriebsbereit sein
+- Robot muss generisch Ready sein
+- keine blockierenden Fehler
+- notwendige generische Children aktivieren
+```
+
+Keine produktive Bewegung starten.
+
+---
+
+## OnDeactivate()
+
+```text
+- keine neuen Commands mehr annehmen
+- aktuelle fachliche Robotaktivität kontrolliert beenden
+- Children deaktivieren
+- Kommunikation grundsätzlich bestehen lassen
+```
+
+Wichtige Regel:
+
+```text
+Deactivate != Disconnect
+```
+
+---
+
+## OnCleanup()
+
+```text
+- generische Robotkonfiguration freigeben
+- Children cleanup
+- Communication cleanup anfordern
+- temporäre Robotdaten zurücksetzen
+```
+
+---
+
+## OnShutdown()
+
+```text
+- Commandannahme sperren
+- laufenden Command terminalisieren
+- funktionalen Stop anfordern, sofern nötig
+- Children herunterfahren
+- Kommunikation schließen
+```
+
+---
+
+## OnError()
+
+Generische Robot-Recovery:
+
+```text
+- keine neuen Commands akzeptieren
+- aktuellen Command in einen terminalen Zustand bringen
+- generische Robot-Ausführungsflags zurücksetzen
+- Child-/COMM-Recovery abwarten
+- nur SUCCESS melden, wenn generische Robotinvarianten wieder hergestellt sind
+```
+
+Wenn ein laufender Command durch einen Fehler unterbrochen wird:
+
+```text
+CommandState  := ABORTED;
+CommandResult := FAILURE oder ERROR;
+```
+
+Die genaue Result-Wahl soll zur bereits definierten Command-Semantik passen.
+
+Wichtig:
+
+Ein unterbrochener Move darf nach Recovery **nicht automatisch erneut gestartet oder fortgesetzt werden**.
+
+---
+
+# 8. FB_2 – Capability-Semantik
+
+Beispiel:
+
+```text
+FB_2_ROB_MANIP
+```
+
+Diese Ebene kennt Manipulator-spezifische Semantik, aber noch keinen Hersteller.
+
+---
+
+## FB_2_ROB_MANIP.OnConfigure()
+
+```text
+- Tool konfigurieren
+- Frame-/TCP-/Joint-bezogene Voraussetzungen initialisieren
+- Manipulator-Capability validieren
+```
+
+---
+
+## OnActivate()
+
+```text
+- Tool aktivieren
+- Manipulator-spezifische Voraussetzungen prüfen
+- Manipulator Capability freigeben
+```
+
+---
+
+## OnDeactivate()
+
+```text
+- Jogging stoppen
+- Manipulatoraktionen beenden
+- Tool deaktivieren
+```
+
+---
+
+## OnCleanup()
+
+```text
+- Tool cleanup
+- capabilitybezogene Laufzeitdaten zurücksetzen
+```
+
+---
+
+## OnShutdown()
+
+```text
+- Jogging stoppen
+- Motionaktivitäten beenden
+- Tool herunterfahren
+```
+
+---
+
+## OnError()
+
+```text
+- Jogging sofort deaktivieren
+- manipulatorinterne Command-/Move-Zustände zurücksetzen
+- Tool-Recovery koordinieren
+- Motion Capability wieder in einen bekannten neutralen Zustand bringen
+```
+
+Keine Herstellertelegramme oder UR-/Meca-spezifische Befehle.
+
+---
+
+# 9. Konkrete Robotimplementierungen
+
+Nur die konkrete Hardwareklasse kennt Herstellerdetails.
+
+Beispiele:
+
+```text
+ROBOT_UR
+ROBOT_MECA500
+```
+
+---
+
+# 10. ROBOT_UR
+
+Lifecycle-Methoden dürfen behandeln:
+
+```text
+Dashboard
+RTDE
+URScript
+Robot Mode
+Protective Stop
+Power / Brake Release
+UR-spezifische Handshakes
+UR-spezifische Commandtransportflags
+```
+
+## ROBOT_UR.OnError()
+
+Mögliche Aufgaben:
+
+```text
+- laufendes Script/Transporttracking kontrolliert beenden
+- lokale Transportflags zurücksetzen
+- RTDE-/Dashboard-Zustand prüfen
+- Communication Recovery koordinieren
+- bei automatisch recoverbaren Commfehlern reconnecten
+```
+
+Wichtig:
+
+Nicht automatisch fortsetzen:
+
+```text
+- Move
+- PickPlace
+- Grip
+- Home
+- vorherigen Scriptauftrag
+```
+
+Protective Stop bzw. vergleichbare physisch relevante Zustände dürfen nicht blind automatisch quittiert werden.
+
+Eine HMI-/Softwarefunktion wie `stopj()` darf nicht als sicherheitsgerichteter Emergency Stop behandelt oder benannt werden.
+
+---
+
+# 11. ROBOT_MECA500
+
+Analog nur Mecademic-spezifische Aufgaben:
+
+```text
+- Pending Command verwerfen
+- Request-/Handshakebits zurücksetzen
+- Controllerstatus auswerten
+- Verbindung ggf. automatisch rekonstruieren
+- Herstellerfehler zurücksetzen, wenn RecoveryPolicy dies erlaubt
+```
+
+Keine automatische Wiederholung des letzten Moves.
+
+---
+
+# 12. Communication Module
+
+Communication-FBs benötigen eine etwas andere Recovery-Policy.
+
+## automatisch recoverbare Communication Errors
+
+Beispiele:
+
+```text
+Socket disconnected
+RTDE connection lost
+temporärer TCP Timeout
+temporärer Controller-Handshake-Timeout
+```
+
+Mögliche automatische Recovery:
+
+```text
+Disconnect
+→ internen Transportzustand löschen
+→ Connect
+→ Handshake erneut herstellen
+```
+
+---
+
+## nicht automatisch recoverbare Configuration Errors
+
+Beispiele:
+
+```text
+ungültige IP-Adresse
+ungültiger Port
+inkompatible Konfiguration
+fehlende zwingende Parameter
+```
+
+Keine endlose automatische Retry-Schleife.
+
+Diese Fehler benötigen:
+
+```text
+AcknowledgeRequired
+oder
+ManualActionRequired
+```
+
+---
+
+# 13. Recovery Policy einführen
+
+Die heutige Unterscheidung
+
+```text
+_automaticReset
+_manualResetCalled
+```
+
+soll semantisch klarer werden.
+
+Prüfe, ob dafür sinnvoll ein kleiner Enum eingeführt werden kann:
+
+```iecst
+TYPE eRecoveryMode :
+(
+    Automatic := 0,
+    AcknowledgeRequired := 1,
+    ManualActionRequired := 2
+);
+END_TYPE
+```
+
+Wenn ein zusätzlicher Enum für die bestehende Architektur unverhältnismäßig wäre, kann alternativ eine bestehende geeignete Struktur verwendet werden.
+
+Keine unnötige Typeninflation erzeugen.
+
+---
+
+# 14. Bedeutung der Recovery Modes
+
+## Automatic
+
+Der Fehler kann ohne Bedienereingriff technisch behoben werden.
+
+Beispiele:
+
+```text
+kurzer Communication Drop
+temporärer Socket Timeout
+temporärer Verbindungsfehler
+```
+
+Erlaubt:
+
+```text
+Disconnect
+Reconnect
+Handshake neu aufbauen
+interne Transportflags resetten
+```
+
+Nicht erlaubt:
+
+```text
+alten Move erneut starten
+Skill automatisch fortsetzen
+Greiferaktion erneut ausführen
+Home automatisch starten
+```
+
+Nach erfolgreicher Recovery soll die Komponente in einen neutralen Lifecycle-Zustand zurückkehren.
+
+Bevorzugt:
+
+```text
+ErrorProcessing
+→ Unconfigured
+→ ggf. AutoConfigure
+→ Inactive
+```
+
+Nicht automatisch nach:
+
+```text
+Active
+```
+
+und keinesfalls automatisch den vorherigen Prozess fortsetzen.
+
+---
+
+## AcknowledgeRequired
+
+Die technische Ursache kann beseitigt sein, aber ein Bediener muss den Fehler bewusst bestätigen.
+
+Beispiele:
+
+```text
+Command Timeout
+Move fehlgeschlagen
+Collision
+wiederholt fehlgeschlagene AutoRecovery
+unerwarteter Controllerzustand
+Toolfehler mit unsicherer Prozesslage
+```
+
+Ablauf:
+
+```text
+ErrorProcessing
+    ↓
+sichere automatische Maßnahmen durchführen
+    ↓
+auf Reset / Acknowledge warten
+    ↓
+OnError-Recovery durchführen
+    ↓
+Unconfigured / Inactive
+```
+
+---
+
+## ManualActionRequired
+
+Vor Reset muss eine physische oder externe Ursache beseitigt werden.
+
+Beispiele:
+
+```text
+E-Stop aktiv
+Safety Door offen
+Collision muss physisch geprüft werden
+Tool fehlt physisch
+Robot benötigt manuelle Bedienhandlung
+Safety-System verhindert Betrieb
+```
+
+HMI/Messenger soll möglichst klar mitteilen:
+
+```text
+Was ist passiert?
+Welche Bedingung verhindert Recovery?
+Welche Aktion muss der User durchführen?
+```
+
+Erst wenn die Ursache verschwunden ist und der User quittiert, darf Recovery erfolgreich werden.
+
+Normale PLC-Software darf keine Safety-Freigabe simulieren.
+
+---
+
+# 15. OnError neu definieren
+
+`OnError()` bedeutet ausdrücklich:
+
+```text
+Technische Recovery durchführen.
+```
+
+Nicht:
+
+```text
+Fehler einfach löschen.
+```
+
+Und nicht:
+
+```text
+unterbrochenen Prozess fortsetzen.
+```
+
+Die Methode darf erst `SUCCESS` zurückgeben, wenn ihre Ebene wieder einen definierten Zustand besitzt.
+
+---
+
+# 16. Fehlererkennung und Fehlerbehandlung trennen
+
+Die Stelle, die einen Fehler erkennt, soll:
+
+```text
+1. Messenger-/Diagnoseeintrag setzen
+2. passende RecoveryPolicy festlegen
+3. ERROR zurückgeben bzw. ErrorProcessing auslösen
+```
+
+`OnError()` führt danach die eigentliche Recovery aus.
+
+Nicht überall eigene vollständige Recovery-Sequenzen implementieren.
+
+---
+
+# 17. User Reset darf Fehler nicht blind löschen
+
+Der aktuelle `Reset()`-Mechanismus soll geprüft werden.
+
+Ein User-Reset darf bedeuten:
+
+```text
+"Ich habe die Ursache geprüft und erlaube Recovery."
+```
+
+Er darf nicht bedeuten:
+
+```text
+"Alle Fehler sind jetzt automatisch behoben."
+```
+
+Wenn

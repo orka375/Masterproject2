@@ -16,7 +16,7 @@ STRUCT
     fActualVelocity : LREAL;
     fTargetPosition : LREAL;
     fZeroPoint : LREAL;
-    fSettings.SafePosition : LREAL;
+    fSafePosition : LREAL;
     nBasicActionID : UINT;
     eBasicActionStatus : eProgress;
 END_STRUCT

@@ -1,0 +1,330 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Skill_FindLandmark6D" Id="{f74af431-203c-45ea-b1c5-99d698ba5355}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Skill_FindLandmark6D EXTENDS FB_1_Skill
+(*
+    Finds one planar QR landmark and calculates its full 6D pose.
+
+    First stage: calls the previously created Skill_ReadQRCode as a subskill.
+    Second stage: builds four 2D/3D point correspondences and calls
+    F_VN_SolvePnP.
+    Third stage: transforms camera coordinates into robot-base coordinates.
+
+    Eye-in-hand requirement:
+      aRotation_BaseCamera / aTranslation_BaseCamera must describe the camera
+      pose in robot-base coordinates AT THE IMAGE CAPTURE TIME:
+
+      T_Base_Camera = T_Base_Flange(capture) * T_Flange_Camera(hand-eye)
+
+    This skill only locates the landmark. It sends no robot motion command.
+
+    Landmark convention:
+      Origin: QR center
+      X: from corner 0 to corner 1
+      Y: from corner 0 to corner 3
+      Z: X cross Y (normal to QR plane)
+
+    IMPORTANT: Verify the corner order returned by the installed Tc3_Vision
+    version with a known test image. F_VN_ReadQRCodeExp documents the contour
+    type, but not a stable semantic corner numbering convention.
+*)
+
+VAR_INPUT
+    pQRCodeSkill : POINTER TO Skill_ReadQRCode;
+
+    // Mandatory physical QR symbol edge length (not paper size).
+    fQRCodeEdgeLengthMm : REAL;
+
+    // Camera pose in robot-base coordinates at capture time.
+    aRotation_BaseCamera    : TcVnMatrix3x3_LREAL;
+    aTranslation_BaseCamera : TcVnVector3_LREAL;
+
+    // Reject an unstable pose if the reprojection error exceeds this value.
+    fMaxReprojectionErrorPx : LREAL := 2.0;
+    SFCInit                  : BOOL;
+END_VAR
+
+VAR_OUTPUT
+    bLandmarkFound : BOOL;
+    sLandmarkId    : STRING(255);
+
+    // Full landmark pose in camera coordinates.
+    aRotation_CameraLandmark    : TcVnMatrix3x3_LREAL;
+    aTranslation_CameraLandmark : TcVnVector3_LREAL;
+
+    // Full landmark pose in robot-base coordinates.
+    aRotation_BaseLandmark    : TcVnMatrix3x3_LREAL;
+    aTranslation_BaseLandmark : TcVnVector3_LREAL;
+
+    // Quality and diagnosis.
+    fReprojectionErrorPx : LREAL;
+    hrLastError          : HRESULT;
+END_VAR
+
+VAR
+    phase             : INT;
+    i                 : INT;
+    j                 : INT;
+    k                 : INT;
+    fHalfEdge         : REAL;
+    aImagePoints      : ARRAY[0..3] OF TcVnPoint2_REAL;
+    aReferencePoints  : ARRAY[0..3] OF TcVnPoint3_REAL;
+    ipImagePoints     : ITcVnContainer;
+    ipReferencePoints : ITcVnContainer;
+    hr                : HRESULT;
+    bStartedSubskill  : BOOL;
+    bRunDone          : BOOL;
+    fSum              : LREAL;
+    resSubskill       : eResult;
+    aCameraMatrix     : TcVnMatrix3x3_LREAL;
+    aDistortionCoefficients : TcVnArray8_LREAL;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF SFCInit THEN
+    phase := 0;
+END_IF
+
+IF State = eState.Active THEN
+    CASE phase OF
+        0: // Init
+            bLandmarkFound := FALSE;
+            sLandmarkId := '';
+            fReprojectionErrorPx := 0.0;
+            hrLastError := S_OK;
+            bStartedSubskill := FALSE;
+            bRunDone := FALSE;
+            ipImagePoints := 0;
+            ipReferencePoints := 0;
+            ExecutionDone := FALSE;
+            ExecutionResult := NONE;
+
+            IF pQRCodeSkill = 0 THEN
+                FailSkill(E_POINTER, 'QR code subskill is not assigned');
+            ELSIF fQRCodeEdgeLengthMm <= 0.0 THEN
+                FailSkill(E_INVALIDARG, 'QR symbol edge length must be greater than zero');
+            ELSIF fMaxReprojectionErrorPx <= 0.0 THEN
+                FailSkill(E_INVALIDARG, 'Maximum reprojection error must be greater than zero');
+            ELSE
+                SFCInit := FALSE;
+                phase := 10;
+            END_IF
+
+        10: // StartReadQRCode_entry: call previously created skill once
+            IF NOT bStartedSubskill THEN
+                SubSkill := pQRCodeSkill;
+                bSubSkillRunning := TRUE;
+                resSubskill := pQRCodeSkill^.Execute();
+                IF resSubskill > SUCCESS THEN
+                    FailSkill(E_FAIL, 'Could not start QR code subskill');
+                ELSE
+                    bStartedSubskill := TRUE;
+                    phase := 20;
+                END_IF
+            END_IF
+
+        20: // WaitReadQRCode_active
+            IF pQRCodeSkill^.ExecutionDone THEN
+                bSubSkillRunning := FALSE;
+                SubSkill := 0;
+
+                IF pQRCodeSkill^.ExecutionResult <> SUCCESS THEN
+                    FailSkill(pQRCodeSkill^.hrLastError, 'QR code subskill failed');
+                ELSIF NOT pQRCodeSkill^.bQRCodeFound THEN
+                    // A valid inspection without a landmark is not a technical error.
+                    bLandmarkFound := FALSE;
+                    phase := 100;
+                ELSIF NOT pQRCodeSkill^.bCornersValid THEN
+                    FailSkill(E_FAIL, 'QR code subskill returned no valid corners');
+                ELSE
+                    sLandmarkId := pQRCodeSkill^.sQRCode;
+                    aCameraMatrix := pQRCodeSkill^.aCameraMatrix;
+                    aDistortionCoefficients := pQRCodeSkill^.aDistortionCoefficients;
+                    phase := 30;
+                END_IF
+            END_IF
+
+        30: // BuildPointCorrespondences_active
+            fHalfEdge := fQRCodeEdgeLengthMm * 0.5;
+
+            // Convert the four decoded DINT image corners to REAL.
+            FOR i := 0 TO 3 DO
+                aImagePoints[i][0] := DINT_TO_REAL(pQRCodeSkill^.aQRCodeCorners[i][0]);
+                aImagePoints[i][1] := DINT_TO_REAL(pQRCodeSkill^.aQRCodeCorners[i][1]);
+            END_FOR
+
+            // Known physical QR corners around the landmark origin.
+            aReferencePoints[0] := [-fHalfEdge, -fHalfEdge, 0.0];
+            aReferencePoints[1] := [ fHalfEdge, -fHalfEdge, 0.0];
+            aReferencePoints[2] := [ fHalfEdge,  fHalfEdge, 0.0];
+            aReferencePoints[3] := [-fHalfEdge,  fHalfEdge, 0.0];
+
+            hr := F_VN_CreateContainer(ipImagePoints, ContainerType_Vector_TcVnPoint2_REAL, 0, S_OK);
+            hr := F_VN_CreateContainer(ipReferencePoints, ContainerType_Vector_TcVnPoint3_REAL, 0, hr);
+            FOR i := 0 TO 3 DO
+                hr := F_VN_AppendToContainer_TcVnPoint2_REAL(aImagePoints[i], ipImagePoints, hr);
+                hr := F_VN_AppendToContainer_TcVnPoint3_REAL(aReferencePoints[i], ipReferencePoints, hr);
+            END_FOR
+
+            IF FAILED(hr) THEN
+                FailSkill(hr, 'Could not build SolvePnP point containers');
+            ELSE
+                phase := 40;
+            END_IF
+
+        40: // EstimatePose6D_active
+            hr := F_VN_SolvePnP(
+                ipImagePoints           := ipImagePoints,
+                ipReferencePoints       := ipReferencePoints,
+                aCameraMatrix           := aCameraMatrix,
+                aDistortionCoefficients := aDistortionCoefficients,
+                aRotationMatrix         := aRotation_CameraLandmark,
+                aTranslationVector      := aTranslation_CameraLandmark,
+                fReprojError            := fReprojectionErrorPx,
+                hrPrev                  := S_OK);
+
+            IF FAILED(hr) THEN
+                FailSkill(hr, 'SolvePnP failed');
+            ELSIF fReprojectionErrorPx > fMaxReprojectionErrorPx THEN
+                FailSkill(S_FALSE, 'Landmark reprojection error is too high');
+            ELSE
+                phase := 50;
+            END_IF
+
+        50: // TransformCameraToBase_active
+            // R_B_L = R_B_C * R_C_L
+            FOR i := 0 TO 2 DO
+                FOR j := 0 TO 2 DO
+                    fSum := 0.0;
+                    FOR k := 0 TO 2 DO
+                        fSum := fSum
+                            + aRotation_BaseCamera[i, k]
+                            * aRotation_CameraLandmark[k, j];
+                    END_FOR
+                    aRotation_BaseLandmark[i, j] := fSum;
+                END_FOR
+            END_FOR
+
+            // t_B_L = R_B_C * t_C_L + t_B_C
+            FOR i := 0 TO 2 DO
+                fSum := aTranslation_BaseCamera[i];
+                FOR k := 0 TO 2 DO
+                    fSum := fSum
+                        + aRotation_BaseCamera[i, k]
+                        * aTranslation_CameraLandmark[k];
+                END_FOR
+                aTranslation_BaseLandmark[i] := fSum;
+            END_FOR
+
+            bLandmarkFound := TRUE;
+            phase := 100;
+
+        100: // Done_active
+            IF NOT bRunDone THEN
+                ExecutionResult := SUCCESS;
+                ExecutionDone := TRUE;
+                bRunDone := TRUE;
+            END_IF
+    END_CASE
+END_IF]]></ST>
+    </Implementation>
+    <Folder Name="Internal" Id="{fd5d0038-a1df-4790-910c-093be1ff8c36}" />
+    <Folder Name="StateControl" Id="{f071cfd0-c82f-48d1-88d7-ad572fd8b5ec}" />
+    <Method Name="FailSkill" Id="{5601531b-936e-4c11-a983-0e8519eb31a8}" FolderPath="Internal\">
+      <Declaration><![CDATA[METHOD PRIVATE FailSkill
+VAR_INPUT
+    hrError  : HRESULT;
+    sMessage : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[hrLastError := hrError;
+bSubSkillRunning := FALSE;
+SubSkill := 0;
+ExecutionDone := TRUE;
+ExecutionResult := FAILURE;
+Messenger.AddError(eMessageCategories.Undefined, Path, sMessage);
+SFCInit := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnActivate" Id="{7a374fea-0c4d-40af-aaf4-06ebd09eb300}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+VAR
+    eParentResult : eResult;
+    myResult      : eResult;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnActivate();
+phase := 0;
+SFCInit := FALSE;
+bStartedSubskill := FALSE;
+bRunDone := FALSE;
+bLandmarkFound := FALSE;
+sLandmarkId := '';
+hrLastError := S_OK;
+ipImagePoints := 0;
+ipReferencePoints := 0;
+myResult := SUCCESS;
+OnActivate := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{22ccc076-a6b7-419c-a99d-0d58678c0ad4}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+VAR
+    eParentResult : eResult;
+    myResult      : eResult;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
+SFCInit := TRUE;
+phase := 0;
+bStartedSubskill := FALSE;
+bRunDone := FALSE;
+bSubSkillRunning := FALSE;
+SubSkill := 0;
+ipImagePoints := 0;
+ipReferencePoints := 0;
+myResult := SUCCESS;
+OnDeactivate := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{9a28fe08-923e-4c66-b184-a7131e6614b1}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+VAR
+    eParentResult : eResult;
+    myResult      : eResult;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnError();
+SFCInit := TRUE;
+phase := 0;
+bStartedSubskill := FALSE;
+bRunDone := FALSE;
+bSubSkillRunning := FALSE;
+SubSkill := 0;
+ipImagePoints := 0;
+ipReferencePoints := 0;
+myResult := SUCCESS;
+OnError := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnShutdown" Id="{22712f1e-c3c0-49fd-b881-37948bb72a67}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnShutdown : eResult
+VAR
+    eParentResult : eResult;
+    myResult      : eResult;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
+SFCInit := TRUE;
+phase := 0;
+bStartedSubskill := FALSE;
+bRunDone := FALSE;
+bSubSkillRunning := FALSE;
+SubSkill := 0;
+ipImagePoints := 0;
+ipReferencePoints := 0;
+myResult := SUCCESS;
+OnShutdown := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

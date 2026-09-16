@@ -58,7 +58,7 @@ CancelCommand := TRUE;]]></ST>
 // operate the axis through pstAxis, then call CyclicOut every PLC cycle.
 IF NOT _initConfigured THEN
     instJS_MC_Init.OperationMode := gcJS_MC.jsmcMODE_CYCLIC_SYNC;
-    instJS_MC_Reference.ReferenceMode := ReferenceMode;
+    instJS_MC_Reference.ReferenceMode := INT_TO_USINT(ReferenceMode);
     instJS_MC_Power.Enable_Positive := TRUE;
     instJS_MC_Power.Enable_Negative := TRUE;
     instJS_MC_Power.Override := PowerOverride;

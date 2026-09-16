@@ -16,14 +16,9 @@ VAR_INPUT
 	
 	bMoveRunning: BOOL;
 	nCalledMoveID: UINT;
-	
-	
-	
 END_VAR
 
-VAR_INPUT
-	
-END_VAR
+
 
 VAR_OUTPUT
 	HMI_SKILL : stHMI_SKILL;
@@ -36,7 +31,6 @@ VAR_OUTPUT
 END_VAR
 
 VAR
-	aHandler: FB_ExternalHandshake;
 	rtAbort: R_TRIG;
 	rtStop: R_TRIG;
 	rtRestart: R_TRIG;
@@ -101,7 +95,7 @@ _M_Stop:=SUCCESS;
         <ST><![CDATA[
 CYCLIC_BASE();
 RUN_DEBUG_SKILL();
-aHandler(Cmd:=ADR(HMI_SKILL.Command),Stat:=ADR(HMI_SKILL.Status));
+CommandHandler(Cmd:=ADR(HMI_SKILL.Command),Stat:=ADR(HMI_SKILL.Status));
 
 // HMI command bits. Start is latched and driven until the skill is
 // Active (the state machine needs several cycles to progress);
