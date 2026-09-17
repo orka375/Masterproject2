@@ -38,7 +38,7 @@ VAR
     _rMoveToEditedPoint : R_TRIG;
     _fMoveToEditedPoint : F_TRIG;
 
-    _moveToEditedPointSettings : stBA_Settings;
+    _moveToEditedPointSettings : stCommand_Settings;
     _moveToEditedPointExecuteId : UINT;
     _moveToEditedPointPLC : stStoredPoint;
 
@@ -112,7 +112,7 @@ END_IF
 
 IF _rMoveToEditedPoint.Q THEN
     IF pRobot <> 0 THEN
-        IF pRobot^.IsReady
+        IF pRobot^.Ready
            AND NOT bBusy
            AND (_nEditingId >= 1) AND (_nEditingId <= 10)
          AND ((HMI_PM.editedPoint.frame_id = eRefFrame.BRF)
@@ -121,8 +121,8 @@ IF _rMoveToEditedPoint.Q THEN
 //              OR (HMI_PM.editedPoint.frame_id = eRefFrame.CRF)) 
 
             _moveToEditedPointSettings.Name := HMI_PM.editedPoint.name;
-            _moveToEditedPointSettings.Velocity := 0.05;
-            _moveToEditedPointSettings.Acceleration := 0.5;
+            _moveToEditedPointSettings.Velocity := 50.0;
+            _moveToEditedPointSettings.Acceleration := 500.0;
    
             _moveToEditedPointSettings.Target.frame_id := HMI_PM.editedPoint.frame_id;
             _moveToEditedPointPLC := PointFromHMI(Point := HMI_PM.editedPoint);
@@ -134,7 +134,7 @@ IF _rMoveToEditedPoint.Q THEN
             _moveToEditedPointSettings.Target.pose.yaw := _moveToEditedPointPLC.rz;
 
             _moveToEditedPointExecuteId := pRobot^.CommandHandler(
-                Cmd := eBA.MoveJ,
+                Cmd := eCommands.MoveJ,
                 Settings := _moveToEditedPointSettings
             );
 
@@ -257,7 +257,8 @@ IF NOT CsvPutField(sValue := LREAL_TO_STRING(point.y), bFirst := FALSE, bEndReco
 IF NOT CsvPutField(sValue := LREAL_TO_STRING(point.z), bFirst := FALSE, bEndRecord := FALSE) THEN RETURN; END_IF
 IF NOT CsvPutField(sValue := LREAL_TO_STRING(point.rx), bFirst := FALSE, bEndRecord := FALSE) THEN RETURN; END_IF
 IF NOT CsvPutField(sValue := LREAL_TO_STRING(point.ry), bFirst := FALSE, bEndRecord := FALSE) THEN RETURN; END_IF
-IF NOT CsvPutField(sValue := LREAL_TO_STRING(point.rz), bFirst := FALSE, bEndRecord := TRUE) THEN RETURN; END_IF
+IF NOT CsvPutField(sValue := LREAL_TO_STRING(point.rz), bFirst := FALSE, bEndRecord := FALSE) THEN RETURN; END_IF
+IF NOT CsvPutField(sValue := 'mm_rad_v1', bFirst := FALSE, bEndRecord := TRUE) THEN RETURN; END_IF
 
 AppendPointToSaveBuffer := TRUE;
 ]]></ST>
@@ -285,7 +286,8 @@ IF NOT CsvPutField(sValue := 'y', bFirst := FALSE, bEndRecord := FALSE) THEN RET
 IF NOT CsvPutField(sValue := 'z', bFirst := FALSE, bEndRecord := FALSE) THEN RETURN; END_IF
 IF NOT CsvPutField(sValue := 'rx', bFirst := FALSE, bEndRecord := FALSE) THEN RETURN; END_IF
 IF NOT CsvPutField(sValue := 'ry', bFirst := FALSE, bEndRecord := FALSE) THEN RETURN; END_IF
-IF NOT CsvPutField(sValue := 'rz', bFirst := FALSE, bEndRecord := TRUE) THEN RETURN; END_IF
+IF NOT CsvPutField(sValue := 'rz', bFirst := FALSE, bEndRecord := FALSE) THEN RETURN; END_IF
+IF NOT CsvPutField(sValue := 'unit_version', bFirst := FALSE, bEndRecord := TRUE) THEN RETURN; END_IF
 
 FOR i := 1 TO nPointCount DO
     IF NOT AppendPointToSaveBuffer(point := HMI_PM.aPoints[i]) THEN
@@ -1109,6 +1111,7 @@ VAR
     nFrameId   : DINT;
     i          : UINT;
     j          : UINT;
+    bLegacyUnits : BOOL;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -1174,7 +1177,15 @@ IF (sField <> 'ry') OR bEnd THEN SetFileParseError(); RETURN; END_IF
 IF NOT CsvGetField(bFirst := FALSE, sValue := sField, bEndRecord := bEnd) THEN
     SetFileParseError(); RETURN;
 END_IF
-IF (sField <> 'rz') OR NOT bEnd THEN SetFileParseError(); RETURN; END_IF
+IF sField <> 'rz' THEN SetFileParseError(); RETURN; END_IF
+
+bLegacyUnits := bEnd;
+IF NOT bLegacyUnits THEN
+    IF NOT CsvGetField(bFirst := FALSE, sValue := sField, bEndRecord := bEnd) THEN
+        SetFileParseError(); RETURN;
+    END_IF
+    IF (sField <> 'unit_version') OR NOT bEnd THEN SetFileParseError(); RETURN; END_IF
+END_IF
 
 WHILE TRUE DO
     point := _emptyPoint;
@@ -1234,9 +1245,19 @@ WHILE TRUE DO
     point.ry := STRING_TO_LREAL(sField);
 
     IF NOT CsvGetField(bFirst := FALSE, sValue := sField, bEndRecord := bEnd) THEN SetFileParseError(); RETURN; END_IF
-    IF NOT bEnd THEN SetFileParseError(); RETURN; END_IF
     IF NOT IsValidLrealText(sValue := sField) THEN SetFileParseError(); RETURN; END_IF
     point.rz := STRING_TO_LREAL(sField);
+
+    IF bLegacyUnits THEN
+        IF NOT bEnd THEN SetFileParseError(); RETURN; END_IF
+        point.x := point.x * 1000.0;
+        point.y := point.y * 1000.0;
+        point.z := point.z * 1000.0;
+    ELSE
+        IF bEnd THEN SetFileParseError(); RETURN; END_IF
+        IF NOT CsvGetField(bFirst := FALSE, sValue := sField, bEndRecord := bEnd) THEN SetFileParseError(); RETURN; END_IF
+        IF (sField <> 'mm_rad_v1') OR NOT bEnd THEN SetFileParseError(); RETURN; END_IF
+    END_IF
 
     IF (point.id < 1) OR (point.id > 10) THEN
         bError := TRUE;

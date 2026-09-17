@@ -25,6 +25,11 @@
     F_VN_StopWatchdog protect the PLC cycle. Beckhoff currently supports
     nCodeNumber = 1 for QR codes.
 *)
+VAR_INPUT
+    // Vorhandene Eingänge beibehalten.
+    aCameraMatrix : TcVnMatrix3x3_LREAL;
+    aDistortionCoefficients : TcVnArray8_LREAL;
+END_VAR
 
 VAR_INPUT
     pCamera          : POINTER TO FB_VN_GevCameraControl;
@@ -38,7 +43,16 @@ VAR_OUTPUT
     sQRCode      : STRING(255);
     hrLastError  : HRESULT;
 END_VAR
+VAR_OUTPUT
+    // Vorhandene Ausgänge beibehalten.
 
+    bCornersValid : BOOL;
+
+    // Reihenfolge muss später mit dem von TwinCAT Vision
+    // zurückgegebenen QR-Konturverlauf übereinstimmen.
+    aQRCodeCorners :
+        ARRAY[0..3] OF TcVnPoint2_DINT;
+END_VAR
 VAR
     // Local step sequencer; lifecycle and command handling remain in FB_1_Skill.
     // 0 Init, 10 Prepare camera, 20 Trigger, 30 Acquire,
@@ -56,6 +70,7 @@ END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[IF SFCInit THEN
     phase := 0;
+	bCornersValid := FALSE;
 END_IF
 
 IF State = eState.Active THEN
@@ -77,7 +92,7 @@ IF State = eState.Active THEN
                     sMessage := 'GigE camera controller is not assigned');
             ELSIF nWatchdogTimeUs <= 0 THEN
                 FailSkill(
-                    hrError := E_INVALIDARG,
+                    hrError := E_FAIL,
                     sMessage := 'Vision watchdog time must be greater than zero');
             ELSE
                 SFCInit := FALSE;
@@ -153,9 +168,9 @@ IF State = eState.Active THEN
                 eSearchStrategy := TCVN_CSS_DEFAULT,
                 hrPrev          := S_OK);
             hrWatchdog := F_VN_StopWatchdog(
-                hrPrev := hrWatchdog,
-                tRest  => tWatchdogRemaining);
-
+                hrStartWatchdog := hrWatchdog,
+                tRest  => tWatchdogRemaining
+			);
             IF hr = S_OK THEN
                 bQRCodeFound := TRUE;
                 phase := 50;

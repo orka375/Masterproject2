@@ -4,23 +4,24 @@
     <Declaration><![CDATA[TYPE stSettings_Rob EXTENDS stSettings_Base :
 STRUCT
 	NameOfSafePosition : STRING := 'SAFE';
-	StandStillLimit: REAL := 0.001;
+	LinearStandStillLimit : REAL := 1.0;
+	AngularStandStillLimit : REAL := 0.001;
 	SafePosition: stJoint6;
 	SafePositionTolerance: LREAL := 0.001;
 	RegisterAsTopLevelRobot: BOOL := TRUE;
 	InstallationPose : ST_Pose; // BRF expressed in WRF : stVector3d
 	StandardUnits : ST_StandardUnits := (
-		Position            := eUnit.m,
+		Position            := eUnit.mm,
 		Orientation         := eUnit.rad,
 		Joint               := eUnit.rad,
-		LinearVelocity      := eUnit.m,
+		LinearVelocity      := eUnit.mm,
 		AngularVelocity     := eUnit.rad,
 		JointVelocity       := eUnit.rad,
-		LinearAcceleration  := eUnit.m,
+		LinearAcceleration  := eUnit.mm,
 		AngularAcceleration := eUnit.rad,
 		JointAcceleration   := eUnit.rad
 	); 	// Native unit standard of THIS robot. Subclasses overwrite in their declaration/FB_Init.
-	// Base default = PLC standard so generic conversions are a no-op if not overridden.
+	// Base default = PLC standard (mm/rad), so conversions are a no-op if not overridden.
 
 END_STRUCT
 END_TYPE

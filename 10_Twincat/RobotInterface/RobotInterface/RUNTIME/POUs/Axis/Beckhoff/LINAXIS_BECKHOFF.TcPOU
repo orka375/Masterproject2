@@ -3,26 +3,182 @@
   <POU Name="LINAXIS_BECKHOFF" Id="{455244a0-d50f-4d2f-a382-e7e19c641afd}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'hide_all_locals'}
 FUNCTION_BLOCK LINAXIS_BECKHOFF EXTENDS FB_3_ROB_AXIS_LIN
+VAR_INPUT
+	NCAxis : AXIS_REF;
+    SETTINGS : stSettings_LinAxis := (
+        LinearStandStillLimit := 1.0,
+        SafePositionTolerance := 1.0,
+        StandardUnits := (
+            Position := eUnit.mm,
+            Orientation := eUnit.rad,
+            Joint := eUnit.mm,
+            LinearVelocity := eUnit.mm,
+            AngularVelocity := eUnit.rad,
+            JointVelocity := eUnit.mm,
+            LinearAcceleration := eUnit.mm,
+            AngularAcceleration := eUnit.rad,
+            JointAcceleration := eUnit.mm));
+END_VAR
 VAR_IN_OUT
-    // Physical Beckhoff NC axis. All PLCopen/vendor-specific handling stays in AXIS_COMM.
-    NCAxis : AXIS_REF;
+    
 END_VAR
 VAR_OUTPUT
-    // Concrete communication adapter, exposed for diagnostics in the same style as ROBOT_UR.UR_COMM.
     AXIS_COMM : FB_3_COMM_AXIS_BECKHOFF;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[// Run the manufacturer-specific adapter first.
-AXIS_COMM(Axis := NCAxis);
-
-// Wire the generic axis and robot communication boundaries to this adapter.
-AxisComm := ADR(AXIS_COMM);
+      <ST><![CDATA[AXIS_COMM(Axis := NCAxis);
 COMM := ADR(AXIS_COMM);
-
-// Execute the complete manufacturer-neutral linear-axis implementation.
-SUPER^();
-]]></ST>
+_pSettingsAxis := ADR(SETTINGS);
+_pSettingsLinAxis := ADR(SETTINGS);
+_axisPowered := AXIS_COMM.Powered;
+_axisHomed := AXIS_COMM.Homed;
+_axisActualPosition := AXIS_COMM.ActualPosition;
+_axisActualVelocity := AXIS_COMM.ActualVelocity;
+CYCLIC_LIN_AXIS();]]></ST>
     </Implementation>
+    <Folder Name="StateControl" Id="{f6663b81-da1a-49b7-a233-7f100a37ca74}" />
+    <Method Name="CommandHandler" Id="{d915ac07-9e83-4079-af67-a4609f842e20}">
+      <Declaration><![CDATA[METHOD CommandHandler : UINT
+VAR_INPUT
+    Cmd : eCommands;
+    Settings : stCommand_Settings;
+END_VAR
+VAR
+    NewCommandID : UINT;
+    TargetPosition : LREAL;
+    TargetValid : BOOL;
+    EffectiveVelocity : LREAL;
+    EffectiveAcceleration : LREAL;
+    Accepted : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CommandHandler := 0;
+IF NOT PrepareAxisCommand(
+    Cmd := Cmd,
+    Settings := Settings,
+    NewCommandID => NewCommandID,
+    TargetPosition => TargetPosition,
+    TargetValid => TargetValid,
+    EffectiveVelocity => EffectiveVelocity,
+    EffectiveAcceleration => EffectiveAcceleration) THEN RETURN; END_IF
+
+CASE Cmd OF
+    eCommands.MoveL, eCommands.MoveJ, eCommands.MoveJJoints:
+        Accepted := AXIS_COMM.SendMoveAbsolute(
+            CommandID := NewCommandID,
+            Position := TargetPosition,
+            Velocity := EffectiveVelocity,
+            Acceleration := EffectiveAcceleration,
+            Deceleration := _pSettingsAxis^.DefaultDeceleration,
+            Jerk := _pSettingsAxis^.DefaultJerk);
+    eCommands.MoveLRelativ, eCommands.MoveJRelativ:
+        Accepted := AXIS_COMM.SendMoveRelative(
+            CommandID := NewCommandID,
+            Distance := Settings.Pose.x,
+            Velocity := EffectiveVelocity,
+            Acceleration := EffectiveAcceleration,
+            Deceleration := _pSettingsAxis^.DefaultDeceleration,
+            Jerk := _pSettingsAxis^.DefaultJerk);
+    eCommands.Home:
+        Accepted := AXIS_COMM.SendHome(CommandID := NewCommandID);
+END_CASE
+
+IF Accepted THEN
+    CommandHandler := CommitAxisCommand(
+        Cmd := Cmd,
+        NewCommandID := NewCommandID,
+        TargetPosition := TargetPosition,
+        TargetValid := TargetValid);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnActivate" Id="{7013f686-7611-45c2-8048-93fa5eb7bab6}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+VAR
+    eParentResult : eResult;
+    myResult : eResult;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+eParentResult := SUPER^.OnActivate();
+myResult := eResult.NONE;
+
+IF AXIS_COMM.MESSENGER.HasActivError THEN
+    myResult := eResult.ERROR;
+ELSE
+    AXIS_COMM.Power(Enable := TRUE);
+    IF AXIS_COMM.Powered THEN
+        myResult := eResult.SUCCESS;
+    END_IF
+END_IF
+
+OnActivate := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnConfigure" Id="{0c9b9773-f86f-46ad-a92a-7e92d782fa35}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
+VAR
+    eParentResult : eResult;
+    myResult : eResult;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+eParentResult := SUPER^.OnConfigure();
+
+IF NOT ValidateConfiguration() THEN
+    myResult := eResult.FAILURE;
+ELSE
+    myResult := eResult.SUCCESS;
+END_IF
+
+OnConfigure := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnDeactivate" Id="{5676ee2f-5f23-424a-9aa8-97658c8b66eb}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+VAR
+    eParentResult : eResult;
+    myResult : eResult;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
+myResult := eResult.NONE;
+
+IF (ABS(AXIS_COMM.ActualVelocity) > SETTINGS.LinearStandStillLimit) OR AXIS_COMM.CommandBusy THEN
+    AXIS_COMM.StopMotion();
+ELSE
+    AXIS_COMM.Power(Enable := FALSE);
+    IF NOT AXIS_COMM.Powered THEN
+        myResult := eResult.SUCCESS;
+    END_IF
+END_IF
+
+OnDeactivate := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{a96b6a8d-7acc-40f8-8276-f749a405b545}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
+VAR
+    eParentResult : eResult;
+    myResult : eResult;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnError();
+myResult := eResult.NONE;
+_axisCommandActive := FALSE;
+
+IF AXIS_COMM.MESSENGER.HasActivError THEN
+    AXIS_COMM.ResetAxis();
+    myResult := eResult.NONE;
+ELSE
+    myResult := eResult.SUCCESS;
+END_IF
+
+OnError := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
   </POU>
 </TcPlcObject>

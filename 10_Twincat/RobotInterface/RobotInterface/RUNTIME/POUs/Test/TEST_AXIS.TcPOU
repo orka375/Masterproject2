@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TEST_AXIS" Id="{f1578d7a-8116-4732-8f15-c5150c9f53b8}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM TEST_AXIS
+VAR
+  ncDelta : AXIS_REF;
+  ncEcho : AXIS_REF;
+	DELTA,ECHO: ROTAXIS_BECKHOFF;
+	FOXTROTT: LINAXIS_JSC_XENAX;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[FOXTROTT();
+    DELTA(NCAxis := ncDelta);
+    ECHO(NCAxis := ncEcho);]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

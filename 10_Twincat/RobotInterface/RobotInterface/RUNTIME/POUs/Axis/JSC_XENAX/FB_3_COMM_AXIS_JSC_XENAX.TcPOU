@@ -1,14 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_3_COMM_AXIS_JSC_XENAX" Id="{8abd6177-0114-4a15-8bc8-4afff152259e}" SpecialFunc="None">
-    <Declaration><![CDATA[{attribute 'hide_all_locals'}
-FUNCTION_BLOCK FB_3_COMM_AXIS_JSC_XENAX EXTENDS FB_2_COMM_AXIS
+    <Declaration><![CDATA[
+FUNCTION_BLOCK FB_3_COMM_AXIS_JSC_XENAX EXTENDS FB_1_COMM
 VAR_INPUT
     ReferenceMode : INT := gcJS_MC.jsmcREFERENCE_MODE_DONT_CHANGE;
     PowerOverride : LREAL := 100.0;
+	instJS_MC_Init : JS_MC_Init;
+END_VAR
+VAR_OUTPUT
+  
+  Powered : BOOL;
+  Homed : BOOL;
+  ActualPosition : LREAL;
+  ActualVelocity : LREAL;
 END_VAR
 VAR
-    instJS_MC_Init : JS_MC_Init;
     instJS_MC_CyclicIn : JS_MC_CyclicIn;
     instJS_MC_CyclicOut : JS_MC_CyclicOut;
     instJS_MC_Power : JS_MC_Power;
@@ -29,11 +36,16 @@ VAR
     _stopExecute : BOOL;
     _resetExecute : BOOL;
     _commandAccepted : BOOL;
-    _initConfigured : BOOL;
+    _startupResetDone : BOOL;
+    _cyclicWasValid : BOOL;
+	NCAxis: AXIS_REF;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[CYCLIC_COMM_AXIS_JSC();]]></ST>
+      <ST><![CDATA[CYCLIC_COMM_AXIS_JSC();
+
+instJS_MC_Init.pstAxis^.AxisRef:=NCAxis;
+]]></ST>
     </Implementation>
     <Method Name="CancelCommand" Id="{1005bcbc-44f8-4f4b-a931-047ea1c4e83c}">
       <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
@@ -48,7 +60,7 @@ _homeExecute := FALSE;
 _commActiveCommandID := 0;
 _commCommandState := eProgress.ABORTED;
 _commCommandResult := eResult.FAILURE;
-_commCommandBusy := TRUE;
+_commCommandBusy := FALSE;
 CancelCommand := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -56,16 +68,16 @@ CancelCommand := TRUE;]]></ST>
       <Implementation>
         <ST><![CDATA[// This sequence follows the supplied MAIN.TcPOU: initialize CSP, run CyclicIn,
 // operate the axis through pstAxis, then call CyclicOut every PLC cycle.
-IF NOT _initConfigured THEN
+IF NOT instJS_MC_Init.Valid THEN
     instJS_MC_Init.OperationMode := gcJS_MC.jsmcMODE_CYCLIC_SYNC;
     instJS_MC_Reference.ReferenceMode := INT_TO_USINT(ReferenceMode);
     instJS_MC_Power.Enable_Positive := TRUE;
     instJS_MC_Power.Enable_Negative := TRUE;
     instJS_MC_Power.Override := PowerOverride;
-    _initConfigured := TRUE;
 END_IF
 
 instJS_MC_Init();
+CYCLIC_COMM();
 
 IF instJS_MC_Init.Valid THEN
     instJS_MC_CyclicIn.Enable := bRequestConnection;
@@ -73,12 +85,29 @@ IF instJS_MC_Init.Valid THEN
 END_IF
 
 HMI_COMM._CommunicationConnected := instJS_MC_Init.Valid AND instJS_MC_CyclicIn.Valid AND NOT instJS_MC_CyclicIn.Error;
-HMI_COMM._CommunicationReady := HMI_COMM._CommunicationConnected;
+HMI_COMM._CommunicationReady := HMI_COMM._CommunicationConnected AND _startupResetDone;
 
-CYCLIC_COMM();
+IF _tonConnectTimeout.Q AND NOT instJS_MC_Init.Valid THEN
+  Messenger.AddWarn(eMessageCategories.TimeoutFailure, CONCAT(Path, '.Init'), 'JSC initialization did not become valid');
+ELSE
+  Messenger.Clear(CONCAT(Path, '.Init'));
+END_IF
+
+IF instJS_MC_CyclicIn.Error THEN
+  Messenger.AddError(eMessageCategories.LostConnection, CONCAT(Path, '.CyclicIn'), 'JSC cyclic input error');
+ELSIF _cyclicWasValid AND bRequestConnection AND NOT instJS_MC_CyclicIn.Valid THEN
+  Messenger.AddWarn(eMessageCategories.LostConnection, CONCAT(Path, '.CyclicIn'), 'JSC cyclic communication lost');
+ELSE
+  Messenger.Clear(CONCAT(Path, '.CyclicIn'));
+END_IF
+_cyclicWasValid := bRequestConnection AND instJS_MC_CyclicIn.Valid;
 
 IF instJS_MC_Init.Valid AND instJS_MC_CyclicIn.Valid THEN
-    instJS_MC_Power.Enable := _powerRequest;
+  IF NOT _startupResetDone THEN
+    _resetExecute := TRUE;
+  END_IF
+
+  instJS_MC_Power.Enable := _powerRequest AND _startupResetDone;
     instJS_MC_ReadAxisError.Enable := TRUE;
 
     _fbMoveAbsolute(Axis := instJS_MC_Init.pstAxis^.AxisRef, Execute := _moveAbsExecute);
@@ -96,22 +125,25 @@ IF instJS_MC_Init.Valid AND instJS_MC_CyclicIn.Valid THEN
     instJS_MC_ReadAxisError(pstAxis := instJS_MC_Init.pstAxis);
     instJS_MC_AxisErrorCollector(pstAxis := instJS_MC_Init.pstAxis);
 
-    _axisPowered := instJS_MC_Power.Status AND instJS_MC_Power.Valid;
-    _axisActualPosition := instJS_MC_Init.pstAxis^.AxisRef.NcToPlc.ActPos;
-    _axisActualVelocity := instJS_MC_Init.pstAxis^.AxisRef.NcToPlc.ActVelo;
-    _axisError := instJS_MC_ReadAxisError.AxisError OR _fbMoveAbsolute.Error OR _fbMoveRelative.Error;
+    Powered := instJS_MC_Power.Status AND instJS_MC_Power.Valid;
+    ActualPosition := instJS_MC_Init.pstAxis^.AxisRef.NcToPlc.ActPos;
+    ActualVelocity := instJS_MC_Init.pstAxis^.AxisRef.NcToPlc.ActVelo;
 
-    IF _fbMoveAbsolute.Error THEN _axisErrorID := _fbMoveAbsolute.ErrorID;
-    ELSIF _fbMoveRelative.Error THEN _axisErrorID := _fbMoveRelative.ErrorID;
-    ELSIF instJS_MC_ReadAxisError.AxisError THEN _axisErrorID := 1;
-    ELSE _axisErrorID := 0;
+    IF _fbMoveAbsolute.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.MoveAbsolute'), 'MC_MoveAbsolute error');
+    ELSE Messenger.Clear(CONCAT(Path, '.MoveAbsolute'));
+    END_IF
+    IF _fbMoveRelative.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.MoveRelative'), 'MC_MoveRelative error');
+    ELSE Messenger.Clear(CONCAT(Path, '.MoveRelative'));
+    END_IF
+    IF instJS_MC_ReadAxisError.AxisError THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Axis'), 'JSC axis error');
+    ELSE Messenger.Clear(CONCAT(Path, '.Axis'));
     END_IF
 
-    _commCanAcceptCommand := CommunicationReady AND _axisPowered AND NOT _axisError
+    _commCanAcceptCommand := CommunicationReady AND Powered AND NOT Messenger.HasActivError
         AND NOT _commCommandBusy AND NOT _stopExecute AND NOT _resetExecute;
 
     IF _commCommandBusy THEN
-        IF _axisError OR NOT CommunicationReady THEN
+      IF Messenger.HasActivError OR NOT CommunicationReady THEN
             _moveAbsExecute := FALSE;
             _moveRelExecute := FALSE;
             _homeExecute := FALSE;
@@ -127,7 +159,7 @@ IF instJS_MC_Init.Valid AND instJS_MC_CyclicIn.Valid THEN
             _commCommandResult := eResult.FAILURE;
             _commCommandBusy := FALSE;
         ELSIF _fbMoveAbsolute.Done OR _fbMoveRelative.Done OR instJS_MC_Reference.Done THEN
-            IF instJS_MC_Reference.Done THEN _axisHomed := TRUE; END_IF
+            IF instJS_MC_Reference.Done THEN Homed := TRUE; END_IF
             _moveAbsExecute := FALSE;
             _moveRelExecute := FALSE;
             _homeExecute := FALSE;
@@ -147,12 +179,23 @@ IF instJS_MC_Init.Valid AND instJS_MC_CyclicIn.Valid THEN
     END_IF
 
     IF instJS_MC_Stop.Done THEN _stopExecute := FALSE; END_IF
-    IF instJS_MC_Reset.Done THEN _resetExecute := FALSE; END_IF
-
-    instJS_MC_CyclicOut(pstAxis := instJS_MC_Init.pstAxis);
+    IF instJS_MC_Reset.Done THEN
+      _resetExecute := FALSE;
+      _startupResetDone := TRUE;
+    END_IF
 ELSE
-    _axisPowered := FALSE;
-    _axisActualVelocity := 0.0;
+    Powered := FALSE;
+    Homed := FALSE;
+    ActualVelocity := 0.0;
+    _powerRequest := FALSE;
+    _moveAbsExecute := FALSE;
+    _moveRelExecute := FALSE;
+    _homeExecute := FALSE;
+    _stopExecute := FALSE;
+    _resetExecute := FALSE;
+    _commandAccepted := FALSE;
+    _startupResetDone := FALSE;
+    _commCanAcceptCommand := FALSE;
     IF _commCommandBusy THEN
         _commActiveCommandID := 0;
         _commCommandState := eProgress.FINALIZED;
@@ -160,6 +203,10 @@ ELSE
         _commCommandBusy := FALSE;
     END_IF
 END_IF
+
+    IF instJS_MC_Init.Valid THEN
+      instJS_MC_CyclicOut(pstAxis := instJS_MC_Init.pstAxis);
+    END_IF
 ]]></ST>
       </Implementation>
     </Action>
@@ -189,7 +236,13 @@ _moveRelExecute := FALSE;
 _homeExecute := FALSE;
 _stopExecute := FALSE;
 _resetExecute := FALSE;
-_axisHomed := FALSE;
+_commandAccepted := FALSE;
+_startupResetDone := FALSE;
+_cyclicWasValid := FALSE;
+Homed := FALSE;
+Powered := FALSE;
+ActualVelocity := 0.0;
+_commCanAcceptCommand := FALSE;
 _commAcceptedCommandID := 0;
 _commActiveCommandID := 0;
 _commCommandBusy := FALSE;
@@ -205,7 +258,7 @@ VAR_INPUT CommandID : UINT; END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[SendHome := FALSE;
 IF (CommandID = 0) OR NOT CanAcceptCommand OR NOT instJS_MC_Init.Valid THEN RETURN; END_IF
-_axisHomed := FALSE;
+Homed := FALSE;
 _homeExecute := TRUE;
 _commandAccepted := FALSE;
 _commAcceptedCommandID := 0;

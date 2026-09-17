@@ -37,7 +37,7 @@ JOG(
 // visStatus.isBusy:=;
 HMI_ROB_AMR.isInCollision:=IsInCollision;
 HMI_ROB_AMR.hasError:=Messenger.HasActivError;
-HMI_ROB_AMR.TCPPosition:=ActualTcpPose;
+HMI_ROB_AMR.TCPPosition:=ActualPosition;
 
 HMI_ROB_AMR.isDocked:=IsDocked;
 HMI_ROB_AMR.TargetReached:=TargetReached;]]></ST>
@@ -51,11 +51,11 @@ VAR_INPUT
 END_VAR
 
 VAR
-	Config: stBA_Settings;
+	Config: stCommand_Settings;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[Config.Name:=NameDockingStation;
-Dock := CommandHandler(Cmd:=eBA.Dock,Settings:=Config);]]></ST>
+Dock := CommandHandler(Cmd:=eCommands.Dock,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
     <Method Name="FB_Init" Id="{b8e06504-a9fb-4b69-a42c-c37e4e2687bc}">
@@ -105,14 +105,14 @@ VAR_INPUT
 END_VAR
 
 VAR
-	Config: stBA_Settings;
+	Config: stCommand_Settings;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[Config.Name:=GoalName;
 Config.Velocity:=Velocity;
 
 
-NavigateToGoal:=CommandHandler(Cmd:=eBA.NavigateToGoal,Settings:=Config);]]></ST>
+NavigateToGoal:=CommandHandler(Cmd:=eCommands.NavigateToGoal,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
     <Method Name="NavigateToPoint" Id="{2db64f24-9a85-44a5-a853-3b922490bedd}" FolderPath="MotionControl\">
@@ -127,7 +127,7 @@ END_VAR
   
   
  VAR
-	Config: stBA_Settings;
+	Config: stCommand_Settings;
 	p: ST_Pose;
 END_VAR]]></Declaration>
       <Implementation>
@@ -139,7 +139,7 @@ p.yaw:=THETA;
 Config.Pose:=p;
 
 
-NavigateToPoint:= CommandHandler(Cmd:=eBA.NavigateToPoint,Settings:=Config);]]></ST>
+NavigateToPoint:= CommandHandler(Cmd:=eCommands.NavigateToPoint,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnDeactivate" Id="{7d2b43bc-1818-4168-8eae-f890a8b9c530}">
@@ -212,10 +212,10 @@ END_VAR
   
   
   VAR
-	Config: stBA_Settings;
+	Config: stCommand_Settings;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[Undock:= CommandHandler(Cmd:=eBA.Undock,Settings:=Config);]]></ST>
+        <ST><![CDATA[Undock:= CommandHandler(Cmd:=eCommands.Undock,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
   </POU>

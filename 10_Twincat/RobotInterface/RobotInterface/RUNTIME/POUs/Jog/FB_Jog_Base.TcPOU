@@ -18,10 +18,10 @@ VAR_INPUT
     nFrame              : eRefFrame := eRefFrame.TRF;
 
     // Step values are used by the manipulator jog.
-    // SI recommendation:
+    // PLC standard:
     // fLinearStep  [mm]
     // fAngularStep [rad]
-    fLinearStep         : REAL := 0.001;
+    fLinearStep         : REAL := 1.0;
     fAngularStep        : REAL := 0.0174532925;
 
     // HMI-facing step values (mm / deg). Converted into fLinearStep/fAngularStep
@@ -30,9 +30,9 @@ VAR_INPUT
     fAngularStep_deg    : REAL := 1.0;
 
     // Velocity values are shared settings.
-    // fLinearVelocity  [m/s]
+    // fLinearVelocity  [mm/s]
     // fAngularVelocity [rad/s]
-    fLinearVelocity     : REAL := 0.05;
+    fLinearVelocity     : REAL := 50.0;
     fAngularVelocity    : REAL := 0.25;
 
     // Joint jog settings (manipulator only).

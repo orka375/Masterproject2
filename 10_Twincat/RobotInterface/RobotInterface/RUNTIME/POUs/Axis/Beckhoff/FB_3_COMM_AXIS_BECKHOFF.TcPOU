@@ -2,9 +2,15 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_3_COMM_AXIS_BECKHOFF" Id="{6590ca91-e828-49ed-96d5-a1b6fe08b87c}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'hide_all_locals'}
-FUNCTION_BLOCK FB_3_COMM_AXIS_BECKHOFF EXTENDS FB_2_COMM_AXIS
+FUNCTION_BLOCK FB_3_COMM_AXIS_BECKHOFF EXTENDS FB_1_COMM
 VAR_IN_OUT
     Axis : AXIS_REF;
+END_VAR
+VAR_OUTPUT
+  Powered : BOOL;
+  Homed : BOOL;
+  ActualPosition : LREAL;
+  ActualVelocity : LREAL;
 END_VAR
 VAR
     _fbPower : MC_Power;
@@ -39,7 +45,7 @@ _homeExecute := FALSE;
 _commActiveCommandID := 0;
 _commCommandState := eProgress.ABORTED;
 _commCommandResult := eResult.FAILURE;
-_commCommandBusy := TRUE;
+_commCommandBusy := FALSE;
 CancelCommand := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -58,25 +64,34 @@ _fbHome(Axis := Axis, Execute := _homeExecute);
 _fbStop(Axis := Axis, Execute := _stopExecute);
 _fbReset(Axis := Axis, Execute := _resetExecute);
 
-_axisPowered := _fbPower.Status;
-_axisActualPosition := Axis.NcToPlc.ActPos;
-_axisActualVelocity := Axis.NcToPlc.ActVelo;
-_axisError := _fbPower.Error OR _fbMoveAbsolute.Error OR _fbMoveRelative.Error OR _fbHome.Error OR _fbStop.Error OR _fbReset.Error;
+Powered := _fbPower.Status;
+ActualPosition := Axis.NcToPlc.ActPos;
+ActualVelocity := Axis.NcToPlc.ActVelo;
 
-IF _fbPower.Error THEN _axisErrorID := _fbPower.ErrorID;
-ELSIF _fbMoveAbsolute.Error THEN _axisErrorID := _fbMoveAbsolute.ErrorID;
-ELSIF _fbMoveRelative.Error THEN _axisErrorID := _fbMoveRelative.ErrorID;
-ELSIF _fbHome.Error THEN _axisErrorID := _fbHome.ErrorID;
-ELSIF _fbStop.Error THEN _axisErrorID := _fbStop.ErrorID;
-ELSIF _fbReset.Error THEN _axisErrorID := _fbReset.ErrorID;
-ELSE _axisErrorID := 0;
+IF _fbPower.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Power'), 'MC_Power error');
+ELSE Messenger.Clear(CONCAT(Path, '.Power'));
+END_IF
+IF _fbMoveAbsolute.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.MoveAbsolute'), 'MC_MoveAbsolute error');
+ELSE Messenger.Clear(CONCAT(Path, '.MoveAbsolute'));
+END_IF
+IF _fbMoveRelative.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.MoveRelative'), 'MC_MoveRelative error');
+ELSE Messenger.Clear(CONCAT(Path, '.MoveRelative'));
+END_IF
+IF _fbHome.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Home'), 'MC_Home error');
+ELSE Messenger.Clear(CONCAT(Path, '.Home'));
+END_IF
+IF _fbStop.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Stop'), 'MC_Stop error');
+ELSE Messenger.Clear(CONCAT(Path, '.Stop'));
+END_IF
+IF _fbReset.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Reset'), 'MC_Reset error');
+ELSE Messenger.Clear(CONCAT(Path, '.Reset'));
 END_IF
 
-_commCanAcceptCommand := CommunicationReady AND _axisPowered AND NOT _axisError
+_commCanAcceptCommand := CommunicationReady AND Powered AND NOT Messenger.HasActivError
     AND NOT _commCommandBusy AND NOT _fbStop.Busy AND NOT _resetExecute;
 
 IF _commCommandBusy THEN
-    IF _axisError THEN
+  IF Messenger.HasActivError OR NOT CommunicationReady THEN
         _moveAbsExecute := FALSE;
         _moveRelExecute := FALSE;
         _homeExecute := FALSE;
@@ -93,7 +108,7 @@ IF _commCommandBusy THEN
         _commCommandResult := eResult.FAILURE;
         _commCommandBusy := FALSE;
     ELSIF _fbMoveAbsolute.Done OR _fbMoveRelative.Done OR _fbHome.Done THEN
-        IF _fbHome.Done THEN _axisHomed := TRUE; END_IF
+        IF _fbHome.Done THEN Homed := TRUE; END_IF
         _moveAbsExecute := FALSE;
         _moveRelExecute := FALSE;
         _homeExecute := FALSE;
@@ -155,7 +170,7 @@ VAR_INPUT CommandID : UINT; END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[SendHome := FALSE;
 IF (CommandID = 0) OR NOT CanAcceptCommand THEN RETURN; END_IF
-_axisHomed := FALSE;
+Homed := FALSE;
 _homeExecute := TRUE;
 _commandAccepted := FALSE;
 _commAcceptedCommandID := 0;
@@ -221,7 +236,7 @@ _moveAbsExecute := FALSE;
 _moveRelExecute := FALSE;
 _homeExecute := FALSE;
 IF _fbStop.Busy OR _stopExecute THEN StopMotion := TRUE; RETURN; END_IF
-IF ABS(_axisActualVelocity) <= 0.000001 THEN StopMotion := TRUE; RETURN; END_IF
+IF ABS(ActualVelocity) <= 0.000001 THEN StopMotion := TRUE; RETURN; END_IF
 _stopExecute := TRUE;
 StopMotion := TRUE;]]></ST>
       </Implementation>

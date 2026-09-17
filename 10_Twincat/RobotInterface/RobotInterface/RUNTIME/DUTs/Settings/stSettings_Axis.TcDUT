@@ -3,6 +3,21 @@
   <DUT Name="stSettings_Axis" Id="{d3c39f93-4238-4849-9615-93563b13f23e}">
     <Declaration><![CDATA[TYPE stSettings_Axis EXTENDS stSettings_Rob :
 STRUCT
+  MinPosition : LREAL := 0.0;
+  MaxPosition : LREAL := 400.0;
+
+  DefaultVelocity : LREAL := 50.0;
+  DefaultAcceleration : LREAL := 100.0;
+  DefaultDeceleration : LREAL := 100.0;
+  DefaultJerk : LREAL := 1000.0;
+
+  MaxVelocity : LREAL := 0.0;
+  MaxAcceleration : LREAL := 0.0;
+  MaxDeceleration : LREAL := 0.0;
+  MaxJerk : LREAL := 0.0;
+
+  PositionTolerance : LREAL := 0.1; // mm for linear axes, rad for rotary axes
+  RequireHomedForPositioning : BOOL := TRUE;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

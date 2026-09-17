@@ -3,6 +3,8 @@
   <DUT Name="stSettings_LinAxis" Id="{6fae64cf-2c00-44d9-a81f-2815b61cf82a}">
     <Declaration><![CDATA[TYPE stSettings_LinAxis EXTENDS stSettings_Axis :
 STRUCT
+  Direction : eDirections := eDirections.Xplus;
+  ZeroPosition : LREAL := 0.0;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

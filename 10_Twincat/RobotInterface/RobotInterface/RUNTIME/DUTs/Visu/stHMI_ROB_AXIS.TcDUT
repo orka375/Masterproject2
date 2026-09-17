@@ -5,19 +5,11 @@
 STRUCT
     AxisPowered : BOOL;
     AxisHomed : BOOL;
-    AxisError : BOOL;
-    AxisErrorID : UDINT;
 
     ActualPosition : LREAL;
     ActualVelocity : LREAL;
 
-    ActiveCommand : eBA;
-    CommandID : UINT;
-    CommandState : eProgress;
-    CommandResult : eResult;
-
     ConfigurationValid : BOOL;
-    ReadyForPositioning : BOOL;
     AtMinLimit : BOOL;
     AtMaxLimit : BOOL;
     InPosition : BOOL;

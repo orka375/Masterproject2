@@ -2,9 +2,9 @@
 <TcLicenseInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2011/11/TcLicenseInfo">
 	<LicenseInfo>
 		<SystemId>{882A43FD-EAE0-E2C0-3553-72FC071C3FA9}</SystemId>
-		<IssueTime>2026-09-14T08:14:00</IssueTime>
-		<ExpireTime>2026-09-22T00:00:00</ExpireTime>
-		<LicenseKey>6ce2e14541591baf727410ddc2e1fb46f9be694f043001463df8f9fd64f7a2f5ddfaad33e981bb4bb26f156c270400cbc1f323624862bb41f1454971357c1da3e5cdf467167bb72efd5eaa32fd5b995f803911e31828d86548dbd8057e56cdb2f5a9e57ef654b32ae2785cd2f6e5340df931e3e96ee5449d7af2ebe95d21dc733a88fdc27f935c8f9ad80d46b8463d1162e55862f7b1338167ecd7bda6667c672236bb5302766b926f6f8dac9dece412842619eef64df3559d3b7fa3ee6a1cca9c96487c84ca5bee64f3fe83e6dab3ac63c0b323cac80fd58052139d3bf5413668247711ff889bb327a62641edd9bacee80e4005d24645a0ba5fd958697069d8</LicenseKey>
+		<IssueTime>2026-09-16T10:30:00</IssueTime>
+		<ExpireTime>2026-09-24T00:00:00</ExpireTime>
+		<LicenseKey>9a36f70fb36de838ba40811316028c75983a96977f5a94528eaa76ca2471808e97b5df48830f075244e983745319eb3ea3b4459227cfdbebad0f1a7b7f7431747ed54235c527a7871ab1530534288d3d3582e486b7346a9f321c751b684015cca6f821476fd8e31971658d17210ccee495810ce38af7a83a67b8793ffb2c1138b4e33a5b3d2c4b82b14cea8316f15e91f2fe06119e6d92f911f30c3f9f75ff715791a14931fef35755c0d15300b59810dbd3583dfc98be269c922bee64b16afb74d41428b1a3e12c4e091da69b2999caa0ca4d31035c42abccf58100ce10d6097676d20605c498fc7938d42a0a0fce3a74f711220784c1e9b865db290a0d73ad</LicenseKey>
 		<License>
 			<LicenseId>{A19036CF-A53B-4E3A-99FF-023EF5C4798B}</LicenseId>
 			<Name>TC3 NC PTP Axis</Name>
@@ -56,6 +56,21 @@
 			<LicenseId>{BDCC0070-42D5-49AE-ABF1-1D4434813D60}</LicenseId>
 			<Name>TC3 OPC-UA</Name>
 			<OrderNo>TF6100</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{2FF93140-10E2-4662-A464-31B8A4673F26}</LicenseId>
+			<Name>TC3 GigE Vision Connector</Name>
+			<Instances>2</Instances>
+		</License>
+		<License>
+			<LicenseId>{081AC839-28D0-49CA-9792-72680E1F3249}</LicenseId>
+			<Name>TC3 TCP/UDP RT</Name>
+			<OrderNo>TF6311</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{B1065A48-8131-4608-A378-D67FA8BD826E}</LicenseId>
+			<Name>TC3 GigE Vision Connector Base</Name>
+			<OrderNo>TF7000</OrderNo>
 		</License>
 	</LicenseInfo>
 </TcLicenseInfo>

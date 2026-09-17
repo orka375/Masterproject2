@@ -29,7 +29,7 @@ END_VAR]]></Declaration>
     <Folder Name="JogControl" Id="{1c021ab3-4c12-4486-8807-370f307ce83d}" />
     <Action Name="CYCLIC_JOG_MANIP" Id="{bf95fbc2-1e1a-4222-953f-b510186d86b9}">
       <Implementation>
-        <ST><![CDATA[// Step values from HMI (mm / deg) converted to PLC standard (m / rad).
+        <ST><![CDATA[// Step values from HMI (mm / deg) converted to PLC standard (mm / rad).
 fLinearStep  := LREAL_TO_REAL(ChangeRealFromHMIStandard(
     Value := fLinearStep_mm, Category := eUnitCategory.Position));
 fAngularStep := LREAL_TO_REAL(ChangeRealFromHMIStandard(
@@ -97,9 +97,9 @@ bReady := FALSE;
 bMoving := FALSE;
 
 IF pRobot <> 0 THEN
-    ActualPose := pRobot^.ActualTcpPose;
+    ActualPose := pRobot^.ActualPosition;
     bMoving := pRobot^.IsMoving;
-    bReady := bEnable AND NOT bRecoveryInhibit AND pRobot^.IsReady AND NOT bMoving;
+    bReady := bEnable AND NOT bRecoveryInhibit AND pRobot^.Ready AND NOT bMoving;
 
     IF bReady AND _rAlignTcpZ.Q THEN
         nLastCommandID := pRobot^.AlignTcpZToBrfZ(

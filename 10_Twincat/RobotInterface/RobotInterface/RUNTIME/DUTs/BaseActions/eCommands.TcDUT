@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-  <DUT Name="eBA" Id="{229201d8-2c42-4601-b776-bb44db293d9d}">
+  <DUT Name="eCommands" Id="{229201d8-2c42-4601-b776-bb44db293d9d}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 {attribute 'strict'}
 {attribute 'to_string'}
-TYPE eBA :
+TYPE eCommands :
 (
 	MoveL 			:=0,
 	MoveJ			:=1,

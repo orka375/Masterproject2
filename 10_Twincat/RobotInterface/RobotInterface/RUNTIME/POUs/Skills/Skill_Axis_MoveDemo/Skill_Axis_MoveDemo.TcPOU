@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="Skill_Axis_MoveDemo" Id="{9237d219-4302-42a0-b490-dc4be3a7eeff}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK Skill_Axis_MoveDemo EXTENDS FB_1_Skill IMPLEMENTS ITF_CUSTOM_SKILL
+VAR_INPUT
+	pAxis: POINTER TO FB_3_ROB_AXIS_LIN;
+	bExecute: BOOL;
+	bAbort: BOOL;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	Positions : ARRAY[1..4] of INT := [20,50,30,50];
+	cmdid: UINT;
+	prog: INT;
+	index: INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bAbort THEN
+	bAbort:=FALSE;
+	bExecute:=FALSE;
+	prog:=0;
+	Deactivate();
+	ExecutionDone:=TRUE;
+	ExecutionResult:=FAILURE;
+END_IF
+
+
+IF prog=0 THEN
+	IF bExecute THEN
+		ExecutionDone:=FALSE;
+		ExecutionResult:=NONE;
+		bExecute:=FALSE;
+		prog:=10;
+	END_IF
+END_IF
+
+IF prog=10 THEN
+	IF index= TO_INT(UPPER_BOUND(Positions,1)) THEN
+		prog:=30;
+	ELSE
+		index:=index+1;
+		cmdid := pAxis^.MoveAbsolute(Positions[index],20,50);
+		prog:=20;
+	END_IF
+END_IF
+
+IF prog=20 THEN
+	IF pAxis^.CommandID = cmdid AND pAxis^.CommandResult=SUCCESS THEN
+		prog:=10;
+	END_IF
+END_IF
+
+IF prog=30 THEN
+	ExecutionDone:=TRUE;
+	ExecutionResult:=SUCCESS;
+END_IF
+]]></ST>
+    </Implementation>
+    <Method Name="_M_Start" Id="{4b121c5e-45d8-4b6c-981d-6112d345e252}">
+      <Declaration><![CDATA[
+METHOD _M_Start : eResult
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bExecute := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_M_Stop" Id="{2b9fa97c-2a45-4cb8-b802-28edc2b28e00}">
+      <Declaration><![CDATA[
+METHOD _M_Stop : eResult
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bAbort := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

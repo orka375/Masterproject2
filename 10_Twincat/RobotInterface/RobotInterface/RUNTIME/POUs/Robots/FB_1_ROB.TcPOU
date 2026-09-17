@@ -35,6 +35,8 @@ VAR
 
 	
 	_INIT_ROB: BOOL;
+	_Homed: BOOL;
+  _bReadyInhibit : BOOL;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
@@ -70,29 +72,39 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Property Name="ActualTcpPose" Id="{0ea3c3d9-9984-43b2-ac68-a1a8d409d11e}" FolderPath="Generic Status\">
+    <Property Name="ActualPosition" Id="{0ea3c3d9-9984-43b2-ac68-a1a8d409d11e}" FolderPath="Generic Status\">
       <Declaration><![CDATA[{warning 'Add property implementation'}
-  PROPERTY ActualTcpPose : ST_Pose
+  PROPERTY ActualPosition : ST_Pose
 ]]></Declaration>
       <Get Name="Get" Id="{019c7e94-91db-4b36-9e6e-9be7d9fb51c3}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[ActualTcpPose := HMI_ROB._tcppos;]]></ST>
+          <ST><![CDATA[ActualPosition := HMI_ROB._tcppos;]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{44131c92-965f-457b-85c5-727220982875}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HMI_ROB._tcppos:= ActualPosition;
+]]></ST>
+        </Implementation>
+      </Set>
     </Property>
-    <Property Name="ActualTcpVelocity" Id="{cd04f35a-047d-478b-8cf7-b18ee8d2a4f9}" FolderPath="Generic Status\">
+    <Property Name="ActualVelocity" Id="{cd04f35a-047d-478b-8cf7-b18ee8d2a4f9}" FolderPath="Generic Status\">
       <Declaration><![CDATA[{warning 'Add property implementation'}
- PROPERTY ActualTcpVelocity : ST_Pose
+ PROPERTY ActualVelocity : ST_Pose
 ]]></Declaration>
       <Get Name="Get" Id="{c88b221c-0030-413b-abf3-a401e3f71088}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[ActualTcpVelocity := _tcpvel;]]></ST>
+          <ST><![CDATA[ActualVelocity := _tcpvel;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -175,8 +187,8 @@ CancelCommand := TRUE;]]></ST>
       <Declaration><![CDATA[{warning 'Override with your own Method in final FB'}
 METHOD CommandHandler : UINT
 VAR_INPUT
-    Cmd      : eBA;
-    Settings : stBA_Settings;
+    Cmd      : eCommands;
+    Settings : stCommand_Settings;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -229,12 +241,12 @@ END_VAR
 END_IF
 
 CYCLIC_BASE();
-PM.HMI_PM.xCurrentTcp := ActualTcpPose;
+PM.HMI_PM.xCurrentTcp := ActualPosition;
 PM(pRobot := THIS);
 
 
 
-// HMI display mirrors: native _tcppos/_jointpos stay in PLC standard (m/rad); display in mm/deg.
+// HMI display mirrors: _tcppos/_jointpos stay in PLC standard (mm/rad); display in mm/deg.
 HMI_ROB._tcppos_display := ChangePoseToHMIStandard(Pose := HMI_ROB._tcppos);
 
 HMI_ROB._jointpos_display.joint1 := ChangeRealToHMIStandard(
@@ -287,12 +299,12 @@ END_FOR
 
 //RobotMoving:
 HMI_ROB.bMoving :=
-    (ABS(_tcpvel.X)  > Settings_Rob.StandStillLimit) OR
-    (ABS(_tcpvel.Y)  > Settings_Rob.StandStillLimit) OR
-    (ABS(_tcpvel.Z)  > Settings_Rob.StandStillLimit) OR
-    (ABS(_tcpvel.roll) > Settings_Rob.StandStillLimit) OR
-    (ABS(_tcpvel.pitch) > Settings_Rob.StandStillLimit) OR
-    (ABS(_tcpvel.yaw) > Settings_Rob.StandStillLimit);
+  (ABS(_tcpvel.X)  > Settings_Rob.LinearStandStillLimit) OR
+  (ABS(_tcpvel.Y)  > Settings_Rob.LinearStandStillLimit) OR
+  (ABS(_tcpvel.Z)  > Settings_Rob.LinearStandStillLimit) OR
+  (ABS(_tcpvel.roll) > Settings_Rob.AngularStandStillLimit) OR
+  (ABS(_tcpvel.pitch) > Settings_Rob.AngularStandStillLimit) OR
+  (ABS(_tcpvel.yaw) > Settings_Rob.AngularStandStillLimit);
 	
 // Generic robot command contributes to FB_0_Base.Busy. Terminal command values remain latched,
 // therefore only non-terminal phases make the robot busy.
@@ -359,6 +371,40 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="Home" Id="{332921a2-9f70-499b-943d-00519405a468}" FolderPath="Generic Control\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD Home : UINT
+
+
+VAR
+	Config: stCommand_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+Home:= CommandHandler(Cmd:=eCommands.Home,Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Homed" Id="{0293db6b-1676-4fdb-900d-d48a6f2fe520}" FolderPath="Generic Status\">
+      <Declaration><![CDATA[PROPERTY Homed : BOOL]]></Declaration>
+      <Get Name="Get" Id="{8296b06f-a6d6-4c3f-ac49-4a977d01c83b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Homed:=_Homed;
+]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{9fd8795d-992d-4416-a301-e62e92d902d5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Homed:=Homed;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Property Name="InSavePosition" Id="{0b1ac6ae-f2f1-4986-8684-c6891da4f895}" FolderPath="Generic Status\">
       <Declaration><![CDATA[PROPERTY InSavePosition : BOOL]]></Declaration>
       <Get Name="Get" Id="{f07a4056-55e2-4a4d-b3fa-f23e3592a78e}">
@@ -410,17 +456,6 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Property Name="IsReady" Id="{8f2c7f81-6dd1-4fa4-9c6b-42ea40f162a7}" FolderPath="Generic Status\">
-      <Declaration><![CDATA[PROPERTY IsReady : BOOL]]></Declaration>
-      <Get Name="Get" Id="{64b31d92-9d68-4b99-8d36-01a37d3c1eb9}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[IsReady := Ready;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
     <Property Name="Mode" Id="{b02ce28c-7dc7-4355-aadb-75f0e04880fa}" FolderPath="Generic Status\">
       <Declaration><![CDATA[{warning 'OVERRIDE'}
 PROPERTY Mode : eMode]]></Declaration>
@@ -447,12 +482,12 @@ VAR_INPUT
     Velocity : LREAL;
 END_VAR
 VAR
-    settings : stBA_Settings;
+    settings : stCommand_Settings;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[settings.Velocity := Velocity;
 settings.Joints := Settings_Rob.SafePosition;
-MoveToSafePosition := CommandHandler(Cmd := eBA.MoveJJoints, Settings := settings);]]></ST>
+MoveToSafePosition := CommandHandler(Cmd := eCommands.MoveJJoints, Settings := settings);]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnActivate" Id="{c53d2e09-95f6-4470-b92a-1736ae881f81}" FolderPath="StateControl\">
@@ -700,14 +735,14 @@ OnShutdown := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="Ready" Id="{86371d66-1578-41a3-b04b-51033c28cb3d}" FolderPath="Generic Status\">
+    <Property Name="Ready" Id="{8f2c7f81-6dd1-4fa4-9c6b-42ea40f162a7}" FolderPath="Generic Status\">
       <Declaration><![CDATA[PROPERTY Ready : BOOL]]></Declaration>
-      <Get Name="Get" Id="{6a7426b3-2bd8-4baa-a45a-ec986519b549}">
+      <Get Name="Get" Id="{64b31d92-9d68-4b99-8d36-01a37d3c1eb9}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Ready := CanAcceptCommand;]]></ST>
+          <ST><![CDATA[Ready := CanAcceptCommand AND NOT _bReadyInhibit;]]></ST>
         </Implementation>
       </Get>
     </Property>

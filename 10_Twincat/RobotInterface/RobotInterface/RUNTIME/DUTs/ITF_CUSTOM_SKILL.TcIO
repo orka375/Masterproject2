@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="ITF_CUSTOM_SKILL" Id="{8f6eace4-1ce3-47c4-ac9d-cfdc087b1091}">
+    <Declaration><![CDATA[INTERFACE ITF_CUSTOM_SKILL
+]]></Declaration>
+    <Method Name="_M_Start" Id="{e26c5811-9a9c-41cd-a3f6-36e61b48ba59}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD _M_Start : eResult
+
+]]></Declaration>
+    </Method>
+    <Method Name="_M_Stop" Id="{f6f30784-7f29-4946-b6ca-b0a6d6572b85}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD _M_Stop : eResult
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

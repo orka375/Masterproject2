@@ -3,218 +3,142 @@
   <POU Name="FB_2_ROB_AXIS" Id="{7cf866bc-acd8-4ca1-b1b9-cc8d0da034fd}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'hide_all_locals'}
 FUNCTION_BLOCK FB_2_ROB_AXIS EXTENDS FB_1_ROB
-VAR_INPUT
-    // The only hardware boundary of the generic axis.
-    AxisComm : POINTER TO FB_2_COMM_AXIS;
-
-    DefaultVelocity : LREAL := 50.0;
-    DefaultAcceleration : LREAL := 100.0;
-    DefaultDeceleration : LREAL := 100.0;
-    DefaultJerk : LREAL := 1000.0;
-    MinPosition : LREAL := -1000000.0;
-    MaxPosition : LREAL := 1000000.0;
-END_VAR
 VAR_OUTPUT
-    AxisPowered : BOOL;
-    AxisHomed : BOOL;
-    AxisError : BOOL;
-    AxisErrorID : UDINT;
+  HMI_ROB_AXIS : stHMI_ROB_AXIS;
 END_VAR
 VAR
+  _pSettingsAxis : POINTER TO stSettings_Axis;
+  _axisPowered : BOOL;
+  _axisHomed : BOOL;
+  _axisActualPosition : LREAL;
+  _axisActualVelocity : LREAL;
+  _axisTargetPosition : LREAL;
+  _axisTargetValid : BOOL;
     _axisCommandActive : BOOL;
-    _activeCommand : eBA;
+    _activeCommand : eCommands;
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[CYCLIC_AXIS();]]></ST>
     </Implementation>
-    <Property Name="ActualPosition" Id="{2eaa2408-7176-4027-87c1-26a13441422d}">
-      <Declaration><![CDATA[PROPERTY ActualPosition : LREAL]]></Declaration>
-      <Get Name="Get" Id="{d0c7d097-14d2-485b-8815-042d0e32e6dd}">
-        <Declaration><![CDATA[]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[IF AxisComm <> 0 THEN
-    ActualPosition := AxisComm^.ActualPosition;
-ELSE
-    ActualPosition := 0.0;
-END_IF]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Property Name="ActualVelocity" Id="{0ecd3b26-9e75-4285-b9fa-c70ef940fd70}">
-      <Declaration><![CDATA[PROPERTY ActualVelocity : LREAL]]></Declaration>
-      <Get Name="Get" Id="{229863ea-504b-403b-b42f-605249439545}">
-        <Declaration><![CDATA[]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[IF AxisComm <> 0 THEN
-    ActualVelocity := AxisComm^.ActualVelocity;
-ELSE
-    ActualVelocity := 0.0;
-END_IF]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Method Name="CommandHandler" Id="{9a9c52bd-58e6-43fb-b575-2402bb098bee}">
-      <Declaration><![CDATA[METHOD CommandHandler : UINT
+    <Method Name="CommitAxisCommand" Id="{49deea93-5d94-4118-b965-e1ddfb619d08}">
+      <Declaration><![CDATA[METHOD PROTECTED CommitAxisCommand : UINT
 VAR_INPUT
-    Cmd : eBA;
-    Settings : stBA_Settings;
-END_VAR
-VAR
+    Cmd : eCommands;
     NewCommandID : UINT;
     TargetPosition : LREAL;
-    EffectiveVelocity : LREAL;
-    EffectiveAcceleration : LREAL;
-    Accepted : BOOL;
+    TargetValid : BOOL;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[CommandHandler := 0;
-
-IF (AxisComm = 0) OR NOT Ready OR _axisCommandActive THEN
-    RETURN;
-END_IF
-
-EffectiveVelocity := Settings.Velocity;
-IF EffectiveVelocity <= 0.0 THEN
-    EffectiveVelocity := DefaultVelocity;
-END_IF
-EffectiveAcceleration := Settings.Acceleration;
-IF EffectiveAcceleration <= 0.0 THEN
-    EffectiveAcceleration := DefaultAcceleration;
-END_IF
-
-NewCommandID := AllocateCommandID();
-IF NewCommandID = 0 THEN
-    RETURN;
-END_IF
-
-Accepted := FALSE;
-CASE Cmd OF
-    eBA.MoveL,
-    eBA.MoveJ:
-        TargetPosition := Settings.Target.pose.x;
-        IF (TargetPosition < MinPosition) OR (TargetPosition > MaxPosition) THEN
-            RETURN;
-        END_IF
-        Accepted := AxisComm^.SendMoveAbsolute(
-            CommandID := NewCommandID,
-            Position := TargetPosition,
-            Velocity := EffectiveVelocity,
-            Acceleration := EffectiveAcceleration,
-            Deceleration := DefaultDeceleration,
-            Jerk := DefaultJerk);
-
-    eBA.MoveJJoints:
-        TargetPosition := Settings.Joints.joint1;
-        IF (TargetPosition < MinPosition) OR (TargetPosition > MaxPosition) THEN
-            RETURN;
-        END_IF
-        Accepted := AxisComm^.SendMoveAbsolute(
-            CommandID := NewCommandID,
-            Position := TargetPosition,
-            Velocity := EffectiveVelocity,
-            Acceleration := EffectiveAcceleration,
-            Deceleration := DefaultDeceleration,
-            Jerk := DefaultJerk);
-
-    eBA.MoveLRelativ,
-    eBA.MoveJRelativ:
-        TargetPosition := AxisComm^.ActualPosition + Settings.Pose.x;
-        IF (TargetPosition < MinPosition) OR (TargetPosition > MaxPosition) THEN
-            RETURN;
-        END_IF
-        Accepted := AxisComm^.SendMoveRelative(
-            CommandID := NewCommandID,
-            Distance := Settings.Pose.x,
-            Velocity := EffectiveVelocity,
-            Acceleration := EffectiveAcceleration,
-            Deceleration := DefaultDeceleration,
-            Jerk := DefaultJerk);
-
-    eBA.Home:
-        Accepted := AxisComm^.SendHome(CommandID := NewCommandID);
-
-ELSE
-    Messenger.AddError(eMessageCategories.NotImplemented, Path, 'Basic action not supported by generic axis');
-    RETURN;
-END_CASE
-
-// Failed local acceptance must not destroy the previous latched terminal result.
-IF NOT Accepted THEN
-    RETURN;
-END_IF
+        <ST><![CDATA[CommitAxisCommand := 0;
+IF NewCommandID = 0 THEN RETURN; END_IF
 
 nCommandID := NewCommandID;
 eCommandStatus := eProgress.INIT;
 eCommandResult := eResult.NONE;
 _activeCommand := Cmd;
 _axisCommandActive := TRUE;
-CommandHandler := NewCommandID;]]></ST>
+_axisTargetPosition := TargetPosition;
+_axisTargetValid := TargetValid;
+CommitAxisCommand := NewCommandID;]]></ST>
       </Implementation>
     </Method>
     <Action Name="CYCLIC_AXIS" Id="{22130f11-3575-4ab1-80b6-a2e493f717bd}">
       <Implementation>
-        <ST><![CDATA[// Keep the inherited generic robot COMM pointer on the same adapter.
-IF AxisComm <> 0 THEN
-    COMM := AxisComm;
+        <ST><![CDATA[SyncAxisSettings();
 
-    AxisPowered := AxisComm^.AxisPowered;
-    AxisHomed := AxisComm^.AxisHomed;
-    AxisError := AxisComm^.AxisError;
-    AxisErrorID := AxisComm^.AxisErrorID;
+  HMI_ROB_AXIS.AxisPowered := _axisPowered;
+  HMI_ROB_AXIS.AxisHomed := _axisHomed;
+  HMI_ROB_AXIS.ActualPosition := _axisActualPosition;
+  HMI_ROB_AXIS.ActualVelocity := _axisActualVelocity;
+  HMI_ROB_AXIS.ConfigurationValid := ValidateConfiguration();
 
+  IF _pSettingsAxis <> 0 THEN
+    HMI_ROB_AXIS.AtMinLimit := _axisActualPosition <= (_pSettingsAxis^.MinPosition + _pSettingsAxis^.PositionTolerance);
+    HMI_ROB_AXIS.AtMaxLimit := _axisActualPosition >= (_pSettingsAxis^.MaxPosition - _pSettingsAxis^.PositionTolerance);
+    HMI_ROB_AXIS.InPosition := _axisTargetValid
+      AND (ABS(_axisActualPosition - _axisTargetPosition) <= _pSettingsAxis^.PositionTolerance);
+  ELSE
+    HMI_ROB_AXIS.AtMinLimit := FALSE;
+    HMI_ROB_AXIS.AtMaxLimit := FALSE;
+    HMI_ROB_AXIS.InPosition := FALSE;
+  END_IF
+
+  _Homed := _axisHomed;
+  HMI_ROB._jointpos.joint1 := _axisActualPosition;
+  _jointvel.joint1 := _axisActualVelocity;
+
+  _bReadyInhibit := NOT HMI_ROB_AXIS.ConfigurationValid OR NOT _axisPowered OR Messenger.HasActivError;
+  IF _pSettingsAxis = 0 THEN
+    _bReadyInhibit := TRUE;
+  ELSIF _pSettingsAxis^.RequireHomedForPositioning AND NOT _axisHomed THEN
+    _bReadyInhibit := TRUE;
+  END_IF
+
+  IF (COMM = 0) OR (COMM = ADR(emptyCOMM)) THEN
+    _bReadyInhibit := TRUE;
+  ELSE
+    _bReadyInhibit := _bReadyInhibit OR COMM^.MESSENGER.HasActivError;
     IF _axisCommandActive THEN
-        // The COMM lifecycle is authoritative after local acceptance.
-        eCommandStatus := AxisComm^.CommandState;
-        eCommandResult := AxisComm^.CommandResult;
+      eCommandStatus := COMM^.CommandState;
+      eCommandResult := COMM^.CommandResult;
 
         IF (eCommandStatus = eProgress.FINALIZED)
            OR (eCommandStatus = eProgress.ABORTED) THEN
+        IF (eCommandStatus = eProgress.FINALIZED)
+           AND (eCommandResult = eResult.SUCCESS)
+           AND _axisTargetValid
+           AND NOT HMI_ROB_AXIS.InPosition THEN
+          eCommandResult := eResult.FAILURE;
+        END_IF
             _axisCommandActive := FALSE;
         END_IF
     END_IF
-
-    HMI_ROB._jointpos.joint1 := AxisComm^.ActualPosition;
-    HMI_ROB._tcppos.x := AxisComm^.ActualPosition;
-    _jointvel.joint1 := AxisComm^.ActualVelocity;
-    _tcpvel.x := AxisComm^.ActualVelocity;
 END_IF
 
 CYCLIC_ROB();
-
-IF AxisComm <> 0 THEN
-    HMI_ROB.bMoving := AxisComm^.AxisMoving;
-END_IF
-HMI_ROB.bReady := Ready;
-// A functional StopMotion is not a safety-rated E-stop and never sets bEStop here.]]></ST>
+IF (_pSettingsAxis <> 0)
+   AND ((_pSettingsAxis^.StandardUnits.Joint = eUnit.rad)
+     OR (_pSettingsAxis^.StandardUnits.Joint = eUnit.deg)) THEN
+  HMI_ROB.bMoving := ABS(_axisActualVelocity) > Settings_Rob.AngularStandStillLimit;
+ELSE
+  HMI_ROB._jointpos_display.joint1 := _axisActualPosition;
+  HMI_ROB.bMoving := ABS(_axisActualVelocity) > Settings_Rob.LinearStandStillLimit;
+END_IF]]></ST>
       </Implementation>
     </Action>
-    <Method Name="OnActivate" Id="{d3390fde-8c30-4f7b-b731-26ae87a488dd}">
-      <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
+    <Method Name="MoveAbsolute" Id="{703f4764-794a-460f-a71a-f3edb4a5692c}">
+      <Declaration><![CDATA[METHOD PUBLIC MoveAbsolute : UINT
+VAR_INPUT
+    Position : LREAL;
+    Velocity : LREAL := 0.0;
+    Acceleration : LREAL := 0.0;
+END_VAR
 VAR
-    eParentResult : eResult;
-    myResult : eResult;
+    Settings : stCommand_Settings;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF AxisComm <> 0 THEN
-    COMM := AxisComm;
-END_IF
-
-eParentResult := SUPER^.OnActivate();
-myResult := eResult.NONE;
-
-IF AxisComm = 0 THEN
-    myResult := eResult.FAILURE;
-ELSIF AxisError THEN
-    myResult := eResult.ERROR;
-ELSE
-    AxisComm^.Power(Enable := TRUE);
-    IF AxisComm^.AxisPowered THEN
-        myResult := eResult.SUCCESS;
-    END_IF
-END_IF
-
-OnActivate := CombineResults(eParentResult, myResult);]]></ST>
+        <ST><![CDATA[Settings.Target.pose.x := Position;
+Settings.Velocity := Velocity;
+Settings.Acceleration := Acceleration;
+MoveAbsolute := CommandHandler(Cmd := eCommands.MoveL, Settings := Settings);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveRelative" Id="{3cff1824-2665-4bcb-a77b-94f33ba8001c}">
+      <Declaration><![CDATA[METHOD PUBLIC MoveRelative : UINT
+VAR_INPUT
+    Distance : LREAL;
+    Velocity : LREAL := 0.0;
+    Acceleration : LREAL := 0.0;
+END_VAR
+VAR
+    Settings : stCommand_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Settings.Pose.x := Distance;
+Settings.Velocity := Velocity;
+Settings.Acceleration := Acceleration;
+MoveRelative := CommandHandler(Cmd := eCommands.MoveLRelativ, Settings := Settings);]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnCommandCancelled" Id="{c04973a0-7c49-42f7-ac66-1da6b2ca83fa}">
@@ -223,98 +147,131 @@ VAR_INPUT
     CommandID : UINT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// Generic axis only owns semantic tracking; the COMM owns physical cancellation.
-_axisCommandActive := FALSE;]]></ST>
+        <ST><![CDATA[_axisCommandActive := FALSE;
+_axisTargetValid := FALSE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnConfigure" Id="{58e8f349-71d5-46a4-8fb8-1145251f6bc0}">
-      <Declaration><![CDATA[METHOD PROTECTED OnConfigure : eResult
-VAR
-    eParentResult : eResult;
-    myResult : eResult;
+    <Method Name="PrepareAxisCommand" Id="{50fd267e-684c-4f32-aa42-74620d0a5a1e}">
+      <Declaration><![CDATA[METHOD PROTECTED PrepareAxisCommand : BOOL
+VAR_INPUT
+    Cmd : eCommands;
+    Settings : stCommand_Settings;
+END_VAR
+VAR_OUTPUT
+    NewCommandID : UINT;
+    TargetPosition : LREAL;
+    TargetValid : BOOL;
+    EffectiveVelocity : LREAL;
+    EffectiveAcceleration : LREAL;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// The inherited robot lifecycle must see the same communication adapter.
-IF AxisComm <> 0 THEN
-    COMM := AxisComm;
-END_IF
+        <ST><![CDATA[PrepareAxisCommand := FALSE;
+NewCommandID := 0;
+TargetPosition := 0.0;
+TargetValid := FALSE;
+EffectiveVelocity := 0.0;
+EffectiveAcceleration := 0.0;
 
-eParentResult := SUPER^.OnConfigure();
+IF (_pSettingsAxis = 0) OR NOT Ready OR _axisCommandActive THEN RETURN; END_IF
 
-IF AxisComm = 0 THEN
-    myResult := eResult.FAILURE;
-ELSIF MinPosition >= MaxPosition THEN
-    myResult := eResult.FAILURE;
-ELSIF (DefaultVelocity <= 0.0)
-   OR (DefaultAcceleration <= 0.0)
-   OR (DefaultDeceleration <= 0.0)
-   OR (DefaultJerk <= 0.0) THEN
-    myResult := eResult.FAILURE;
+CASE Cmd OF
+    eCommands.MoveL,
+    eCommands.MoveJ:
+        TargetPosition := Settings.Target.pose.x;
+        TargetValid := TRUE;
+
+    eCommands.MoveJJoints:
+        TargetPosition := Settings.Joints.joint1;
+        TargetValid := TRUE;
+
+    eCommands.MoveLRelativ,
+    eCommands.MoveJRelativ:
+        TargetPosition := _axisActualPosition + Settings.Pose.x;
+        TargetValid := TRUE;
+
+    eCommands.Home:
+        TargetValid := FALSE;
+
 ELSE
-    myResult := eResult.SUCCESS;
+    Messenger.AddError(eMessageCategories.NotImplemented, Path, 'Basic action not supported by axis');
+    RETURN;
+END_CASE
+
+IF TargetValid THEN
+    IF (TargetPosition < _pSettingsAxis^.MinPosition) OR (TargetPosition > _pSettingsAxis^.MaxPosition) THEN RETURN; END_IF
+    IF NOT ValidateDynamics(Velocity := Settings.Velocity, Acceleration := Settings.Acceleration) THEN RETURN; END_IF
+
+    EffectiveVelocity := Settings.Velocity;
+    IF EffectiveVelocity = 0.0 THEN EffectiveVelocity := _pSettingsAxis^.DefaultVelocity; END_IF
+    EffectiveAcceleration := Settings.Acceleration;
+    IF EffectiveAcceleration = 0.0 THEN EffectiveAcceleration := _pSettingsAxis^.DefaultAcceleration; END_IF
 END_IF
 
-OnConfigure := CombineResults(eParentResult, myResult);]]></ST>
+NewCommandID := AllocateCommandID();
+PrepareAxisCommand := NewCommandID <> 0;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnDeactivate" Id="{b67e3dd4-3ba1-43be-8623-18b43c175c35}">
-      <Declaration><![CDATA[METHOD PROTECTED OnDeactivate : eResult
+    <Method Name="SyncAxisSettings" Id="{05ab1cc2-84ea-4456-8d7f-b06a88844668}">
+      <Declaration><![CDATA[METHOD PROTECTED SyncAxisSettings]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _pSettingsAxis = 0 THEN RETURN; END_IF
+
+Settings_Rob.bAutoConfigure := _pSettingsAxis^.bAutoConfigure;
+Settings_Rob.nMaxAutoRecoveryAttempts := _pSettingsAxis^.nMaxAutoRecoveryAttempts;
+Settings_Rob.NameOfSafePosition := _pSettingsAxis^.NameOfSafePosition;
+Settings_Rob.LinearStandStillLimit := _pSettingsAxis^.LinearStandStillLimit;
+Settings_Rob.AngularStandStillLimit := _pSettingsAxis^.AngularStandStillLimit;
+Settings_Rob.SafePosition := _pSettingsAxis^.SafePosition;
+Settings_Rob.SafePositionTolerance := _pSettingsAxis^.SafePositionTolerance;
+Settings_Rob.RegisterAsTopLevelRobot := _pSettingsAxis^.RegisterAsTopLevelRobot;
+Settings_Rob.InstallationPose := _pSettingsAxis^.InstallationPose;
+Settings_Rob.StandardUnits := _pSettingsAxis^.StandardUnits;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ValidateConfiguration" Id="{8637ddc2-8443-4a23-a124-b1a4ea35a4ec}">
+      <Declaration><![CDATA[METHOD PROTECTED ValidateConfiguration : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ValidateConfiguration := FALSE;
+      IF _pSettingsAxis = 0 THEN RETURN; END_IF
+      IF _pSettingsAxis^.MinPosition >= _pSettingsAxis^.MaxPosition THEN RETURN; END_IF
+      IF _pSettingsAxis^.PositionTolerance <= 0.0 THEN RETURN; END_IF
+      IF _pSettingsAxis^.PositionTolerance >= ((_pSettingsAxis^.MaxPosition - _pSettingsAxis^.MinPosition) * 0.5) THEN RETURN; END_IF
+      IF (_pSettingsAxis^.DefaultVelocity <= 0.0)
+         OR (_pSettingsAxis^.DefaultAcceleration <= 0.0)
+         OR (_pSettingsAxis^.DefaultDeceleration <= 0.0)
+         OR (_pSettingsAxis^.DefaultJerk <= 0.0) THEN RETURN; END_IF
+      IF (_pSettingsAxis^.MaxVelocity > 0.0) AND (_pSettingsAxis^.DefaultVelocity > _pSettingsAxis^.MaxVelocity) THEN RETURN; END_IF
+      IF (_pSettingsAxis^.MaxAcceleration > 0.0) AND (_pSettingsAxis^.DefaultAcceleration > _pSettingsAxis^.MaxAcceleration) THEN RETURN; END_IF
+      IF (_pSettingsAxis^.MaxDeceleration > 0.0) AND (_pSettingsAxis^.DefaultDeceleration > _pSettingsAxis^.MaxDeceleration) THEN RETURN; END_IF
+      IF (_pSettingsAxis^.MaxJerk > 0.0) AND (_pSettingsAxis^.DefaultJerk > _pSettingsAxis^.MaxJerk) THEN RETURN; END_IF
+ValidateConfiguration := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ValidateDynamics" Id="{6e84b03d-2a24-42cf-b1db-75dc01483567}">
+      <Declaration><![CDATA[METHOD PROTECTED ValidateDynamics : BOOL
+VAR_INPUT
+    Velocity : LREAL;
+    Acceleration : LREAL;
+END_VAR
 VAR
-    eParentResult : eResult;
-    myResult : eResult;
+    EffectiveVelocity : LREAL;
+    EffectiveAcceleration : LREAL;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
-myResult := eResult.NONE;
+        <ST><![CDATA[ValidateDynamics := FALSE;
+IF _pSettingsAxis = 0 THEN RETURN; END_IF
+IF (Velocity < 0.0) OR (Acceleration < 0.0) THEN RETURN; END_IF
 
-IF AxisComm = 0 THEN
-    myResult := eResult.SUCCESS;
-ELSIF AxisComm^.AxisMoving OR AxisComm^.CommandBusy THEN
-    StopMotion();
-ELSE
-    AxisComm^.Power(Enable := FALSE);
-    IF NOT AxisComm^.AxisPowered THEN
-        myResult := eResult.SUCCESS;
-    END_IF
-END_IF
+EffectiveVelocity := Velocity;
+IF EffectiveVelocity = 0.0 THEN EffectiveVelocity := _pSettingsAxis^.DefaultVelocity; END_IF
+EffectiveAcceleration := Acceleration;
+IF EffectiveAcceleration = 0.0 THEN EffectiveAcceleration := _pSettingsAxis^.DefaultAcceleration; END_IF
 
-OnDeactivate := CombineResults(eParentResult, myResult);]]></ST>
+IF (EffectiveVelocity <= 0.0) OR (EffectiveAcceleration <= 0.0) THEN RETURN; END_IF
+IF (_pSettingsAxis^.MaxVelocity > 0.0) AND (EffectiveVelocity > _pSettingsAxis^.MaxVelocity) THEN RETURN; END_IF
+IF (_pSettingsAxis^.MaxAcceleration > 0.0) AND (EffectiveAcceleration > _pSettingsAxis^.MaxAcceleration) THEN RETURN; END_IF
+ValidateDynamics := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnError" Id="{aa8b68a9-d2b2-4f45-83c2-654e3b209f25}">
-      <Declaration><![CDATA[METHOD PROTECTED OnError : eResult
-VAR
-    eParentResult : eResult;
-    myResult : eResult;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[eParentResult := SUPER^.OnError();
-myResult := eResult.NONE;
-_axisCommandActive := FALSE;
-
-IF AxisComm = 0 THEN
-    myResult := eResult.SUCCESS;
-ELSIF AxisComm^.AxisError THEN
-    AxisComm^.ResetAxis();
-    myResult := eResult.NONE;
-ELSE
-    myResult := eResult.SUCCESS;
-END_IF
-
-OnError := CombineResults(eParentResult, myResult);]]></ST>
-      </Implementation>
-    </Method>
-    <Property Name="Ready" Id="{a4b9e2ea-a0aa-4b7c-8f95-cb9e3ba8e755}">
-      <Declaration><![CDATA[PROPERTY Ready : BOOL]]></Declaration>
-      <Get Name="Get" Id="{5a6e0d5b-5086-4932-8129-32006361a60e}">
-        <Declaration><![CDATA[]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[Ready := (AxisComm <> 0)
-    AND CanAcceptCommand
-    AND AxisPowered
-    AND NOT AxisError;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
   </POU>
 </TcPlcObject>

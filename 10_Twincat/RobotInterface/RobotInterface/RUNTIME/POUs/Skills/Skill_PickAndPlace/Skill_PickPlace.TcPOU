@@ -23,7 +23,7 @@ VAR
 	bCalcApproachDone: BOOL;
 	phase: INT;
 
-	Settings: stBA_Settings;
+	Settings: stCommand_Settings;
 
 	bMoveInProcess: BOOL;
 	bMovePickApproachDone: BOOL;
@@ -3531,6 +3531,21 @@ END_IF]]></ST>
         <ST><![CDATA[bSubSkillRunning:=FALSE;]]></ST>
       </Implementation>
     </Action>
+    <Method Name="HandleMoveStart" Id="{57dbf99b-ec72-47c9-a087-a8267dfa732e}">
+      <Declaration><![CDATA[METHOD HandleMoveStart : BOOL
+  ]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[HandleMoveStart := nCalledMoveID <> 0;
+
+  IF NOT HandleMoveStart THEN
+      ExecutionDone := TRUE;
+      ExecutionResult := FAILURE;
+      Messenger.AddWarn(eMessageCategories.ParentFailed, Path, 'Robot rejected move');
+      SFCInit := TRUE;
+  END_IF
+  ]]></ST>
+      </Implementation>
+    </Method>
     <Action Name="Init_active" Id="{bb9d285b-87dd-4209-82d5-a350113088c8}">
       <Implementation>
         <ST><![CDATA[phase:=0;
@@ -3708,72 +3723,6 @@ bRetractPlaceDone := FALSE;
 ]]></ST>
       </Implementation>
     </Action>
-      <Method Name="HandleMoveStart" Id="{57dbf99b-ec72-47c9-a087-a8267dfa732e}">
-        <Declaration><![CDATA[METHOD HandleMoveStart : BOOL
-  ]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[HandleMoveStart := nCalledMoveID <> 0;
-
-  IF NOT HandleMoveStart THEN
-      ExecutionDone := TRUE;
-      ExecutionResult := FAILURE;
-      Messenger.AddWarn(eMessageCategories.ParentFailed, Path, 'Robot rejected move');
-      SFCInit := TRUE;
-  END_IF
-  ]]></ST>
-        </Implementation>
-      </Method>
-      <Method Name="PollRobotMove" Id="{78fd90e9-ae41-49ae-a2ac-70ab9188a9db}">
-        <Declaration><![CDATA[METHOD PollRobotMove : BOOL
-    VAR_IN_OUT
-      DoneFlag : BOOL;
-    END_VAR
-    ]]></Declaration>
-        <Implementation>
-        <ST><![CDATA[PollRobotMove := FALSE;
-
-    IF pRob = 0 THEN
-      ExecutionDone := TRUE;
-      ExecutionResult := ERROR;
-      Messenger.AddError(eMessageCategories.MissingData, Path, 'Robot is not assigned');
-      SFCInit := TRUE;
-      RETURN;
-    END_IF
-
-    IF (nCalledMoveID = 0) OR (pRob^.CommandID <> nCalledMoveID) THEN
-      RETURN;
-    END_IF
-
-    bMoveInProcess := TRUE;
-
-    CASE pRob^.CommandState OF
-      eProgress.INIT, eProgress.ACKNOWLEDGE, eProgress.RUNNING:
-        PollRobotMove := FALSE;
-
-      eProgress.FINALIZED:
-        IF pRob^.CommandResult = SUCCESS THEN
-          DoneFlag := TRUE;
-          PollRobotMove := TRUE;
-        ELSE
-          ExecutionDone := TRUE;
-          IF pRob^.CommandResult = NONE THEN
-            ExecutionResult := ERROR;
-          ELSE
-            ExecutionResult := pRob^.CommandResult;
-          END_IF
-          Messenger.AddWarn(eMessageCategories.ParentFailed, Path, 'Robot move failed');
-          SFCInit := TRUE;
-        END_IF
-
-      eProgress.ABORTED:
-        ExecutionDone := TRUE;
-        ExecutionResult := FAILURE;
-        Messenger.AddWarn(eMessageCategories.ParentFailed, Path, 'Robot move aborted');
-        SFCInit := TRUE;
-    END_CASE
-    ]]></ST>
-        </Implementation>
-      </Method>
     <Method Name="OnActivate" Id="{fe361160-cff6-4374-b8d5-b6aa8065f810}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
 VAR_INPUT
@@ -3887,6 +3836,57 @@ myResult:=SUCCESS;
 //--------------------------------------------------
 OnShutdown := CombineResults(eParentResult,myResult);
 ]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PollRobotMove" Id="{78fd90e9-ae41-49ae-a2ac-70ab9188a9db}">
+      <Declaration><![CDATA[METHOD PollRobotMove : BOOL
+    VAR_IN_OUT
+      DoneFlag : BOOL;
+    END_VAR
+    ]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[PollRobotMove := FALSE;
+
+    IF pRob = 0 THEN
+      ExecutionDone := TRUE;
+      ExecutionResult := ERROR;
+      Messenger.AddError(eMessageCategories.MissingData, Path, 'Robot is not assigned');
+      SFCInit := TRUE;
+      RETURN;
+    END_IF
+
+    IF (nCalledMoveID = 0) OR (pRob^.CommandID <> nCalledMoveID) THEN
+      RETURN;
+    END_IF
+
+    bMoveInProcess := TRUE;
+
+    CASE pRob^.CommandState OF
+      eProgress.INIT, eProgress.ACKNOWLEDGE, eProgress.RUNNING:
+        PollRobotMove := FALSE;
+
+      eProgress.FINALIZED:
+        IF pRob^.CommandResult = SUCCESS THEN
+          DoneFlag := TRUE;
+          PollRobotMove := TRUE;
+        ELSE
+          ExecutionDone := TRUE;
+          IF pRob^.CommandResult = NONE THEN
+            ExecutionResult := ERROR;
+          ELSE
+            ExecutionResult := pRob^.CommandResult;
+          END_IF
+          Messenger.AddWarn(eMessageCategories.ParentFailed, Path, 'Robot move failed');
+          SFCInit := TRUE;
+        END_IF
+
+      eProgress.ABORTED:
+        ExecutionDone := TRUE;
+        ExecutionResult := FAILURE;
+        Messenger.AddWarn(eMessageCategories.ParentFailed, Path, 'Robot move aborted');
+        SFCInit := TRUE;
+    END_CASE
+    ]]></ST>
       </Implementation>
     </Method>
     <ObjectProperties>

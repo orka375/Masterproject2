@@ -9,16 +9,14 @@ STRUCT
     bReady : BOOL;
     bMoving : BOOL;
     bHomed : BOOL;
-    bError : BOOL;
     bInSavePosition : BOOL;
-    nErrorID : UDINT;
     fActualPosition : LREAL;
     fActualVelocity : LREAL;
     fTargetPosition : LREAL;
     fZeroPoint : LREAL;
     fSafePosition : LREAL;
-    nBasicActionID : UINT;
-    eBasicActionStatus : eProgress;
+    nCommandID : UINT;
+    eCommandStatus : eProgress;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

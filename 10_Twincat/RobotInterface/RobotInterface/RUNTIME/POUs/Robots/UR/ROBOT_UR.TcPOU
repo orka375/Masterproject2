@@ -21,7 +21,7 @@ END_VAR
 VAR
     _baActive     : BOOL;
     _baActiveID       : UINT;
-    _baActiveCmd  : eBA;
+    _baActiveCmd  : eCommands;
 
     _urFeedbackPose : ST_Pose;
     _urFeedbackRPY  : ST_Pose;
@@ -47,9 +47,9 @@ UR_COMM();
 COMM := ADR(UR_COMM);
 
 (* Map the RTDE Cartesian feedback into the generic robot abstraction.
-   UR native pose = (m, rotation-vector rad); PLC standard = (m, RPY rad). *)
+    UR native pose = (m, rotation-vector rad); PLC standard = (mm, RPY rad). *)
 IF UR_COMM.RTDE.bNewData THEN
-    // Rotation-vector -> RPY. Position stays in metres (UR native == PLC standard).
+    // Rotation-vector -> RPY. UR metres are converted to PLC millimetres below.
     _urFeedbackRPY := URRotVecToRPY(
         rx := UR_COMM.RTDE.aActualTCPPose[3],
         ry := UR_COMM.RTDE.aActualTCPPose[4],
@@ -62,7 +62,7 @@ IF UR_COMM.RTDE.bNewData THEN
     _urFeedbackPose.pitch := _urFeedbackRPY.pitch;
     _urFeedbackPose.yaw   := _urFeedbackRPY.yaw;
 
-    // UR native == PLC standard numerically; explicit for symmetry with other adapters.
+    // Convert translation to millimetres and preserve the RPY angles in radians.
     HMI_ROB._tcppos := ChangePoseFromRobotStandard(
         Pose := _urFeedbackPose,
         RobotStandardUnits := Settings_Rob.StandardUnits);
@@ -105,8 +105,8 @@ CYCLIC_MANIP();
     <Method Name="CommandHandler" Id="{d7ca35aa-fd04-4db2-bc8f-94c9161e0ebc}">
       <Declaration><![CDATA[METHOD CommandHandler : UINT
 VAR_INPUT
-    Cmd      : eBA;
-    Settings : stBA_Settings;
+    Cmd      : eCommands;
+    Settings : stCommand_Settings;
 END_VAR
 VAR
     bOk      : BOOL;
@@ -130,7 +130,7 @@ END_VAR
     Command transport : dynamically generated URScript over TCP 30002
     Completion/status : RTDE output_int_register_24..27
 
-    Incoming Settings are in PLC standard (m, rad, m/s, rad/s, m/s^2, rad/s^2).
+    Incoming Settings are in PLC standard (mm, rad, mm/s, rad/s, mm/s^2, rad/s^2).
     This method converts orientation (generic RPY -> UR rotation vector) and units
     (PLC standard -> UR native = SI, no-op numerically) before emitting URScript.
 *)
@@ -143,31 +143,31 @@ IF _baActive OR NOT CanAcceptCommand OR NOT UR_COMM.CanAcceptCommand THEN
 END_IF
 
 CASE Cmd OF
-    eBA.MoveL:
+    eCommands.MoveL:
         bSupported := TRUE;
         nCommand := 0;
         LinVelCat := eUnitCategory.LinearVelocity;
         LinAccCat := eUnitCategory.LinearAcceleration;
 
-    eBA.MoveJ:
+    eCommands.MoveJ:
         bSupported := TRUE;
         nCommand := 1;
         LinVelCat := eUnitCategory.JointVelocity;
         LinAccCat := eUnitCategory.JointAcceleration;
 
-    eBA.MoveJJoints:
+    eCommands.MoveJJoints:
         bSupported := TRUE;
         nCommand := 1;
         LinVelCat := eUnitCategory.JointVelocity;
         LinAccCat := eUnitCategory.JointAcceleration;
 
-    eBA.SetDO:
+    eCommands.SetDO:
         IF Settings.Pin <= 7 THEN
             bSupported := TRUE;
             nCommand := 4;
         END_IF
 
-    eBA.ReadDI:
+    eCommands.ReadDI:
         IF Settings.Pin <= 7 THEN
             bSupported := TRUE;
             nCommand := 5;
@@ -185,12 +185,12 @@ IF NOT bSupported THEN
 END_IF
 
 (* Cartesian targets must arrive already resolved into BRF by FB_2_ROB_MANIP. *)
-IF ((Cmd = eBA.MoveL) OR (Cmd = eBA.MoveJ)) AND (Settings.Target.frame_id <> eRefFrame.BRF) THEN
+IF ((Cmd = eCommands.MoveL) OR (Cmd = eCommands.MoveJ)) AND (Settings.Target.frame_id <> eRefFrame.BRF) THEN
     RETURN;
 END_IF
 
 (* --- Orientation representation: generic RPY -> UR axis-angle rotation vector. --- *)
-IF (Cmd = eBA.MoveL) OR (Cmd = eBA.MoveJ) THEN
+IF (Cmd = eCommands.MoveL) OR (Cmd = eCommands.MoveJ) THEN
     UR_RV := RPYToURRotVec(
         roll  := Settings.Target.pose.roll,
         pitch := Settings.Target.pose.pitch,
@@ -209,7 +209,7 @@ IF (Cmd = eBA.MoveL) OR (Cmd = eBA.MoveJ) THEN
         RobotStandardUnits := Settings_Rob.StandardUnits);
 END_IF
 
-IF Cmd = eBA.MoveJJoints THEN
+IF Cmd = eCommands.MoveJJoints THEN
     NativeJoints.joint1 := ChangeRealToRobotStandard(
         Value := Settings.Joints.joint1, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
     NativeJoints.joint2 := ChangeRealToRobotStandard(
@@ -251,7 +251,7 @@ bOk := bOk AND UR_COMM.AppendCommandLine(sLine := sLine);
 
 CASE Cmd OF
 
-    eBA.MoveL:
+    eCommands.MoveL:
         fVelocity := ChangeRealToRobotStandard(
             Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := Settings_Rob.StandardUnits);
         IF fVelocity <= 0.0 THEN fVelocity := 0.25; END_IF
@@ -278,7 +278,7 @@ CASE Cmd OF
         sLine := CONCAT(sLine, ')');
         bOk := bOk AND UR_COMM.AppendCommandLine(sLine := sLine);
 
-    eBA.MoveJ:
+    eCommands.MoveJ:
         fVelocity := ChangeRealToRobotStandard(
             Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := Settings_Rob.StandardUnits);
         IF fVelocity <= 0.0 THEN fVelocity := 1.05; END_IF
@@ -306,7 +306,7 @@ CASE Cmd OF
         sLine := CONCAT(sLine, ')');
         bOk := bOk AND UR_COMM.AppendCommandLine(sLine := sLine);
 
-    eBA.MoveJJoints:
+    eCommands.MoveJJoints:
         fVelocity := ChangeRealToRobotStandard(
             Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := Settings_Rob.StandardUnits);
         IF fVelocity <= 0.0 THEN fVelocity := 1.05; END_IF
@@ -334,7 +334,7 @@ CASE Cmd OF
         sLine := CONCAT(sLine, ')');
         bOk := bOk AND UR_COMM.AppendCommandLine(sLine := sLine);
 
-    eBA.SetDO:
+    eCommands.SetDO:
         sLine := CONCAT('  set_standard_digital_out(', UINT_TO_STRING(Settings.Pin));
         sLine := CONCAT(sLine, ',');
         IF Settings.bValue THEN
@@ -344,7 +344,7 @@ CASE Cmd OF
         END_IF
         bOk := bOk AND UR_COMM.AppendCommandLine(sLine := sLine);
 
-    eBA.ReadDI:
+    eCommands.ReadDI:
         sLine := CONCAT('  if get_standard_digital_in(', UINT_TO_STRING(Settings.Pin));
         sLine := CONCAT(sLine, '):');
         bOk := bOk AND UR_COMM.AppendCommandLine(sLine := sLine);

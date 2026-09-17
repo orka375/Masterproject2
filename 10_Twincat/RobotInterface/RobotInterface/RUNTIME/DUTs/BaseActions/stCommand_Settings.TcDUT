@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-  <DUT Name="stBA_Settings" Id="{8fac1be0-eb98-4b37-aae0-7d9ddbd25ee2}">
-    <Declaration><![CDATA[TYPE stBA_Settings :
+  <DUT Name="stCommand_Settings" Id="{8fac1be0-eb98-4b37-aae0-7d9ddbd25ee2}">
+    <Declaration><![CDATA[TYPE stCommand_Settings :
 STRUCT
 	Name : STRING;
 	Velocity: LREAL;

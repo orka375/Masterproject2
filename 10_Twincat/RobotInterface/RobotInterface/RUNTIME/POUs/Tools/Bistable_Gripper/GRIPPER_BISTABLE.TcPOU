@@ -25,7 +25,7 @@ END_VAR
 
 VAR
 	
-	Settings: stBA_Settings;
+	Settings: stCommand_Settings;
 	
 END_VAR]]></Declaration>
       <Implementation>
@@ -78,7 +78,7 @@ VAR_INPUT
 END_VAR
 
 VAR
-	Settings: STBA_SETTINGS;
+	Settings: stCommand_Settings;
 	
 END_VAR]]></Declaration>
       <Implementation>

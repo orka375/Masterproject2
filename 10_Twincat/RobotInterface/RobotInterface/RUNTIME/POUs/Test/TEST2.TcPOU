@@ -29,9 +29,9 @@ VAR
 	nJogFrame : eRefFrame := 0;
 	
 	// Safe commissioning values
-	fJogLinearStep  : REAL := 0.001;          // 1 mm
+	fJogLinearStep  : REAL := 1.0;            // 1 mm
 	fJogAngularStep : REAL := 0.0174532925;   // 1 degree
-	fJogVelocity    : REAL := 0.02;           // 20 mm/s
+	fJogVelocity    : REAL := 20.0;           // 20 mm/s
 	
 	// Debug
 	bJogReady         : BOOL;

@@ -50,7 +50,7 @@ END_VAR
       <Implementation>
         <ST><![CDATA[AlignTcpZToBrfZ := 0;
 
-  IF NOT IsReady THEN
+  IF NOT Ready THEN
     RETURN;
   END_IF
 
@@ -152,20 +152,6 @@ JOG(
   END_IF]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Home" Id="{332921a2-9f70-499b-943d-00519405a468}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD Home : UINT
-
-
-VAR
-	Config: stBA_Settings;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[
-
-Home:= CommandHandler(Cmd:=eBA.Home,Settings:=Config);]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="MoveJoint" Id="{9e0f1a2b-3c4d-4e5f-8a6b-7c8d9e0f1a2b}" FolderPath="MotionControl\">
       <Declaration><![CDATA[METHOD MoveJoint : UINT
 VAR_INPUT
@@ -174,7 +160,7 @@ VAR_INPUT
 END_VAR
 
 VAR
-	Config: stBA_Settings;
+	Config: stCommand_Settings;
 	Resolved: ST_Pose;
 	IdentityCustom : ST_TransformMatrix;
 END_VAR]]></Declaration>
@@ -196,7 +182,7 @@ END_IF
 Config.Target.frame_id := eRefFrame.BRF;
 Config.Target.pose := Resolved;
 
-MoveJoint := CommandHandler(Cmd:=eBA.MoveJ, Settings:=Config);
+MoveJoint := CommandHandler(Cmd:=eCommands.MoveJ, Settings:=Config);
 ]]></ST>
       </Implementation>
     </Method>
@@ -211,13 +197,13 @@ VAR_INPUT
 END_VAR
 
 VAR
-	Config: stBA_Settings;
+	Config: stCommand_Settings;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[Config.Velocity := Velocity;
 Config.Joints := Joints;
 
-MoveJointAbsolute := CommandHandler(Cmd:=eBA.MoveJJoints, Settings:=Config);]]></ST>
+MoveJointAbsolute := CommandHandler(Cmd:=eCommands.MoveJJoints, Settings:=Config);]]></ST>
       </Implementation>
     </Method>
     <Method Name="MoveJointRelative" Id="{d4d7d377-1aa7-4fc3-9e59-f55d00fe8d35}" FolderPath="MotionControl\">
@@ -230,7 +216,7 @@ VAR_INPUT
 END_VAR
 
 VAR
-	Config: stBA_Settings;
+	Config: stCommand_Settings;
 	Resolved: ST_Pose;
 	IdentityCustom : ST_TransformMatrix;
 END_VAR]]></Declaration>
@@ -250,7 +236,7 @@ END_IF
 Config.Target.frame_id := eRefFrame.BRF;
 Config.Target.pose := Resolved;
 
-MoveJointRelative := CommandHandler(Cmd:=eBA.MoveJ, Settings:=Config);
+MoveJointRelative := CommandHandler(Cmd:=eCommands.MoveJ, Settings:=Config);
 ]]></ST>
       </Implementation>
     </Method>
@@ -262,7 +248,7 @@ VAR_INPUT
 END_VAR
 
 VAR
-	Config: stBA_Settings;
+	Config: stCommand_Settings;
 	Resolved: ST_Pose;
 	IdentityCustom : ST_TransformMatrix;
 END_VAR]]></Declaration>
@@ -283,7 +269,7 @@ END_IF
 Config.Target.frame_id := eRefFrame.BRF;
 Config.Target.pose := Resolved;
 
-MoveLinear := CommandHandler(Cmd:=eBA.MoveL, Settings:=Config);
+MoveLinear := CommandHandler(Cmd:=eCommands.MoveL, Settings:=Config);
 ]]></ST>
       </Implementation>
     </Method>
@@ -298,7 +284,7 @@ VAR_INPUT
 END_VAR
 
 VAR
-	Config: stBA_Settings;
+	Config: stCommand_Settings;
 	Resolved: ST_Pose;
 	IdentityCustom : ST_TransformMatrix;
 	CustomFrame : ST_TransformMatrix;
@@ -326,7 +312,7 @@ END_IF
 Config.Target.frame_id := eRefFrame.BRF;
 Config.Target.pose := Resolved;
 
-MoveLinearRelative := CommandHandler(Cmd:=eBA.MoveL, Settings:=Config);
+MoveLinearRelative := CommandHandler(Cmd:=eCommands.MoveL, Settings:=Config);
 ]]></ST>
       </Implementation>
     </Method>
@@ -576,13 +562,13 @@ VAR_INPUT
 END_VAR
 
 VAR
-	Config: stBA_Settings;
+	Config: stCommand_Settings;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[Config.Pin:=bPin;
 
 
-ReadDI:= CommandHandler(Cmd:=eBA.ReadDI,Settings:=Config);]]></ST>
+ReadDI:= CommandHandler(Cmd:=eCommands.ReadDI,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
     <Method Name="Reset" Id="{88202b70-34aa-4aa8-a8d9-10b154dbb53a}" FolderPath="StateControl\">
@@ -607,14 +593,14 @@ VAR_INPUT
 END_VAR
 
 VAR
-	Config: stBA_Settings;
+	Config: stCommand_Settings;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[Config.Pin:=nOutput;
 Config.bValue:=bValue;
 
 
-SetDO:= CommandHandler(Cmd:=eBA.SetDO,Settings:=Config);]]></ST>
+SetDO:= CommandHandler(Cmd:=eCommands.SetDO,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
   </POU>

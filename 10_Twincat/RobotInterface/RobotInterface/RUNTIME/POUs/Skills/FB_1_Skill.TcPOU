@@ -58,7 +58,7 @@ END_VAR]]></Declaration>
     <Folder Name="StateControl" Id="{71a3cf00-e64f-49c4-a480-600b201a90b4}" />
     <Method Name="_M_Start" Id="{be1a62f7-3d1f-44a1-b23c-14be160cd3f9}" FolderPath="Internal\">
       <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD INTERNAL _M_Start : eResult
+METHOD  _M_Start : eResult
 
 VAR
 	config_succ: BOOL:=TRUE;
@@ -78,7 +78,7 @@ _M_Start:=SUCCESS;
     </Method>
     <Method Name="_M_Stop" Id="{a9d4d73b-7482-4200-8810-5606d9f030a9}" FolderPath="Internal\">
       <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD INTERNAL _M_Stop : eResult
+METHOD  _M_Stop : eResult
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[// ----- YOUR CODE HERE (incl. Alarms) -------------
@@ -95,7 +95,7 @@ _M_Stop:=SUCCESS;
         <ST><![CDATA[
 CYCLIC_BASE();
 RUN_DEBUG_SKILL();
-CommandHandler(Cmd:=ADR(HMI_SKILL.Command),Stat:=ADR(HMI_SKILL.Status));
+// CommandHandler(Cmd:=ADR(HMI_SKILL.Command),Stat:=ADR(HMI_SKILL.Status));
 
 // HMI command bits. Start is latched and driven until the skill is
 // Active (the state machine needs several cycles to progress);

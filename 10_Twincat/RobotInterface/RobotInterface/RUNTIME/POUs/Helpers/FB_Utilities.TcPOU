@@ -8,13 +8,13 @@ VAR_OUTPUT
 END_VAR
 VAR
 	PLCStandardUnits : ST_StandardUnits := (
-        Position            := eUnit.m,
+  Position            := eUnit.mm,
         Orientation         := eUnit.rad,
         Joint               := eUnit.rad,
-        LinearVelocity      := eUnit.m,
+  LinearVelocity      := eUnit.mm,
         AngularVelocity     := eUnit.rad,
         JointVelocity       := eUnit.rad,
-        LinearAcceleration  := eUnit.m,
+  LinearAcceleration  := eUnit.mm,
         AngularAcceleration := eUnit.rad,
         JointAcceleration   := eUnit.rad
     );

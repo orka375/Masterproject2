@@ -73,10 +73,10 @@ nLastCommandID := 0;
 // Status
 // ----------------------------------------------------------
 IF pStatusRobot <> 0 THEN
-    ActualPose := pStatusRobot^.ActualTcpPose;
+    ActualPose := pStatusRobot^.ActualPosition;
     _yawRobot := ActualPose.yaw;
     bMoving := pStatusRobot^.IsMoving;
-    bReady := bEnable AND NOT bRecoveryInhibit AND pStatusRobot^.IsReady;
+    bReady := bEnable AND NOT bRecoveryInhibit AND pStatusRobot^.Ready;
 ELSE
     _yawRobot := fRobotYaw;
     bMoving := bVelocityCommandActive;

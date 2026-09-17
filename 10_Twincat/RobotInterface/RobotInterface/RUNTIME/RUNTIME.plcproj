@@ -21,13 +21,13 @@
     <Compile Include="DUTs\AMR\stJoint2.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\BaseActions\eBA.TcDUT">
+    <Compile Include="DUTs\BaseActions\eCommands.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\BaseActions\eProgress.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\BaseActions\stBA_Settings.TcDUT">
+    <Compile Include="DUTs\BaseActions\stCommand_Settings.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\BasicRobot\eDirections.TcDUT">
@@ -103,6 +103,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\ITF_CUSTOM_MANIP.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ITF_CUSTOM_SKILL.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Manipulator\E_RobotCommand.TcDUT">
@@ -217,6 +220,9 @@
     <Compile Include="PlcTask.TcTTO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Archiv_TODO\FB_1_PORTAL.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Axis\Beckhoff\FB_3_COMM_AXIS_BECKHOFF.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -229,19 +235,16 @@
     <Compile Include="POUs\Axis\FB_2_ROB_AXIS.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Axis\JSC_XENAX\FB_3_COMM_AXIS_JSC_XENAX.TcPOU">
+    <Compile Include="POUs\Axis\FB_3_ROB_AXIS_LIN.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Axis\FB_3_ROB_AXIS_LIN.TcPOU">
+    <Compile Include="POUs\Axis\JSC_XENAX\FB_3_COMM_AXIS_JSC_XENAX.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Axis\JSC_XENAX\LINAXIS_JSC_XENAX.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Communication\FB_1_COMM.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Communication\FB_2_COMM_AXIS.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Demo1.TcPOU">
@@ -316,6 +319,9 @@
     <Compile Include="POUs\Skills\FB_1_Skill.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Skills\Skill_Axis_MoveDemo\Skill_Axis_MoveDemo.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Skills\Skill_Counter\stParam_Counter.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -365,6 +371,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Test\TESTSETUP.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Test\TEST_AXIS.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Test\TEST_ROBOT.TcPOU">
@@ -474,6 +483,8 @@
     <Folder Include="POUs\Jog" />
     <Folder Include="POUs\Axis" />
     <Folder Include="POUs\Frames" />
+    <Folder Include="POUs\Archiv_TODO" />
+    <Folder Include="POUs\Skills\Skill_Axis_MoveDemo" />
     <Folder Include="POUs\Skills\Skill_Landmark" />
     <Folder Include="POUs\Skills\Skill_Gripper_bistable_digout" />
     <Folder Include="POUs\Skills\Skill_Gripper_Gimatic_UR_Kit" />
@@ -496,8 +507,8 @@
   <ProjectExtensions>
     <PlcProjectOptions>
       <XmlArchive>
-        <Data>
-          <o xml:space="preserve" t="OptionKey">
+  <Data>
+    <o xml:space="preserve" t="OptionKey">
       <v n="Name">"&lt;ProjectRoot&gt;"</v>
       <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
         <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
@@ -573,14 +584,14 @@
       </d>
       <d n="Values" t="Hashtable" />
     </o>
-        </Data>
-        <TypeList>
-          <Type n="Boolean">System.Boolean</Type>
-          <Type n="Hashtable">System.Collections.Hashtable</Type>
-          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
-          <Type n="String">System.String</Type>
-        </TypeList>
-      </XmlArchive>
+  </Data>
+  <TypeList>
+    <Type n="Boolean">System.Boolean</Type>
+    <Type n="Hashtable">System.Collections.Hashtable</Type>
+    <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+    <Type n="String">System.String</Type>
+  </TypeList>
+</XmlArchive>
     </PlcProjectOptions>
   </ProjectExtensions>
 </Project>

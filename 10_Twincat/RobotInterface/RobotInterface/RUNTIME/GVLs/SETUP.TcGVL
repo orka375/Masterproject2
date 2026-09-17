@@ -13,7 +13,7 @@ VAR_GLOBAL CONSTANT
 	MaxNrofTools: 			UINT 	:= 16;
 
 	emptySkill : 			FB_1_Skill; 			//Dummy Instance of Skill
-	emptyCOMM: 				FB_1_COMM; //Dummy Instance of Comm
+	emptyCOMM: 				FB_1_COMM; 				//Dummy Instance of Comm
 	emptyTool:				FB_1_Tool;				//Dummy Instance of Tool
 	emptyManip:				FB_2_ROB_MANIP;
 END_VAR
@@ -27,6 +27,7 @@ VAR_GLOBAL
 	nAMRCount: UINT := 0;
 	nSkillCount: UINT := 0;
 	nToolCount: UINT := 0;
+	
 	apRobot: ARRAY[1..MaxNrofRobots] OF POINTER TO FB_1_ROB;
 	apRobotNames: ARRAY[1..MaxNrofRobots] OF POINTER TO STRING; 		//TODO
 	apManip: ARRAY[1..MaxNrofManipulators] OF POINTER TO FB_2_ROB_MANIP;
@@ -76,6 +77,9 @@ VAR_GLOBAL
 		
 	);
 	
+	A3_MoveDemo: Skill_Axis_MoveDemo;
+	
+	
 END_VAR
 
 
@@ -120,18 +124,35 @@ VAR_GLOBAL
 // 	nc_axis_delta: AXIS_REF;
 	AXIS_DELTA: LINAXIS_BECKHOFF := (
 // 		DummyAxis := nc_axis_delta,
-		MaxVelocity:= 0.03, //m/s
-		MinPosition:= 0,
-		MaxPosition:= 100
+		SETTINGS := (
+			MinPosition := 0.0,
+			MaxPosition := 100.0
+// 			DefaultVelocity := 10.0,
+// 			DefaultAcceleration := 100.0,
+// 			DefaultDeceleration := 100.0,
+// 			DefaultJerk := 1000.0,
+// 			MaxVelocity := 30.0
+			)
 	);
 	
 // 	nc_axis_echo: AXIS_REF;
-	AXIS_ECHO: LINAXIS_BECKHOFF :=(
+	AXIS_ECHO: ROTAXIS_BECKHOFF :=(
 // 		DummyAxis := nc_axis_echo
 	);
-
+	AXIS_FOXTROTT: LINAXIS_JSC_XENAX :=(
+		SETTINGS := (
+			Direction := eDirections.Xplus,
+			MinPosition := 0.0,
+			MaxPosition := 100.0,
+			DefaultVelocity := 10,
+// 			DefaultAcceleration := 100.0,
+// 			DefaultDeceleration := 100.0,
+// 			DefaultJerk := 1000.0,
+			MaxVelocity := 30),
+		pA_Skills := [ADR(A3_MoveDemo)]		
+	);
+	
 END_VAR
-
 
 
 

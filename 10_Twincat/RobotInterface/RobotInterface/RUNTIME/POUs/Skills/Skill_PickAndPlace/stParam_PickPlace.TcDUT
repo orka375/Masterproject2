@@ -13,16 +13,16 @@ STRUCT
 	PlacePositionOffset: ST_Pose;
 	
 	PickApproachDirection: eDirections := eDirections.Zplus;
-	PickApproachOffset: REAL := 0.01; 			//m
+	PickApproachOffset: REAL := 10.0; 			// mm
 	
 	PlaceApproachDirection: eDirections := eDirections.Zplus;
-	PlaceApproachOffset: REAL := 0.01; 			//m
+	PlaceApproachOffset: REAL := 10.0; 			// mm
 	
 	bPassTroughMiddlePoint: BOOL := FALSE;
 	MiddlePointName: STRING;
 	
-	FastVelocity: REAL:= 0.01;			//m/s
-	SlowVelocity: REAL:= 0.01;			//m/s
+	FastVelocity: REAL := 10.0;			// mm/s
+	SlowVelocity: REAL := 10.0;			// mm/s
 	
 END_STRUCT
 END_TYPE
