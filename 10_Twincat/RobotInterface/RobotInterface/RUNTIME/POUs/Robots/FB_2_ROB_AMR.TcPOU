@@ -12,6 +12,7 @@ VAR_OUTPUT
 END_VAR
 VAR
 
+	_Init_AMR: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -20,9 +21,14 @@ END_VAR
     <Folder Name="MotionControl" Id="{67b3627f-d3d9-4d23-986a-0e1d03e05b51}" />
     <Action Name="CYCLIC_AMR" Id="{ebcfe1a2-a428-4cd0-a9d1-512be0cd10b6}">
       <Implementation>
-        <ST><![CDATA[CYCLIC_ROB();
+        <ST><![CDATA[IF NOT _Init_AMR THEN
+	_Init_AMR:=TRUE;
+	SETUP_AMR();
+END_IF
+
+CYCLIC_ROB();
 JOG(
-    pStatusRobot := THIS,
+    pRobot := THIS,
     bRecoveryInhibit := (State = eState.ErrorProcessing)
         OR (State = eState.Deactivating)
         OR (State = eState.ShuttingDown)
@@ -40,7 +46,7 @@ HMI_ROB_AMR.hasError:=Messenger.HasActivError;
 HMI_ROB_AMR.TCPPosition:=ActualPosition;
 
 HMI_ROB_AMR.isDocked:=IsDocked;
-HMI_ROB_AMR.TargetReached:=TargetReached;]]></ST>
+]]></ST>
       </Implementation>
     </Action>
     <Method Name="Dock" Id="{7a2cbcfa-840f-4b61-9db6-42db4be3c502}" FolderPath="MotionControl\">
@@ -184,27 +190,11 @@ myResult := SUCCESS;
 OnShutdown := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
-    <Property Name="TargetReached" Id="{1ffd5e85-127b-44be-a405-ac0615b395e0}">
-      <Declaration><![CDATA[PROPERTY TargetReached : BOOL
-]]></Declaration>
-      <Get Name="Get" Id="{57de425a-d48b-4d0b-8603-0f3a7e17fce2}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[TargetReached:=HMI_ROB_AMR.TargetReached;]]></ST>
-        </Implementation>
-      </Get>
-      <Set Name="Set" Id="{942b15fc-f5de-4bca-9fdf-4d667e329064}">
-        <Declaration><![CDATA[
-VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[HMI_ROB_AMR.TargetReached:=TargetReached;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
+    <Action Name="SETUP_AMR" Id="{c6ac4426-d269-4441-9911-f9ef0adb744b}">
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Action>
     <Method Name="Undock" Id="{7fd604b3-b44b-4e9a-9b9f-e9b2cbe8020e}" FolderPath="MotionControl\">
       <Declaration><![CDATA[METHOD Undock : UINT
   VAR_INPUT

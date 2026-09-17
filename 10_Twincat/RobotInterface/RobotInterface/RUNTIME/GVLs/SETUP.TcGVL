@@ -16,6 +16,30 @@ VAR_GLOBAL CONSTANT
 	emptyCOMM: 				FB_1_COMM; 				//Dummy Instance of Comm
 	emptyTool:				FB_1_Tool;				//Dummy Instance of Tool
 	emptyManip:				FB_2_ROB_MANIP;
+	
+	PLCStandardUnits : ST_StandardUnits := (
+		Position            := eUnit.mm,
+		Orientation         := eUnit.rad,
+		Joint               := eUnit.rad,
+		LinearVelocity      := eUnit.mm,
+		AngularVelocity     := eUnit.rad,
+		JointVelocity       := eUnit.rad,
+		LinearAcceleration  := eUnit.mm,
+		AngularAcceleration := eUnit.rad,
+		JointAcceleration   := eUnit.rad
+	);
+	
+	HMIStandardUnits : ST_StandardUnits := (
+		Position            := eUnit.mm,
+		Orientation         := eUnit.deg,
+		Joint               := eUnit.deg,
+		LinearVelocity      := eUnit.mm,
+		AngularVelocity     := eUnit.deg,
+		JointVelocity       := eUnit.deg,
+		LinearAcceleration  := eUnit.mm,
+		AngularAcceleration := eUnit.deg,
+		JointAcceleration   := eUnit.deg
+	);
 END_VAR
 
 // --------------- PLANT VALUES ----------------------
@@ -117,7 +141,7 @@ VAR_GLOBAL
 // // 	);
 // 	
 	MECA_CHARLIE: ROBOT_MECA500 := (
-		pA_Skills:= [ADR(R2_PP),ADR(R2_Counter)],
+		Skills:= [ADR(R2_PP),ADR(R2_Counter)],
 		Tool := ADR(GREIFER_CHARLIE)
 	);
 	
@@ -149,7 +173,7 @@ VAR_GLOBAL
 // 			DefaultDeceleration := 100.0,
 // 			DefaultJerk := 1000.0,
 			MaxVelocity := 30),
-		pA_Skills := [ADR(A3_MoveDemo)]		
+		Skills := [ADR(A3_MoveDemo)]		
 	);
 	
 END_VAR

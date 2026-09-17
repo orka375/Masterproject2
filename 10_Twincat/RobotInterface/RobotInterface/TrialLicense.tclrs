@@ -1,20 +1,10 @@
 <?xml version="1.0"?>
 <TcLicenseInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2011/11/TcLicenseInfo">
 	<LicenseInfo>
-		<SystemId>{882A43FD-EAE0-E2C0-3553-72FC071C3FA9}</SystemId>
-		<IssueTime>2026-09-16T10:30:00</IssueTime>
-		<ExpireTime>2026-09-24T00:00:00</ExpireTime>
-		<LicenseKey>9a36f70fb36de838ba40811316028c75983a96977f5a94528eaa76ca2471808e97b5df48830f075244e983745319eb3ea3b4459227cfdbebad0f1a7b7f7431747ed54235c527a7871ab1530534288d3d3582e486b7346a9f321c751b684015cca6f821476fd8e31971658d17210ccee495810ce38af7a83a67b8793ffb2c1138b4e33a5b3d2c4b82b14cea8316f15e91f2fe06119e6d92f911f30c3f9f75ff715791a14931fef35755c0d15300b59810dbd3583dfc98be269c922bee64b16afb74d41428b1a3e12c4e091da69b2999caa0ca4d31035c42abccf58100ce10d6097676d20605c498fc7938d42a0a0fce3a74f711220784c1e9b865db290a0d73ad</LicenseKey>
-		<License>
-			<LicenseId>{A19036CF-A53B-4E3A-99FF-023EF5C4798B}</LicenseId>
-			<Name>TC3 NC PTP Axis</Name>
-			<Instances>10</Instances>
-		</License>
-		<License>
-			<LicenseId>{520DE751-9DB6-47CB-8240-BD5C466E7E64}</LicenseId>
-			<Name>TC3 NC PTP</Name>
-			<OrderNo>TF5000</OrderNo>
-		</License>
+		<SystemId>{879DDFE7-CD6A-1FCD-8C51-F9455AD0DF61}</SystemId>
+		<IssueTime>2026-09-17T13:53:00</IssueTime>
+		<ExpireTime>2026-09-25T00:00:00</ExpireTime>
+		<LicenseKey>907c1de34745743114e67ccf0dafdf32260d58e5da2119049f47d13716db2ab4153700566e981b4e5fd5db10f604deb1aa1671296a3ede9d38a46409e0e01910b013afc8e074b6a5b57ab410eacb5bf8c724833713717c750b87ec89aaa9d3951d9dbcfbe97a5dcb48bcadf36eeae27042dcc8ab42c49cfe7087c0d2096d567d17f34ce0678163cb8228b135368906b3cca6c0be7533618ee0c486064ad549c71bc892d7a473f43e150d06930f86444e4727703a31be2f4e24cb06e1edee1378e808dc6038453d69d3716c0c022c16dfbff15f70bb1a2cb827206cf85befd7a26f66abdf4f1e0f25d87dac28d181e77baf71ea93192861ff8fd94ef000d6e870</LicenseKey>
 		<License>
 			<LicenseId>{4C256767-E6E6-4AF5-BD68-9F7ABAD0C200}</LicenseId>
 			<Name>TC3 ADS</Name>
@@ -29,6 +19,16 @@
 			<LicenseId>{66689887-CCBD-452C-AC9A-039D997C6E66}</LicenseId>
 			<Name>TC3 PLC</Name>
 			<OrderNo>TC1200</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{5762C59F-F838-4092-B24F-4E469453D3E9}</LicenseId>
+			<Name>TC3 Vision Code Reading</Name>
+			<OrderNo>TF7250</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{2C358067-6E81-4F6A-B8D9-AC1F63FEB6FD}</LicenseId>
+			<Name>TC3 Vision Base</Name>
+			<OrderNo>TF7100</OrderNo>
 		</License>
 		<License>
 			<LicenseId>{B6EAE583-6F5A-60C2-D176-3830729B4E9A}</LicenseId>

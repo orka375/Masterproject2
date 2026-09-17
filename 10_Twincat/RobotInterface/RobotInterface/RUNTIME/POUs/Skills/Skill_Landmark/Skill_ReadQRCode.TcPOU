@@ -25,20 +25,17 @@
     F_VN_StopWatchdog protect the PLC cycle. Beckhoff currently supports
     nCodeNumber = 1 for QR codes.
 *)
-VAR_INPUT
-    // Vorhandene Eingänge beibehalten.
-    aCameraMatrix : TcVnMatrix3x3_LREAL;
-    aDistortionCoefficients : TcVnArray8_LREAL;
-END_VAR
+
 
 VAR_INPUT
     pCamera          : POINTER TO FB_VN_GevCameraControl;
-    bSoftwareTrigger : BOOL := FALSE;
-    nWatchdogTimeUs  : DINT := 20000;
+    bSoftwareTrigger : BOOL := TRUE;
+    nWatchdogTimeUs  : DINT := 2000000;
     SFCInit           : BOOL;
 END_VAR
 
 VAR_OUTPUT
+	ipImageDisp : ITcVnDisplayableImage;
     bQRCodeFound : BOOL;
     sQRCode      : STRING(255);
     hrLastError  : HRESULT;
@@ -57,7 +54,7 @@ VAR
     // Local step sequencer; lifecycle and command handling remain in FB_1_Skill.
     // 0 Init, 10 Prepare camera, 20 Trigger, 30 Acquire,
     // 40 Read QR, 50 Export, 100 Done.
-    phase               : INT;
+    phase               : INT := 10;
     eCameraState        : ETcVnCameraState;
     ipImage             : ITcVnImage;
     ipDecodedData       : ITcVnContainer;
@@ -66,144 +63,328 @@ VAR
     hrWatchdog          : HRESULT;
     tWatchdogRemaining  : DINT;
     bRunDone            : BOOL;
+	ipbackimage: ITcVnImage;
+	here: BOOL;
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF SFCInit THEN
+      <ST><![CDATA[CYCLIC_SKILL();
+
+
+// ============================================================================
+// INITIALIZATION OF SKILL
+// ============================================================================
+
+IF SFCInit THEN
     phase := 0;
-	bCornersValid := FALSE;
+
+    bCornersValid := FALSE;
+
+
 END_IF
 
+
+// ============================================================================
+// ACTIVE
+// ============================================================================
+
 IF State = eState.Active THEN
+
     CASE phase OF
-        0: // Init
+
+
+        // ====================================================================
+        // 0 - Initialize execution
+        // ====================================================================
+
+        0:
             bQRCodeFound := FALSE;
             sQRCode := '';
+
+            hr := S_OK;
             hrLastError := S_OK;
+            hrWatchdog := S_OK;
+
             bRunDone := FALSE;
+
             ipImage := 0;
             ipDecodedData := 0;
             ipContours := 0;
+
             ExecutionDone := FALSE;
             ExecutionResult := NONE;
 
             IF pCamera = 0 THEN
+
                 FailSkill(
                     hrError := 16#71A,
                     sMessage := 'GigE camera controller is not assigned');
+
             ELSIF nWatchdogTimeUs <= 0 THEN
+
                 FailSkill(
                     hrError := E_FAIL,
                     sMessage := 'Vision watchdog time must be greater than zero');
+
             ELSE
-                SFCInit := FALSE;
+
                 phase := 10;
+
             END_IF
 
-        10: // PrepareCamera_active
+
+
+        // ====================================================================
+        // 10 - Camera state machine
+        //
+        // Continuous acquisition.
+        // No software trigger.
+        //
+        // Camera remains permanently in ACQUIRING during normal operation.
+        // ====================================================================
+
+        10:
+
             eCameraState := pCamera^.GetState();
 
-            IF eCameraState = TCVN_CS_ERROR THEN
+
+            CASE eCameraState OF
+
+
+                // ------------------------------------------------------------
+                // Camera ERROR
+                // ------------------------------------------------------------
+
+                TCVN_CS_ERROR:
+
+                    hr := pCamera^.Reset();
+
+                    IF FAILED(hr) THEN
+
+                        hrLastError := hr;
+
+                        FailSkill(
+                            hrError := hr,
+                            sMessage := 'Could not reset GigE camera');
+
+                    END_IF
+
+
+
+                // ------------------------------------------------------------
+                // Camera is not yet acquiring
+                //
+                // Follow Beckhoff's state-machine pattern:
+                // continuously call StartAcquisition().
+                //
+                // StartAcquisition handles the required initialization /
+                // opening / acquisition transitions.
+                // ------------------------------------------------------------
+
+                TCVN_CS_INITIAL,
+                TCVN_CS_INITIALIZING,
+                TCVN_CS_INITIALIZED,
+                TCVN_CS_OPENING,
+                TCVN_CS_OPENED,
+                TCVN_CS_STARTACQUISITION:
+
+                    hr := pCamera^.StartAcquisition();
+
+                    IF FAILED(hr) THEN
+
+                        hrLastError := hr;
+
+                        FailSkill(
+                            hrError := hr,
+                            sMessage := 'Could not start camera acquisition');
+
+                    END_IF
+
+
+
+                // ------------------------------------------------------------
+                // Normal operating state
+                // ------------------------------------------------------------
+
+                TCVN_CS_ACQUIRING:
+
+                  
+
+                    hr := pCamera^.GetCurrentImage(ipImage);
+
+
+                    IF SUCCEEDED(hr) AND (ipImage <> 0) THEN
+						ipbackimage := ipImage;
+				
+						hr := F_VN_TransformIntoDisplayableImage(
+							ipSrcImage  := ipImage,
+							ipDestImage := ipImageDisp,
+							hrPrev      := hr);
+                        phase := 20;
+						
+						ipImage:= ipbackImage;
+						
+
+                     END_IF
+
+
+            END_CASE
+
+
+
+        // ====================================================================
+        // 20 - Process acquired image
+        // ====================================================================
+
+        20:
+			IF ipbackimage <> ipImage THEN
+				//WTF
+				here:=TRUE;
+				
+			END_IF
+            IF ipImage = 0 THEN
+
                 FailSkill(
                     hrError := E_FAIL,
-                    sMessage := 'GigE camera controller is in error state');
+                    sMessage := 'Camera returned an invalid image interface');
 
-            ELSIF eCameraState < TCVN_CS_INITIALIZED THEN
-                hr := pCamera^.InitializeCamera();
-                IF FAILED(hr) THEN
-                    FailSkill(hrError := hr, sMessage := 'Could not initialize GigE camera');
-                END_IF
+            ELSE
 
-            ELSIF eCameraState < TCVN_CS_OPENED THEN
-                hr := pCamera^.OpenCamera();
-                IF FAILED(hr) THEN
-                    FailSkill(hrError := hr, sMessage := 'Could not open GigE camera');
-                END_IF
+                // Start every vision pipeline with a clean HRESULT.
+                hr := S_OK;
 
-            ELSIF eCameraState < TCVN_CS_ACQUIRING THEN
-                hr := pCamera^.StartAcquisition();
-                IF FAILED(hr) THEN
-                    FailSkill(hrError := hr, sMessage := 'Could not start image acquisition');
-                END_IF
+                ipDecodedData := 0;
+                ipContours := 0;
 
-            ELSIF eCameraState = TCVN_CS_ACQUIRING THEN
-                IF bSoftwareTrigger THEN
-                    phase := 20;
+
+                // ------------------------------------------------------------
+                // Start Vision watchdog
+                // ------------------------------------------------------------
+
+                hrWatchdog := F_VN_StartRelWatchdog(
+                    nWatchdogTimeUs,
+                    S_OK);
+
+
+                // ------------------------------------------------------------
+                // Read QR code
+                // ------------------------------------------------------------
+
+                hr := F_VN_ReadQRCodeExp(
+                    ipSrcImage      := ipImage,
+                    ipDecodedData   := ipDecodedData,
+                    ipContours      := ipContours,
+                    nCodeNumber     := 1,
+                    eSearchStrategy := TCVN_CSS_DEFAULT,
+                    hrPrev          := hr);
+
+
+                // ------------------------------------------------------------
+                // Stop watchdog
+                // ------------------------------------------------------------
+
+                hrWatchdog := F_VN_StopWatchdog(
+                    hrStartWatchdog := hrWatchdog,
+                    tRest           => tWatchdogRemaining);
+
+
+                // ------------------------------------------------------------
+                // QR found
+                // ------------------------------------------------------------
+
+                IF hr = S_OK THEN
+
+                    bQRCodeFound := TRUE;
+                    phase := 30;
+
+
+                // ------------------------------------------------------------
+                // Valid image, but no QR code
+                // ------------------------------------------------------------
+
+                ELSIF hr = S_FALSE THEN
+
+                    bQRCodeFound := FALSE;
+                    sQRCode := '';
+
+                    phase := 100;
+
+
+                // ------------------------------------------------------------
+                // Actual Vision processing error
+                // ------------------------------------------------------------
+
                 ELSE
-                    phase := 30;
+
+                    hrLastError := hr;
+
+                    FailSkill(
+                        hrError := hr,
+                        sMessage := 'QR code reading failed');
+
                 END_IF
+
             END_IF
 
-        20: // TriggerImage_active
-            eCameraState := pCamera^.GetState();
-            IF (eCameraState = TCVN_CS_ACQUIRING) OR
-               (eCameraState = TCVN_CS_TRIGGERING) THEN
-                hr := pCamera^.TriggerImage();
-                IF FAILED(hr) THEN
-                    FailSkill(hrError := hr, sMessage := 'Software trigger failed');
-                ELSIF SUCCEEDED(hr) THEN
-                    phase := 30;
-                END_IF
-            ELSE
+
+
+        // ====================================================================
+        // 30 - Export QR payload
+        // ====================================================================
+
+        30:
+
+            IF ipDecodedData = 0 THEN
+
                 FailSkill(
-                    hrError := 16#712,
-                    sMessage := 'Camera is not ready for software trigger');
-            END_IF
+                    hrError := E_FAIL,
+                    sMessage := 'QR decoded data container is invalid');
 
-        30: // AcquireImage_active
-            hr := pCamera^.GetCurrentImage(ipImage);
-            IF FAILED(hr) THEN
-                FailSkill(hrError := hr, sMessage := 'Could not acquire camera image');
-            ELSIF (hr = S_OK) AND (ipImage <> 0) THEN
-                phase := 40;
-            END_IF
-            // S_FALSE or an empty queue is not a technical error: wait for a frame.
-
-        40: // ReadQRCode_active
-            hrWatchdog := F_VN_StartRelWatchdog(nWatchdogTimeUs, S_OK);
-            hr := F_VN_ReadQRCodeExp(
-                ipSrcImage      := ipImage,
-                ipDecodedData   := ipDecodedData,
-                ipContours      := ipContours,
-                nCodeNumber     := 1,
-                eSearchStrategy := TCVN_CSS_DEFAULT,
-                hrPrev          := S_OK);
-            hrWatchdog := F_VN_StopWatchdog(
-                hrStartWatchdog := hrWatchdog,
-                tRest  => tWatchdogRemaining
-			);
-            IF hr = S_OK THEN
-                bQRCodeFound := TRUE;
-                phase := 50;
-            ELSIF hr = S_FALSE THEN
-                // Successful inspection, but no QR code was found.
-                bQRCodeFound := FALSE;
-                sQRCode := '';
-                phase := 100;
             ELSE
-                FailSkill(hrError := hr, sMessage := 'QR code reading failed');
+
+                hr := F_VN_ExportSubContainer_String(
+                    ipContainer := ipDecodedData,
+                    nIndex      := 0,
+                    sText       := sQRCode,
+                    nMaxLength  := 255,
+                    hrPrev      := S_OK);
+
+
+                IF FAILED(hr) THEN
+
+                    hrLastError := hr;
+
+                    FailSkill(
+                        hrError := hr,
+                        sMessage := 'Could not export QR payload');
+
+                ELSE
+
+                    phase := 100;
+
+                END_IF
+
             END_IF
 
-        50: // ExportResult_active
-            hr := F_VN_ExportSubContainer_String(
-                ipContainer := ipDecodedData,
-                nIndex      := 0,
-                sText       := sQRCode,
-                nMaxLength  := 255,
-                hrPrev      := S_OK);
 
-            IF FAILED(hr) THEN
-                FailSkill(hrError := hr, sMessage := 'Could not export QR payload');
-            ELSE
-                phase := 100;
-            END_IF
 
-        100: // Done_active
+        // ====================================================================
+        // 100 - Done
+        // ====================================================================
+
+        100:
+
             IF NOT bRunDone THEN
+
                 ExecutionResult := SUCCESS;
                 ExecutionDone := TRUE;
+
                 bRunDone := TRUE;
+				Activate();
             END_IF
+
+
     END_CASE
+
 END_IF]]></ST>
     </Implementation>
     <Folder Name="Internal" Id="{6553d82c-833e-40e5-a849-b9061c767792}" />
@@ -231,13 +412,13 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnActivate();
 
-phase := 0;
+phase := 10;
 SFCInit := FALSE;
 bRunDone := FALSE;
 bQRCodeFound := FALSE;
 sQRCode := '';
 hrLastError := S_OK;
-ipImage := 0;
+// ipImage := 0;
 ipDecodedData := 0;
 ipContours := 0;
 myResult := SUCCESS;
@@ -255,9 +436,9 @@ END_VAR]]></Declaration>
         <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
 
 SFCInit := TRUE;
-phase := 0;
+phase := 10;
 bRunDone := FALSE;
-ipImage := 0;
+// ipImage := 0;
 ipDecodedData := 0;
 ipContours := 0;
 myResult := SUCCESS;
@@ -275,9 +456,9 @@ END_VAR]]></Declaration>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
 
 SFCInit := TRUE;
-phase := 0;
+phase := 10;
 bRunDone := FALSE;
-ipImage := 0;
+// ipImage := 0;
 ipDecodedData := 0;
 ipContours := 0;
 myResult := SUCCESS;
@@ -295,9 +476,9 @@ END_VAR]]></Declaration>
         <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
 
 SFCInit := TRUE;
-phase := 0;
+phase := 10;
 bRunDone := FALSE;
-ipImage := 0;
+// ipImage := 0;
 ipDecodedData := 0;
 ipContours := 0;
 myResult := SUCCESS;

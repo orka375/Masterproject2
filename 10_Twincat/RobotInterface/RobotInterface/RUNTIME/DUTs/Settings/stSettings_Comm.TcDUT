@@ -3,6 +3,11 @@
   <DUT Name="stSettings_Comm" Id="{399e18e4-e44f-4fbb-8c56-a1ad0a0061ec}">
     <Declaration><![CDATA[TYPE stSettings_Comm EXTENDS stSettings_Base :
 STRUCT
+	tConnectTimeout    : TIME := T#10S;
+    tDisconnectTimeout : TIME := T#5S;
+    tReconnectDelay    : TIME := T#2S;
+    nMaxAutoReconnectAttempts : UINT := 3;
+	
 END_STRUCT
 END_TYPE
 ]]></Declaration>

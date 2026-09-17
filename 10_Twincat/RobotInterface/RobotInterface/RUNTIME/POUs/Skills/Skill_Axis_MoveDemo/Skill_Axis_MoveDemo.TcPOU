@@ -58,17 +58,17 @@ IF prog=30 THEN
 END_IF
 ]]></ST>
     </Implementation>
-    <Method Name="_M_Start" Id="{4b121c5e-45d8-4b6c-981d-6112d345e252}">
+    <Method Name="StartCustomSkill" Id="{4b121c5e-45d8-4b6c-981d-6112d345e252}">
       <Declaration><![CDATA[
-METHOD _M_Start : eResult
+METHOD StartCustomSkill : eResult
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[bExecute := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="_M_Stop" Id="{2b9fa97c-2a45-4cb8-b802-28edc2b28e00}">
+    <Method Name="StopCustomSkill" Id="{2b9fa97c-2a45-4cb8-b802-28edc2b28e00}">
       <Declaration><![CDATA[
-METHOD _M_Stop : eResult
+METHOD StopCustomSkill : eResult
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[bAbort := TRUE;]]></ST>

@@ -9,40 +9,40 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-    <ST><![CDATA[CYCLIC_LIN_AXIS();]]></ST>
+      <ST><![CDATA[CYCLIC_LIN_AXIS();]]></ST>
     </Implementation>
-  <Action Name="CYCLIC_LIN_AXIS" Id="{5e1e5d5c-d399-452a-a592-785fd32ef430}">
+    <Action Name="CYCLIC_LIN_AXIS" Id="{5e1e5d5c-d399-452a-a592-785fd32ef430}">
       <Implementation>
-    <ST><![CDATA[IF _pSettingsLinAxis <> 0 THEN
-  HMI_ROB._tcppos := _pSettingsLinAxis^.InstallationPose;
-  _tcpvel.x := 0.0;
-  _tcpvel.y := 0.0;
-  _tcpvel.z := 0.0;
+        <ST><![CDATA[IF _pSettingsLinAxis <> 0 THEN
+  TCPPos_PLCUnit := _pSettingsLinAxis^.InstallationPose;
+  TCPVel_PLCUnit.x := 0.0;
+  TCPVel_PLCUnit.y := 0.0;
+  TCPVel_PLCUnit.z := 0.0;
 
   CASE _pSettingsLinAxis^.Direction OF
     eDirections.Xplus:
-      HMI_ROB._tcppos.x := HMI_ROB._tcppos.x + (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
-      _tcpvel.x := _axisActualVelocity;
+      TCPPos_PLCUnit.x := TCPPos_PLCUnit.x + (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
+      TCPVel_PLCUnit.x := _axisActualVelocity;
     eDirections.Xminus:
-      HMI_ROB._tcppos.x := HMI_ROB._tcppos.x - (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
-      _tcpvel.x := -_axisActualVelocity;
+      TCPPos_PLCUnit.x := TCPPos_PLCUnit.x - (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
+      TCPVel_PLCUnit.x := -_axisActualVelocity;
     eDirections.Yplus:
-      HMI_ROB._tcppos.y := HMI_ROB._tcppos.y + (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
-      _tcpvel.y := _axisActualVelocity;
+      TCPPos_PLCUnit.y := TCPPos_PLCUnit.y + (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
+      TCPVel_PLCUnit.y := _axisActualVelocity;
     eDirections.Yminus:
-      HMI_ROB._tcppos.y := HMI_ROB._tcppos.y - (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
-      _tcpvel.y := -_axisActualVelocity;
+      TCPPos_PLCUnit.y := TCPPos_PLCUnit.y - (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
+      TCPVel_PLCUnit.y := -_axisActualVelocity;
     eDirections.Zplus:
-      HMI_ROB._tcppos.z := HMI_ROB._tcppos.z + (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
-      _tcpvel.z := _axisActualVelocity;
+      TCPPos_PLCUnit.z := TCPPos_PLCUnit.z + (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
+      TCPVel_PLCUnit.z := _axisActualVelocity;
     eDirections.Zminus:
-      HMI_ROB._tcppos.z := HMI_ROB._tcppos.z - (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
-      _tcpvel.z := -_axisActualVelocity;
+      TCPPos_PLCUnit.z := TCPPos_PLCUnit.z - (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
+      TCPVel_PLCUnit.z := -_axisActualVelocity;
   END_CASE
 END_IF
 
 CYCLIC_AXIS();]]></ST>
       </Implementation>
-  </Action>
+    </Action>
   </POU>
 </TcPlcObject>

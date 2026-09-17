@@ -6,7 +6,7 @@ FUNCTION_BLOCK FB_1_ROB EXTENDS FB_0_Base
 // IMPLEMENTS ITF_1_Robot
 
 VAR_INPUT
-	Settings_Rob: stSettings_Rob;
+	SET_R: stSettings_Rob;
 	PM: FB_PointManager;
 	COMM: POINTER TO FB_1_COMM := ADR(emptyCOMM);
 
@@ -20,8 +20,10 @@ VAR_OUTPUT
 	eCommandStatus: eProgress;
 	eCommandResult: eResult := NONE;
 	
-	 _jointvel: stJoint6;
-     _tcpvel : ST_Pose;
+	TCPPos_PLCUnit : ST_Pose;				// mm/rad
+	JointPos_PLCUnit: stJoint6;			//rad
+	JointVel_PLCUnit: stJoint6;
+    TCPVel_PLCUnit : ST_Pose;
 END_VAR
 
 VAR
@@ -55,7 +57,7 @@ PROPERTY ActualJointPosition : stJoint6
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[ActualJointPosition := HMI_ROB._jointpos;]]></ST>
+          <ST><![CDATA[ActualJointPosition := JointPos_PLCUnit;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -68,9 +70,18 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[ActualJointVelocity := _jointvel;]]></ST>
+          <ST><![CDATA[ActualJointVelocity := JointVel_PLCUnit;]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{05d019ac-6445-4c92-986d-31cfda1313fe}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[JointVel_PLCUnit := ActualJointVelocity;]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Property Name="ActualPosition" Id="{0ea3c3d9-9984-43b2-ac68-a1a8d409d11e}" FolderPath="Generic Status\">
       <Declaration><![CDATA[{warning 'Add property implementation'}
@@ -81,7 +92,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[ActualPosition := HMI_ROB._tcppos;]]></ST>
+          <ST><![CDATA[ActualPosition := TCPPos_PLCUnit;]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{44131c92-965f-457b-85c5-727220982875}">
@@ -90,7 +101,7 @@ VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[HMI_ROB._tcppos:= ActualPosition;
+          <ST><![CDATA[TCPPos_PLCUnit:= ActualPosition;
 ]]></ST>
         </Implementation>
       </Set>
@@ -104,7 +115,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[ActualVelocity := _tcpvel;]]></ST>
+          <ST><![CDATA[ActualVelocity := TCPVel_PLCUnit;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -247,20 +258,20 @@ PM(pRobot := THIS);
 
 
 // HMI display mirrors: _tcppos/_jointpos stay in PLC standard (mm/rad); display in mm/deg.
-HMI_ROB._tcppos_display := ChangePoseToHMIStandard(Pose := HMI_ROB._tcppos);
+HMI_ROB.TCPPos_HMIUnit := ChangePoseToHMIStandard(Pose := TCPPos_PLCUnit);
 
-HMI_ROB._jointpos_display.joint1 := ChangeRealToHMIStandard(
-    Value := HMI_ROB._jointpos.joint1, Category := eUnitCategory.Joint);
-HMI_ROB._jointpos_display.joint2 := ChangeRealToHMIStandard(
-    Value := HMI_ROB._jointpos.joint2, Category := eUnitCategory.Joint);
-HMI_ROB._jointpos_display.joint3 := ChangeRealToHMIStandard(
-    Value := HMI_ROB._jointpos.joint3, Category := eUnitCategory.Joint);
-HMI_ROB._jointpos_display.joint4 := ChangeRealToHMIStandard(
-    Value := HMI_ROB._jointpos.joint4, Category := eUnitCategory.Joint);
-HMI_ROB._jointpos_display.joint5 := ChangeRealToHMIStandard(
-    Value := HMI_ROB._jointpos.joint5, Category := eUnitCategory.Joint);
-HMI_ROB._jointpos_display.joint6 := ChangeRealToHMIStandard(
-    Value := HMI_ROB._jointpos.joint6, Category := eUnitCategory.Joint);
+HMI_ROB.JointPos_HMIUnit.joint1 := ChangeRealToHMIStandard(
+    Value := JointPos_PLCUnit.joint1, Category := eUnitCategory.Joint);
+HMI_ROB.JointPos_HMIUnit.joint2 := ChangeRealToHMIStandard(
+    Value := JointPos_PLCUnit.joint2, Category := eUnitCategory.Joint);
+HMI_ROB.JointPos_HMIUnit.joint3 := ChangeRealToHMIStandard(
+    Value := JointPos_PLCUnit.joint3, Category := eUnitCategory.Joint);
+HMI_ROB.JointPos_HMIUnit.joint4 := ChangeRealToHMIStandard(
+    Value := JointPos_PLCUnit.joint4, Category := eUnitCategory.Joint);
+HMI_ROB.JointPos_HMIUnit.joint5 := ChangeRealToHMIStandard(
+    Value := JointPos_PLCUnit.joint5, Category := eUnitCategory.Joint);
+HMI_ROB.JointPos_HMIUnit.joint6 := ChangeRealToHMIStandard(
+    Value := JointPos_PLCUnit.joint6, Category := eUnitCategory.Joint);
 
 // Adopt communication faults + health so the robot reflects its comm child.
 IF COMM <> 0 AND COMM <> ADR(emptyCOMM) THEN
@@ -268,18 +279,15 @@ IF COMM <> 0 AND COMM <> ADR(emptyCOMM) THEN
 	IF COMM^.State = eState.ErrorProcessing OR COMM^.MESSENGER.HasActivError THEN
         SetRecoveryMode(Mode := COMM^.RecoveryMode);
 		Messenger.AddError(eMessageCategories.ParentFailed,Path,'Communication module in error');
-	ELSE
-		Messenger.Clear(Path,'Communication module in error');
 	END_IF
-	HMI_BASE.MyHealth := ProposeHealth(HMI_BASE.MyHealth, COMM^.HMI_BASE.MyHealth);
 END_IF
 
 
 
 
-FOR index := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
-    IF pA_Skills[index] <> 0 THEN
-        pA_Skills[index]^.CYCLIC_SKILL();
+FOR index := TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO
+    IF Skills[index] <> 0 THEN
+        Skills[index]^.CYCLIC_SKILL();
     END_IF
 END_FOR
 
@@ -299,12 +307,12 @@ END_FOR
 
 //RobotMoving:
 HMI_ROB.bMoving :=
-  (ABS(_tcpvel.X)  > Settings_Rob.LinearStandStillLimit) OR
-  (ABS(_tcpvel.Y)  > Settings_Rob.LinearStandStillLimit) OR
-  (ABS(_tcpvel.Z)  > Settings_Rob.LinearStandStillLimit) OR
-  (ABS(_tcpvel.roll) > Settings_Rob.AngularStandStillLimit) OR
-  (ABS(_tcpvel.pitch) > Settings_Rob.AngularStandStillLimit) OR
-  (ABS(_tcpvel.yaw) > Settings_Rob.AngularStandStillLimit);
+  (ABS(TCPVel_PLCUnit.X)  > SET_R.LinearStandStillLimit) OR
+  (ABS(TCPVel_PLCUnit.Y)  > SET_R.LinearStandStillLimit) OR
+  (ABS(TCPVel_PLCUnit.Z)  > SET_R.LinearStandStillLimit) OR
+  (ABS(TCPVel_PLCUnit.roll) > SET_R.AngularStandStillLimit) OR
+  (ABS(TCPVel_PLCUnit.pitch) > SET_R.AngularStandStillLimit) OR
+  (ABS(TCPVel_PLCUnit.yaw) > SET_R.AngularStandStillLimit);
 	
 // Generic robot command contributes to FB_0_Base.Busy. Terminal command values remain latched,
 // therefore only non-terminal phases make the robot busy.
@@ -312,7 +320,7 @@ HMI_BASE.bBusy := (nCommandID <> 0)
     AND ((eCommandStatus = INIT) OR (eCommandStatus = ACKNOWLEDGE) OR (eCommandStatus = RUNNING));
 
 // Ready means: the robot can accept a NEW semantic command now.
-HMI_ROB.bReady := CanAcceptCommand;
+HMI_ROB.bReady := Ready;
 
 ]]></ST>
       </Implementation>
@@ -343,10 +351,10 @@ EStop := COMM^.EStop();]]></ST>
       <Implementation>
         <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
 
-CurrentTCP REF= HMI_ROB._tcppos;
-T_W_B := FromPose(Settings_Rob.InstallationPose);
+CurrentTCP REF= TCPPos_PLCUnit;
+T_W_B := FromPose(SET_R.InstallationPose);
 
-IF NOT Settings_Rob.RegisterAsTopLevelRobot THEN
+IF NOT SET_R.RegisterAsTopLevelRobot THEN
 	FB_Init := TRUE;
 	RETURN;
 END_IF
@@ -415,12 +423,12 @@ END_VAR]]></Declaration>
           <ST><![CDATA[joints := ActualJointPosition;
 
 InSavePosition :=
-    (ABS(joints.joint1 - Settings_Rob.SafePosition.joint1) <= Settings_Rob.SafePositionTolerance) AND
-    (ABS(joints.joint2 - Settings_Rob.SafePosition.joint2) <= Settings_Rob.SafePositionTolerance) AND
-    (ABS(joints.joint3 - Settings_Rob.SafePosition.joint3) <= Settings_Rob.SafePositionTolerance) AND
-    (ABS(joints.joint4 - Settings_Rob.SafePosition.joint4) <= Settings_Rob.SafePositionTolerance) AND
-    (ABS(joints.joint5 - Settings_Rob.SafePosition.joint5) <= Settings_Rob.SafePositionTolerance) AND
-    (ABS(joints.joint6 - Settings_Rob.SafePosition.joint6) <= Settings_Rob.SafePositionTolerance);]]></ST>
+    (ABS(joints.joint1 - SET_R.SafePosition.joint1) <= SET_R.SafePositionTolerance) AND
+    (ABS(joints.joint2 - SET_R.SafePosition.joint2) <= SET_R.SafePositionTolerance) AND
+    (ABS(joints.joint3 - SET_R.SafePosition.joint3) <= SET_R.SafePositionTolerance) AND
+    (ABS(joints.joint4 - SET_R.SafePosition.joint4) <= SET_R.SafePositionTolerance) AND
+    (ABS(joints.joint5 - SET_R.SafePosition.joint5) <= SET_R.SafePositionTolerance) AND
+    (ABS(joints.joint6 - SET_R.SafePosition.joint6) <= SET_R.SafePositionTolerance);]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -486,7 +494,7 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[settings.Velocity := Velocity;
-settings.Joints := Settings_Rob.SafePosition;
+settings.Joints := SET_R.SafePosition;
 MoveToSafePosition := CommandHandler(Cmd := eCommands.MoveJJoints, Settings := settings);]]></ST>
       </Implementation>
     </Method>
@@ -608,7 +616,7 @@ IF SIMMODE THEN
 		myResult:=SUCCESS;
 END_IF
 
-IF NOT PM.Initalising(sName := Name) = SUCCESS THEN
+IF NOT PM.Configure(sName := Name) = SUCCESS THEN
 	myResult:=NONE;
 END_IF
 
@@ -742,7 +750,7 @@ OnShutdown := CombineResults(eParentResult,myResult);
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Ready := CanAcceptCommand AND NOT _bReadyInhibit;]]></ST>
+          <ST><![CDATA[Ready := SUPER^.Ready AND CanAcceptCommand AND NOT _bReadyInhibit;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -958,15 +966,15 @@ END_VAR
     SetSpeedOverride := FALSE;
     RETURN;
 END_IF
-HMI_ROB._speedOverride := prozent; // depend on Robot Type //TODO
+HMI_ROB.ValueOfSpeedOverride := prozent; // depend on Robot Type //TODO
 SetSpeedOverride := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Action Name="SETUP_ROB" Id="{a4cb3038-46c5-4081-b870-1e91e16123a5}">
       <Implementation>
-        <ST><![CDATA[FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO //fb_init??
-	IF pA_Skills[j]<>0 THEN
-		pA_Skills[j]^.pOwner:=THIS;
+        <ST><![CDATA[FOR j:= TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO //fb_init??
+	IF Skills[j]<>0 THEN
+		Skills[j]^.pOwner:=THIS;
 	END_IF
 END_FOR
 

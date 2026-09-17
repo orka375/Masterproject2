@@ -10,44 +10,28 @@ VAR_INPUT
 	TAG: STRING := 'EMPTY';
 	DEBUG_SKILL: DEBUG_SKILL;
 	pOwner: POINTER TO FB_0_BASE;
-	
-	bSubSkillRunning: BOOL;
-	SubSkill: POINTER TO FB_1_Skill;
-	
-	bMoveRunning: BOOL;
-	nCalledMoveID: UINT;
 END_VAR
 
 
 
 VAR_OUTPUT
 	HMI_SKILL : stHMI_SKILL;
-	
-
- 	
-
-
-
+	SubSkill: POINTER TO FB_1_Skill;
 END_VAR
 
 VAR
+	nCalledCmdID: UINT;
+	bSubSkillRunning: BOOL;
 	rtAbort: R_TRIG;
 	rtStop: R_TRIG;
-	rtRestart: R_TRIG;
+	
 	_rExec: R_TRIG;
 	_rStopCmd: R_TRIG;
-	_rReset: R_TRIG;
+
 	_startReq: BOOL;
-	    _executionDone       : BOOL;
+	_executionDone       : BOOL;
 	_execuctionresult: eResult;
-	
 
-
-    nSequence   : UDINT;
-
-    tonTimeout  : TON;
-	_activateDeploy: BOOL;
-	_emergency: BOOL;
 	SubSkillPhase: INT;
 END_VAR]]></Declaration>
     <Implementation>
@@ -56,40 +40,6 @@ END_VAR]]></Declaration>
     <Folder Name="Internal" Id="{96dbd9e8-6c39-4ccb-8b32-e843cad33cc5}" />
     <Folder Name="Public" Id="{8eeb3120-c4f5-4dff-98ca-2143f9392787}" />
     <Folder Name="StateControl" Id="{71a3cf00-e64f-49c4-a480-600b201a90b4}" />
-    <Method Name="_M_Start" Id="{be1a62f7-3d1f-44a1-b23c-14be160cd3f9}" FolderPath="Internal\">
-      <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD  _M_Start : eResult
-
-VAR
-	config_succ: BOOL:=TRUE;
-	act_succ: BOOL;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[// ----- YOUR CODE HERE (incl. Alarms) -------------
-
-	//Some SFC shit or something
-
-// ----- END YOUR CODE -----------------------------
-ExecutionDone:=FALSE;		//IMPORTANT
-ExecutionResult:=NONE;		//IMPORTANT
-_M_Start:=SUCCESS;
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="_M_Stop" Id="{a9d4d73b-7482-4200-8810-5606d9f030a9}" FolderPath="Internal\">
-      <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD  _M_Stop : eResult
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[// ----- YOUR CODE HERE (incl. Alarms) -------------
-
-	//Some SFC shit or something
-
-// ----- END YOUR CODE -----------------------------
-_M_Stop:=SUCCESS;
-]]></ST>
-      </Implementation>
-    </Method>
     <Action Name="CYCLIC_SKILL" Id="{9ca32eb4-b06c-4bf7-9875-7dec22454c33}">
       <Implementation>
         <ST><![CDATA[
@@ -102,7 +52,7 @@ RUN_DEBUG_SKILL();
 // Stop/Reset act on the rising edge.
 _rExec(CLK := HMI_SKILL.bExecute);
 _rStopCmd(CLK := HMI_SKILL.bStop);
-_rReset(CLK := HMI_SKILL.bReset);
+
 
 IF _rExec.Q THEN
 	_startReq := TRUE;
@@ -111,10 +61,7 @@ IF _rStopCmd.Q THEN
 	_startReq := FALSE;
 	Stop();
 END_IF
-IF _rReset.Q THEN
-	_startReq := FALSE;
-	Reset();
-END_IF
+
 
 IF _startReq THEN
 	IF (State = eState.Active) OR (State = eState.ErrorProcessing) THEN
@@ -201,6 +148,7 @@ IF (LastTransitionType=eTransitions.Activate AND LastTransitionResult<=SUCCESS) 
 VAR_INPUT
 	pSkillToExecute: POINTER TO FB_1_Skill;
 	pbTransition: POINTER TO BOOL;
+	ExecutionOfSubSkillDone: BOOL;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -233,7 +181,7 @@ IF SubSkillPhase= 10 THEN		//DO
 	END_IF
 	
 	IF SubSkill^.ExecutionDone AND SubSkill^.ExecutionResult<>SUCCESS THEN
-		ExecutionDone:=TRUE;
+		ExecutionDone:=TRUE;		//BUG
 		ExecutionResult:=FAILURE;
 		Deactivate();
 		Messenger.AddWarn(eMessageCategories.Undefined,Path,'SubSkill Execution failed/errored');
@@ -332,7 +280,7 @@ END_VAR
     END_IF
   END_FOR
 
-  IF SETUP.nSkillCount < SETUP.MaxNrofSkills THEN
+  IF SETUP.nSkillCount < SETUP.MaxNrofSkills THEN	//BUG
     SETUP.nSkillCount := SETUP.nSkillCount + 1;
     SETUP.apSkill[SETUP.nSkillCount] := THIS;
     FB_Init := TRUE;
@@ -364,7 +312,7 @@ IF State>=eState.Inactive AND State<>eState.Active THEN
 	IF HMI_SKILL.ExternalImplementation THEN
 		myResult:= ExternalStart();
 	ELSE
-		myResult:=_M_Start();
+		myResult:=StartCustomSkill();
 	END_IF
 	
 ELSE
@@ -439,7 +387,7 @@ myResult:=SUCCESS;
 IF pOwner = 0 THEN
   MEssenger.AddWarn(eMessageCategories.StateMachine,Path,'On_XX not possible because owner is not assigned');
   myResult:=FAILURE;
-ELSIF pOwner^.State <>eState.Inactive AND pOwner^.State <>eState.Configuring  THEN
+ELSIF pOwner^.State < eState.Configuring  THEN
 	MEssenger.AddWarn(eMessageCategories.StateMachine,Path,'On_XX not possible because _owner/pRob is not ready');
 	myResult:=None;
 END_IF
@@ -474,7 +422,7 @@ IF State>=eState.Deactivating THEN
 	IF HMI_SKILL.ExternalImplementation THEN
 		myResult:= ExternalStop();
 	ELSE
-		myResult:= _M_Stop();
+		myResult:= StopCustomSkill();
 	END_IF
 // ELSIF State=eState.Deactivating	THEN
 // 	myResult:=SUCCESS;
@@ -514,8 +462,7 @@ myResult := NONE;
 // A skill never resumes after owner/robot recovery. Terminate all local execution
 // handles and wait for an active subskill to become neutral.
 _startReq := FALSE;
-bMoveRunning := FALSE;
-nCalledMoveID := 0;
+nCalledCmdID := 0;
 
 IF pOwner <> 0 AND pOwner^.ActivSkill = THIS THEN
     pOwner^.ActivSkill := 0;
@@ -573,8 +520,7 @@ END_VAR]]></Declaration>
 myResult := NONE;
 
 _startReq := FALSE;
-bMoveRunning := FALSE;
-nCalledMoveID := 0;
+nCalledCmdID := 0;
 
 IF HMI_SKILL.ExternalImplementation THEN
     ExternalStop();
@@ -609,6 +555,26 @@ END_IF
 ]]></ST>
       </Implementation>
     </Action>
+    <Method Name="StartCustomSkill" Id="{be1a62f7-3d1f-44a1-b23c-14be160cd3f9}" FolderPath="Internal\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD  StartCustomSkill : eResult
+
+VAR
+	config_succ: BOOL:=TRUE;
+	act_succ: BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+	//Some SFC shit or something
+
+// ----- END YOUR CODE -----------------------------
+ExecutionDone:=FALSE;		//IMPORTANT
+ExecutionResult:=NONE;		//IMPORTANT
+StartCustomSkill:=SUCCESS;
+]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="Stop" Id="{d1f535cb-92d0-408d-90d6-a0632cef04b6}" FolderPath="Public\">
       <Declaration><![CDATA[{attribute 'TcRpcEnable':='1'}
 METHOD Stop : eResult
@@ -636,6 +602,20 @@ IF LastTransitionType=eTransitions.Deactivate THEN //TODO CHECK
 	Stop:=LastTransitionResult; 
  END_IF
  ]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StopCustomSkill" Id="{a9d4d73b-7482-4200-8810-5606d9f030a9}" FolderPath="Internal\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD  StopCustomSkill : eResult
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+	//Some SFC shit or something
+
+// ----- END YOUR CODE -----------------------------
+StopCustomSkill:=SUCCESS;
+]]></ST>
       </Implementation>
     </Method>
   </POU>

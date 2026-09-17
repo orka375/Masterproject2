@@ -31,17 +31,17 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[// UR native units: SI throughout (m, rad, m/s, rad/s, m/s^2, rad/s^2).
-Settings_Rob.StandardUnits.Position            := eUnit.m;
-Settings_Rob.StandardUnits.Orientation         := eUnit.rad;
-Settings_Rob.StandardUnits.Joint               := eUnit.rad;
-Settings_Rob.StandardUnits.LinearVelocity      := eUnit.m;
-Settings_Rob.StandardUnits.AngularVelocity     := eUnit.rad;
-Settings_Rob.StandardUnits.JointVelocity       := eUnit.rad;
-Settings_Rob.StandardUnits.LinearAcceleration  := eUnit.m;
-Settings_Rob.StandardUnits.AngularAcceleration := eUnit.rad;
-Settings_Rob.StandardUnits.JointAcceleration   := eUnit.rad;
+SET_R.StandardUnits.Position            := eUnit.m;
+SET_R.StandardUnits.Orientation         := eUnit.rad;
+SET_R.StandardUnits.Joint               := eUnit.rad;
+SET_R.StandardUnits.LinearVelocity      := eUnit.m;
+SET_R.StandardUnits.AngularVelocity     := eUnit.rad;
+SET_R.StandardUnits.JointVelocity       := eUnit.rad;
+SET_R.StandardUnits.LinearAcceleration  := eUnit.m;
+SET_R.StandardUnits.AngularAcceleration := eUnit.rad;
+SET_R.StandardUnits.JointAcceleration   := eUnit.rad;
 
-UR_COMM.Config.sIpAddress := sRobotIp;
+UR_COMM.SET_R_M_UR.sIpAddress := sRobotIp;
 UR_COMM();
 
 COMM := ADR(UR_COMM);
@@ -63,22 +63,22 @@ IF UR_COMM.RTDE.bNewData THEN
     _urFeedbackPose.yaw   := _urFeedbackRPY.yaw;
 
     // Convert translation to millimetres and preserve the RPY angles in radians.
-    HMI_ROB._tcppos := ChangePoseFromRobotStandard(
+    TCPPos_PLCUnit := ChangePoseFromRobotStandard(
         Pose := _urFeedbackPose,
-        RobotStandardUnits := Settings_Rob.StandardUnits);
+        RobotStandardUnits := SET_R.StandardUnits);
 
-    HMI_ROB._jointpos.joint1 := ChangeRealFromRobotStandard(
-        Value := UR_COMM.RTDE.aActualQ[0], Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
-    HMI_ROB._jointpos.joint2 := ChangeRealFromRobotStandard(
-        Value := UR_COMM.RTDE.aActualQ[1], Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
-    HMI_ROB._jointpos.joint3 := ChangeRealFromRobotStandard(
-        Value := UR_COMM.RTDE.aActualQ[2], Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
-    HMI_ROB._jointpos.joint4 := ChangeRealFromRobotStandard(
-        Value := UR_COMM.RTDE.aActualQ[3], Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
-    HMI_ROB._jointpos.joint5 := ChangeRealFromRobotStandard(
-        Value := UR_COMM.RTDE.aActualQ[4], Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
-    HMI_ROB._jointpos.joint6 := ChangeRealFromRobotStandard(
-        Value := UR_COMM.RTDE.aActualQ[5], Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
+    JointPos_PLCUnit.joint1 := ChangeRealFromRobotStandard(
+        Value := UR_COMM.RTDE.aActualQ[0], Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits);
+    JointPos_PLCUnit.joint2 := ChangeRealFromRobotStandard(
+        Value := UR_COMM.RTDE.aActualQ[1], Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits);
+    JointPos_PLCUnit.joint3 := ChangeRealFromRobotStandard(
+        Value := UR_COMM.RTDE.aActualQ[2], Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits);
+    JointPos_PLCUnit.joint4 := ChangeRealFromRobotStandard(
+        Value := UR_COMM.RTDE.aActualQ[3], Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits);
+    JointPos_PLCUnit.joint5 := ChangeRealFromRobotStandard(
+        Value := UR_COMM.RTDE.aActualQ[4], Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits);
+    JointPos_PLCUnit.joint6 := ChangeRealFromRobotStandard(
+        Value := UR_COMM.RTDE.aActualQ[5], Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits);
 END_IF
 
 (* Generic Basic Action lifecycle. UR_COMM owns transport/RTDE interpretation;
@@ -206,22 +206,22 @@ IF (Cmd = eCommands.MoveL) OR (Cmd = eCommands.MoveJ) THEN
     // Unit conversion PLC standard -> UR native (numerical no-op for UR, explicit and safe).
     NativePose := ChangePoseToRobotStandard(
         Pose := NativePose,
-        RobotStandardUnits := Settings_Rob.StandardUnits);
+        RobotStandardUnits := SET_R.StandardUnits);
 END_IF
 
 IF Cmd = eCommands.MoveJJoints THEN
     NativeJoints.joint1 := ChangeRealToRobotStandard(
-        Value := Settings.Joints.joint1, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
+        Value := Settings.Joints.joint1, Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits);
     NativeJoints.joint2 := ChangeRealToRobotStandard(
-        Value := Settings.Joints.joint2, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
+        Value := Settings.Joints.joint2, Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits);
     NativeJoints.joint3 := ChangeRealToRobotStandard(
-        Value := Settings.Joints.joint3, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
+        Value := Settings.Joints.joint3, Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits);
     NativeJoints.joint4 := ChangeRealToRobotStandard(
-        Value := Settings.Joints.joint4, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
+        Value := Settings.Joints.joint4, Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits);
     NativeJoints.joint5 := ChangeRealToRobotStandard(
-        Value := Settings.Joints.joint5, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
+        Value := Settings.Joints.joint5, Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits);
     NativeJoints.joint6 := ChangeRealToRobotStandard(
-        Value := Settings.Joints.joint6, Category := eUnitCategory.Joint, RobotStandardUnits := Settings_Rob.StandardUnits);
+        Value := Settings.Joints.joint6, Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits);
 END_IF
 
 NewCommandID := AllocateCommandID();
@@ -253,10 +253,10 @@ CASE Cmd OF
 
     eCommands.MoveL:
         fVelocity := ChangeRealToRobotStandard(
-            Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := Settings_Rob.StandardUnits);
+            Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := SET_R.StandardUnits);
         IF fVelocity <= 0.0 THEN fVelocity := 0.25; END_IF
         fAcceleration := ChangeRealToRobotStandard(
-            Value := Settings.Acceleration, Category := LinAccCat, RobotStandardUnits := Settings_Rob.StandardUnits);
+            Value := Settings.Acceleration, Category := LinAccCat, RobotStandardUnits := SET_R.StandardUnits);
         IF fAcceleration <= 0.0 THEN fAcceleration := 1.2; END_IF
 
         sLine := '  movel(p[';
@@ -280,10 +280,10 @@ CASE Cmd OF
 
     eCommands.MoveJ:
         fVelocity := ChangeRealToRobotStandard(
-            Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := Settings_Rob.StandardUnits);
+            Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := SET_R.StandardUnits);
         IF fVelocity <= 0.0 THEN fVelocity := 1.05; END_IF
         fAcceleration := ChangeRealToRobotStandard(
-            Value := Settings.Acceleration, Category := LinAccCat, RobotStandardUnits := Settings_Rob.StandardUnits);
+            Value := Settings.Acceleration, Category := LinAccCat, RobotStandardUnits := SET_R.StandardUnits);
         IF fAcceleration <= 0.0 THEN fAcceleration := 1.4; END_IF
 
         (* URScript movej accepts a pose; UR performs inverse kinematics for it. *)
@@ -308,10 +308,10 @@ CASE Cmd OF
 
     eCommands.MoveJJoints:
         fVelocity := ChangeRealToRobotStandard(
-            Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := Settings_Rob.StandardUnits);
+            Value := Settings.Velocity, Category := LinVelCat, RobotStandardUnits := SET_R.StandardUnits);
         IF fVelocity <= 0.0 THEN fVelocity := 1.05; END_IF
         fAcceleration := ChangeRealToRobotStandard(
-            Value := Settings.Acceleration, Category := LinAccCat, RobotStandardUnits := Settings_Rob.StandardUnits);
+            Value := Settings.Acceleration, Category := LinAccCat, RobotStandardUnits := SET_R.StandardUnits);
         IF fAcceleration <= 0.0 THEN fAcceleration := 1.4; END_IF
 
         (* Joint-space movej: joint angles in UR native units (rad). *)
@@ -432,6 +432,17 @@ END_IF
 OnError := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
+    <Property Name="Ready" Id="{4beae3a9-8b62-479b-bab4-3c4ac4d72c86}">
+      <Declaration><![CDATA[PROPERTY Ready : BOOL]]></Declaration>
+      <Get Name="Get" Id="{e494e2e8-8c4d-4969-ba94-c03a4988e751}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Method Name="RPYToURRotVec" Id="{7f000001-1111-2222-3333-000000000001}">
       <Declaration><![CDATA[// Convert generic RPY (Rz*Ry*Rx composition, rad) to a UR axis-angle rotation vector (rad).
 METHOD PUBLIC RPYToURRotVec : ST_Vector3

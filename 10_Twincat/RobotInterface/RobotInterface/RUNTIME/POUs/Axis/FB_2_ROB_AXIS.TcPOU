@@ -65,8 +65,8 @@ CommitAxisCommand := NewCommandID;]]></ST>
   END_IF
 
   _Homed := _axisHomed;
-  HMI_ROB._jointpos.joint1 := _axisActualPosition;
-  _jointvel.joint1 := _axisActualVelocity;
+  JointPos_PLCUnit.joint1 := _axisActualPosition;
+  JointVel_PLCUnit.joint1 := _axisActualVelocity;
 
   _bReadyInhibit := NOT HMI_ROB_AXIS.ConfigurationValid OR NOT _axisPowered OR Messenger.HasActivError;
   IF _pSettingsAxis = 0 THEN
@@ -100,10 +100,10 @@ CYCLIC_ROB();
 IF (_pSettingsAxis <> 0)
    AND ((_pSettingsAxis^.StandardUnits.Joint = eUnit.rad)
      OR (_pSettingsAxis^.StandardUnits.Joint = eUnit.deg)) THEN
-  HMI_ROB.bMoving := ABS(_axisActualVelocity) > Settings_Rob.AngularStandStillLimit;
+  HMI_ROB.bMoving := ABS(_axisActualVelocity) > SET_R.AngularStandStillLimit;
 ELSE
-  HMI_ROB._jointpos_display.joint1 := _axisActualPosition;
-  HMI_ROB.bMoving := ABS(_axisActualVelocity) > Settings_Rob.LinearStandStillLimit;
+  HMI_ROB.JointPos_HMIUnit.joint1 := _axisActualPosition;
+  HMI_ROB.bMoving := ABS(_axisActualVelocity) > SET_R.LinearStandStillLimit;
 END_IF]]></ST>
       </Implementation>
     </Action>
@@ -216,16 +216,16 @@ PrepareAxisCommand := NewCommandID <> 0;]]></ST>
       <Implementation>
         <ST><![CDATA[IF _pSettingsAxis = 0 THEN RETURN; END_IF
 
-Settings_Rob.bAutoConfigure := _pSettingsAxis^.bAutoConfigure;
-Settings_Rob.nMaxAutoRecoveryAttempts := _pSettingsAxis^.nMaxAutoRecoveryAttempts;
-Settings_Rob.NameOfSafePosition := _pSettingsAxis^.NameOfSafePosition;
-Settings_Rob.LinearStandStillLimit := _pSettingsAxis^.LinearStandStillLimit;
-Settings_Rob.AngularStandStillLimit := _pSettingsAxis^.AngularStandStillLimit;
-Settings_Rob.SafePosition := _pSettingsAxis^.SafePosition;
-Settings_Rob.SafePositionTolerance := _pSettingsAxis^.SafePositionTolerance;
-Settings_Rob.RegisterAsTopLevelRobot := _pSettingsAxis^.RegisterAsTopLevelRobot;
-Settings_Rob.InstallationPose := _pSettingsAxis^.InstallationPose;
-Settings_Rob.StandardUnits := _pSettingsAxis^.StandardUnits;]]></ST>
+SET_R.bAutoConfigure := _pSettingsAxis^.bAutoConfigure;
+SET_R.nMaxAutoRecoveryAttempts := _pSettingsAxis^.nMaxAutoRecoveryAttempts;
+SET_R.NameOfSafePosition := _pSettingsAxis^.NameOfSafePosition;
+SET_R.LinearStandStillLimit := _pSettingsAxis^.LinearStandStillLimit;
+SET_R.AngularStandStillLimit := _pSettingsAxis^.AngularStandStillLimit;
+SET_R.SafePosition := _pSettingsAxis^.SafePosition;
+SET_R.SafePositionTolerance := _pSettingsAxis^.SafePositionTolerance;
+SET_R.RegisterAsTopLevelRobot := _pSettingsAxis^.RegisterAsTopLevelRobot;
+SET_R.InstallationPose := _pSettingsAxis^.InstallationPose;
+SET_R.StandardUnits := _pSettingsAxis^.StandardUnits;]]></ST>
       </Implementation>
     </Method>
     <Method Name="ValidateConfiguration" Id="{8637ddc2-8443-4a23-a124-b1a4ea35a4ec}">

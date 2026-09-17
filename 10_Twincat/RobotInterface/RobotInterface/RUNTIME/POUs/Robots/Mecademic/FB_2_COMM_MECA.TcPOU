@@ -188,18 +188,18 @@ ELSE
     IF nInMoveId = nPendingMoveId THEN
         bCommandPending := FALSE;
         bCommandAccepted := TRUE;
-        _commAcceptedCommandID := nPendingMoveId;
-        _commActiveCommandID := nPendingMoveId;
-        _commCommandState := ACKNOWLEDGE;
-        _commCommandResult := NONE;
-        _commCommandBusy := TRUE;
+        AcceptedCommandID := nPendingMoveId;
+        ActiveCommandID := nPendingMoveId;
+        CommandState := ACKNOWLEDGE;
+        CommandResult :=NONE;
+        CommandBusy := TRUE;
     END_IF
 END_IF
 
 // --------------------------------------------------
 // Generic command lifecycle
 // --------------------------------------------------
-_commCanAcceptCommand :=
+CanAcceptCommand :=
     NOT bCommandPending
     AND NOT bInBusy
     AND bInEom
@@ -215,44 +215,44 @@ IF _commCommandBusy THEN
        OR bInPStop2
        OR bInCollision
        OR (nInErrorCode <> 0) THEN
-        _commActiveCommandID := 0;
-        _commCommandState := FINALIZED;
-        _commCommandResult := ERROR;
-        _commCommandBusy := FALSE;
+        ActiveCommandID := 0;
+        CommandState := FINALIZED;
+        CommandResult :=ERROR;
+        CommandBusy := FALSE;
         bCommandPending := FALSE;
         _mecaHomeCommandActive := FALSE;
 
     ELSIF _mecaHomeCommandActive THEN
         IF bInHomed THEN
-            _commActiveCommandID := 0;
-            _commCommandState := FINALIZED;
-            _commCommandResult := SUCCESS;
-            _commCommandBusy := FALSE;
+            ActiveCommandID := 0;
+            CommandState := FINALIZED;
+            CommandResult :=SUCCESS;
+            CommandBusy := FALSE;
             _mecaHomeCommandActive := FALSE;
         ELSE
-            _commCommandState := RUNNING;
-            _commCommandResult := NONE;
+            CommandState := RUNNING;
+            CommandResult :=NONE;
         END_IF
 
     ELSIF (_commAcceptedCommandID <> 0) AND (_commAcceptedCommandID = _commActiveCommandID) THEN
         IF bInBusy OR NOT bInEom THEN
             _mecaCommandWasRunning := TRUE;
-            _commCommandState := RUNNING;
-            _commCommandResult := NONE;
+            CommandState := RUNNING;
+            CommandResult :=NONE;
         ELSIF _mecaCommandWasRunning AND NOT bInBusy AND bInEom THEN
-            _commActiveCommandID := 0;
-            _commCommandState := FINALIZED;
-            _commCommandResult := SUCCESS;
-            _commCommandBusy := FALSE;
+            ActiveCommandID := 0;
+            CommandState := FINALIZED;
+            CommandResult :=SUCCESS;
+            CommandBusy := FALSE;
         ELSE
-            _commCommandState := ACKNOWLEDGE;
+            CommandState := ACKNOWLEDGE;
         END_IF
     END_IF
 END_IF
 
 // After an explicit cancel, block the next command until pause/clear has settled.
 IF _commCommandState = ABORTED THEN
-    _commCommandBusy := bRequestPause OR bRequestClearMove OR bInBusy;
+    CommandBusy := bRequestPause OR bRequestClearMove OR bInBusy;
 END_IF
 ]]></ST>
       </Implementation>
@@ -328,12 +328,12 @@ bCommandPending := FALSE;
 bCommandAccepted := FALSE;
 _mecaHomeCommandActive := FALSE;
 _mecaCommandWasRunning := FALSE;
-_commCanAcceptCommand := TRUE;
-_commAcceptedCommandID := 0;
-_commActiveCommandID := 0;
-_commCommandBusy := FALSE;
-_commCommandState := INIT;
-_commCommandResult := NONE;
+CanAcceptCommand := TRUE;
+AcceptedCommandID := 0;
+ActiveCommandID := 0;
+CommandBusy := FALSE;
+CommandState := INIT;
+CommandResult :=NONE;
 Reconnect();
 ResetCommunication := TRUE;]]></ST>
       </Implementation>
@@ -385,11 +385,11 @@ bCommandAccepted := FALSE;
 _mecaCommandWasRunning := FALSE;
 _mecaHomeCommandActive := FALSE;
 
-_commAcceptedCommandID := 0;
-_commActiveCommandID := CommandID;
-_commCommandState := INIT;
-_commCommandResult := NONE;
-_commCommandBusy := TRUE;
+AcceptedCommandID := 0;
+ActiveCommandID := CommandID;
+CommandState := INIT;
+CommandResult :=NONE;
+CommandBusy := TRUE;
 SendCommand := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -414,11 +414,11 @@ END_IF
 bRequestHome := TRUE;
 _mecaHomeCommandActive := TRUE;
 _mecaCommandWasRunning := FALSE;
-_commAcceptedCommandID := CommandID; // no separate ID echo exists for Home in this EtherCAT profile
-_commActiveCommandID := CommandID;
-_commCommandState := ACKNOWLEDGE;
-_commCommandResult := NONE;
-_commCommandBusy := TRUE;
+AcceptedCommandID := CommandID; // no separate ID echo exists for Home in this EtherCAT profile
+ActiveCommandID := CommandID;
+CommandState := ACKNOWLEDGE;
+CommandResult :=NONE;
+CommandBusy := TRUE;
 SendHome := TRUE;]]></ST>
       </Implementation>
     </Method>

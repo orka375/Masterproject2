@@ -6,13 +6,9 @@ FUNCTION_BLOCK FB_1_COMM EXTENDS FB_0_BASE
 // IMPLEMENTS ITF_1_Communication
 
 VAR_INPUT
-	SETTINGS: stSettings_Comm;
+	SET_C: stSettings_Comm;
     DEBUG_COMM : DEBUG_COMM;
 
-    tConnectTimeout    : TIME := T#10S;
-    tDisconnectTimeout : TIME := T#5S;
-    tReconnectDelay    : TIME := T#2S;
-    nMaxAutoReconnectAttempts : UINT := 3;
 END_VAR
 
 
@@ -35,16 +31,17 @@ VAR
 
     // Communication state
     _eCommState : E_CommState := E_CommState.eDisconnected;
-
+	// Transient communication faults recover automatically. After the configured
+    // number of failed reconnect attempts the fault escalates to ErrorProcessing
+    // and requires an operator Reset/Acknowledge.
+    _nAutoReconnectAttempts : UINT;
+	
     // Timers
     _tonConnectTimeout    : TON;
     _tonDisconnectTimeout : TON;
     _tonReconnectDelay    : TON;
 
-    // Transient communication faults recover automatically. After the configured
-    // number of failed reconnect attempts the fault escalates to ErrorProcessing
-    // and requires an operator Reset/Acknowledge.
-    _nAutoReconnectAttempts : UINT;
+    
 
     // Generic command transport lifecycle. Concrete COMM adapters update these fields.
     // IDs/results remain latched until the next command is locally accepted.
@@ -70,6 +67,15 @@ END_VAR
           <ST><![CDATA[AcceptedCommandID := _commAcceptedCommandID;]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{258a74e7-c3d7-4278-be80-d424dc4b64e0}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_commAcceptedCommandID := AcceptedCommandID;]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Property Name="ActiveCommandID" Id="{8c2c9e7e-d92a-463d-a9f9-5cb3ad54a055}">
       <Declaration><![CDATA[PROPERTY ActiveCommandID : UINT]]></Declaration>
@@ -81,6 +87,15 @@ END_VAR
           <ST><![CDATA[ActiveCommandID := _commActiveCommandID;]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{680f99ee-4027-44d7-ad97-cbc77356b5d0}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ _commActiveCommandID:=ActiveCommandID;]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Property Name="CanAcceptCommand" Id="{e36b9102-7992-44e5-8a2f-0ad461767e6c}">
       <Declaration><![CDATA[PROPERTY CanAcceptCommand : BOOL]]></Declaration>
@@ -92,6 +107,15 @@ END_VAR
           <ST><![CDATA[CanAcceptCommand := CommunicationReady AND _commCanAcceptCommand AND NOT _commCommandBusy;]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{3f9e9e98-0445-4b0b-9e83-58420a21c17a}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CanAcceptCommand := CanAcceptCommand;]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Method Name="CancelCommand" Id="{11fb9113-4fb9-4a31-ae60-c5862a43f890}" FolderPath="MotionControl\">
       <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
@@ -113,6 +137,15 @@ END_VAR
           <ST><![CDATA[CommandBusy := _commCommandBusy;]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{31b5e88c-4fce-4379-86ab-52395ec4d2be}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CommandBusy := CommandBusy;]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Property Name="CommandResult" Id="{ef906cf3-c3b7-4110-a2da-473905a396c7}">
       <Declaration><![CDATA[PROPERTY CommandResult : eResult]]></Declaration>
@@ -124,6 +157,15 @@ END_VAR
           <ST><![CDATA[CommandResult := _commCommandResult;]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{d5f78c96-3d3f-4293-88f6-5dca2ac0ef57}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ _commCommandResult := CommandResult;]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Property Name="CommandState" Id="{e88b06bd-b100-4d6c-9b6e-88e9b6397a70}">
       <Declaration><![CDATA[PROPERTY CommandState : eProgress]]></Declaration>
@@ -135,6 +177,15 @@ END_VAR
           <ST><![CDATA[CommandState := _commCommandState;]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{6beb8faf-ee1a-4c5d-a238-db16292ed01a}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_commCommandState := CommandState;]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Property Name="CommunicationReady" Id="{90ec2b27-bfaf-45b4-9aa5-21ddf3a8865d}">
       <Declaration><![CDATA[PROPERTY CommunicationReady : BOOL]]></Declaration>
@@ -198,17 +249,18 @@ Busy :=
 
 _tonConnectTimeout(
     IN := _eCommState = E_CommState.eConnecting,
-    PT := tConnectTimeout
+    PT := SET_C.tConnectTimeout
+	
 );
 
 _tonDisconnectTimeout(
     IN := _eCommState = E_CommState.eDisconnecting,
-    PT := tDisconnectTimeout
+    PT := SET_C.tDisconnectTimeout
 );
 
 _tonReconnectDelay(
     IN := _eCommState = E_CommState.eReconnectWait,
-    PT := tReconnectDelay
+    PT := SET_C.tReconnectDelay
 );
 
 
@@ -261,7 +313,6 @@ CASE _eCommState OF
         ELSIF HMI_COMM._CommunicationReady THEN
 
             // Link healthy again: clear any comm messages this component raised.
-            Messenger.Clear(Name);
             _ReconnectRequested := FALSE;
             _nAutoReconnectAttempts := 0;
             _eCommState := E_CommState.eConnected;
@@ -273,8 +324,8 @@ CASE _eCommState OF
             _nAutoReconnectAttempts := _nAutoReconnectAttempts + 1;
             bRequestConnection := FALSE;
 
-            IF (nMaxAutoReconnectAttempts > 0)
-                AND (_nAutoReconnectAttempts >= nMaxAutoReconnectAttempts) THEN
+            IF (SET_C.nMaxAutoReconnectAttempts > 0)
+                AND (_nAutoReconnectAttempts >= SET_C.nMaxAutoReconnectAttempts) THEN
 
                 // Automatic recovery is exhausted. Escalate once into ErrorProcessing;
                 // the user must acknowledge before another configure/connect sequence.
@@ -589,9 +640,9 @@ IF NOT Connected THEN
 	myResult:=SUCCESS;
 END_IF
 
-    // ----- END YOUR CODE -----------------------------
-    //--------------------------------------------------
-    OnShutdown := CombineResults(eParentResult,myResult);
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnShutdown := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
@@ -611,12 +662,12 @@ Reconnect := TRUE;]]></ST>
       <Implementation>
         <ST><![CDATA[// Generic reset: discard transport-command bookkeeping and request a clean reconnect.
 // This does NOT reset robot/controller safety conditions.
-_commCanAcceptCommand := TRUE;
-_commAcceptedCommandID := 0;
-_commActiveCommandID := 0;
-_commCommandBusy := FALSE;
-_commCommandState := INIT;
-_commCommandResult := NONE;
+CanAcceptCommand := TRUE;
+AcceptedCommandID := 0;
+ActiveCommandID := 0;
+CommandBusy := FALSE;
+CommandState := INIT;
+CommandResult := NONE;
 Reconnect();
 ResetCommunication := TRUE;]]></ST>
       </Implementation>

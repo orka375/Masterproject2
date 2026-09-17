@@ -101,7 +101,7 @@ _rLoadFile(CLK := HMI_PM.bCmdLoadFile);
 _rMoveToEditedPoint(CLK := HMI_PM.bMoveRobotToEditedPoint);
 _fMoveToEditedPoint(CLK := HMI_PM.bMoveRobotToEditedPoint);
 
-IF _fMoveToEditedPoint.Q THEN
+IF _fMoveToEditedPoint.Q THEN					//TODO
     IF (_moveToEditedPointExecuteId <> 0) AND (pRobot <> 0) THEN
         IF pRobot^.CancelCommand(_moveToEditedPointExecuteId) THEN
             pRobot^.EStop();
@@ -332,6 +332,42 @@ CheckName := TRUE;
 ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="Configure" Id="{09a6e83b-4d7f-41d5-944b-97ebdab99cae}">
+      <Declaration><![CDATA[METHOD PUBLIC Configure : eResult
+VAR_INPUT
+    sName : STRING(80);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Configure := NONE;
+
+IF NOT IsValidDatabaseName(sValue := sName) THEN
+    _bConfigured := FALSE;
+    _sName := '';
+    _sDatabasePath := '';
+    bError := TRUE;
+    nErrorID := 16#E80B;
+    Result := ERROR;
+    HMI_PM.sLastOperation := 'Invalid PointManager name for file path';
+    RETURN;
+END_IF
+
+_sName := sName;
+_sDatabasePath := CONCAT('C:\Users\Public\Documents\', _sName);
+_sDatabasePath := CONCAT(_sDatabasePath, '_saved_points.txt');
+_bConfigured := TRUE;
+
+bError := FALSE;
+nErrorID := 0;
+Result := SUCCESS;
+bDone := TRUE;
+HMI_PM.sLastOperation := 'Memory point store configured';
+
+SyncPointList();
+Configure := SUCCESS;
+]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="Create" Id="{2665e7b7-d388-4ca0-bb53-22244b7661b0}">
       <Declaration><![CDATA[METHOD PUBLIC Create : BOOL
 VAR_INPUT
@@ -538,7 +574,7 @@ _nEditingId := 0;
 _bEditingNew := FALSE;
 HMI_PM.loadedPoint := _emptyPoint;
 HMI_PM.editedPoint := _emptyPoint;
-pPoint := 0;
+
 bFound := FALSE;
 
 HMI_PM.nSelectedPointId := 0;
@@ -633,42 +669,6 @@ FOR i := 1 TO nPointCount DO
         RETURN;
     END_IF
 END_FOR
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="Initalising" Id="{09a6e83b-4d7f-41d5-944b-97ebdab99cae}">
-      <Declaration><![CDATA[METHOD PUBLIC Initalising : eResult
-VAR_INPUT
-    sName : STRING(80);
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Initalising := NONE;
-
-IF NOT IsValidDatabaseName(sValue := sName) THEN
-    _bConfigured := FALSE;
-    _sName := '';
-    _sDatabasePath := '';
-    bError := TRUE;
-    nErrorID := 16#E80B;
-    Result := ERROR;
-    HMI_PM.sLastOperation := 'Invalid PointManager name for file path';
-    RETURN;
-END_IF
-
-_sName := sName;
-_sDatabasePath := CONCAT('C:\Users\Public\Documents\', _sName);
-_sDatabasePath := CONCAT(_sDatabasePath, '_saved_points.txt');
-_bConfigured := TRUE;
-
-bError := FALSE;
-nErrorID := 0;
-Result := SUCCESS;
-bDone := TRUE;
-HMI_PM.sLastOperation := 'Memory point store configured';
-
-SyncPointList();
-Initalising := SUCCESS;
 ]]></ST>
       </Implementation>
     </Method>
@@ -833,7 +833,6 @@ END_VAR
 nIndex := FindIndex(sName := sName);
 IF nIndex = 0 THEN
     bFound := FALSE;
-    pPoint := 0;
     bError := TRUE;
     nErrorID := 16#E802;
     Result := ERROR;
@@ -1010,7 +1009,7 @@ CASE _nLoadFileState OF
         _bEditingNew := FALSE;
         HMI_PM.loadedPoint := _emptyPoint;
         HMI_PM.editedPoint := _emptyPoint;
-        pPoint := 0;
+
         bFound := FALSE;
 
         HMI_PM.nSelectedPointId := 0;

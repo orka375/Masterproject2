@@ -92,8 +92,8 @@ ELSE
 END_IF]]></ST>
     </Implementation>
     <Folder Name="Internal" Id="{25e8d683-9ab8-4256-93ea-fcc69095bd16}" />
-    <Method Name="_M_Start" Id="{fe4f3d36-6698-41d1-87dc-e21c5b8934c3}" FolderPath="Internal\">
-    <Declaration><![CDATA[METHOD PUBLIC _M_Start : eResult
+    <Method Name="StartCustomSkill" Id="{fe4f3d36-6698-41d1-87dc-e21c5b8934c3}" FolderPath="Internal\">
+      <Declaration><![CDATA[METHOD PUBLIC StartCustomSkill : eResult
 
 VAR
 END_VAR]]></Declaration>
@@ -107,12 +107,12 @@ HMI_SKILL.bExecute:=TRUE;
 // ----- END YOUR CODE -----------------------------
 ExecutionDone:=FALSE;		//IMPORTANT
 ExecutionResult:=NONE;		//IMPORTANT
-_M_Start:=SUCCESS;
+StartCustomSkill:=SUCCESS;
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="_M_Stop" Id="{0b88cca9-fe19-4131-9190-bcc6416485e0}" FolderPath="Internal\">
-    <Declaration><![CDATA[METHOD PUBLIC _M_Stop : eResult
+    <Method Name="StopCustomSkill" Id="{0b88cca9-fe19-4131-9190-bcc6416485e0}" FolderPath="Internal\">
+      <Declaration><![CDATA[METHOD PUBLIC StopCustomSkill : eResult
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[// !! THESE AREN'T THE METHODS YOU CALL TO START/STOP THE SKILL //
@@ -121,7 +121,7 @@ _M_Start:=SUCCESS;
 HMI_SKILL.bStop:=TRUE;
 
 // ----- END YOUR CODE -----------------------------
-_M_Stop:=SUCCESS;
+StopCustomSkill:=SUCCESS;
 ]]></ST>
       </Implementation>
     </Method>

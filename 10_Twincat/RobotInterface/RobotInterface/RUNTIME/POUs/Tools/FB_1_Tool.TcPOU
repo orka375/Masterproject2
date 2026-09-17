@@ -58,7 +58,7 @@ FOR iTool := 1 TO SETUP.nToolCount DO
   END_IF
 END_FOR
 
-IF SETUP.nToolCount < SETUP.MaxNrofTools THEN
+IF SETUP.nToolCount < SETUP.MaxNrofTools THEN	
   SETUP.nToolCount := SETUP.nToolCount + 1;
   SETUP.apTool[SETUP.nToolCount] := THIS;
   FB_Init := TRUE;

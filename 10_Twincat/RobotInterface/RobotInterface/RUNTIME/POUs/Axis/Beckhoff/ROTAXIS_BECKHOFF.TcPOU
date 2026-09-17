@@ -37,14 +37,14 @@ _axisPowered := AXIS_COMM.Powered;
 _axisHomed := AXIS_COMM.Homed;
 _axisActualPosition := AXIS_COMM.ActualPosition;
 _axisActualVelocity := AXIS_COMM.ActualVelocity;
-HMI_ROB._tcppos := SETTINGS.InstallationPose;
-HMI_ROB._tcppos.yaw := HMI_ROB._tcppos.yaw + _axisActualPosition;
-_tcpvel.x := 0.0;
-_tcpvel.y := 0.0;
-_tcpvel.z := 0.0;
-_tcpvel.roll := 0.0;
-_tcpvel.pitch := 0.0;
-_tcpvel.yaw := _axisActualVelocity;
+TCPPos_PLCUnit := SETTINGS.InstallationPose;
+TCPPos_PLCUnit.yaw := TCPPos_PLCUnit.yaw + _axisActualPosition;
+TCPVel_PLCUnit.x := 0.0;
+TCPVel_PLCUnit.y := 0.0;
+TCPVel_PLCUnit.z := 0.0;
+TCPVel_PLCUnit.roll := 0.0;
+TCPVel_PLCUnit.pitch := 0.0;
+TCPVel_PLCUnit.yaw := _axisActualVelocity;
 CYCLIC_AXIS();]]></ST>
     </Implementation>
     <Folder Name="StateControl" Id="{9b35bad9-5bf5-4f5d-9198-346680c4ff69}" />

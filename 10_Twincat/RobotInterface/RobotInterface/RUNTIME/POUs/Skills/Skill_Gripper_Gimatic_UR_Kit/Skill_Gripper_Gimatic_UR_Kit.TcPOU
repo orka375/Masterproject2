@@ -43,10 +43,10 @@ IF (Phase = 10) OR (Phase = 20) THEN
 END_IF
 
 IF Phase=10 THEN
-	nCalledMoveID := pTool^.pROB^.SetDO(
+	nCalledCmdID := pTool^.pROB^.SetDO(
 		nOutput := Param.Pin,
 		bValue := Param.ValueIfActiv);
-	IF nCalledMoveID = 0 THEN
+	IF nCalledCmdID = 0 THEN
 		ExecutionDone := TRUE;
 		ExecutionResult := FAILURE;
 		Messenger.AddWarn(eMessageCategories.ParentFailed,Path,'Robot rejected gripper command');
@@ -60,7 +60,7 @@ END_IF
 
 IF Phase=20 THEN
 	tTimeout(IN := TRUE, PT := Param.TimeoutFailure);
-	IF nCalledMoveID = pTool^.pROB^.CommandID THEN
+	IF nCalledCmdID = pTool^.pROB^.CommandID THEN
 		CASE pTool^.pROB^.CommandState OF
 			INIT, ACKNOWLEDGE, RUNNING:
 				Phase := 20;
@@ -80,7 +80,7 @@ IF Phase=20 THEN
 	END_IF
 
 	IF (Phase = 20) AND tTimeout.Q THEN
-		pTool^.pROB^.CancelCommand(CommandID := nCalledMoveID);
+		pTool^.pROB^.CancelCommand(CommandID := nCalledCmdID);
 		ExecutionDone := TRUE;
 		ExecutionResult := FAILURE;
 		Messenger.AddWarn(eMessageCategories.TimeoutFailure,Path,'Failed because timeout');

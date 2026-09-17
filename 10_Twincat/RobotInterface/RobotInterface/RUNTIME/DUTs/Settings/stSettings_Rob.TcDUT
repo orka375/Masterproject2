@@ -4,10 +4,10 @@
     <Declaration><![CDATA[TYPE stSettings_Rob EXTENDS stSettings_Base :
 STRUCT
 	NameOfSafePosition : STRING := 'SAFE';
-	LinearStandStillLimit : REAL := 1.0;
-	AngularStandStillLimit : REAL := 0.001;
+	LinearStandStillLimit : REAL := 1.0;	//mm/s
+	AngularStandStillLimit : REAL := 0.001;	//rad/s
 	SafePosition: stJoint6;
-	SafePositionTolerance: LREAL := 0.001;
+	SafePositionTolerance: LREAL := 0.5;	//mm
 	RegisterAsTopLevelRobot: BOOL := TRUE;
 	InstallationPose : ST_Pose; // BRF expressed in WRF : stVector3d
 	StandardUnits : ST_StandardUnits := (

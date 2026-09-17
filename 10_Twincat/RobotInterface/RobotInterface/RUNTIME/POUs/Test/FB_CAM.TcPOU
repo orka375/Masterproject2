@@ -1,0 +1,270 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_CAM" Id="{196c7442-f90a-4a6f-bedc-7f8afe6f13f9}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_CAM
+
+VAR
+    aLower : TcVnVector4_LREAL := [30, 60, 80, 0];
+    aUpper : TcVnVector4_LREAL := [50, 100, 120, 0];
+
+    aBlack : TcVnVector4_LREAL := [0,0,0,0];
+    aColorRef : TcVnVector3_LREAL := [150, 100, 40];
+
+    aCenterPrev : ARRAY[0..1] OF REAL;
+    bHasPrev : BOOL := FALSE;
+
+    fDx, fDy : REAL;
+    aArrowTip : ARRAY[0..1] OF REAL;
+    fArrowScale : REAL := 5.0;
+
+    fbCamera : FB_VN_GevCameraControl;
+    eState : ETcVnCameraState;
+    hr : HRESULT;
+
+    ipImageIn : ITcVnImage;
+    ipImageInDisp : ITcVnDisplayableImage;
+
+
+    ipImageRes : ITcVnImage;
+    ipImageWorkCol : ITcVnImage;
+    ipImageThres : ITcVnImage;
+
+    ipImageThresholdDisp : ITcVnDisplayableImage;
+
+    stPixelFormat : TcVnPixelFormat;
+
+    // Contours
+    ipContourList : ITcVnContainer;
+    ipContourResultList : ITcVnContainer;
+    ipContour : ITcVnContainer;
+    ipIterator : ITcVnForwardIterator;
+    aOffset : TcVnPoint;
+
+    fThreshold : LREAL := 220;
+    fArea  : LREAL := 0;
+	fAreaMin : LREAL := 2000 ;
+	fAreaMax : LREAL := 8000 ;
+    fCircularity : LREAL := 0;
+	fCircularityMin  : LREAL :=0.65;
+
+    aColorGreen : TcVnVector4_LREAL := [0, 255, 0];
+    aColorRed   : TcVnVector4_LREAL := [200, 0, 0];
+
+    stEllipse : TcVnRotatedRectangle;
+    aCenter : TcVnPoint2_REAL := [650, 400];
+
+    sText : STRING(255);
+    cxy : ARRAY [1..2] OF REAL;
+    cx, cy : REAL;
+	ipImageResDisp: Tc3_Vision.ITcVnDisplayableImage;
+	ipImageWorkColDisp: Tc3_Vision.ITcVnDisplayableImage;
+	eOperator: Tc3_Vision.ETcVnMorphologicalOperator := TCVN_MO_CLOSING;
+	ipElement: Tc3_Vision.ITcVnImage;
+	eSEShape: Tc3_Vision.ETcVnStructuringElementShape;
+	aSESize     :  ARRAY [0..1] OF UDINT := [30, 30]; 
+	THRESHOLD: LREAL := 150;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// 
+// 
+// eState := fbCamera.GetState();
+// 
+// CASE eState OF
+// 
+// TCVN_CS_ERROR:
+//     hr := fbCamera.Reset();
+// 
+// TCVN_CS_INITIAL,
+// TCVN_CS_INITIALIZING,
+// TCVN_CS_INITIALIZED,
+// TCVN_CS_OPENING,
+// TCVN_CS_OPENED,
+// TCVN_CS_STARTACQUISITION:
+//     hr := fbCamera.StartAcquisition();
+// 
+// TCVN_CS_ACQUIRING:
+// 
+//     hr := fbCamera.GetCurrentImage(ipImageIn);
+// 
+//     IF SUCCEEDED(hr) AND ipImageIn <> 0 THEN
+// 
+//         // Convert to RGB if needed
+//         hr := F_VN_GetPixelFormat(ipImageIn, stPixelFormat, hr);
+// 
+//         IF stPixelFormat.nChannels <> 3 THEN
+// 
+//             hr := F_VN_ConvertColorSpace(ipImageIn, ipImageRes,
+//                                          TCVN_CST_GRAY_TO_RGB, hr);
+// 
+//             hr := F_VN_SetPixels(ipImageRes, aBlack, hr);
+// 
+//             hr := F_VN_SetImageChannel(
+//                     ipImageIn, ipImageRes,
+//                     0, 0, hr);
+// 
+//         ELSE
+//             hr := F_VN_CopyImage(ipImageIn, ipImageRes, hr);
+//         END_IF
+// 
+// 
+//         // COLOR SEGMENTATION
+//         hr := F_VN_ReferenceColorSimilarityExp_TcVnVector3_LREAL(
+//                 ipImageRes,
+//                 ipImageWorkCol,
+//                 aColorRef,
+//                 0.1,
+//                 0.01,
+//                 hr);
+// 
+// 
+//         // THRESHOLD (binary mask)
+//         hr := F_VN_Threshold(
+//                 ipImageWorkCol,
+//                 ipImageThres,
+//                 THRESHOLD,
+//                 255,
+//                 TCVN_TT_BINARY,
+//                 hr);
+// 		
+// 		hr := F_VN_CreateStructuringElement(
+// 			ipStructuringElement    :=  ipElement,
+// 			eShape                  :=  eSEShape,
+// 			nWidth                  :=  aSESize[0],
+// 			nHeight                 :=  aSESize[1],
+// 			hrPrev                  :=  hr);
+// 		
+// 		hr := F_VN_MorphologicalOperator(
+// 			ipSrcImage              :=  ipImageThres,
+// 			ipDestImage             :=  ipImageThres,
+// 			eOperator               :=  Tc3_Vision.ETcVnMorphologicalOperator.TCVN_MO_CLOSING,
+// 			ipStructuringElement    :=  ipElement,
+// 			hrPrev                  :=  hr);
+// 			
+// 		hr := F_VN_MorphologicalOperator(
+// 			ipSrcImage              :=  ipImageThres,
+// 			ipDestImage             :=  ipImageThres,
+// 			eOperator               :=  Tc3_Vision.ETcVnMorphologicalOperator.TCVN_MO_OPENING,
+// 			ipStructuringElement    :=  ipElement,
+// 			hrPrev                  :=  hr);
+// 
+//         ////////////////////////////////////////////////////////////
+//         // FIND CONTOURS (FIXED: use threshold image)
+//         ////////////////////////////////////////////////////////////
+// 
+//         hr := F_VN_FindContoursExp(
+//                 ipSrcImage := ipImageThres,
+//                 ipContours := ipContourList,
+//                 eRetrievalMode := TCVN_CRM_LIST,
+//                 eApproximationMethod := TCVN_CAM_SIMPLE,
+//                 aOffset := aOffset,
+//                 hrPrev := hr);
+// 
+//         hr := F_VN_GetForwardIterator(ipContourList, ipIterator, hr);
+// 
+//         WHILE SUCCEEDED(hr) AND_THEN ipIterator.CheckIfEnd() <> S_OK DO
+// 
+//             hr := F_VN_GetContainer(ipIterator, ipContour, hr);
+//             hr := F_VN_IncrementIterator(ipIterator, hr);
+// 
+//             hr := F_VN_ContourArea(ipContour, fArea, hr);
+// 
+//             IF (fArea > fAreaMin) AND (fArea < fAreaMax) THEN
+// // 
+// //                 hr := F_VN_ContourCircularity(ipContour, fCircularity, hr);
+// // 
+// //                 IF fCircularity > fCircularityMin THEN
+// 
+//                     hr := F_VN_FitEllipse(ipContour, stEllipse, hr);
+// 
+//                     IF SUCCEEDED(hr) THEN
+// 
+//                         aCenter[0] := stEllipse.aCenter[0];
+//                         aCenter[1] := stEllipse.aCenter[1];
+// 
+//                         hr := F_VN_DrawEllipse(stEllipse, ipImageRes,
+//                                                aColorGreen, 2, hr);
+// 
+//                         hr := F_VN_DrawPoint(
+//                                 REAL_TO_UDINT(aCenter[0]),
+//                                 REAL_TO_UDINT(aCenter[1]),
+//                                 ipImageRes,
+//                                 TCVN_DS_PLUS,
+//                                 aColorRed,
+//                                 hr);
+// 
+//                         // Motion vector
+//                         IF bHasPrev THEN
+// 
+//                             fDx := aCenter[0] - aCenterPrev[0];
+//                             fDy := aCenter[1] - aCenterPrev[1];
+// 
+//                             aArrowTip[0] := aCenter[0] + fDx * fArrowScale;
+//                             aArrowTip[1] := aCenter[1] + fDy * fArrowScale;
+// 
+//                             hr := F_VN_DrawLine(
+//                                     REAL_TO_DINT(aCenter[0]),
+//                                     REAL_TO_DINT(aCenter[1]),
+//                                     REAL_TO_DINT(aArrowTip[0]),
+//                                     REAL_TO_DINT(aArrowTip[1]),
+//                                     ipImageRes,
+//                                     aColorGreen,
+//                                     3,
+//                                     hr);
+//                         END_IF
+// 
+//                         aCenterPrev := aCenter;
+//                         bHasPrev := TRUE;
+// 
+//                         // Text
+//                         sText := CONCAT('Center X=', REAL_TO_STRING(aCenter[0]));
+//                         sText := CONCAT(sText,
+//                                         CONCAT(' Y=', REAL_TO_STRING(aCenter[1])));
+// 
+//                         hr := F_VN_PutTextExp(
+//                                 sText,
+//                                 ipImageRes,
+//                                 REAL_TO_UDINT(aCenter[0]),
+//                                 REAL_TO_UDINT(aCenter[1]) - 20,
+//                                 TCVN_FT_HERSHEY_SIMPLEX,
+//                                 0.8,
+//                                 aColorGreen,
+//                                 1,
+//                                 TCVN_LT_8_CONNECTED,
+//                                 FALSE,
+//                                 hr);
+// 
+//                     END_IF
+//                 END_IF
+// //             END_IF
+//         END_WHILE
+// 
+// 
+//         ////////////////////////////////////////////////////////////
+//         // DISPLAY
+//         ////////////////////////////////////////////////////////////
+// 
+//         hr := F_VN_TransformIntoDisplayableImage(ipImageIn, ipImageInDisp, hr);
+// 		hr := F_VN_TransformIntoDisplayableImage(ipImageWorkCol, ipImageWorkColDisp, hr);
+// 		hr := F_VN_TransformIntoDisplayableImage(ipImageThres, ipImageThresholdDisp, hr);
+// 		hr := F_VN_TransformIntoDisplayableImage(ipImageRes, ipImageResDisp, hr);
+// 
+//     END_IF
+// 
+// END_CASE]]></ST>
+    </Implementation>
+    <Property Name="POS_BALL" Id="{2952c0a8-552d-4730-8f39-75e6ef74a6cd}">
+      <Declaration><![CDATA[PROPERTY POS_BALL : ARRAY[1..2] OF INT
+]]></Declaration>
+      <Get Name="Get" Id="{970582cf-e6eb-493f-9e2c-da7fc7b15f3a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[POS_BALL[1] := TO_INT(aCenter[0]);
+POS_BALL[2] := TO_INT(aCenter[1]);]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

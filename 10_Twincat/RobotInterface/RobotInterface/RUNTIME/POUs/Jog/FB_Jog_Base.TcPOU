@@ -4,11 +4,6 @@
     <Declaration><![CDATA[{attribute 'hide_all_locals'}
 FUNCTION_BLOCK FB_Jog_Base EXTENDS FB_Utilities
 VAR_INPUT
-    // ==========================================================
-    // HMI / COMMON JOG SETTINGS
-    // These are VAR_INPUT so they can be written directly from
-    // PLC code or TwinCAT HMI without accessing local FB data.
-    // ==========================================================
     bEnable             : BOOL := TRUE;
     // Lifecycle/recovery interlock from the owning subsystem. HMI inputs may remain TRUE,
     // but no jog command is issued while this interlock is active.

@@ -30,6 +30,12 @@
 *)
 
 VAR_INPUT
+    // Vorhandene Eingänge beibehalten.
+    aCameraMatrix : TcVnMatrix3x3_LREAL;
+    aDistortionCoefficients : TcVnArray8_LREAL;
+END_VAR
+
+VAR_INPUT
     pQRCodeSkill : POINTER TO Skill_ReadQRCode;
 
     // Mandatory physical QR symbol edge length (not paper size).
@@ -138,11 +144,9 @@ IF State = eState.Active THEN
 				ELSE
 					sLandmarkId := pQRCodeSkill^.sQRCode;
 				
-					aCameraMatrixLocal :=
-						pQRCodeSkill^.aCameraMatrix;
+					aCameraMatrixLocal :=aCameraMatrix;
 				
-					aDistortionCoefficientsLocal :=
-						pQRCodeSkill^.aDistortionCoefficients;
+					aDistortionCoefficientsLocal :=aDistortionCoefficients;
 				
 					phase := 30;
 				END_IF

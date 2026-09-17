@@ -3,17 +3,17 @@
   <POU Name="FB_0_Base" Id="{ccfcc891-ed7a-48a9-bb43-020f08aa1f30}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'reflection'} 
 {attribute 'hide_all_locals'}
-FUNCTION_BLOCK ABSTRACT FB_0_Base EXTENDS FB_Utilities  
+FUNCTION_BLOCK  FB_0_Base EXTENDS FB_Utilities  
 // IMPLEMENTS ITF_0_BaseComponent
 
 VAR_INPUT
-	Settings_Base: stSettings_Base;
+	SET_B: stSettings_Base;
 	MESSENGER: FB_Messenger;
 	DEBUG_S : DEBUG_STATE;
 	
 	{attribute 'OPC.UA.DA.StructuredType':=1}
 	{attribute 'OPC.UA.DA' := '1'}
-	pA_Skills : ARRAY[1..MaxNrofSkills] OF POINTER TO FB_1_Skill;
+	Skills : ARRAY[1..MaxNrofSkills] OF POINTER TO FB_1_Skill;
 	
 	
 END_VAR
@@ -29,11 +29,12 @@ VAR_OUTPUT
 END_VAR
 	
 VAR
+	nSkillCount : UINT;
 	_transitionresult: eResult;
 	_lasttransition: ETRANSITIONS;
-	_initialized: BOOL;
+
 	_activSkill: POINTER TO FB_1_Skill;
-	_finished: BOOL;
+
 	_manualResetCalled: BOOL;
 	_recoveryMode : eRecoveryMode := eRecoveryMode.AcknowledgeRequired;
 	_recoveryModeAssigned : BOOL;
@@ -109,18 +110,10 @@ END_VAR
       <Get Name="Get" Id="{ee124298-bcc7-439c-9105-d90c42f3e44b}">
         <Declaration><![CDATA[]]></Declaration>
         <Implementation>
-          <ST><![CDATA[AutoConfigure:=Settings_Base.bAutoConfigure;
+          <ST><![CDATA[AutoConfigure:=SET_B.bAutoConfigure;
 ]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{6e39cfd8-2d79-4d05-8c85-3f94875be35d}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[Settings_Base.bAutoConfigure:=AutoConfigure;]]></ST>
-        </Implementation>
-      </Set>
     </Property>
     <Property Name="Busy" Id="{9cc952da-997b-48e1-bc3f-e76175b74970}">
       <Declaration><![CDATA[PROPERTY Busy : BOOL]]></Declaration>
@@ -131,9 +124,9 @@ END_VAR
 ]]></Declaration>
         <Implementation>
           <ST><![CDATA[Busy:=FALSE;
-FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
-	IF pA_Skills[j]<>0 THEN
-		IF pA_Skills[j]^.State = eState.Active THEN
+FOR j:= TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO
+	IF Skills[j]<>0 THEN
+		IF Skills[j]^.State = eState.Active THEN
 			Busy:=TRUE;
 			EXIT;
 		END_IF
@@ -189,12 +182,22 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="CurrentTime" Id="{4124bbb5-6f34-4b84-b6bc-6942051dedef}">
+      <Declaration><![CDATA[METHOD PUBLIC CurrentTime : TIME
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CurrentTime:= Messenger.xMyTime;
+]]></ST>
+      </Implementation>
+    </Method>
     <Action Name="CYCLIC_BASE" Id="{77b136d9-dc44-439e-b8b2-7b3315db320c}">
       <Implementation>
         <ST><![CDATA[IF NOT _once THEN
 	SETUP_BASE();
 END_IF
-Settings_Base.bAutoConfigure := SETUP.SYSTEMAUTOCONFIGURE;
+SET_B.bAutoConfigure := SETUP.SYSTEMAUTOCONFIGURE;
 
 
 rtStateChange(CLK:=bStateChange);
@@ -226,28 +229,22 @@ HMI_BASE.bAcknowledgeRequired := HMI_BASE.bRecoveryPending
 HMI_BASE.bManualActionRequired := HMI_BASE.bRecoveryPending
     AND (_recoveryMode = eRecoveryMode.ManualActionRequired);
 HMI_BASE.nRecoveryAttempt := _recoveryAttempt;
-HMI_BASE.nMaxAutoRecoveryAttempts := Settings_Base.nMaxAutoRecoveryAttempts;
 
-// Single writer of MyHealth: own condition this scan, then rolled up with the worst child.
-HMI_BASE.MyHealth := DeriveSelfHealth();
 
-HMI_BASE.nSkillCount := 0;
-FOR j:= TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
-	IF pA_Skills[j]<>0 THEN
-    pA_Skills[j]^.MESSENGER.ParentMessenger := ADR(MESSENGER);
-		pA_Skills[j]^();
-    HMI_BASE.nSkillCount := HMI_BASE.nSkillCount + 1;
-    HMI_BASE.aSkills[HMI_BASE.nSkillCount] := pA_Skills[j]^.HMI_SKILL;
+
+
+
+FOR j:= TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO
+	IF Skills[j]<>0 THEN
+		Skills[j]^();
 		// Adopt child skill faults so this component also escalates into ErrorProcessing (…and so on up the tree).
-		IF pA_Skills[j]^.State = eState.ErrorProcessing OR pA_Skills[j]^.MESSENGER.HasActivError THEN
-            SetRecoveryMode(Mode := pA_Skills[j]^.RecoveryMode);
-			Messenger.AddError(eMessageCategories.ParentFailed,Path,CONCAT('Child skill fault: ',pA_Skills[j]^.Name));
-		ELSE
-			Messenger.Clear(Path,CONCAT('Child skill fault: ',pA_Skills[j]^.Name));
+		IF Skills[j]^.State = eState.ErrorProcessing OR Skills[j]^.MESSENGER.HasActivError THEN
+            SetRecoveryMode(Mode := Skills[j]^.RecoveryMode);
+			Messenger.AddError(eMessageCategories.ChildFailed,Path,CONCAT('Child skill fault: ',Skills[j]^.Name));
 		END_IF
-		HMI_BASE.MyHealth := ProposeHealth(HMI_BASE.MyHealth, pA_Skills[j]^.HMI_BASE.MyHealth);
 	END_IF
 END_FOR
+
 
 IF prevFail<>lastFail THEN //Reset by Success
 	
@@ -302,27 +299,6 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="DeriveSelfHealth" Id="{3a7c1b20-5e44-4c81-ab13-9d2e3f405161}" FolderPath="Error\">
-      <Declaration><![CDATA[// Own health for this scan (never latched). CYCLIC_BASE rolls this up with the children.
-METHOD PROTECTED DeriveSelfHealth : eHealth
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[IF NOT _initialized THEN
-	DeriveSelfHealth := eHealth.Unkown;
-ELSIF Messenger.HasActivError OR _ShutOffStateMachine OR HMI_BASE.eStatus = eState.ErrorProcessing THEN
-	DeriveSelfHealth := eHealth.Dead;
-ELSIF HMI_BASE.eStatus = eState.Unconfigured OR HMI_BASE.eStatus = eState.Finalized THEN
-	DeriveSelfHealth := eHealth.Offline;
-ELSIF Messenger.HasActivWarn OR SlowDownTimer.Q
-	OR HMI_BASE.eStatus = eState.Configuring OR HMI_BASE.eStatus = eState.Activating
-	OR HMI_BASE.eStatus = eState.Deactivating OR HMI_BASE.eStatus = eState.CleaningUp
-	OR HMI_BASE.eStatus = eState.ShuttingDown THEN
-	DeriveSelfHealth := eHealth.Sick;
-ELSE
-	DeriveSelfHealth := eHealth.Healty;
-END_IF]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="Destroy" Id="{84232af5-24cf-43e3-b44a-0f85cd0c58bf}" FolderPath="Transitions\">
       <Declaration><![CDATA[{attribute 'TcRpcEnable':='1'}
 METHOD Destroy : BOOL
@@ -340,7 +316,7 @@ END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="EnterErrorProcessing" Id="{043709b7-5fcb-41f1-8506-24c707f23dfe}" FolderPath="Error\">
-      <Declaration><![CDATA[METHOD PROTECTED EnterErrorProcessing : BOOL
+      <Declaration><![CDATA[METHOD PRIVATE EnterErrorProcessing : BOOL
 VAR_INPUT
     FromState : eState;
 END_VAR
@@ -360,11 +336,11 @@ IF _ShutOffStateMachine THEN
 END_IF
 
 IF _recoveryMode = eRecoveryMode.Automatic THEN
-    IF Settings_Base.nMaxAutoRecoveryAttempts = 0 THEN
+    IF SET_B.nMaxAutoRecoveryAttempts = 0 THEN
         _recoveryMode := eRecoveryMode.AcknowledgeRequired;
     ELSE
         _recoveryAttempt := _recoveryAttempt + 1;
-        IF _recoveryAttempt > Settings_Base.nMaxAutoRecoveryAttempts THEN
+        IF _recoveryAttempt > SET_B.nMaxAutoRecoveryAttempts THEN
             _recoveryMode := eRecoveryMode.AcknowledgeRequired;
             Messenger.AddError(eMessageCategories.StateMachine, Path,
                 'Automatic recovery exhausted; operator acknowledgement required');
@@ -416,11 +392,11 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[GetSkillByTag := NONE;
+        <ST><![CDATA[GetSkillByTag := 0;
 FOR i:= 1 TO SETUP.MaxNrofSkills DO
-	IF (pA_Skills[i] <> 0) THEN
-		IF (pA_Skills[i]^.Name = sTag) THEN
-			GetSkillByTag := pA_Skills[i];
+	IF (Skills[i] <> 0) THEN
+		IF (Skills[i]^.Name = sTag) THEN
+			GetSkillByTag := Skills[i];
 			RETURN;
 		END_IF
 	END_IF
@@ -524,16 +500,6 @@ Name:=HMI_BASE.sInstanceName;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Method Name="Now" Id="{4124bbb5-6f34-4b84-b6bc-6942051dedef}">
-      <Declaration><![CDATA[METHOD Now : TIME
-VAR_INPUT
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Now:= Messenger.xMyTime;
-]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="OnActivate" Id="{24d6886a-9f1d-4c0e-8d8e-f6dd1ec5f0d5}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
 VAR_INPUT
@@ -571,25 +537,25 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[myResult := SUCCESS;
 
-FOR j := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
-    IF pA_Skills[j] <> 0 THEN
-        CASE pA_Skills[j]^.State OF
+FOR j := TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO
+    IF Skills[j] <> 0 THEN
+        CASE Skills[j]^.State OF
             eState.Active:
-                pA_Skills[j]^.Stop();
+                Skills[j]^.Stop();
                 myResult := NONE;
 
             eState.Activating, eState.Deactivating:
                 myResult := NONE;
 
             eState.Inactive:
-                pA_Skills[j]^.Cleanup();
+                Skills[j]^.Cleanup();
                 myResult := NONE;
 
             eState.CleaningUp, eState.Configuring, eState.ShuttingDown:
                 myResult := NONE;
 
             eState.ErrorProcessing:
-                SetRecoveryMode(Mode := pA_Skills[j]^.RecoveryMode);
+                SetRecoveryMode(Mode := Skills[j]^.RecoveryMode);
                 myResult := ERROR;
 
             ELSE
@@ -613,11 +579,11 @@ END_VAR]]></Declaration>
         <ST><![CDATA[myResult := SUCCESS;
 
 // Framework configuration: child skills are brought to a configured, neutral state.
-FOR j := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
-    IF pA_Skills[j] <> 0 THEN
-        CASE pA_Skills[j]^.State OF
+FOR j := TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO
+    IF Skills[j] <> 0 THEN
+        CASE Skills[j]^.State OF
             eState.Unconfigured:
-                pA_Skills[j]^.Configure();
+                Skills[j]^.Configure();
                 myResult := NONE;
 
             eState.Configuring:
@@ -627,16 +593,16 @@ FOR j := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) 
                 ;
 
             eState.Finalized:
-                pA_Skills[j]^.Destroy();
+                Skills[j]^.Destroy();
                 myResult := NONE;
 
             eState.ErrorProcessing:
-                SetRecoveryMode(Mode := pA_Skills[j]^.RecoveryMode);
+                SetRecoveryMode(Mode := Skills[j]^.RecoveryMode);
                 myResult := ERROR;
 
             ELSE
                 // A process child must never remain active while its owner is being configured.
-                pA_Skills[j]^.Shutdown();
+                Skills[j]^.Shutdown();
                 myResult := NONE;
         END_CASE
     END_IF
@@ -656,11 +622,11 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[myResult := SUCCESS;
 
-FOR j := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
-    IF pA_Skills[j] <> 0 THEN
-        CASE pA_Skills[j]^.State OF
+FOR j := TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO
+    IF Skills[j] <> 0 THEN
+        CASE Skills[j]^.State OF
             eState.Active:
-                pA_Skills[j]^.Stop();
+                Skills[j]^.Stop();
                 myResult := NONE;
 
             eState.Activating, eState.Deactivating, eState.Configuring,
@@ -668,7 +634,7 @@ FOR j := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) 
                 myResult := NONE;
 
             eState.ErrorProcessing:
-                SetRecoveryMode(Mode := pA_Skills[j]^.RecoveryMode);
+                SetRecoveryMode(Mode := Skills[j]^.RecoveryMode);
                 myResult := ERROR;
 
             ELSE
@@ -692,21 +658,21 @@ END_VAR]]></Declaration>
         <ST><![CDATA[myResult := SUCCESS;
 
 // Framework recovery never repairs hardware. It only makes process children neutral.
-FOR j := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
-    IF pA_Skills[j] <> 0 THEN
-        CASE pA_Skills[j]^.State OF
+FOR j := TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO
+    IF Skills[j] <> 0 THEN
+        CASE Skills[j]^.State OF
             eState.Active:
-                pA_Skills[j]^.Stop();
+                Skills[j]^.Stop();
                 myResult := NONE;
 
             eState.Activating, eState.Configuring, eState.Deactivating,
             eState.CleaningUp, eState.ShuttingDown:
-                pA_Skills[j]^.Shutdown();
+                Skills[j]^.Shutdown();
                 myResult := NONE;
 
             eState.ErrorProcessing:
                 // Child recovery policy is authoritative and propagates upward.
-                SetRecoveryMode(Mode := pA_Skills[j]^.RecoveryMode);
+                SetRecoveryMode(Mode := Skills[j]^.RecoveryMode);
                 myResult := NONE;
 
             ELSE
@@ -737,9 +703,9 @@ END_VAR]]></Declaration>
 
 // Best effort shutdown: all child skills are asked to terminate, including children
 // that were previously in ErrorProcessing. Existing alarms do not prevent shutdown.
-FOR j := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
-    IF pA_Skills[j] <> 0 THEN
-        CASE pA_Skills[j]^.State OF
+FOR j := TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO
+    IF Skills[j] <> 0 THEN
+        CASE Skills[j]^.State OF
             eState.Finalized, eState.Unconfigured:
                 ;
 
@@ -747,7 +713,7 @@ FOR j := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) 
                 myResult := NONE;
 
             ELSE
-                pA_Skills[j]^.Shutdown();
+                Skills[j]^.Shutdown();
                 myResult := NONE;
         END_CASE
     END_IF
@@ -764,18 +730,29 @@ OnShutdown := myResult;]]></ST>
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Path:=CONCAT(CONCAT(sPath,'.'),Name);]]></ST>
+          <ST><![CDATA[// Path:=CONCAT(CONCAT(sPath,'.'),Name);
+Path:=sPath;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Property Name="RecoveryAttempt" Id="{0b30b8c4-9d8d-445d-a798-4f812063d93a}" FolderPath="Error\">
-      <Declaration><![CDATA[PROPERTY RecoveryAttempt : UINT]]></Declaration>
-      <Get Name="Get" Id="{e21a21aa-5da8-4c99-9f42-0a04a57a49ac}">
-        <Declaration><![CDATA[]]></Declaration>
+    <Property Name="Ready" Id="{386169e9-8023-4ebb-b7d3-253ad63efaa8}">
+      <Declaration><![CDATA[PROPERTY Ready : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f1f99ba1-f977-465e-8225-6953d202febd}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
         <Implementation>
-          <ST><![CDATA[RecoveryAttempt := _recoveryAttempt;]]></ST>
+          <ST><![CDATA[]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{14e6d53c-efcf-4ef2-8423-b96de28a9244}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Property Name="RecoveryMode" Id="{5d086c55-9ca3-440c-97d6-cb8e1c8bbf07}" FolderPath="Error\">
       <Declaration><![CDATA[PROPERTY RecoveryMode : eRecoveryMode]]></Declaration>
@@ -827,10 +804,10 @@ IF State = eState.ErrorProcessing THEN
 END_IF
 
 // Cascade the acknowledgement only to children that are themselves recovering.
-FOR j := TO_INT(LOWER_BOUND(pA_Skills, 1)) TO TO_INT(UPPER_BOUND(pA_Skills, 1)) DO
-    IF pA_Skills[j] <> 0 THEN
-		IF pA_Skills[j]^.State = eState.ErrorProcessing THEN
-        	pA_Skills[j]^.Reset();
+FOR j := TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO
+    IF Skills[j] <> 0 THEN
+		IF Skills[j]^.State = eState.ErrorProcessing THEN
+        	Skills[j]^.Reset();
 		END_IF
     END_IF
 END_FOR]]></ST>
@@ -895,11 +872,18 @@ SetRecoveryMode := TRUE;]]></ST>
       <Implementation>
         <ST><![CDATA[HMI_BASE.sInstanceName := GetInstanceName();
 
-FOR i := 1 TO TO_INT(UPPER_BOUND(pA_Skills,1)) DO
-	IF pA_Skills[i]<>0 THEN
-		HMI_BASE.aNameOfSkills[i]:= pA_Skills[i]^.Name;
+nSkillCount := 0;
+FOR i := 1 TO TO_INT(UPPER_BOUND(Skills,1)) DO
+	IF Skills[i]<>0 THEN
+		HMI_BASE.aNameOfSkills[i]:= Skills[i]^.Name;
+		HMI_BASE.aTagOfSkills[i]:= Skills[i]^.TAG;
+		Skills[i]^.MESSENGER.ParentMessenger := ADR(MESSENGER);
+		nSkillCount := nSkillCount + 1;
 	END_IF
 END_FOR
+
+
+
 
 
 
@@ -979,7 +963,7 @@ IF NOT TimeStateMachine.Q1 OR SlowDownTimer.Q THEN
 
     CASE HMI_BASE.eStatus OF
         eState.Unconfigured:
-            IF Settings_Base.bAutoConfigure THEN Configure(); END_IF
+            IF SET_B.bAutoConfigure THEN Configure(); END_IF
 
         eState.Inactive:
             ;
@@ -1005,10 +989,10 @@ IF NOT TimeStateMachine.Q1 OR SlowDownTimer.Q THEN
                     _recoveryModeAssigned := FALSE;
                     _recoveryMode := eRecoveryMode.AcknowledgeRequired;
                 FAILURE:
-                    LastFail := Now();
+                    LastFail := CurrentTime();
                     HMI_BASE.eStatus := eState.Unconfigured;
                 ERROR:
-                    LastError := Now();
+                    LastError := CurrentTime();
                     EnterErrorProcessing(FromState := eState.Configuring);
             END_CASE
 
@@ -1021,10 +1005,10 @@ IF NOT TimeStateMachine.Q1 OR SlowDownTimer.Q THEN
                     TimeStateMachine.RESET1 := TRUE;
                     HMI_BASE.eStatus := eState.Active;
                 FAILURE:
-                    LastFail := Now();
+                    LastFail := CurrentTime();
                     HMI_BASE.eStatus := eState.Inactive;
                 ERROR:
-                    LastError := Now();
+                    LastError := CurrentTime();
                     EnterErrorProcessing(FromState := eState.Activating);
             END_CASE
 
@@ -1037,10 +1021,10 @@ IF NOT TimeStateMachine.Q1 OR SlowDownTimer.Q THEN
                     TimeStateMachine.RESET1 := TRUE;
                     HMI_BASE.eStatus := eState.Inactive;
                 FAILURE:
-                    LastFail := Now();
+                    LastFail := CurrentTime();
                     HMI_BASE.eStatus := eState.Inactive;
                 ERROR:
-                    LastError := Now();
+                    LastError := CurrentTime();
                     EnterErrorProcessing(FromState := eState.Deactivating);
             END_CASE
 
@@ -1074,14 +1058,14 @@ IF NOT TimeStateMachine.Q1 OR SlowDownTimer.Q THEN
                 FAILURE:
                     // Recovery did not complete, but the component is still defined.
                     // Never retry such a result automatically in a tight loop.
-                    LastFail := Now();
+                    LastFail := CurrentTime();
                     SetRecoveryMode(Mode := eRecoveryMode.AcknowledgeRequired);
                     _manualResetCalled := FALSE;
 
                 ERROR:
                     // Recovery itself failed: remain in ErrorProcessing and require a
                     // deliberate acknowledgement before another attempt.
-                    LastError := Now();
+                    LastError := CurrentTime();
                     SetRecoveryMode(Mode := eRecoveryMode.AcknowledgeRequired);
                     _manualResetCalled := FALSE;
             END_CASE
@@ -1095,10 +1079,10 @@ IF NOT TimeStateMachine.Q1 OR SlowDownTimer.Q THEN
                     TimeStateMachine.RESET1 := TRUE;
                     HMI_BASE.eStatus := eState.Unconfigured;
                 FAILURE:
-                    LastFail := Now();
+                    LastFail := CurrentTime();
                     HMI_BASE.eStatus := eState.Unconfigured;
                 ERROR:
-                    LastError := Now();
+                    LastError := CurrentTime();
                     EnterErrorProcessing(FromState := eState.CleaningUp);
             END_CASE
 
@@ -1111,10 +1095,10 @@ IF NOT TimeStateMachine.Q1 OR SlowDownTimer.Q THEN
                     TimeStateMachine.RESET1 := TRUE;
                     HMI_BASE.eStatus := eState.Finalized;
                 FAILURE:
-                    LastFail := Now();
+                    LastFail := CurrentTime();
                     HMI_BASE.eStatus := eState.Finalized;
                 ERROR:
-                    LastError := Now();
+                    LastError := CurrentTime();
                     EnterErrorProcessing(FromState := eState.ShuttingDown);
             END_CASE
     END_CASE

@@ -17,7 +17,8 @@ TYPE eMessageCategories :
 	External:=8,
 	Positiv:=9,
 	StateMachine:=10,
-	HardwareFailure := 11
+	HardwareFailure := 11,
+	ChildFailed := 12
 );
 END_TYPE
 ]]></Declaration>

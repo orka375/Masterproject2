@@ -73,8 +73,6 @@ IF rApplyRecipe.Q THEN
 			eMessageCategories.Undefined,
 			'MAIN.Recipe',
 			'Recipe binding or WrittenFor robot not found');
-	ELSE
-		SETUP.CELL_MESSENGER.Clear('MAIN.Recipe');
 	END_IF
 END_IF]]></ST>
     </Implementation>

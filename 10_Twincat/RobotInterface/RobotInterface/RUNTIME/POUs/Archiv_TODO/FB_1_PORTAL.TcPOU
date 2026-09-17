@@ -94,7 +94,7 @@ _allAxesReady := TRUE;
 _allCommandsFinalized := TRUE;
 _anyAxisMoving := FALSE;
 _anyAxisFault := FALSE;
-HMI_ROB._tcppos := BaseOffset;
+TCPPos_PLCUnit := BaseOffset;
 
 
 FOR _index := 1 TO _activeAxisCount DO
@@ -113,8 +113,8 @@ FOR _index := 1 TO _activeAxisCount DO
 
     aAxis[_index].pAxis^.MESSENGER.ParentMessenger := ADR(MESSENGER);
 
-    _position := aAxis[_index].pAxis^.HMI_ROB._jointpos.joint1;
-    _velocity := aAxis[_index].pAxis^._jointvel.joint1;
+    _position := aAxis[_index].pAxis^.JointPos_PLCUnit.joint1;
+    _velocity := aAxis[_index].pAxis^.JointVel_PLCUnit.joint1;
     aAxisStatus[_index].bEnabled := TRUE;
     aAxisStatus[_index].bReady := aAxis[_index].pAxis^.Ready;
     aAxisStatus[_index].bMoving := aAxis[_index].pAxis^.IsMoving;
@@ -123,22 +123,22 @@ FOR _index := 1 TO _activeAxisCount DO
     aAxisStatus[_index].fActualPosition := _position;
     aAxisStatus[_index].fActualVelocity := _velocity;
     aAxisStatus[_index].fZeroPoint := aAxis[_index].fZeroPoint;
-    aAxisStatus[_index].fSafePosition := aAxis[_index].pAxis^.Settings_Rob.SafePosition.joint1;
+    aAxisStatus[_index].fSafePosition := aAxis[_index].pAxis^.SET_R.SafePosition.joint1;
     aAxisStatus[_index].nCommandID := aAxis[_index].pAxis^.CommandID;
     aAxisStatus[_index].eCommandStatus := aAxis[_index].pAxis^.CommandState;
-    HMI_ROB._tcppos.x := HMI_ROB._tcppos.x + (_position - aAxis[_index].fZeroPoint) * aAxis[_index].fDirX;
-    HMI_ROB._tcppos.y := HMI_ROB._tcppos.y + (_position - aAxis[_index].fZeroPoint) * aAxis[_index].fDirY;
-    HMI_ROB._tcppos.z := HMI_ROB._tcppos.z + (_position - aAxis[_index].fZeroPoint) * aAxis[_index].fDirZ;
-    _tcpvel.x := _tcpvel.x + _velocity * aAxis[_index].fDirX;
-    _tcpvel.y := _tcpvel.y + _velocity * aAxis[_index].fDirY;
-    _tcpvel.z := _tcpvel.z + _velocity * aAxis[_index].fDirZ;
+    TCPPos_PLCUnit.x := TCPPos_PLCUnit.x + (_position - aAxis[_index].fZeroPoint) * aAxis[_index].fDirX;
+    TCPPos_PLCUnit.y := TCPPos_PLCUnit.y + (_position - aAxis[_index].fZeroPoint) * aAxis[_index].fDirY;
+    TCPPos_PLCUnit.z := TCPPos_PLCUnit.z + (_position - aAxis[_index].fZeroPoint) * aAxis[_index].fDirZ;
+    TCPVel_PLCUnit.x := TCPVel_PLCUnit.x + _velocity * aAxis[_index].fDirX;
+    TCPVel_PLCUnit.y := TCPVel_PLCUnit.y + _velocity * aAxis[_index].fDirY;
+    TCPVel_PLCUnit.z := TCPVel_PLCUnit.z + _velocity * aAxis[_index].fDirZ;
     CASE _index OF
-        1: HMI_ROB._jointpos.joint1 := _position; _jointvel.joint1 := _velocity;
-        2: HMI_ROB._jointpos.joint2 := _position; _jointvel.joint2 := _velocity;
-        3: HMI_ROB._jointpos.joint3 := _position; _jointvel.joint3 := _velocity;
-        4: HMI_ROB._jointpos.joint4 := _position; _jointvel.joint4 := _velocity;
-        5: HMI_ROB._jointpos.joint5 := _position; _jointvel.joint5 := _velocity;
-        6: HMI_ROB._jointpos.joint6 := _position; _jointvel.joint6 := _velocity;
+        1: JointPos_PLCUnit.joint1 := _position; JointVel_PLCUnit.joint1 := _velocity;
+        2: JointPos_PLCUnit.joint2 := _position; JointVel_PLCUnit.joint2 := _velocity;
+        3: JointPos_PLCUnit.joint3 := _position; JointVel_PLCUnit.joint3 := _velocity;
+        4: JointPos_PLCUnit.joint4 := _position; JointVel_PLCUnit.joint4 := _velocity;
+        5: JointPos_PLCUnit.joint5 := _position; JointVel_PLCUnit.joint5 := _velocity;
+        6: JointPos_PLCUnit.joint6 := _position; JointVel_PLCUnit.joint6 := _velocity;
     END_CASE
     _allAxesReady := _allAxesReady AND aAxisStatus[_index].bReady;
     _allCommandsFinalized := _allCommandsFinalized AND (aAxisStatus[_index].eCommandStatus = eProgress.FINALIZED);

@@ -42,10 +42,10 @@ IF NOT StopMotion() THEN RETURN; END_IF
 _moveAbsExecute := FALSE;
 _moveRelExecute := FALSE;
 _homeExecute := FALSE;
-_commActiveCommandID := 0;
-_commCommandState := eProgress.ABORTED;
-_commCommandResult := eResult.FAILURE;
-_commCommandBusy := FALSE;
+ActiveCommandID := 0;
+CommandState := eProgress.ABORTED;
+CommandResult :=eResult.FAILURE;
+CommandBusy := FALSE;
 CancelCommand := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -69,25 +69,19 @@ ActualPosition := Axis.NcToPlc.ActPos;
 ActualVelocity := Axis.NcToPlc.ActVelo;
 
 IF _fbPower.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Power'), 'MC_Power error');
-ELSE Messenger.Clear(CONCAT(Path, '.Power'));
 END_IF
 IF _fbMoveAbsolute.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.MoveAbsolute'), 'MC_MoveAbsolute error');
-ELSE Messenger.Clear(CONCAT(Path, '.MoveAbsolute'));
 END_IF
 IF _fbMoveRelative.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.MoveRelative'), 'MC_MoveRelative error');
-ELSE Messenger.Clear(CONCAT(Path, '.MoveRelative'));
 END_IF
 IF _fbHome.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Home'), 'MC_Home error');
-ELSE Messenger.Clear(CONCAT(Path, '.Home'));
 END_IF
 IF _fbStop.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Stop'), 'MC_Stop error');
-ELSE Messenger.Clear(CONCAT(Path, '.Stop'));
 END_IF
 IF _fbReset.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Reset'), 'MC_Reset error');
-ELSE Messenger.Clear(CONCAT(Path, '.Reset'));
 END_IF
 
-_commCanAcceptCommand := CommunicationReady AND Powered AND NOT Messenger.HasActivError
+CanAcceptCommand := CommunicationReady AND Powered AND NOT Messenger.HasActivError
     AND NOT _commCommandBusy AND NOT _fbStop.Busy AND NOT _resetExecute;
 
 IF _commCommandBusy THEN
@@ -95,36 +89,36 @@ IF _commCommandBusy THEN
         _moveAbsExecute := FALSE;
         _moveRelExecute := FALSE;
         _homeExecute := FALSE;
-        _commActiveCommandID := 0;
-        _commCommandState := eProgress.FINALIZED;
-        _commCommandResult := eResult.ERROR;
-        _commCommandBusy := FALSE;
+        ActiveCommandID := 0;
+        CommandState := eProgress.FINALIZED;
+        CommandResult :=eResult.ERROR;
+        CommandBusy := FALSE;
     ELSIF _fbMoveAbsolute.CommandAborted OR _fbMoveRelative.CommandAborted OR _fbHome.CommandAborted THEN
         _moveAbsExecute := FALSE;
         _moveRelExecute := FALSE;
         _homeExecute := FALSE;
-        _commActiveCommandID := 0;
-        _commCommandState := eProgress.ABORTED;
-        _commCommandResult := eResult.FAILURE;
-        _commCommandBusy := FALSE;
+        ActiveCommandID := 0;
+        CommandState := eProgress.ABORTED;
+        CommandResult :=eResult.FAILURE;
+        CommandBusy := FALSE;
     ELSIF _fbMoveAbsolute.Done OR _fbMoveRelative.Done OR _fbHome.Done THEN
         IF _fbHome.Done THEN Homed := TRUE; END_IF
         _moveAbsExecute := FALSE;
         _moveRelExecute := FALSE;
         _homeExecute := FALSE;
-        _commActiveCommandID := 0;
-        _commCommandState := eProgress.FINALIZED;
-        _commCommandResult := eResult.SUCCESS;
-        _commCommandBusy := FALSE;
+        ActiveCommandID := 0;
+        CommandState := eProgress.FINALIZED;
+        CommandResult :=eResult.SUCCESS;
+        CommandBusy := FALSE;
     ELSIF NOT _commandAccepted AND (_fbMoveAbsolute.Busy OR _fbMoveRelative.Busy OR _fbHome.Busy) THEN
         _commandAccepted := TRUE;
-        _commAcceptedCommandID := _commActiveCommandID;
-        _commCommandState := eProgress.ACKNOWLEDGE;
+        AcceptedCommandID := _commActiveCommandID;
+        CommandState := eProgress.ACKNOWLEDGE;
         _moveAbsExecute := FALSE;
         _moveRelExecute := FALSE;
         _homeExecute := FALSE;
     ELSIF _commandAccepted AND (_fbMoveAbsolute.Busy OR _fbMoveRelative.Busy OR _fbHome.Busy) THEN
-        _commCommandState := eProgress.RUNNING;
+        CommandState := eProgress.RUNNING;
     END_IF
 END_IF
 
@@ -155,11 +149,11 @@ ResetAxis := TRUE;]]></ST>
 _moveRelExecute := FALSE;
 _homeExecute := FALSE;
 _stopExecute := FALSE;
-_commAcceptedCommandID := 0;
-_commActiveCommandID := 0;
-_commCommandBusy := FALSE;
-_commCommandState := eProgress.INIT;
-_commCommandResult := eResult.NONE;
+AcceptedCommandID := 0;
+ActiveCommandID := 0;
+CommandBusy := FALSE;
+CommandState := eProgress.INIT;
+CommandResult :=eResult.NONE;
 Reconnect();
 ResetCommunication := TRUE;]]></ST>
       </Implementation>
@@ -173,11 +167,11 @@ IF (CommandID = 0) OR NOT CanAcceptCommand THEN RETURN; END_IF
 Homed := FALSE;
 _homeExecute := TRUE;
 _commandAccepted := FALSE;
-_commAcceptedCommandID := 0;
-_commActiveCommandID := CommandID;
-_commCommandState := eProgress.INIT;
-_commCommandResult := eResult.NONE;
-_commCommandBusy := TRUE;
+AcceptedCommandID := 0;
+ActiveCommandID := CommandID;
+CommandState := eProgress.INIT;
+CommandResult :=eResult.NONE;
+CommandBusy := TRUE;
 SendHome := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -196,11 +190,11 @@ _fbMoveAbsolute.Deceleration := Deceleration;
 _fbMoveAbsolute.Jerk := Jerk;
 _moveAbsExecute := TRUE;
 _commandAccepted := FALSE;
-_commAcceptedCommandID := 0;
-_commActiveCommandID := CommandID;
-_commCommandState := eProgress.INIT;
-_commCommandResult := eResult.NONE;
-_commCommandBusy := TRUE;
+AcceptedCommandID := 0;
+ActiveCommandID := CommandID;
+CommandState := eProgress.INIT;
+CommandResult :=eResult.NONE;
+CommandBusy := TRUE;
 SendMoveAbsolute := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -219,11 +213,11 @@ _fbMoveRelative.Deceleration := Deceleration;
 _fbMoveRelative.Jerk := Jerk;
 _moveRelExecute := TRUE;
 _commandAccepted := FALSE;
-_commAcceptedCommandID := 0;
-_commActiveCommandID := CommandID;
-_commCommandState := eProgress.INIT;
-_commCommandResult := eResult.NONE;
-_commCommandBusy := TRUE;
+AcceptedCommandID := 0;
+ActiveCommandID := CommandID;
+CommandState := eProgress.INIT;
+CommandResult :=eResult.NONE;
+CommandBusy := TRUE;
 SendMoveRelative := TRUE;]]></ST>
       </Implementation>
     </Method>

@@ -54,7 +54,7 @@ END_VAR
     RETURN;
   END_IF
 
-  CurrentMatrix := FromPose(Pose := HMI_ROB._tcppos);
+  CurrentMatrix := FromPose(Pose := TCPPos_PLCUnit);
 
   // Project the current TCP X axis onto the BRF XY plane.
   Xx := CurrentMatrix.r11;
@@ -113,8 +113,6 @@ IF TOOL <> 0 THEN
     IF TOOL^.State = eState.ErrorProcessing OR TOOL^.MESSENGER.HasActivError THEN
         SetRecoveryMode(Mode := TOOL^.RecoveryMode);
         Messenger.AddError(eMessageCategories.ParentFailed, Path, 'Tool in error');
-    ELSE
-        Messenger.Clear(Path, 'Tool in error');
     END_IF
 END_IF
 

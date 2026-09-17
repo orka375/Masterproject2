@@ -159,9 +159,6 @@
     <Compile Include="DUTs\Skill\stExternalStatus.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\StateMachine\eHealth.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="DUTs\StateMachine\eInternalTransitions.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -364,6 +361,9 @@
     <Compile Include="POUs\Test\DEBUG_STATE.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Test\FB_CAM.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Test\TEST1.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -398,9 +398,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Tools\Gimatic_UR_Gripper\GRIPPER_GIMATIC.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\_TODO.TcPOU">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -482,7 +479,6 @@
     <Folder Include="POUs\Helpers" />
     <Folder Include="POUs\Jog" />
     <Folder Include="POUs\Axis" />
-    <Folder Include="POUs\Frames" />
     <Folder Include="POUs\Archiv_TODO" />
     <Folder Include="POUs\Skills\Skill_Axis_MoveDemo" />
     <Folder Include="POUs\Skills\Skill_Landmark" />

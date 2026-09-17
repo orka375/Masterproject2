@@ -3500,7 +3500,7 @@ Settings.Target.frame_id:= eRefFrame.BRF;
 Settings.Velocity:=Param^.FastVelocity;
 
 
-nCalledMoveID := pRob^.MoveJoint(
+nCalledCmdID := pRob^.MoveJoint(
   Target := Settings.Target,
   Velocity := Param^.FastVelocity);
 HandleMoveStart();
@@ -3509,7 +3509,7 @@ HandleMoveStart();
     </Action>
     <Action Name="GoOverMiddleState_exit" Id="{c627f6fa-cc85-4a31-8f6e-63da895398bc}">
       <Implementation>
-        <ST><![CDATA[nCalledMoveID:=0;
+        <ST><![CDATA[nCalledCmdID:=0;
 bMoveInProcess:=FALSE;
 bMoveMiddlePointDone:=FALSE;]]></ST>
       </Implementation>
@@ -3535,7 +3535,7 @@ END_IF]]></ST>
       <Declaration><![CDATA[METHOD HandleMoveStart : BOOL
   ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[HandleMoveStart := nCalledMoveID <> 0;
+        <ST><![CDATA[HandleMoveStart := nCalledCmdID <> 0;
 
   IF NOT HandleMoveStart THEN
       ExecutionDone := TRUE;
@@ -3549,7 +3549,7 @@ END_IF]]></ST>
     <Action Name="Init_active" Id="{bb9d285b-87dd-4209-82d5-a350113088c8}">
       <Implementation>
         <ST><![CDATA[phase:=0;
-nCalledMoveID := 0;
+nCalledCmdID := 0;
 bMoveInProcess := FALSE;
 
 bMovePickApproachDone	:=FALSE;
@@ -3571,7 +3571,7 @@ bMoveMiddlePointDone	:=FALSE;]]></ST>
 ExecutionResult:=NONE;
 
 phase:=0;
-nCalledMoveID := 0;
+nCalledCmdID := 0;
 bMoveInProcess := FALSE;
 
 bMovePickApproachDone	:=FALSE;
@@ -3597,7 +3597,7 @@ Settings.Target.frame_id:= eRefFrame.BRF;
 Settings.Velocity:=Param^.FastVelocity;
 
 
-nCalledMoveID := pRob^.MoveJoint(
+nCalledCmdID := pRob^.MoveJoint(
   Target := Settings.Target,
   Velocity := Param^.FastVelocity);
 HandleMoveStart();
@@ -3606,7 +3606,7 @@ HandleMoveStart();
     </Action>
     <Action Name="MoveJ_PickApproach_exit" Id="{e2f5d488-d4c7-4a0e-a42e-a26a64f7b9c5}">
       <Implementation>
-        <ST><![CDATA[nCalledMoveID:=0;
+        <ST><![CDATA[nCalledCmdID:=0;
 bMoveInProcess:=FALSE;
 bMovePickApproachDone := FALSE;]]></ST>
       </Implementation>
@@ -3619,7 +3619,7 @@ Settings.Target.frame_id:= eRefFrame.BRF;
 Settings.Velocity:=Param^.FastVelocity;
 
 
-nCalledMoveID := pRob^.MoveJoint(
+nCalledCmdID := pRob^.MoveJoint(
   Target := Settings.Target,
   Velocity := Param^.FastVelocity);
 HandleMoveStart();
@@ -3628,7 +3628,7 @@ HandleMoveStart();
     </Action>
     <Action Name="MoveJ_PlaceApproach_exit" Id="{5229f4b1-1f3d-4f1d-bbe3-c51f7e0fb745}">
       <Implementation>
-        <ST><![CDATA[nCalledMoveID:=0;
+        <ST><![CDATA[nCalledCmdID:=0;
 bMoveInProcess:=FALSE;
 bMovePlaceApproachDone := FALSE;]]></ST>
       </Implementation>
@@ -3642,7 +3642,7 @@ Settings.Target.frame_id:= eRefFrame.BRF;
 Settings.Velocity:=Param^.SlowVelocity;
 
 
-nCalledMoveID := pRob^.MoveLinear(
+nCalledCmdID := pRob^.MoveLinear(
   Target := Settings.Target,
   Velocity := Param^.SlowVelocity);
 HandleMoveStart();
@@ -3651,7 +3651,7 @@ HandleMoveStart();
     </Action>
     <Action Name="MoveL_Pick_exit" Id="{73135b79-08b7-4530-8720-be518dca25f8}">
       <Implementation>
-        <ST><![CDATA[nCalledMoveID:=0;
+        <ST><![CDATA[nCalledCmdID:=0;
 bMoveInProcess:=FALSE;
 bMovePickDone := FALSE;]]></ST>
       </Implementation>
@@ -3664,7 +3664,7 @@ Settings.Target.frame_id:= eRefFrame.BRF;
 Settings.Velocity:=Param^.SlowVelocity;
 
 
-nCalledMoveID := pRob^.MoveLinear(
+nCalledCmdID := pRob^.MoveLinear(
   Target := Settings.Target,
   Velocity := Param^.SlowVelocity);
 HandleMoveStart();
@@ -3673,7 +3673,7 @@ HandleMoveStart();
     </Action>
     <Action Name="MoveL_Place_exit" Id="{84a61dec-1718-453c-a818-66168ad7e659}">
       <Implementation>
-        <ST><![CDATA[nCalledMoveID:=0;
+        <ST><![CDATA[nCalledCmdID:=0;
 bMoveInProcess:=FALSE;
 bMovePlaceDone := FALSE;
 ]]></ST>
@@ -3686,7 +3686,7 @@ Settings.Target.frame_id:= eRefFrame.BRF;
 Settings.Velocity:=Param^.SlowVelocity;
 
 
-nCalledMoveID := pRob^.MoveLinear(
+nCalledCmdID := pRob^.MoveLinear(
   Target := Settings.Target,
   Velocity := Param^.SlowVelocity);
 HandleMoveStart();
@@ -3695,7 +3695,7 @@ HandleMoveStart();
     </Action>
     <Action Name="MoveL_RetractPick_exit" Id="{a05a6f6a-3c5c-4092-86c8-c0c55643a997}">
       <Implementation>
-        <ST><![CDATA[nCalledMoveID:=0;
+        <ST><![CDATA[nCalledCmdID:=0;
 bMoveInProcess:=FALSE;
 bRetractPickDone := FALSE;]]></ST>
       </Implementation>
@@ -3708,7 +3708,7 @@ Settings.Target.frame_id:= eRefFrame.BRF;
 Settings.Velocity:=Param^.SlowVelocity;
 
 
-nCalledMoveID := pRob^.MoveLinear(
+nCalledCmdID := pRob^.MoveLinear(
   Target := Settings.Target,
   Velocity := Param^.SlowVelocity);
 HandleMoveStart();
@@ -3717,7 +3717,7 @@ HandleMoveStart();
     </Action>
     <Action Name="MoveL_RetractPlace_exit" Id="{5c7fa900-9614-4520-a58b-fa98fb8c9bc2}">
       <Implementation>
-        <ST><![CDATA[nCalledMoveID:=0;
+        <ST><![CDATA[nCalledCmdID:=0;
 bMoveInProcess:=FALSE;
 bRetractPlaceDone := FALSE;
 ]]></ST>
@@ -3855,7 +3855,7 @@ OnShutdown := CombineResults(eParentResult,myResult);
       RETURN;
     END_IF
 
-    IF (nCalledMoveID = 0) OR (pRob^.CommandID <> nCalledMoveID) THEN
+    IF (nCalledCmdID = 0) OR (pRob^.CommandID <> nCalledCmdID) THEN
       RETURN;
     END_IF
 

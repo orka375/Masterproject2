@@ -7,7 +7,7 @@ VAR_INPUT
     // Optional generic robot pointer used only for status / current pose.
     // A future AMR FB derived from FB_1_ROB can be supplied here.
     // If 0, the jog FB operates without robot-status interlock.
-    pStatusRobot : POINTER TO FB_1_ROB;
+    pRobot : POINTER TO FB_1_ROB;
 
     // TRUE for mecanum / omni drive. FALSE for differential drive.
     bHolonomic   : BOOL := FALSE;
@@ -72,11 +72,11 @@ nLastCommandID := 0;
 // ----------------------------------------------------------
 // Status
 // ----------------------------------------------------------
-IF pStatusRobot <> 0 THEN
-    ActualPose := pStatusRobot^.ActualPosition;
+IF pRobot <> 0 THEN
+    ActualPose := pRobot^.ActualPosition;
     _yawRobot := ActualPose.yaw;
-    bMoving := pStatusRobot^.IsMoving;
-    bReady := bEnable AND NOT bRecoveryInhibit AND pStatusRobot^.Ready;
+    bMoving := pRobot^.IsMoving;
+    bReady := bEnable AND NOT bRecoveryInhibit AND pRobot^.Ready;
 ELSE
     _yawRobot := fRobotYaw;
     bMoving := bVelocityCommandActive;
@@ -148,7 +148,7 @@ CASE nFrame OF
         ActiveFramePose.pitch := 0.0;
         ActiveFramePose.yaw := 0.0;
 
-    eRefFrame.BRF, eRefFrame.TRF:
+    eRefFrame.BRF, eRefFrame.TRF:			//#BUG?
         _yawFrame := _yawRobot;
         ActiveFramePose := ActualPose;
 
@@ -182,7 +182,7 @@ bVelocityCommandActive :=
 
 bCommandIssued := bVelocityCommandActive;
 
-IF pStatusRobot = 0 THEN
+IF pRobot = 0 THEN
     bMoving := bVelocityCommandActive;
 END_IF
 

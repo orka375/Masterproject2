@@ -4,7 +4,7 @@
     <Declaration><![CDATA[{attribute 'hide_all_locals'}
 FUNCTION_BLOCK FB_Messenger
 VAR_INPUT
-	bExecuteQuittieren: BOOL;
+	
 	ParentMessenger: POINTER TO FB_Messenger;
 END_VAR
 VAR_OUTPUT
@@ -13,6 +13,7 @@ VAR_OUTPUT
 	HMI_MESSENGER: stHMI_MESSENGER;
 END_VAR
 VAR
+	bExecuteQuittieren: BOOL;
 	sMyTime		: STRING;
 	
 	MList	: ARRAY [1..SETUP.MaxNrOfMessages] OF MessageDescription;
@@ -24,8 +25,7 @@ VAR
 	
 	fbTime   	: FB_LocalSystemTime:=(bEnable:=TRUE, dwCycle:=1);
 	i: INT;
-// 	unread: BOOL;
-	_unreadError: BOOL;
+
 	nactivErrorIndex: INT;
 END_VAR
 ]]></Declaration>
@@ -125,7 +125,7 @@ MList[index].tTime := DT_TO_TIME(SYSTEMTIME_TO_DT(fbTime.systemTime));
 AddError := MList[index];
 
 IF ParentMessenger <> 0 AND ParentMessenger <> ADR(THIS^) THEN
-	ParentMessenger^.AddError(Category, sSender, sMessage);
+	ParentMessenger^.AddError(eMessageCategories.ChildFailed, sSender, sMessage);
 END_IF]]></ST>
       </Implementation>
     </Method>
@@ -208,7 +208,12 @@ IF index = 0 THEN
 END_IF
 
 MList[index].tTime := DT_TO_TIME(SYSTEMTIME_TO_DT(fbTime.systemTime));
-AddWarn := MList[index];]]></ST>
+AddWarn := MList[index];
+
+
+IF ParentMessenger <> 0 AND ParentMessenger <> ADR(THIS^) THEN
+	ParentMessenger^.AddWarn(eMessageCategories.ChildFailed, sSender, sMessage);
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="ClearMsgs" Id="{bcb7abb8-2079-4267-a0fd-3f416f48ad8f}">
@@ -227,20 +232,68 @@ END_FOR
 
 IndexShownM:=0;
 HMI_MESSENGER.MsgCount:=0;
+
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="GetLatestMessage" Id="{c0703a3a-c079-4dd6-8b67-7359a7b29171}">
-      <Declaration><![CDATA[METHOD GetLatestMessage : POINTER TO MessageDescription
+    <Method Name="ComputeId" Id="{1a2b3c4d-0003-4a00-9000-000000000003}">
+      <Declaration><![CDATA[// Stable, component-scoped message ID: same fault -> same ID across runs (not positional).
+// Bands: 1000 Cell/general, 2000 Robot, 3000 Skill, 4000 Recipe/DB, 5000 Communication.
+METHOD PRIVATE ComputeId : UINT
 VAR_INPUT
+	sSender : STRING;
+	sMessage : STRING;
+	Severity : eSeverity;
 END_VAR
-]]></Declaration>
+VAR
+	sKey : STRING(255);
+	nLen : INT;
+	k : INT;
+	nHash : UDINT;
+	nBase : UDINT;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF HMI_MESSENGER.MsgCount >= 1 THEN
-	GetLatestMessage := ADR(MList[HMI_MESSENGER.MsgCount]);
+        <ST><![CDATA[sKey := CONCAT(sSender, sMessage);
+nLen := LEN(sKey);
+nHash := 5381;
+FOR k := 0 TO nLen - 1 DO
+	nHash := (nHash * 33 + TO_UDINT(sKey[k])) AND 16#0000FFFF;
+END_FOR
+
+IF FIND(sSender, 'COMM') > 0 OR FIND(sSender, 'Comm') > 0 THEN
+	nBase := 5000;
+ELSIF FIND(sSender, 'Skill') > 0 THEN
+	nBase := 3000;
+ELSIF FIND(sSender, 'Recipe') > 0 OR FIND(sSender, 'Point') > 0 THEN
+	nBase := 4000;
+ELSIF FIND(sSender, 'ROB') > 0 THEN
+	nBase := 2000;
 ELSE
-	GetLatestMessage := ADR(emptyMsg);
-END_IF]]></ST>
+	nBase := 1000;
+END_IF
+
+ComputeId := TO_UINT(nBase + (nHash MOD 1000));]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FindActive" Id="{1a2b3c4d-0002-4a00-9000-000000000002}">
+      <Declaration><![CDATA[// Returns the 1-based index of a matching live message, or 0 if none.
+METHOD PRIVATE FindActive : INT
+VAR_INPUT
+	sSender : STRING;
+	sMessage : STRING;
+	Severity : eSeverity;
+END_VAR
+VAR
+	k : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FindActive := 0;
+FOR k := 1 TO HMI_MESSENGER.MsgCount DO
+	IF MList[k].Severity = Severity AND MList[k].sSender = sSender AND MList[k].sMessage = sMessage THEN
+		FindActive := k;
+		RETURN;
+	END_IF
+END_FOR]]></ST>
       </Implementation>
     </Method>
     <Property Name="HasActivError" Id="{c866ca77-0858-4c7e-919c-8b318f921da8}">
@@ -298,93 +351,6 @@ END_IF
 
 //TODO
 //QUITTIEREN DER HARDWARE]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="Clear" Id="{1a2b3c4d-0001-4a00-9000-000000000001}">
-      <Declaration><![CDATA[// Lifecycle Clear: remove active message(s) whose underlying condition is gone.
-// sMessage empty -> clear every message from sSender. The list is compacted.
-METHOD Clear : BOOL
-VAR_INPUT
-	sSender : STRING;
-	sMessage : STRING := '';
-END_VAR
-VAR
-	k : INT;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[k := 1;
-WHILE k <= HMI_MESSENGER.MsgCount DO
-	IF MList[k].sSender = sSender AND (sMessage = '' OR MList[k].sMessage = sMessage) THEN
-		RemoveAt(k);
-	ELSE
-		k := k + 1;
-	END_IF
-END_WHILE
-
-IF ParentMessenger <> 0 AND ParentMessenger <> ADR(THIS^) THEN
-	ParentMessenger^.Clear(sSender, sMessage);
-END_IF
-Clear := TRUE;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="FindActive" Id="{1a2b3c4d-0002-4a00-9000-000000000002}">
-      <Declaration><![CDATA[// Returns the 1-based index of a matching live message, or 0 if none.
-METHOD PRIVATE FindActive : INT
-VAR_INPUT
-	sSender : STRING;
-	sMessage : STRING;
-	Severity : eSeverity;
-END_VAR
-VAR
-	k : INT;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[FindActive := 0;
-FOR k := 1 TO HMI_MESSENGER.MsgCount DO
-	IF MList[k].Severity = Severity AND MList[k].sSender = sSender AND MList[k].sMessage = sMessage THEN
-		FindActive := k;
-		RETURN;
-	END_IF
-END_FOR]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="ComputeId" Id="{1a2b3c4d-0003-4a00-9000-000000000003}">
-      <Declaration><![CDATA[// Stable, component-scoped message ID: same fault -> same ID across runs (not positional).
-// Bands: 1000 Cell/general, 2000 Robot, 3000 Skill, 4000 Recipe/DB, 5000 Communication.
-METHOD PRIVATE ComputeId : UINT
-VAR_INPUT
-	sSender : STRING;
-	sMessage : STRING;
-	Severity : eSeverity;
-END_VAR
-VAR
-	sKey : STRING(255);
-	nLen : INT;
-	k : INT;
-	nHash : UDINT;
-	nBase : UDINT;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[sKey := CONCAT(sSender, sMessage);
-nLen := LEN(sKey);
-nHash := 5381;
-FOR k := 0 TO nLen - 1 DO
-	nHash := (nHash * 33 + TO_UDINT(sKey[k])) AND 16#0000FFFF;
-END_FOR
-
-IF FIND(sSender, 'COMM') > 0 OR FIND(sSender, 'Comm') > 0 THEN
-	nBase := 5000;
-ELSIF FIND(sSender, 'Skill') > 0 THEN
-	nBase := 3000;
-ELSIF FIND(sSender, 'Recipe') > 0 OR FIND(sSender, 'Point') > 0 THEN
-	nBase := 4000;
-ELSIF FIND(sSender, 'ROB') > 0 THEN
-	nBase := 2000;
-ELSE
-	nBase := 1000;
-END_IF
-
-ComputeId := TO_UINT(nBase + (nHash MOD 1000));]]></ST>
       </Implementation>
     </Method>
     <Method Name="RemoveAt" Id="{1a2b3c4d-0004-4a00-9000-000000000004}">

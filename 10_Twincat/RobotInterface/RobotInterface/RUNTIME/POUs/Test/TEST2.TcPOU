@@ -4,111 +4,15 @@
     <Declaration><![CDATA[PROGRAM TEST2
 
 VAR
-	// ==========================================================
-	// JOG TEST
-	// ==========================================================
-	bJogEnable : BOOL := FALSE;
+	Life: FB_0_BASE;
+	CAM: FB_VN_GevCameraControl;
+	QR: Skill_ReadQRCode;
 	
-	bJogXPlus  : BOOL;
-	bJogXMinus : BOOL;
-	bJogYPlus  : BOOL;
-	bJogYMinus : BOOL;
-	bJogZPlus  : BOOL;
-	bJogZMinus : BOOL;
-	
-	bJogRxPlus  : BOOL;
-	bJogRxMinus : BOOL;
-	bJogRyPlus  : BOOL;
-	bJogRyMinus : BOOL;
-	bJogRzPlus  : BOOL;
-	bJogRzMinus : BOOL;
-	
-	// 0 = Base
-	// 1 = Tool
-	// 2 = Custom
-	nJogFrame : eRefFrame := 0;
-	
-	// Safe commissioning values
-	fJogLinearStep  : REAL := 1.0;            // 1 mm
-	fJogAngularStep : REAL := 0.0174532925;   // 1 degree
-	fJogVelocity    : REAL := 20.0;           // 20 mm/s
-	
-	// Debug
-	bJogReady         : BOOL;
-	bJogMoving        : BOOL;
-	bJogPending       : BOOL;
-	bJogCommandIssued : BOOL;
-	nJogCommandID     : UINT;
-	
-	JogActualPose : ST_Pose;
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[
-(*
-	Replace AxisRef_X, AxisRef_XY45 and AxisRef_Z with AXIS_REF symbols
-	created by the TwinCAT NC configuration before enabling this example.
-	AXIS_X: FB_1_AXIS := (Axis := AxisRef_X, Settings.RegisterAsTopLevelRobot := FALSE, Settings.SafePosition := (joint1 := 100.0), MinPosition := 0.0, MaxPosition := 500.0);
-	AXIS_XY45: FB_1_AXIS := (Axis := AxisRef_XY45, Settings.RegisterAsTopLevelRobot := FALSE, Settings.SafePosition := (joint1 := 250.0), MinPosition := 0.0, MaxPosition := 500.0);
-	AXIS_Z: FB_1_AXIS := (Axis := AxisRef_Z, Settings.RegisterAsTopLevelRobot := FALSE, Settings.SafePosition := (joint1 := 50.0), MinPosition := 0.0, MaxPosition := 300.0);
-	ROBOT_PORTAL: FB_1_PORTAL := (
-		nAxisCount := 3,
-		Settings.SafePosition := (joint1 := 100.0, joint2 := 250.0, joint3 := 50.0),
-		aAxis := [
-			(pAxis := ADR(AXIS_X), sName := 'X', fDirX := 1.0, fZeroPoint := 0.0),
-			(pAxis := ADR(AXIS_XY45), sName := 'XY45', fDirX := 0.70710678, fDirY := 0.70710678, fZeroPoint := 250.0),
-			(pAxis := ADR(AXIS_Z), sName := 'Z', fDirZ := 1.0, fZeroPoint := 0.0)
-		]
-	);
-	*)
-
-// ==========================================================
-// JOG TEST CONFIGURATION
-// ==========================================================
-
-T_UR.Jog.bEnable := bJogEnable;
-
-T_UR.Jog.nFrame := nJogFrame;
-
-T_UR.Jog.fLinearStep := fJogLinearStep;
-T_UR.Jog.fAngularStep := fJogAngularStep;
-T_UR.Jog.fLinearVelocity := fJogVelocity;
-
-
-// ----------------------------------------------------------
-// HMI / TEST BUTTONS
-// ----------------------------------------------------------
-
-T_UR.Jog.bJogXPlus  := bJogXPlus;
-T_UR.Jog.bJogXMinus := bJogXMinus;
-
-T_UR.Jog.bJogYPlus  := bJogYPlus;
-T_UR.Jog.bJogYMinus := bJogYMinus;
-
-T_UR.Jog.bJogZPlus  := bJogZPlus;
-T_UR.Jog.bJogZMinus := bJogZMinus;
-
-T_UR.Jog.bJogRxPlus  := bJogRxPlus;
-T_UR.Jog.bJogRxMinus := bJogRxMinus;
-
-T_UR.Jog.bJogRyPlus  := bJogRyPlus;
-T_UR.Jog.bJogRyMinus := bJogRyMinus;
-
-T_UR.Jog.bJogRzPlus  := bJogRzPlus;
-T_UR.Jog.bJogRzMinus := bJogRzMinus;
-
-
-// ----------------------------------------------------------
-// DEBUG
-// ----------------------------------------------------------
-
-bJogReady         := T_UR.Jog.bReady;
-bJogMoving        := T_UR.Jog.bMoving;
-bJogPending       := T_UR.Jog.bPending;
-bJogCommandIssued := T_UR.Jog.bCommandIssued;
-
-nJogCommandID := T_UR.Jog.nLastCommandID;
-
-JogActualPose := T_UR.Jog.ActualPose;]]></ST>
+      <ST><![CDATA[Life();
+Life.CYCLIC_BASE();
+QR(pCamera:=ADR(CAM),pOwner:=ADR(Life));]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

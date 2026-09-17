@@ -57,10 +57,10 @@ IF NOT StopMotion() THEN RETURN; END_IF
 _moveAbsExecute := FALSE;
 _moveRelExecute := FALSE;
 _homeExecute := FALSE;
-_commActiveCommandID := 0;
-_commCommandState := eProgress.ABORTED;
-_commCommandResult := eResult.FAILURE;
-_commCommandBusy := FALSE;
+ActiveCommandID := 0;
+CommandState := eProgress.ABORTED;
+CommandResult :=eResult.FAILURE;
+CommandBusy := FALSE;
 CancelCommand := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -89,16 +89,12 @@ HMI_COMM._CommunicationReady := HMI_COMM._CommunicationConnected AND _startupRes
 
 IF _tonConnectTimeout.Q AND NOT instJS_MC_Init.Valid THEN
   Messenger.AddWarn(eMessageCategories.TimeoutFailure, CONCAT(Path, '.Init'), 'JSC initialization did not become valid');
-ELSE
-  Messenger.Clear(CONCAT(Path, '.Init'));
 END_IF
 
 IF instJS_MC_CyclicIn.Error THEN
   Messenger.AddError(eMessageCategories.LostConnection, CONCAT(Path, '.CyclicIn'), 'JSC cyclic input error');
 ELSIF _cyclicWasValid AND bRequestConnection AND NOT instJS_MC_CyclicIn.Valid THEN
   Messenger.AddWarn(eMessageCategories.LostConnection, CONCAT(Path, '.CyclicIn'), 'JSC cyclic communication lost');
-ELSE
-  Messenger.Clear(CONCAT(Path, '.CyclicIn'));
 END_IF
 _cyclicWasValid := bRequestConnection AND instJS_MC_CyclicIn.Valid;
 
@@ -130,16 +126,13 @@ IF instJS_MC_Init.Valid AND instJS_MC_CyclicIn.Valid THEN
     ActualVelocity := instJS_MC_Init.pstAxis^.AxisRef.NcToPlc.ActVelo;
 
     IF _fbMoveAbsolute.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.MoveAbsolute'), 'MC_MoveAbsolute error');
-    ELSE Messenger.Clear(CONCAT(Path, '.MoveAbsolute'));
     END_IF
     IF _fbMoveRelative.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.MoveRelative'), 'MC_MoveRelative error');
-    ELSE Messenger.Clear(CONCAT(Path, '.MoveRelative'));
     END_IF
     IF instJS_MC_ReadAxisError.AxisError THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Axis'), 'JSC axis error');
-    ELSE Messenger.Clear(CONCAT(Path, '.Axis'));
     END_IF
 
-    _commCanAcceptCommand := CommunicationReady AND Powered AND NOT Messenger.HasActivError
+    CanAcceptCommand := CommunicationReady AND Powered AND NOT Messenger.HasActivError
         AND NOT _commCommandBusy AND NOT _stopExecute AND NOT _resetExecute;
 
     IF _commCommandBusy THEN
@@ -147,34 +140,34 @@ IF instJS_MC_Init.Valid AND instJS_MC_CyclicIn.Valid THEN
             _moveAbsExecute := FALSE;
             _moveRelExecute := FALSE;
             _homeExecute := FALSE;
-            _commActiveCommandID := 0;
-            _commCommandState := eProgress.FINALIZED;
-            _commCommandResult := eResult.ERROR;
-            _commCommandBusy := FALSE;
+            ActiveCommandID := 0;
+            CommandState := eProgress.FINALIZED;
+            CommandResult :=eResult.ERROR;
+            CommandBusy := FALSE;
         ELSIF _fbMoveAbsolute.CommandAborted OR _fbMoveRelative.CommandAborted THEN
             _moveAbsExecute := FALSE;
             _moveRelExecute := FALSE;
-            _commActiveCommandID := 0;
-            _commCommandState := eProgress.ABORTED;
-            _commCommandResult := eResult.FAILURE;
-            _commCommandBusy := FALSE;
+            ActiveCommandID := 0;
+            CommandState := eProgress.ABORTED;
+            CommandResult :=eResult.FAILURE;
+            CommandBusy := FALSE;
         ELSIF _fbMoveAbsolute.Done OR _fbMoveRelative.Done OR instJS_MC_Reference.Done THEN
             IF instJS_MC_Reference.Done THEN Homed := TRUE; END_IF
             _moveAbsExecute := FALSE;
             _moveRelExecute := FALSE;
             _homeExecute := FALSE;
-            _commActiveCommandID := 0;
-            _commCommandState := eProgress.FINALIZED;
-            _commCommandResult := eResult.SUCCESS;
-            _commCommandBusy := FALSE;
+            ActiveCommandID := 0;
+            CommandState := eProgress.FINALIZED;
+            CommandResult :=eResult.SUCCESS;
+            CommandBusy := FALSE;
         ELSIF NOT _commandAccepted AND (_fbMoveAbsolute.Busy OR _fbMoveRelative.Busy OR _homeExecute) THEN
             _commandAccepted := TRUE;
-            _commAcceptedCommandID := _commActiveCommandID;
-            _commCommandState := eProgress.ACKNOWLEDGE;
+            AcceptedCommandID := _commActiveCommandID;
+            CommandState := eProgress.ACKNOWLEDGE;
             _moveAbsExecute := FALSE;
             _moveRelExecute := FALSE;
         ELSIF _commandAccepted AND (_fbMoveAbsolute.Busy OR _fbMoveRelative.Busy OR _homeExecute) THEN
-            _commCommandState := eProgress.RUNNING;
+            CommandState := eProgress.RUNNING;
         END_IF
     END_IF
 
@@ -195,12 +188,12 @@ ELSE
     _resetExecute := FALSE;
     _commandAccepted := FALSE;
     _startupResetDone := FALSE;
-    _commCanAcceptCommand := FALSE;
+    CanAcceptCommand := FALSE;
     IF _commCommandBusy THEN
-        _commActiveCommandID := 0;
-        _commCommandState := eProgress.FINALIZED;
-        _commCommandResult := eResult.ERROR;
-        _commCommandBusy := FALSE;
+        ActiveCommandID := 0;
+        CommandState := eProgress.FINALIZED;
+        CommandResult :=eResult.ERROR;
+        CommandBusy := FALSE;
     END_IF
 END_IF
 
@@ -242,12 +235,12 @@ _cyclicWasValid := FALSE;
 Homed := FALSE;
 Powered := FALSE;
 ActualVelocity := 0.0;
-_commCanAcceptCommand := FALSE;
-_commAcceptedCommandID := 0;
-_commActiveCommandID := 0;
-_commCommandBusy := FALSE;
-_commCommandState := eProgress.INIT;
-_commCommandResult := eResult.NONE;
+CanAcceptCommand := FALSE;
+AcceptedCommandID := 0;
+ActiveCommandID := 0;
+CommandBusy := FALSE;
+CommandState := eProgress.INIT;
+CommandResult :=eResult.NONE;
 Reconnect();
 ResetCommunication := TRUE;]]></ST>
       </Implementation>
@@ -261,11 +254,11 @@ IF (CommandID = 0) OR NOT CanAcceptCommand OR NOT instJS_MC_Init.Valid THEN RETU
 Homed := FALSE;
 _homeExecute := TRUE;
 _commandAccepted := FALSE;
-_commAcceptedCommandID := 0;
-_commActiveCommandID := CommandID;
-_commCommandState := eProgress.INIT;
-_commCommandResult := eResult.NONE;
-_commCommandBusy := TRUE;
+AcceptedCommandID := 0;
+ActiveCommandID := CommandID;
+CommandState := eProgress.INIT;
+CommandResult :=eResult.NONE;
+CommandBusy := TRUE;
 SendHome := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -282,11 +275,11 @@ _fbMoveAbsolute.Deceleration := Deceleration;
 _fbMoveAbsolute.Jerk := Jerk;
 _moveAbsExecute := TRUE;
 _commandAccepted := FALSE;
-_commAcceptedCommandID := 0;
-_commActiveCommandID := CommandID;
-_commCommandState := eProgress.INIT;
-_commCommandResult := eResult.NONE;
-_commCommandBusy := TRUE;
+AcceptedCommandID := 0;
+ActiveCommandID := CommandID;
+CommandState := eProgress.INIT;
+CommandResult :=eResult.NONE;
+CommandBusy := TRUE;
 SendMoveAbsolute := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -303,11 +296,11 @@ _fbMoveRelative.Deceleration := Deceleration;
 _fbMoveRelative.Jerk := Jerk;
 _moveRelExecute := TRUE;
 _commandAccepted := FALSE;
-_commAcceptedCommandID := 0;
-_commActiveCommandID := CommandID;
-_commCommandState := eProgress.INIT;
-_commCommandResult := eResult.NONE;
-_commCommandBusy := TRUE;
+AcceptedCommandID := 0;
+ActiveCommandID := CommandID;
+CommandState := eProgress.INIT;
+CommandResult :=eResult.NONE;
+CommandBusy := TRUE;
 SendMoveRelative := TRUE;]]></ST>
       </Implementation>
     </Method>

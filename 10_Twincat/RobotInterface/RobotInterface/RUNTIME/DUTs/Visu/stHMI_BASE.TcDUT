@@ -5,17 +5,17 @@
 STRUCT
 	sInstanceName: STRING;
 	eStatus: eState :=eState.Unconfigured;
-	MyHealth: eHealth := eHealth.Unkown;
 	bBusy : BOOL;
+	bReady: BOOL;
 	RecoveryMode : eRecoveryMode := eRecoveryMode.AcknowledgeRequired;
 	bRecoveryPending : BOOL;
 	bAcknowledgeRequired : BOOL;
 	bManualActionRequired : BOOL;
 	nRecoveryAttempt : UINT;
-	nMaxAutoRecoveryAttempts : UINT;
 	aNameOfSkills : ARRAY[1..MaxNrofSkills] OF STRING;
-	nSkillCount : UINT;
-	aSkills : ARRAY[1..MaxNrofSkills] OF stHMI_SKILL;
+	aTagOfSkills : ARRAY[1..MaxNrofSkills] OF STRING;
+
+
 END_STRUCT
 END_TYPE
 ]]></Declaration>
