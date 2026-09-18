@@ -152,7 +152,7 @@ ELSE
             bConfigured := FALSE;
 
             // Wait until URScript interface is available.
-            IF pUR^.UR_COMM.Script.bReady THEN
+            IF pUR^.UR_COMM.Script.bOperational THEN
 
                 succ :=
                     pUR^.UR_COMM.Script.ClearScript()

@@ -4,7 +4,7 @@
     <Declaration><![CDATA[FUNCTION_BLOCK ROBOT_MECA500 EXTENDS FB_2_ROB_MANIP
 
 VAR_INPUT
-	SETTINGS: stSettings_Manip;
+	SET_M: stSettings_Manip;
     MECA_COMM : FB_2_COMM_MECA;
 END_VAR
 
@@ -19,20 +19,32 @@ VAR
     nTrackedMoveId      : UINT;
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[//Skills Pointer
+      <ST><![CDATA[// ------ CALL CYCLIC -----------------
+
+
+// ------ WRITE HMI -------------------
+		// NO HMI STRUCT
+
+// ------ READ FROM HMI ---------------
+		// NO HMI STRUCT
+	
+
+
+// ------ WRITE PROPS/METHODS ---------
+
+
+
+// ----- CALL POUS AND ERROR SURVEILLANCE ----------
+
+
+// ----- REST --------------------
+
+
+//Skills Pointer
 SETUP.R2_PP.pRob:=THIS;
 
 
-// Meca500 native units: mm / deg / mm-s^-1 / deg-s^-1 / mm-s^-2 / deg-s^-2.
-SET_R.StandardUnits.Position            := eUnit.mm;
-SET_R.StandardUnits.Orientation         := eUnit.deg;
-SET_R.StandardUnits.Joint               := eUnit.deg;
-SET_R.StandardUnits.LinearVelocity      := eUnit.mm;
-SET_R.StandardUnits.AngularVelocity     := eUnit.deg;
-SET_R.StandardUnits.JointVelocity       := eUnit.deg;
-SET_R.StandardUnits.LinearAcceleration  := eUnit.mm;
-SET_R.StandardUnits.AngularAcceleration := eUnit.deg;
-SET_R.StandardUnits.JointAcceleration   := eUnit.deg;
+
 
 COMM := ADR(MECA_COMM);
 MECA_COMM.CYCLIC_COMM_MECA();
@@ -100,7 +112,7 @@ TCPPos_PLCUnit.yaw   := _mecaRPY.yaw;
 
 HMI_ROB.bEStop := MECA_COMM.bInEStop;
 HMI_ROB.bInCollision := MECA_COMM.bInCollision;
-HMI_ROB.bReady := Ready; //BUG
+HMI_ROB.bOperational := Operational; //BUG
 
 
 CYCLIC_MANIP();
@@ -207,7 +219,7 @@ CASE Cmd OF
             Value := Settings.Joints.joint6, Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits));
 
     eCommands.Home:
-        IF NOT MECA_COMM.CommunicationReady
+        IF NOT MECA_COMM.Operational
             OR NOT MECA_COMM.bInActivated
             OR MECA_COMM.bInPaused
             OR MECA_COMM.bInBusy
@@ -471,7 +483,7 @@ ELSIF MECA_COMM.nInErrorCode <> 0 THEN
 ELSE
     nTrackedMoveId := 0;
     configure_process := 0;
-    IF NOT MECA_COMM.CommandBusy THEN
+    IF NOT MECA_COMM.Busy THEN
         myResult := SUCCESS;
     END_IF
 END_IF
@@ -509,22 +521,6 @@ END_IF
 OnShutdown := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
-    <Property Name="Ready" Id="{441b5b02-ab1f-4927-861c-0b8c7c7993dc}">
-      <Declaration><![CDATA[PROPERTY Ready : BOOL]]></Declaration>
-      <Get Name="Get" Id="{0f4dec07-9199-419c-82ac-1159464c5acd}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[Ready := SUPER^.Ready AND MECA_COMM.HMI_COMM._CommunicationReady
-    AND MECA_COMM.bInActivated
-    AND MECA_COMM.bInHomed
-    AND NOT MECA_COMM.bInPaused
-    AND (MECA_COMM.nInErrorCode = 0)
-    AND NOT MECA_COMM.bInBusy;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
     <Method Name="RPYToMECAEuler" Id="{ffda5a15-9305-4ff9-98bb-020166ec8fd0}" FolderPath="Transformations\">
       <Declaration><![CDATA[// TODO verify Meca500 Euler convention. Pass-through until confirmed against manufacturer docs.
 METHOD PUBLIC RPYToMECAEuler : ST_Pose

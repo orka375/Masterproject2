@@ -31,6 +31,7 @@ END_VAR
 COMM := ADR(AXIS_COMM);
 _pSettingsAxis := ADR(SETTINGS);
 _pSettingsLinAxis := ADR(SETTINGS);
+
 _axisPowered := AXIS_COMM.Powered;
 _axisHomed := AXIS_COMM.Homed;
 _axisActualPosition := AXIS_COMM.ActualPosition;
@@ -70,16 +71,16 @@ CASE Cmd OF
             Position := TargetPosition,
             Velocity := EffectiveVelocity,
             Acceleration := EffectiveAcceleration,
-            Deceleration := _pSettingsAxis^.DefaultDeceleration,
-            Jerk := _pSettingsAxis^.DefaultJerk);
+            Deceleration := SET_A.DefaultDeceleration,
+            Jerk := SET_A.DefaultJerk);
     eCommands.MoveLRelativ, eCommands.MoveJRelativ:
         Accepted := AXIS_COMM.SendMoveRelative(
             CommandID := NewCommandID,
             Distance := Settings.Pose.x,
             Velocity := EffectiveVelocity,
             Acceleration := EffectiveAcceleration,
-            Deceleration := _pSettingsAxis^.DefaultDeceleration,
-            Jerk := _pSettingsAxis^.DefaultJerk);
+            Deceleration := SET_A.DefaultDeceleration,
+            Jerk := SET_A.DefaultJerk);
     eCommands.Home:
         Accepted := AXIS_COMM.SendHome(CommandID := NewCommandID);
 END_CASE
@@ -147,7 +148,7 @@ END_VAR]]></Declaration>
         <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
 myResult := eResult.NONE;
 
-IF (ABS(AXIS_COMM.ActualVelocity) > SETTINGS.LinearStandStillLimit) OR AXIS_COMM.CommandBusy THEN
+IF (ABS(AXIS_COMM.ActualVelocity) > SETTINGS.LinearStandStillLimit) OR AXIS_COMM.Busy THEN
     AXIS_COMM.StopMotion();
 ELSE
     AXIS_COMM.Power(Enable := FALSE);

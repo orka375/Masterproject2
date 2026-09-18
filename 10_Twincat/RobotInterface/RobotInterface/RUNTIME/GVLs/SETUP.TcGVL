@@ -140,9 +140,22 @@ VAR_GLOBAL
 // // 		pA_Skills:= [ADR(R2_PP),ADR(R2_Counter)]
 // // 	);
 // 	
+	Settings_Charlie : stSettings_Manip := (
+		StandardUnits.Position            := eUnit.mm;
+		StandardUnits.Orientation         := eUnit.deg;
+		StandardUnits.Joint               := eUnit.deg;
+		StandardUnits.LinearVelocity      := eUnit.mm;
+		StandardUnits.AngularVelocity     := eUnit.deg;
+		StandardUnits.JointVelocity       := eUnit.deg;
+		StandardUnits.LinearAcceleration  := eUnit.mm;
+		StandardUnits.AngularAcceleration := eUnit.deg;
+		StandardUnits.JointAcceleration   := eUnit.deg;
+
 	MECA_CHARLIE: ROBOT_MECA500 := (
 		Skills:= [ADR(R2_PP),ADR(R2_Counter)],
-		Tool := ADR(GREIFER_CHARLIE)
+		Tool := ADR(GREIFER_CHARLIE),
+		// Meca500 native units: mm / deg / mm-s^-1 / deg-s^-1 / mm-s^-2 / deg-s^-2.
+		SET_M := Settings_Charlie
 	);
 	
 // 	nc_axis_delta: AXIS_REF;

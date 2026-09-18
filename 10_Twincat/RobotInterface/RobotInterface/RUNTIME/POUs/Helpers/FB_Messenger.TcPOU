@@ -353,33 +353,5 @@ END_IF
 //QUITTIEREN DER HARDWARE]]></ST>
       </Implementation>
     </Method>
-    <Method Name="RemoveAt" Id="{1a2b3c4d-0004-4a00-9000-000000000004}">
-      <Declaration><![CDATA[// Removes the message at the 1-based index and compacts the list.
-METHOD PRIVATE RemoveAt : BOOL
-VAR_INPUT
-	ind : INT;
-END_VAR
-VAR
-	k : INT;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[IF ind < 1 OR ind > HMI_MESSENGER.MsgCount THEN
-	RETURN;
-END_IF
-
-FOR k := ind TO HMI_MESSENGER.MsgCount - 1 DO
-	MList[k] := MList[k + 1];
-END_FOR
-
-MList[HMI_MESSENGER.MsgCount] := emptyMsg;
-HMI_MESSENGER.MsgCount := HMI_MESSENGER.MsgCount - 1;
-
-IF IndexShownM > HMI_MESSENGER.MsgCount THEN
-	IndexShownM := HMI_MESSENGER.MsgCount;
-END_IF
-
-RemoveAt := TRUE;]]></ST>
-      </Implementation>
-    </Method>
   </POU>
 </TcPlcObject>

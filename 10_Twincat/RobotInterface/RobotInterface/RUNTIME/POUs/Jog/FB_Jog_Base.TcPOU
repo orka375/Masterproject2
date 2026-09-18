@@ -80,7 +80,7 @@ END_VAR
 
 VAR_OUTPUT
     // Common status for HMI.
-    bReady              : BOOL;
+    bOperational              : BOOL;
     bMoving             : BOOL;
     bPending            : BOOL;
     bCommandIssued      : BOOL;

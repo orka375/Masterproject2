@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
-  <DUT Name="stHMI_COMM" Id="{e1786145-24f0-4674-9a44-50c2d5e718ad}">
-    <Declaration><![CDATA[TYPE stHMI_COMM :
+  <DUT Name="stSettings_Skill" Id="{1f54a1c4-096c-4b7e-b281-c442f5aa9d45}">
+    <Declaration><![CDATA[TYPE stSettings_Skill EXTENDS stSettings_Base :
 STRUCT
-	_CommunicationConnected : BOOL;
+	TAG: STRING := 'EMPTY';
 END_STRUCT
 END_TYPE
 ]]></Declaration>

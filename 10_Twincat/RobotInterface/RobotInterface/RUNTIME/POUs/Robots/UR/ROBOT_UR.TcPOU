@@ -30,7 +30,25 @@ END_VAR
 
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[// UR native units: SI throughout (m, rad, m/s, rad/s, m/s^2, rad/s^2).
+      <ST><![CDATA[// ------ CALL CYCLIC -----------------
+
+
+// ------ WRITE HMI -------------------
+		// NO HMI STRUCT
+
+// ------ READ FROM HMI ---------------
+		// NO HMI STRUCT
+	
+
+
+// ------ WRITE PROPS/METHODS ---------
+
+
+// ----- CALL POUS AND ERROR SURVEILLANCE ----------
+
+
+// ----- REST --------------------
+// UR native units: SI throughout (m, rad, m/s, rad/s, m/s^2, rad/s^2).
 SET_R.StandardUnits.Position            := eUnit.m;
 SET_R.StandardUnits.Orientation         := eUnit.rad;
 SET_R.StandardUnits.Joint               := eUnit.rad;
@@ -425,24 +443,13 @@ _baActive := FALSE;
 _baActiveID := 0;
 BA_Active := FALSE;
 
-IF NOT UR_COMM.CommandBusy THEN
+IF NOT UR_COMM.Busy THEN
     myResult := SUCCESS;
 END_IF
 
 OnError := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
-    <Property Name="Ready" Id="{4beae3a9-8b62-479b-bab4-3c4ac4d72c86}">
-      <Declaration><![CDATA[PROPERTY Ready : BOOL]]></Declaration>
-      <Get Name="Get" Id="{e494e2e8-8c4d-4969-ba94-c03a4988e751}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
     <Method Name="RPYToURRotVec" Id="{7f000001-1111-2222-3333-000000000001}">
       <Declaration><![CDATA[// Convert generic RPY (Rz*Ry*Rx composition, rad) to a UR axis-angle rotation vector (rad).
 METHOD PUBLIC RPYToURRotVec : ST_Vector3

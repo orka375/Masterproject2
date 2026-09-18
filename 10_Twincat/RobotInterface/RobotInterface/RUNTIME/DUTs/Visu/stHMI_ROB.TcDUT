@@ -3,7 +3,7 @@
   <DUT Name="stHMI_ROB" Id="{ae1a8400-1386-4b48-b5c2-ee70b7fdcc73}">
     <Declaration><![CDATA[TYPE stHMI_ROB :
 STRUCT
-    bReady : BOOL;
+    bOperational : BOOL;
     bMoving : BOOL;
    	bEStop : BOOL;
     bInCollision : BOOL;

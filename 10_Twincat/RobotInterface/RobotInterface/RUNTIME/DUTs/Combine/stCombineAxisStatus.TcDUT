@@ -6,7 +6,7 @@
 TYPE stCombineAxisStatus :
 STRUCT
     bEnabled : BOOL;
-    bReady : BOOL;
+    bOperational : BOOL;
     bMoving : BOOL;
     bHomed : BOOL;
     bInSavePosition : BOOL;

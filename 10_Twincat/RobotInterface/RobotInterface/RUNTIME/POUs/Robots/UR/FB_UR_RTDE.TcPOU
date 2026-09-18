@@ -23,7 +23,7 @@ END_VAR
 
 VAR_OUTPUT
     bConnected       : BOOL;
-    bReady           : BOOL;
+    bOperational           : BOOL;
     bStreaming       : BOOL;
     bBusy            : BOOL;
     bError           : BOOL;
@@ -149,7 +149,7 @@ IF (NOT bEnable)
    AND (nState <> 900) THEN
 
     bStreaming := FALSE;
-    bReady := FALSE;
+    bOperational := FALSE;
 
     bCloseExecute := TRUE;
     bCloseStarted := FALSE;
@@ -179,7 +179,7 @@ CASE nState OF
 0:
 
     bConnected := FALSE;
-    bReady := FALSE;
+    bOperational := FALSE;
     bStreaming := FALSE;
     bBusy := FALSE;
 
@@ -687,7 +687,7 @@ CASE nState OF
 
             IF aPacket[3] = 1 THEN
 
-                bReady := TRUE;
+                bOperational := TRUE;
                 bStreaming := TRUE;
                 bBusy := FALSE;
 
@@ -738,7 +738,7 @@ CASE nState OF
 100:
 
     bConnected := TRUE;
-    bReady := TRUE;
+    bOperational := TRUE;
     bStreaming := TRUE;
     bBusy := FALSE;
 
@@ -856,7 +856,7 @@ CASE nState OF
 130:
 
     bConnected := TRUE;
-    bReady := TRUE;
+    bOperational := TRUE;
     bStreaming := FALSE;
     bBusy := FALSE;
 
@@ -950,7 +950,7 @@ CASE nState OF
        AND NOT fbClose.bBusy THEN
 
         bConnected := FALSE;
-        bReady := FALSE;
+        bOperational := FALSE;
         bStreaming := FALSE;
         bBusy := FALSE;
         bSocketMayBeOpen := FALSE;
@@ -1096,7 +1096,7 @@ END_VAR]]></Declaration>
 nErrorID := nID;
 sErrorText := sText;
 bStreaming := FALSE;
-bReady := FALSE;
+bOperational := FALSE;
 bCloseExecute := TRUE;
 bCloseStarted := FALSE;
 nState := 900;
@@ -1288,7 +1288,7 @@ IF ExtractPacket() THEN PollPacket := TRUE; END_IF]]></ST>
     <Method Name="ResumeStream" Id="{14e03381-e1eb-49ef-85f0-9cabee108137}">
       <Declaration><![CDATA[METHOD PUBLIC ResumeStream : BOOL]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF bConnected AND bReady AND NOT bStreaming THEN
+        <ST><![CDATA[IF bConnected AND bOperational AND NOT bStreaming THEN
     bResumeRequest := TRUE;
     ResumeStream := TRUE;
 ELSE

@@ -11,7 +11,7 @@ END_VAR
 
 VAR_OUTPUT
     bConnected      : BOOL;
-    bReady          : BOOL;
+    bOperational          : BOOL;
     bBusy           : BOOL;
     bError          : BOOL;
     nErrorID        : UDINT;
@@ -58,7 +58,7 @@ END_VAR]]></Declaration>
 *)
 
 bScriptSent := FALSE;
-bReady := bEnable AND (nState = 0) AND NOT bSendRequest;
+bOperational := bEnable AND (nState = 0) AND NOT bSendRequest;
 
 CASE nState OF
 

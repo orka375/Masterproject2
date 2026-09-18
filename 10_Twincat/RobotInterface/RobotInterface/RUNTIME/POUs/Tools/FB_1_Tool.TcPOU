@@ -21,12 +21,33 @@ END_VAR
     <Folder Name="StateControl" Id="{53ff33b6-3262-41f7-b537-f1feb7ee1671}" />
     <Action Name="CYCLIC_TOOL" Id="{dff3f002-2f5f-470a-8757-89415d48f543}">
       <Implementation>
-        <ST><![CDATA[IF NOT _INIT_TOOL THEN
+        <ST><![CDATA[// ------ CALL CYCLIC -----------------
+IF NOT _INIT_TOOL THEN
 	_INIT_TOOL:=TRUE;
 	SETUP_TOOL();
 END_IF
 
 CYCLIC_BASE();
+
+
+// ------ WRITE HMI -------------------
+		// NO HMI STRUCT
+
+// ------ READ FROM HMI ---------------
+		// NO HMI STRUCT
+	
+
+
+// ------ WRITE PROPS/METHODS ---------
+	//Operational := ??
+	
+	
+// ----- CALL POUS AND ERROR SURVEILLANCE ----------
+
+
+// ----- REST --------------------
+
+
 ]]></ST>
       </Implementation>
     </Action>
@@ -248,6 +269,17 @@ myResult := SUCCESS;
 onShutdown := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
+    <Property Name="Operational" Id="{e6934808-39d2-42a4-9565-8febcc64a5e4}">
+      <Declaration><![CDATA[PROPERTY Operational : BOOL]]></Declaration>
+      <Set Name="Set" Id="{e9824060-a8d0-469b-8602-66a4e63bfd49}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SUPER^.Operational := Operational;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="Release" Id="{ee7504c7-55c3-4538-9835-937ed2b0639a}">
       <Declaration><![CDATA[METHOD Release : eResult
 VAR_INPUT

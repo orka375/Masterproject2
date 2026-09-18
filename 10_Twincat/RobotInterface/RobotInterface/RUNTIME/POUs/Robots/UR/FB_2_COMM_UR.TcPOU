@@ -15,10 +15,10 @@ VAR
 
 
     _DashboardConnected : BOOL;
-    _ScriptReady        : BOOL;
+    _ScriptOperational        : BOOL;
 
     _RTDEConnected : BOOL;
-    _RTDEReady     : BOOL;
+    _RTDEOperational     : BOOL;
     _RTDEStreaming : BOOL;
     _EnableDashboard : BOOL;
     _EnableRTDE      : BOOL;
@@ -34,12 +34,12 @@ VAR
     _tonCommandStart : TON;
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[CYCLIC_COMM_UR();
+      <ST><![CDATA[CYCLIC_COMM();
 
-_EnableDashboard := bRequestConnection
+_EnableDashboard := RequestConnection
     AND ((HMI_BASE.eStatus = eState.Configuring) OR _DashboardConnected OR (HMI_BASE.eStatus = eState.ErrorProcessing));
 
-_EnableRTDE := bRequestConnection
+_EnableRTDE := RequestConnection
     AND ((HMI_BASE.eStatus = eState.Configuring) OR _RTDEConnected OR (HMI_BASE.eStatus = eState.ErrorProcessing));
 
 
@@ -63,10 +63,10 @@ Dashboard(
 
 Script(
     sRobotIP := SET_R_M_UR.sIpAddress,
-    bEnable  := bRequestConnection
+    bEnable  := RequestConnection
 );
 
-_ScriptReady := bRequestConnection AND NOT Script.bError;
+_ScriptOperational := RequestConnection AND NOT Script.bError;
 
 
 // ==================================================
@@ -79,7 +79,7 @@ RTDE(
     fFrequency := 10.0,
 
     bConnected => _RTDEConnected,
-    bReady     => _RTDEReady,
+    bOperational     => _RTDEOperational,
     bStreaming => _RTDEStreaming
 );
 
@@ -88,17 +88,11 @@ RTDE(
 // 5. Generate feedback for FB_1
 // ==================================================
 
-HMI_COMM._CommunicationConnected :=
-    _DashboardConnected
-    AND _RTDEConnected;
+HMI_COMM._CommunicationConnected := Connected;
 
 
-HMI_COMM._CommunicationReady :=
-    _DashboardConnected
-    AND _RTDEConnected
-    AND _RTDEReady
-    AND _RTDEStreaming
-	AND _ScriptReady;
+
+
 
 // ==================================================
 // 6. Generic command lifecycle (UR protocol -> eProgress/eResult)
@@ -117,11 +111,11 @@ _tonCommandStart(
     PT := T#5S);
 
 IF _urSubmittedCommandID <> 0 THEN
-    IF Script.bError OR NOT CommunicationReady THEN
+    IF Script.bError OR NOT FB_1_COMM.Operational THEN
         ActiveCommandID := 0;
         CommandState := FINALIZED;
         CommandResult :=ERROR;
-        CommandBusy := FALSE;
+        FB_1_COMM.Busy := FALSE;
         _urSubmittedCommandID := 0;
 
     ELSIF RTDE.nBAExecuteID = UINT_TO_DINT(_urSubmittedCommandID) THEN
@@ -132,7 +126,7 @@ IF _urSubmittedCommandID <> 0 THEN
                 ActiveCommandID := _urSubmittedCommandID;
                 CommandState := ACKNOWLEDGE;
                 CommandResult :=NONE;
-                CommandBusy := TRUE;
+                FB_1_COMM.Busy := TRUE;
 
             2:
                 _urStartSeen := TRUE;
@@ -140,7 +134,7 @@ IF _urSubmittedCommandID <> 0 THEN
                 ActiveCommandID := _urSubmittedCommandID;
                 CommandState := RUNNING;
                 CommandResult :=NONE;
-                CommandBusy := TRUE;
+                FB_1_COMM.Busy := TRUE;
 
             3:
                 _urStartSeen := TRUE;
@@ -148,7 +142,7 @@ IF _urSubmittedCommandID <> 0 THEN
                 ActiveCommandID := 0;
                 CommandState := FINALIZED;
                 CommandResult :=SUCCESS;
-                CommandBusy := FALSE;
+                FB_1_COMM.Busy := FALSE;
                 _urSubmittedCommandID := 0;
 
             4:
@@ -157,7 +151,7 @@ IF _urSubmittedCommandID <> 0 THEN
                 ActiveCommandID := 0;
                 CommandState := FINALIZED;
                 CommandResult :=ERROR;
-                CommandBusy := FALSE;
+                FB_1_COMM.Busy := FALSE;
                 _urSubmittedCommandID := 0;
         END_CASE
 
@@ -165,7 +159,7 @@ IF _urSubmittedCommandID <> 0 THEN
         ActiveCommandID := 0;
         CommandState := FINALIZED;
         CommandResult :=ERROR;
-        CommandBusy := FALSE;
+        FB_1_COMM.Busy := FALSE;
         _urSubmittedCommandID := 0;
     END_IF
 END_IF
@@ -182,7 +176,7 @@ IF _urStopMotionPending AND NOT Script.bBusy THEN
 END_IF
 
 IF (_commCommandState = FINALIZED) OR (_commCommandState = ABORTED) THEN
-    CommandBusy := _urStopMotionPending OR Script.bBusy;
+    FB_1_COMM.Busy := _urStopMotionPending OR Script.bBusy;
 END_IF
 
 
@@ -257,7 +251,7 @@ ActiveCommandID := 0;
 CommandState := ABORTED;
 CommandResult :=FAILURE;
 // Keep busy until the queued functional stop has been handed to the transport.
-CommandBusy := TRUE;
+FB_1_COMM.Busy := TRUE;
 CancelCommand := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -271,17 +265,19 @@ IF ClearCommandBuffer THEN
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <Action Name="CYCLIC_COMM_UR" Id="{e079c791-bd51-481e-8c49-3586c05afcb2}">
-      <Implementation>
-        <ST><![CDATA[ // ==================================================
-// 1. Generic communication state machine
-// ==================================================
-
-CYCLIC_COMM();
-
-]]></ST>
-      </Implementation>
-    </Action>
+    <Property Name="Connected" Id="{ccf627c2-212e-408f-a53e-19108de964de}">
+      <Declaration><![CDATA[PROPERTY Connected : BOOL]]></Declaration>
+      <Get Name="Get" Id="{6cfe16d9-c3dc-4922-8c44-77eb86a26e92}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Connected:=
+   _DashboardConnected
+    AND _RTDEConnected;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Method Name="OnActivate" Id="{0ed4d272-2017-43c8-8627-328b7fa74b51}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
 VAR_INPUT
@@ -552,7 +548,7 @@ ELSE
         // --------------------------------------------------
         100:
 
-            IF CommunicationReady THEN
+            IF FB_1_COMM.Operational THEN
 
                 Messenger.Clear(
                     Name,
@@ -677,6 +673,23 @@ OnShutdown := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
+    <Property Name="Operational" Id="{cfb9706d-eeda-43d9-85a8-165b8ef67193}">
+      <Declaration><![CDATA[PROPERTY Operational : BOOL]]></Declaration>
+      <Set Name="Set" Id="{9e1af3a5-e848-4201-b592-085ce8e1d93a}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SUPER^.Operational :=
+    _DashboardConnected
+    AND _RTDEConnected
+    AND _RTDEOperational
+    AND _RTDEStreaming
+	AND _ScriptOperational;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="ResetCommunication" Id="{d48ecd8e-ffe3-41a9-ac70-bd6cf13a1941}">
       <Declaration><![CDATA[METHOD PUBLIC ResetCommunication : BOOL
 ]]></Declaration>
@@ -693,7 +706,7 @@ _urStopMotionPending := FALSE;
 CanAcceptCommand := TRUE;
 AcceptedCommandID := 0;
 ActiveCommandID := 0;
-CommandBusy := FALSE;
+FB_1_COMM.Busy := FALSE;
 CommandState := INIT;
 CommandResult :=NONE;
 Reconnect();
@@ -721,7 +734,7 @@ AcceptedCommandID := 0;
 ActiveCommandID := CommandID;
 CommandState := INIT;
 CommandResult :=NONE;
-CommandBusy := TRUE;
+FB_1_COMM.Busy := TRUE;
 _urSubmittedCommandID := CommandID;
 _urPreparedCommandID := 0;
 _urTransportSent := FALSE;
@@ -736,11 +749,11 @@ SendCommand := TRUE;]]></ST>
       <Implementation>
         <ST><![CDATA[// Functional, non-safety-rated stop. It never releases a protective/safety stop.
 StopMotion := FALSE;
-IF NOT CommunicationReady THEN
+IF NOT FB_1_COMM.Operational THEN
     RETURN;
 END_IF
 _urStopMotionPending := TRUE;
-CommandBusy := TRUE;
+FB_1_COMM.Busy := TRUE;
 StopMotion := TRUE;]]></ST>
       </Implementation>
     </Method>

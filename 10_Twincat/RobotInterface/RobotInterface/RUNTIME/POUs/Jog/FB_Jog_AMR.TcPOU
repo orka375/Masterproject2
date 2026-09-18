@@ -76,11 +76,11 @@ IF pRobot <> 0 THEN
     ActualPose := pRobot^.ActualPosition;
     _yawRobot := ActualPose.yaw;
     bMoving := pRobot^.IsMoving;
-    bReady := bEnable AND NOT bRecoveryInhibit AND pRobot^.Ready;
+    bOperational := bEnable AND NOT bRecoveryInhibit AND pRobot^.Operational;
 ELSE
     _yawRobot := fRobotYaw;
     bMoving := bVelocityCommandActive;
-    bReady := bEnable AND NOT bRecoveryInhibit;
+    bOperational := bEnable AND NOT bRecoveryInhibit;
 END_IF
 
 // ----------------------------------------------------------
@@ -93,7 +93,7 @@ _vxFrame := 0.0;
 _vyFrame := 0.0;
 _omega := 0.0;
 
-IF bReady THEN
+IF bOperational THEN
     IF (bJogXPlus OR _reqXPlus) AND NOT (bJogXMinus OR _reqXMinus) THEN
         _vxFrame := ABS(fLinearVelocity);
     ELSIF (bJogXMinus OR _reqXMinus) AND NOT (bJogXPlus OR _reqXPlus) THEN

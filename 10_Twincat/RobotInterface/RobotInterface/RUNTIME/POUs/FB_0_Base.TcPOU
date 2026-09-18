@@ -125,28 +125,15 @@ END_VAR
         <Implementation>
           <ST><![CDATA[Busy:=FALSE;
 FOR j:= TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO
-	IF Skills[j]<>0 THEN
-		IF Skills[j]^.State = eState.Active THEN
+	IF Skills[j]<>0 THEN	
+		IF Skills[j]^.Busy THEN
 			Busy:=TRUE;
-			EXIT;
+			RETURN;
 		END_IF
 	END_IF
-END_FOR
-
-IF Busy OR HMI_BASE.bBusy THEN
-	Busy:=TRUE;
-END_IF]]></ST>
+END_FOR]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{9587d98c-fad2-4b04-9a10-5f05e5d2950b}">
-        <Declaration><![CDATA[
-VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[HMI_BASE.bBusy:=Busy;]]></ST>
-        </Implementation>
-      </Set>
     </Property>
     <Method Name="Cleanup" Id="{c4819076-2442-41bd-8aa1-fe9bd8639fb5}" FolderPath="Transitions\">
       <Declaration><![CDATA[{attribute 'TcRpcEnable':='1'}
@@ -221,7 +208,7 @@ MESSENGER();
 MyHeartBeat:=HeartBeat();
 SlowDownTimer();
 
-// Recovery status is part of the public HMI contract.
+// Recovery status is part of the public HMI contract. 		//WTF BUG
 HMI_BASE.RecoveryMode := _recoveryMode;
 HMI_BASE.bRecoveryPending := (State = eState.ErrorProcessing);
 HMI_BASE.bAcknowledgeRequired := HMI_BASE.bRecoveryPending
@@ -231,8 +218,8 @@ HMI_BASE.bManualActionRequired := HMI_BASE.bRecoveryPending
 HMI_BASE.nRecoveryAttempt := _recoveryAttempt;
 
 
-
-
+HMI_BASE.bOperational:=FB_0_Base.Operational;
+HMI_BASE.bBusy:=FB_0_Base.Busy;
 
 FOR j:= TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO
 	IF Skills[j]<>0 THEN
@@ -242,15 +229,20 @@ FOR j:= TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO
             SetRecoveryMode(Mode := Skills[j]^.RecoveryMode);
 			Messenger.AddError(eMessageCategories.ChildFailed,Path,CONCAT('Child skill fault: ',Skills[j]^.Name));
 		END_IF
+		
+		IF Skills[j]^.State = eState.Active THEN
+			Busy:=TRUE;
+		END_IF
 	END_IF
 END_FOR
+
 
 
 IF prevFail<>lastFail THEN //Reset by Success
 	
 	FailDif:= lastFail - prevFail;
 	
-	IF FailDif < T#100MS THEN
+	IF FailDif < T#500MS THEN
 		//Slow Down
 		TimeStateMachine.SET:=TRUE;
 		SlowDownTimer(IN:=TRUE,PT:=T#5S);
@@ -395,7 +387,7 @@ END_VAR
         <ST><![CDATA[GetSkillByTag := 0;
 FOR i:= 1 TO SETUP.MaxNrofSkills DO
 	IF (Skills[i] <> 0) THEN
-		IF (Skills[i]^.Name = sTag) THEN
+		IF (Skills[i]^.SET_S.TAG = sTag) THEN
 			GetSkillByTag := Skills[i];
 			RETURN;
 		END_IF
@@ -532,7 +524,6 @@ END_VAR
 
 VAR
 	myResult: eResult;
-	notready: BOOL;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[myResult := SUCCESS;
@@ -695,8 +686,6 @@ END_VAR
 
 VAR
 	myResult: eResult;
-	noskill: BOOL;
-	notready: BOOL;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[myResult := SUCCESS;
@@ -722,6 +711,50 @@ END_FOR
 OnShutdown := myResult;]]></ST>
       </Implementation>
     </Method>
+    <Property Name="Operational" Id="{386169e9-8023-4ebb-b7d3-253ad63efaa8}">
+      <Declaration><![CDATA[PROPERTY Operational : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f1f99ba1-f977-465e-8225-6953d202febd}">
+        <Declaration><![CDATA[VAR
+	y: INT;
+	SkillsReady: BOOL := TRUE;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[
+
+
+Operational := HMI_BASE.bOperational;
+]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{9bfd0912-05e7-4714-b67b-211bb166e07e}">
+        <Declaration><![CDATA[
+VAR
+	SkillsReady: BOOL;
+	y: INT;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF State<eState.Inactive THEN
+	HMI_BASE.bOperational:=FALSE;
+	RETURN;
+END_IF
+
+
+FOR y := 1 TO TO_INT(UPPER_BOUND(Skills,1)) DO
+	IF Skills[y]<>0 THEN
+		IF NOT Skills[y]^.Operational THEN
+			SkillsReady:=FALSE;
+			EXIT;
+		END_IF
+	END_IF
+END_FOR
+
+
+HMI_BASE.bOperational:=Operational AND SkillsReady;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Property Name="Path" Id="{459f7f21-cbfe-4701-91b3-a410fc19512e}">
       <Declaration><![CDATA[PROPERTY Path : STRING
 ]]></Declaration>
@@ -734,25 +767,6 @@ END_VAR
 Path:=sPath;]]></ST>
         </Implementation>
       </Get>
-    </Property>
-    <Property Name="Ready" Id="{386169e9-8023-4ebb-b7d3-253ad63efaa8}">
-      <Declaration><![CDATA[PROPERTY Ready : BOOL]]></Declaration>
-      <Get Name="Get" Id="{f1f99ba1-f977-465e-8225-6953d202febd}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[]]></ST>
-        </Implementation>
-      </Get>
-      <Set Name="Set" Id="{14e6d53c-efcf-4ef2-8423-b96de28a9244}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[]]></ST>
-        </Implementation>
-      </Set>
     </Property>
     <Property Name="RecoveryMode" Id="{5d086c55-9ca3-440c-97d6-cb8e1c8bbf07}" FolderPath="Error\">
       <Declaration><![CDATA[PROPERTY RecoveryMode : eRecoveryMode]]></Declaration>
@@ -954,7 +968,7 @@ IF (Messenger.HasActivError OR _ShutOffStateMachine)
     IF _ShutOffStateMachine THEN
         SetRecoveryMode(Mode := eRecoveryMode.AcknowledgeRequired);
     END_IF
-    EnterErrorProcessing(FromState := HMI_BASE.eStatus);
+    EnterErrorProcessing(FromState := State);
 END_IF
 
 IF NOT TimeStateMachine.Q1 OR SlowDownTimer.Q THEN

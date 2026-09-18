@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Refactors>
+  <Renames>
+    <RenamedSymbol>
+      <Type guid="f1f99ba1-f977-465e-8225-6953d202febd">__getReady</Type>
+      <From>SkillsNotReady</From>
+      <To>SkillsReady</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="01a86c1f-d923-468f-aa17-d769d2d0e6ad">stCombineAxisStatus</Type>
+      <From>bReady</From>
+      <To>bOperational</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="31768795-ce0c-4443-941b-5472a553dd53">stHMI_BASE</Type>
+      <From>bReady</From>
+      <To>bOperational</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="e1786145-24f0-4674-9a44-50c2d5e718ad">stHMI_COMM</Type>
+      <From>_CommunicationReady</From>
+      <To>_CommunicationOperational</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="ae1a8400-1386-4b48-b5c2-ee70b7fdcc73">stHMI_ROB</Type>
+      <From>bReady</From>
+      <To>bOperational</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="58ca7a13-0d2f-4efc-b51c-1e43cce2a0ed">FB_1_PORTAL</Type>
+      <From>_allAxesReady</From>
+      <To>_allAxesOperational</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="07510ab4-87e0-41b7-8fcd-b7762a6b0059">FB_Jog_Base</Type>
+      <From>bReady</From>
+      <To>bOperational</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="e695efdc-e187-4f84-8c3d-4878e12ff71c">FB_2_COMM_UR</Type>
+      <From>_RTDEReady</From>
+      <To>_RTDEOperational</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="e695efdc-e187-4f84-8c3d-4878e12ff71c">FB_2_COMM_UR</Type>
+      <From>_ScriptReady</From>
+      <To>_ScriptOperational</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="1a7e1c9d-1f13-4118-946d-9d84d7b75db0">FB_UR_RTDE</Type>
+      <From>bReady</From>
+      <To>bOperational</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="815662db-63a8-4acc-b050-d6e39a0a6888">FB_UR_Script</Type>
+      <From>bReady</From>
+      <To>bOperational</To>
+    </RenamedSymbol>
+    <RenamedSymbol>
+      <Type guid="c3aebb32-8fd7-4db3-b325-72217b951a63">ROBOT_MECA500</Type>
+      <From>SETTINGS</From>
+      <To>SET_M</To>
+    </RenamedSymbol>
+  </Renames>
+</Refactors>

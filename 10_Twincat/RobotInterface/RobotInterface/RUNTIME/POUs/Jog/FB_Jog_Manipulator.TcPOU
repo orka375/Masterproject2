@@ -93,15 +93,15 @@ bPending := _bAnyTcp OR _bAnyJoint;
 // ----------------------------------------------------------
 // Robot status
 // ----------------------------------------------------------
-bReady := FALSE;
+bOperational := FALSE;
 bMoving := FALSE;
 
 IF pRobot <> 0 THEN
     ActualPose := pRobot^.ActualPosition;
     bMoving := pRobot^.IsMoving;
-    bReady := bEnable AND NOT bRecoveryInhibit AND pRobot^.Ready AND NOT bMoving;
+    bOperational := bEnable AND NOT bRecoveryInhibit AND pRobot^.Operational AND NOT bMoving;
 
-    IF bReady AND _rAlignTcpZ.Q THEN
+    IF bOperational AND _rAlignTcpZ.Q THEN
         nLastCommandID := pRobot^.AlignTcpZToBrfZ(
             Velocity := fAngularVelocity
         );
@@ -141,7 +141,7 @@ IF pRobot <> 0 THEN
     // For a step jog the offset is a pose delta, so translation
     // is part of the transform (unlike a velocity vector).
     // ------------------------------------------------------
-        IF bReady AND ((_nActiveTcp + _nActiveJoint) = 1) THEN
+        IF bOperational AND ((_nActiveTcp + _nActiveJoint) = 1) THEN
 
         IF _bAnyJoint THEN
             _jointTarget := pRobot^.ActualJointPosition;

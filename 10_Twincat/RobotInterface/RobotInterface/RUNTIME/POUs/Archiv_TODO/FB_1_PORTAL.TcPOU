@@ -19,7 +19,7 @@ VAR
     _position : LREAL;
     _velocity : LREAL;
     _directionLength : LREAL;
-    _allAxesReady : BOOL;
+    _allAxesOperational : BOOL;
     _allCommandsFinalized : BOOL;
     _anyAxisMoving : BOOL;
     _anyAxisFault : BOOL;
@@ -44,12 +44,12 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[CommandHandler := 0;
 
-      IF Cmd <> eCommands.MoveJJoints OR _commandActive OR NOT bConfigurationValid OR NOT Ready THEN
+      IF Cmd <> eCommands.MoveJJoints OR _commandActive OR NOT bConfigurationValid OR NOT FB_1_ROB.Operational THEN
   RETURN;
 END_IF
 
 FOR index := 1 TO _activeAxisCount DO
-  IF NOT aAxis[index].bEnabled OR aAxis[index].pAxis = 0 OR NOT aAxisStatus[index].bReady THEN
+  IF NOT aAxis[index].bEnabled OR aAxis[index].pAxis = 0 OR NOT aAxisStatus[index].bOperational THEN
     RETURN;
   END_IF
 END_FOR
@@ -90,7 +90,7 @@ _activeAxisCount := nAxisCount;
 IF _activeAxisCount > 6 THEN
   _activeAxisCount := 6;
 END_IF
-_allAxesReady := TRUE;
+_allAxesOperational := TRUE;
 _allCommandsFinalized := TRUE;
 _anyAxisMoving := FALSE;
 _anyAxisFault := FALSE;
@@ -106,7 +106,7 @@ FOR _index := 1 TO _activeAxisCount DO
     _directionLength := SQRT(aAxis[_index].fDirX * aAxis[_index].fDirX + aAxis[_index].fDirY * aAxis[_index].fDirY + aAxis[_index].fDirZ * aAxis[_index].fDirZ);
     IF aAxis[_index].pAxis = 0 OR ABS(_directionLength - 1.0) > DirectionTolerance THEN
         bConfigurationValid := FALSE;
-        _allAxesReady := FALSE;
+        _allAxesOperational := FALSE;
       _anyAxisFault := TRUE;
         CONTINUE;
     END_IF
@@ -116,7 +116,7 @@ FOR _index := 1 TO _activeAxisCount DO
     _position := aAxis[_index].pAxis^.JointPos_PLCUnit.joint1;
     _velocity := aAxis[_index].pAxis^.JointVel_PLCUnit.joint1;
     aAxisStatus[_index].bEnabled := TRUE;
-    aAxisStatus[_index].bReady := aAxis[_index].pAxis^.Ready;
+    aAxisStatus[_index].bOperational := aAxis[_index].pAxis^.Operational;
     aAxisStatus[_index].bMoving := aAxis[_index].pAxis^.IsMoving;
     aAxisStatus[_index].bHomed := aAxis[_index].pAxis^.Homed;
     aAxisStatus[_index].bInSavePosition := aAxis[_index].pAxis^.InSavePosition;
@@ -140,7 +140,7 @@ FOR _index := 1 TO _activeAxisCount DO
         5: JointPos_PLCUnit.joint5 := _position; JointVel_PLCUnit.joint5 := _velocity;
         6: JointPos_PLCUnit.joint6 := _position; JointVel_PLCUnit.joint6 := _velocity;
     END_CASE
-    _allAxesReady := _allAxesReady AND aAxisStatus[_index].bReady;
+    _allAxesOperational := _allAxesOperational AND aAxisStatus[_index].bOperational;
     _allCommandsFinalized := _allCommandsFinalized AND (aAxisStatus[_index].eCommandStatus = eProgress.FINALIZED);
     _anyAxisMoving := _anyAxisMoving OR aAxisStatus[_index].bMoving;
     _anyAxisFault := _anyAxisFault
@@ -166,7 +166,7 @@ END_FOR
 CYCLIC_ROB();
 HMI_ROB.bMoving := _anyAxisMoving;
 HMI_ROB.bInCollision := FALSE;
-HMI_ROB.bReady := (State = eState.Active) AND bConfigurationValid AND _allAxesReady AND NOT _anyAxisFault AND NOT Busy;]]></ST>
+HMI_ROB.bOperational := (State = eState.Active) AND bConfigurationValid AND _allAxesOperational AND NOT _anyAxisFault AND NOT FB_0_Base.Busy;]]></ST>
       </Implementation>
     </Action>
     <Method Name="EStop" Id="{4d434c0f-9f5a-427b-8613-87b080ccfc67}">

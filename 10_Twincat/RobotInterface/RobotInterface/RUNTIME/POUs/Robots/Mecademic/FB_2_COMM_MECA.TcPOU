@@ -97,29 +97,39 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[]]></ST>
-    </Implementation>
-    <Folder Name="ITF_Implementation" Id="{6ffca6bc-966b-4926-ae7d-e8326a35d71d}" />
-    <Method Name="CancelCommand" Id="{6f24f5bc-a6da-4f3c-9b54-f4f931d3caba}" FolderPath="ITF_Implementation\">
-      <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
-VAR_INPUT
-	CommandID : UINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[CancelCommand := FALSE;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="ClearMotion" Id="{4e27c0e3-b74a-440c-bebc-156c0921230b}">
-      <Declaration><![CDATA[METHOD ClearMotion : BOOL]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[bRequestClearMove := TRUE;
-ClearMotion := TRUE;]]></ST>
-      </Implementation>
-    </Method>
-    <Action Name="CYCLIC_COMM_MECA" Id="{d47624df-4e5c-4e1a-b885-310e1f830615}">
-      <Implementation>
-        <ST><![CDATA[CYCLIC_COMM();
+      <ST><![CDATA[// ------ CALL CYCLIC -----------------
+CYCLIC_COMM();
+
+// ------ WRITE HMI -------------------
+		// NO HMI STRUCT
+
+// ------ READ FROM HMI ---------------
+		// NO HMI STRUCT
+	
+
+
+// ------ WRITE PROPS/METHODS ---------
+Operational := 
+	bInActivated
+    AND bInHomed
+    AND NOT bInPaused
+    AND (nInErrorCode = 0)
+    AND NOT bInBusy
+	AND bFeedbackValid 
+	AND bDynamicDataValid 
+	AND NOT bInMonitoringMode;
+
+
+IF CommandState = ABORTED THEN			//BUG??
+    Busy := bRequestPause OR bRequestClearMove OR bInBusy;
+END_IF
+
+
+// ----- CALL POUS AND ERROR SURVEILLANCE ----------
+
+
+// ----- REST --------------------
+
 
 bFeedbackValid := bInProcessDataValid AND NOT bInConnectionDropped;
 bDynamicDataValid :=
@@ -128,8 +138,7 @@ bDynamicDataValid :=
     (nInDynamicType2 = nOutDynamicType2) OR
     (nInDynamicType3 = nOutDynamicType3);
 
-HMI_COMM._CommunicationConnected := bFeedbackValid;
-HMI_COMM._CommunicationReady := bFeedbackValid AND bDynamicDataValid AND NOT bInMonitoringMode;
+
 
 bOutDisableEtherCAT := FALSE;
 bOutBrakesControlAllowed := FALSE;
@@ -192,24 +201,13 @@ ELSE
         ActiveCommandID := nPendingMoveId;
         CommandState := ACKNOWLEDGE;
         CommandResult :=NONE;
-        CommandBusy := TRUE;
+        FB_1_COMM.Busy := TRUE;
     END_IF
 END_IF
 
-// --------------------------------------------------
-// Generic command lifecycle
-// --------------------------------------------------
-CanAcceptCommand :=
-    NOT bCommandPending
-    AND NOT bInBusy
-    AND bInEom
-    AND NOT bInPaused
-    AND NOT bRequestPause
-    AND NOT bRequestClearMove
-    AND (nInFifoSpace > 0);
 
-IF _commCommandBusy THEN
-    IF NOT CommunicationReady
+IF Busy THEN
+    IF NOT Operational
        OR bInConnectionDropped
        OR bInEStop
        OR bInPStop2
@@ -218,7 +216,7 @@ IF _commCommandBusy THEN
         ActiveCommandID := 0;
         CommandState := FINALIZED;
         CommandResult :=ERROR;
-        CommandBusy := FALSE;
+        FB_1_COMM.Busy := FALSE;
         bCommandPending := FALSE;
         _mecaHomeCommandActive := FALSE;
 
@@ -227,7 +225,7 @@ IF _commCommandBusy THEN
             ActiveCommandID := 0;
             CommandState := FINALIZED;
             CommandResult :=SUCCESS;
-            CommandBusy := FALSE;
+            FB_1_COMM.Busy := FALSE;
             _mecaHomeCommandActive := FALSE;
         ELSE
             CommandState := RUNNING;
@@ -243,20 +241,65 @@ IF _commCommandBusy THEN
             ActiveCommandID := 0;
             CommandState := FINALIZED;
             CommandResult :=SUCCESS;
-            CommandBusy := FALSE;
+            FB_1_COMM.Busy := FALSE;
         ELSE
             CommandState := ACKNOWLEDGE;
         END_IF
     END_IF
 END_IF
 
-// After an explicit cancel, block the next command until pause/clear has settled.
-IF _commCommandState = ABORTED THEN
-    CommandBusy := bRequestPause OR bRequestClearMove OR bInBusy;
-END_IF
 ]]></ST>
+    </Implementation>
+    <Folder Name="ITF_Implementation" Id="{6ffca6bc-966b-4926-ae7d-e8326a35d71d}" />
+    <Property Name="CanAcceptCommand" Id="{431238d0-cdef-4341-9804-3fba2004cdde}">
+      <Declaration><![CDATA[PROPERTY CanAcceptCommand : BOOL]]></Declaration>
+      <Get Name="Get" Id="{2fc69775-873b-4852-850c-a5156ef8cdbb}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CanAcceptCommand :=
+	SUPER^.CanAcceptCommand 
+	AND NOT bCommandPending
+    AND NOT bInBusy
+    AND bInEom
+    AND NOT bInPaused
+    AND NOT bRequestPause
+    AND NOT bRequestClearMove
+    AND (nInFifoSpace > 0);
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CancelCommand" Id="{6f24f5bc-a6da-4f3c-9b54-f4f931d3caba}" FolderPath="ITF_Implementation\">
+      <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
+VAR_INPUT
+	CommandID : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CancelCommand := FALSE;]]></ST>
       </Implementation>
-    </Action>
+    </Method>
+    <Method Name="ClearMotion" Id="{4e27c0e3-b74a-440c-bebc-156c0921230b}">
+      <Declaration><![CDATA[METHOD ClearMotion : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[bRequestClearMove := TRUE;
+ClearMotion := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Connected" Id="{fc8af89a-b270-4e4c-b381-856188c487ea}">
+      <Declaration><![CDATA[PROPERTY Connected : BOOL]]></Declaration>
+      <Get Name="Get" Id="{db4db882-5cc1-4b67-be51-e7d549059312}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Connected := SUPER^.Connected AND bFeedbackValid;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Method Name="EStop" Id="{1201c9fe-9f43-4ede-acd9-d1680b76e6d2}" FolderPath="ITF_Implementation\">
       <Declaration><![CDATA[METHOD EStop : BOOL
 VAR_INPUT
@@ -273,6 +316,20 @@ END_VAR
 Home := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <Property Name="Operational" Id="{1bb6b56c-01e8-4d68-91c2-7921335634e5}">
+      <Declaration><![CDATA[PROPERTY Operational : BOOL]]></Declaration>
+      <Set Name="Set" Id="{6a801d14-ac70-45ba-8232-50c23a5da87e}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SUPER^.Operational := 
+	Operational 
+	]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="PauseMotion" Id="{4e156774-4bf7-4537-a8b6-5e645b460a3c}">
       <Declaration><![CDATA[METHOD PauseMotion : BOOL]]></Declaration>
       <Implementation>
@@ -331,7 +388,7 @@ _mecaCommandWasRunning := FALSE;
 CanAcceptCommand := TRUE;
 AcceptedCommandID := 0;
 ActiveCommandID := 0;
-CommandBusy := FALSE;
+FB_1_COMM.Busy := FALSE;
 CommandState := INIT;
 CommandResult :=NONE;
 Reconnect();
@@ -389,7 +446,7 @@ AcceptedCommandID := 0;
 ActiveCommandID := CommandID;
 CommandState := INIT;
 CommandResult :=NONE;
-CommandBusy := TRUE;
+FB_1_COMM.Busy := TRUE;
 SendCommand := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -418,7 +475,7 @@ AcceptedCommandID := CommandID; // no separate ID echo exists for Home in this E
 ActiveCommandID := CommandID;
 CommandState := ACKNOWLEDGE;
 CommandResult :=NONE;
-CommandBusy := TRUE;
+FB_1_COMM.Busy := TRUE;
 SendHome := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -456,7 +513,7 @@ IF QueueMotion(
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[StopMotion := FALSE;
-IF NOT CommunicationReady THEN
+IF NOT FB_1_COMM.Operational THEN
     RETURN;
 END_IF
 bRequestPause := TRUE;

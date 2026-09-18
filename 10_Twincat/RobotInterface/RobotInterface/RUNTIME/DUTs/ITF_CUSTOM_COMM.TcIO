@@ -3,6 +3,12 @@
   <Itf Name="ITF_CUSTOM_COMM" Id="{705fbbb0-7e1f-41af-ae6c-5f8a775a245d}">
     <Declaration><![CDATA[INTERFACE ITF_CUSTOM_COMM
 ]]></Declaration>
+    <Property Name="Busy" Id="{03db5392-2310-4cc1-a48f-0c7489fd794d}">
+      <Declaration><![CDATA[PROPERTY Busy : BOOL]]></Declaration>
+      <Set Name="Set" Id="{6902bec1-8825-48f4-8a20-442ae99558e1}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
     <Method Name="CancelMotion" Id="{23829302-619b-4356-baa1-c2489601722a}">
       <Declaration><![CDATA[METHOD CancelMotion : BOOl
 VAR_INPUT
@@ -15,6 +21,53 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
+    <Method Name="OnActivate" Id="{bc5e8feb-518a-4d94-a06c-26f8c71c5f7b}">
+      <Declaration><![CDATA[METHOD OnActivate : eResult
+VAR_INPUT
+END_VAR
+
+]]></Declaration>
+    </Method>
+    <Method Name="OnCleanup" Id="{dc20472f-4622-4a01-b3d6-fc8e5ee1135b}">
+      <Declaration><![CDATA[METHOD OnCleanup : eResult
+VAR_INPUT
+END_VAR
+
+]]></Declaration>
+    </Method>
+    <Method Name="OnConfigure" Id="{68480dea-3f46-4c7a-bb01-751f99acd7cf}">
+      <Declaration><![CDATA[METHOD OnConfigure : eResult
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="OnDeactivate" Id="{d93ed970-a0a8-4421-92d1-a8c6b9f41ee9}">
+      <Declaration><![CDATA[METHOD OnDeactivate : eResult
+VAR_INPUT
+END_VAR
+
+]]></Declaration>
+    </Method>
+    <Method Name="OnError" Id="{82b4a937-bb20-4ea8-b734-c946feb88750}">
+      <Declaration><![CDATA[METHOD OnError : eResult
+VAR_INPUT
+END_VAR
+
+]]></Declaration>
+    </Method>
+    <Method Name="OnShutdown" Id="{b3d7eaad-c59b-415e-9d82-87bec9225677}">
+      <Declaration><![CDATA[METHOD OnShutdown : eResult
+VAR_INPUT
+END_VAR
+
+]]></Declaration>
+    </Method>
+    <Property Name="Operational" Id="{8d54f598-8223-428a-9950-1007064a1ca0}">
+      <Declaration><![CDATA[PROPERTY Operational : BOOL]]></Declaration>
+      <Set Name="Set" Id="{d813f0f2-e12c-4f30-8440-31ce33f6134a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
     <Method Name="StopMotion" Id="{3b308f0d-1722-4c55-ad45-3e6af059b598}">
       <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
 ]]></Declaration>

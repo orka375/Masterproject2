@@ -141,6 +141,9 @@
     <Compile Include="DUTs\Settings\stSettings_Base.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\Settings\stSettings_Skill.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\Skill\E_CommandHandshakeState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -220,6 +223,9 @@
     <Compile Include="POUs\Archiv_TODO\FB_1_PORTAL.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Archiv_TODO\FB_2_ROB_AMR.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Axis\Beckhoff\FB_3_COMM_AXIS_BECKHOFF.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -245,6 +251,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Demo1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\EMPTY.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\FB_0_Base.TcPOU">
@@ -281,9 +290,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Robots\FB_1_ROB.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Robots\FB_2_ROB_AMR.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Robots\FB_2_ROB_MANIP.TcPOU">

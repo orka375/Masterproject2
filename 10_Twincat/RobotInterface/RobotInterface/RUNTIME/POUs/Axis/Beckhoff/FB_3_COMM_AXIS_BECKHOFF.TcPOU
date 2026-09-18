@@ -30,32 +30,27 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[CYCLIC_COMM_AXIS_BECKHOFF();]]></ST>
-    </Implementation>
-    <Method Name="CancelCommand" Id="{96ac5415-b35c-4fc1-9ecd-a87a759715ca}">
-      <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
-VAR_INPUT CommandID : UINT; END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[CancelCommand := FALSE;
-IF (CommandID = 0) OR (CommandID <> _commActiveCommandID) THEN RETURN; END_IF
-IF NOT StopMotion() THEN RETURN; END_IF
-_moveAbsExecute := FALSE;
-_moveRelExecute := FALSE;
-_homeExecute := FALSE;
-ActiveCommandID := 0;
-CommandState := eProgress.ABORTED;
-CommandResult :=eResult.FAILURE;
-CommandBusy := FALSE;
-CancelCommand := TRUE;]]></ST>
-      </Implementation>
-    </Method>
-    <Action Name="CYCLIC_COMM_AXIS_BECKHOFF" Id="{3ef4d780-b74a-41c3-b13e-c0900c5cb709}">
-      <Implementation>
-        <ST><![CDATA[CYCLIC_COMM();
+      <ST><![CDATA[// ------ CALL CYCLIC -----------------
+CYCLIC_COMM();
 
-// Direct TwinCAT NC access is the transport for this adapter.
-HMI_COMM._CommunicationConnected := bRequestConnection;
-HMI_COMM._CommunicationReady := bRequestConnection;
+
+
+// ------ WRITE HMI -------------------
+		// NO HMI STRUCT
+
+// ------ READ FROM HMI ---------------
+		// NO HMI STRUCT
+	
+
+
+// ------ WRITE PROPS/METHODS ---------
+Connected := RequestConnection;
+Operational := RequestConnection;
+
+CanAcceptCommand := SUPER^.CanAcceptCommand AND NOT _fbStop.Busy AND NOT _resetExecute;
+
+
+// ----- CALL POUS AND ERROR SURVEILLANCE ----------
 
 _fbPower(Axis := Axis, Enable := _powerRequest, Enable_Positive := _powerRequest, Enable_Negative := _powerRequest);
 _fbMoveAbsolute(Axis := Axis, Execute := _moveAbsExecute);
@@ -64,35 +59,32 @@ _fbHome(Axis := Axis, Execute := _homeExecute);
 _fbStop(Axis := Axis, Execute := _stopExecute);
 _fbReset(Axis := Axis, Execute := _resetExecute);
 
+
+
+IF _fbPower.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Power'), 'MC_Power error'); END_IF
+IF _fbMoveAbsolute.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.MoveAbsolute'), 'MC_MoveAbsolute error'); END_IF
+IF _fbMoveRelative.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.MoveRelative'), 'MC_MoveRelative error'); END_IF
+IF _fbHome.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Home'), 'MC_Home error'); END_IF
+IF _fbStop.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Stop'), 'MC_Stop error'); END_IF
+IF _fbReset.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Reset'), 'MC_Reset error'); END_IF
+
+
+// ----- REST --------------------
+
 Powered := _fbPower.Status;
 ActualPosition := Axis.NcToPlc.ActPos;
 ActualVelocity := Axis.NcToPlc.ActVelo;
 
-IF _fbPower.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Power'), 'MC_Power error');
-END_IF
-IF _fbMoveAbsolute.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.MoveAbsolute'), 'MC_MoveAbsolute error');
-END_IF
-IF _fbMoveRelative.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.MoveRelative'), 'MC_MoveRelative error');
-END_IF
-IF _fbHome.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Home'), 'MC_Home error');
-END_IF
-IF _fbStop.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Stop'), 'MC_Stop error');
-END_IF
-IF _fbReset.Error THEN Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.Reset'), 'MC_Reset error');
-END_IF
 
-CanAcceptCommand := CommunicationReady AND Powered AND NOT Messenger.HasActivError
-    AND NOT _commCommandBusy AND NOT _fbStop.Busy AND NOT _resetExecute;
-
-IF _commCommandBusy THEN
-  IF Messenger.HasActivError OR NOT CommunicationReady THEN
+IF Busy THEN
+  IF Messenger.HasActivError OR NOT Operational THEN
         _moveAbsExecute := FALSE;
         _moveRelExecute := FALSE;
         _homeExecute := FALSE;
         ActiveCommandID := 0;
         CommandState := eProgress.FINALIZED;
         CommandResult :=eResult.ERROR;
-        CommandBusy := FALSE;
+        FB_1_COMM.Busy := FALSE;
     ELSIF _fbMoveAbsolute.CommandAborted OR _fbMoveRelative.CommandAborted OR _fbHome.CommandAborted THEN
         _moveAbsExecute := FALSE;
         _moveRelExecute := FALSE;
@@ -100,7 +92,7 @@ IF _commCommandBusy THEN
         ActiveCommandID := 0;
         CommandState := eProgress.ABORTED;
         CommandResult :=eResult.FAILURE;
-        CommandBusy := FALSE;
+        FB_1_COMM.Busy := FALSE;
     ELSIF _fbMoveAbsolute.Done OR _fbMoveRelative.Done OR _fbHome.Done THEN
         IF _fbHome.Done THEN Homed := TRUE; END_IF
         _moveAbsExecute := FALSE;
@@ -109,7 +101,7 @@ IF _commCommandBusy THEN
         ActiveCommandID := 0;
         CommandState := eProgress.FINALIZED;
         CommandResult :=eResult.SUCCESS;
-        CommandBusy := FALSE;
+        FB_1_COMM.Busy := FALSE;
     ELSIF NOT _commandAccepted AND (_fbMoveAbsolute.Busy OR _fbMoveRelative.Busy OR _fbHome.Busy) THEN
         _commandAccepted := TRUE;
         AcceptedCommandID := _commActiveCommandID;
@@ -125,8 +117,35 @@ END_IF
 IF _fbStop.Done OR _fbStop.CommandAborted OR _fbStop.Error THEN _stopExecute := FALSE; END_IF
 IF _fbReset.Done OR _fbReset.Error THEN _resetExecute := FALSE; END_IF
 ]]></ST>
+    </Implementation>
+    <Method Name="CancelCommand" Id="{96ac5415-b35c-4fc1-9ecd-a87a759715ca}">
+      <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
+VAR_INPUT CommandID : UINT; END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CancelCommand := FALSE;
+IF (CommandID = 0) OR (CommandID <> _commActiveCommandID) THEN RETURN; END_IF
+IF NOT StopMotion() THEN RETURN; END_IF
+_moveAbsExecute := FALSE;
+_moveRelExecute := FALSE;
+_homeExecute := FALSE;
+ActiveCommandID := 0;
+CommandState := eProgress.ABORTED;
+CommandResult :=eResult.FAILURE;
+FB_1_COMM.Busy := FALSE;
+CancelCommand := TRUE;]]></ST>
       </Implementation>
-    </Action>
+    </Method>
+    <Property Name="Operational" Id="{4e3d4c82-6c3e-4a6a-814a-07ce7bf49eff}">
+      <Declaration><![CDATA[PROPERTY Operational : BOOL]]></Declaration>
+      <Set Name="Set" Id="{a12a9d16-3a48-4fe1-b1c6-4b5bb26f80c2}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SUPER^.Operational := Operational;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="Power" Id="{5009c6e1-2c2e-4e9f-8bd0-48ea7245eeb8}">
       <Declaration><![CDATA[METHOD PUBLIC Power : BOOL
 VAR_INPUT Enable : BOOL; END_VAR]]></Declaration>
@@ -151,7 +170,7 @@ _homeExecute := FALSE;
 _stopExecute := FALSE;
 AcceptedCommandID := 0;
 ActiveCommandID := 0;
-CommandBusy := FALSE;
+FB_1_COMM.Busy := FALSE;
 CommandState := eProgress.INIT;
 CommandResult :=eResult.NONE;
 Reconnect();
@@ -171,7 +190,7 @@ AcceptedCommandID := 0;
 ActiveCommandID := CommandID;
 CommandState := eProgress.INIT;
 CommandResult :=eResult.NONE;
-CommandBusy := TRUE;
+FB_1_COMM.Busy := TRUE;
 SendHome := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -194,7 +213,7 @@ AcceptedCommandID := 0;
 ActiveCommandID := CommandID;
 CommandState := eProgress.INIT;
 CommandResult :=eResult.NONE;
-CommandBusy := TRUE;
+FB_1_COMM.Busy := TRUE;
 SendMoveAbsolute := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -217,7 +236,7 @@ AcceptedCommandID := 0;
 ActiveCommandID := CommandID;
 CommandState := eProgress.INIT;
 CommandResult :=eResult.NONE;
-CommandBusy := TRUE;
+FB_1_COMM.Busy := TRUE;
 SendMoveRelative := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -225,7 +244,7 @@ SendMoveRelative := TRUE;]]></ST>
       <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL]]></Declaration>
       <Implementation>
         <ST><![CDATA[StopMotion := FALSE;
-IF NOT CommunicationReady THEN RETURN; END_IF
+IF NOT FB_1_COMM.Operational THEN RETURN; END_IF
 _moveAbsExecute := FALSE;
 _moveRelExecute := FALSE;
 _homeExecute := FALSE;

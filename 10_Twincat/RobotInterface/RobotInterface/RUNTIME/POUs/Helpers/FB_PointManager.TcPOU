@@ -6,17 +6,17 @@ VAR_INPUT
     {attribute 'OPC.UA.DA' := '1'}
     HMI_PM : stHMI_PM;
     pRobot : POINTER TO FB_1_ROB;
+	MESSENGER: FB_Messenger;
 END_VAR
 
 VAR_OUTPUT
-    bBusy      	: BOOL;
-    bDone      	: BOOL;
+ 
+
     bError     	: BOOL;
-    Result 		: eResult;
+    
     nErrorID   	: UDINT;
 
-    bFound    	: BOOL;
-    pPoint     	: POINTER TO stStoredPoint;
+
     nPointCount : UINT;
 END_VAR
 
@@ -87,9 +87,7 @@ IF (_nEditingId >= 1) AND (_nEditingId <= 10) THEN
     HMI_PM.editedPoint.id := _nEditingId;
 END_IF
 
-IF NOT bError THEN
-    Result := NONE;
-END_IF
+
 
 _rNew(CLK := HMI_PM.bCmdNew);
 _rLoad(CLK := HMI_PM.bCmdLoad);
@@ -112,8 +110,7 @@ END_IF
 
 IF _rMoveToEditedPoint.Q THEN
     IF pRobot <> 0 THEN
-        IF pRobot^.Ready
-           AND NOT bBusy
+        IF pRobot^.Operational
            AND (_nEditingId >= 1) AND (_nEditingId <= 10)
          AND ((HMI_PM.editedPoint.frame_id = eRefFrame.BRF)
              OR (HMI_PM.editedPoint.frame_id = eRefFrame.WRF)

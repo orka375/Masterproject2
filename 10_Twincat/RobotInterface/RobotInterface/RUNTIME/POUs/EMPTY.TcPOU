@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="EMPTY" Id="{aaff608c-67fd-4701-b4b7-adcd1fa2a640}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM EMPTY
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// ------ CALL CYCLIC -----------------
+
+
+// ------ WRITE HMI -------------------
+		// NO HMI STRUCT
+
+// ------ READ FROM HMI ---------------
+		// NO HMI STRUCT
+	
+
+
+// ------ WRITE PROPS/METHODS ---------
+
+
+// ----- CALL POUS AND ERROR SURVEILLANCE ----------
+
+
+// ----- REST --------------------
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

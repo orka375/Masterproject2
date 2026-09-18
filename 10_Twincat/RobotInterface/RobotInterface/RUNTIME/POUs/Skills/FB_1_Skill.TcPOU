@@ -7,9 +7,9 @@
 
 
 VAR_INPUT
-	TAG: STRING := 'EMPTY';
 	DEBUG_SKILL: DEBUG_SKILL;
 	pOwner: POINTER TO FB_0_BASE;
+	SET_S: stSettings_Skill;
 END_VAR
 
 
@@ -33,6 +33,9 @@ VAR
 	_execuctionresult: eResult;
 
 	SubSkillPhase: INT;
+	_bBusy: BOOL;
+	_Init_Skill: BOOL;
+	
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
@@ -40,9 +43,23 @@ END_VAR]]></Declaration>
     <Folder Name="Internal" Id="{96dbd9e8-6c39-4ccb-8b32-e843cad33cc5}" />
     <Folder Name="Public" Id="{8eeb3120-c4f5-4dff-98ca-2143f9392787}" />
     <Folder Name="StateControl" Id="{71a3cf00-e64f-49c4-a480-600b201a90b4}" />
+    <Property Name="Busy" Id="{39739e98-43a2-4ee3-afa2-29f333143ca0}">
+      <Declaration><![CDATA[PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{63127317-ad40-44d3-9049-242169d951dc}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Busy := State=eState.Active;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Action Name="CYCLIC_SKILL" Id="{9ca32eb4-b06c-4bf7-9875-7dec22454c33}">
       <Implementation>
-        <ST><![CDATA[
+        <ST><![CDATA[IF NOT _Init_Skill THEN
+	_Init_Skill:=TRUE;
+	SETUP_SKILL();
+END_IF
 CYCLIC_BASE();
 RUN_DEBUG_SKILL();
 // CommandHandler(Cmd:=ADR(HMI_SKILL.Command),Stat:=ADR(HMI_SKILL.Status));
@@ -109,7 +126,7 @@ VAR_INPUT
 END_VAR
 
 VAR
-	toolready: BOOL;
+
 	i: INT;
 	config_res: eResult;
 END_VAR]]></Declaration>
@@ -307,6 +324,10 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
+IF pOwner <> 0 THEN
+	pOwner^.ActivSkill := THIS;
+END_IF
+
 
 IF State>=eState.Inactive AND State<>eState.Active THEN
 	IF HMI_SKILL.ExternalImplementation THEN
@@ -416,6 +437,12 @@ END_VAR]]></Declaration>
 //--------------------------------------------------
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
+
+IF pOwner <> 0 THEN
+	IF pOwner^.ActivSkill = THIS THEN //Otherwise an other skill is also actif
+		pOwner^.ActivSkill:=0;
+	END_IF
+END_IF
 
 
 IF State>=eState.Deactivating THEN
@@ -555,6 +582,12 @@ END_IF
 ]]></ST>
       </Implementation>
     </Action>
+    <Action Name="SETUP_SKILL" Id="{75b72c65-b70c-49b5-b658-604ad26f3641}">
+      <Implementation>
+        <ST><![CDATA[SET_B:=SET_S;
+]]></ST>
+      </Implementation>
+    </Action>
     <Method Name="StartCustomSkill" Id="{be1a62f7-3d1f-44a1-b23c-14be160cd3f9}" FolderPath="Internal\">
       <Declaration><![CDATA[{warning 'Add method implementation '}
 METHOD  StartCustomSkill : eResult
@@ -584,8 +617,6 @@ VAR_INPUT
 END_VAR
 
 VAR
-	toolready: BOOL;
-	i: INT;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF pOwner <> 0 THEN

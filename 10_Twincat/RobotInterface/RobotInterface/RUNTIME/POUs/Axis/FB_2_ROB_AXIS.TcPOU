@@ -3,11 +3,15 @@
   <POU Name="FB_2_ROB_AXIS" Id="{7cf866bc-acd8-4ca1-b1b9-cc8d0da034fd}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'hide_all_locals'}
 FUNCTION_BLOCK FB_2_ROB_AXIS EXTENDS FB_1_ROB
+
+VAR_INPUT
+	SET_A : stSettings_Axis;
+END_VAR
+
 VAR_OUTPUT
   HMI_ROB_AXIS : stHMI_ROB_AXIS;
 END_VAR
 VAR
-  _pSettingsAxis : POINTER TO stSettings_Axis;
   _axisPowered : BOOL;
   _axisHomed : BOOL;
   _axisActualPosition : LREAL;
@@ -16,6 +20,8 @@ VAR
   _axisTargetValid : BOOL;
     _axisCommandActive : BOOL;
     _activeCommand : eCommands;
+	_Init_Axis: BOOL;
+	h: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -45,40 +51,49 @@ CommitAxisCommand := NewCommandID;]]></ST>
     </Method>
     <Action Name="CYCLIC_AXIS" Id="{22130f11-3575-4ab1-80b6-a2e493f717bd}">
       <Implementation>
-        <ST><![CDATA[SyncAxisSettings();
+        <ST><![CDATA[// ------ CALL CYCLIC -----------------
+IF NOT _Init_Axis THEN
+	_Init_Axis:=TRUE;
+	SETUP_AXIS();
+END_IF
 
-  HMI_ROB_AXIS.AxisPowered := _axisPowered;
-  HMI_ROB_AXIS.AxisHomed := _axisHomed;
-  HMI_ROB_AXIS.ActualPosition := _axisActualPosition;
-  HMI_ROB_AXIS.ActualVelocity := _axisActualVelocity;
-  HMI_ROB_AXIS.ConfigurationValid := ValidateConfiguration();
+CYCLIC_ROB();
 
-  IF _pSettingsAxis <> 0 THEN
-    HMI_ROB_AXIS.AtMinLimit := _axisActualPosition <= (_pSettingsAxis^.MinPosition + _pSettingsAxis^.PositionTolerance);
-    HMI_ROB_AXIS.AtMaxLimit := _axisActualPosition >= (_pSettingsAxis^.MaxPosition - _pSettingsAxis^.PositionTolerance);
-    HMI_ROB_AXIS.InPosition := _axisTargetValid
-      AND (ABS(_axisActualPosition - _axisTargetPosition) <= _pSettingsAxis^.PositionTolerance);
-  ELSE
-    HMI_ROB_AXIS.AtMinLimit := FALSE;
-    HMI_ROB_AXIS.AtMaxLimit := FALSE;
-    HMI_ROB_AXIS.InPosition := FALSE;
-  END_IF
+// ------ WRITE HMI -------------------
+HMI_ROB_AXIS.AxisPowered := _axisPowered;
+HMI_ROB_AXIS.AxisHomed := _axisHomed;
+HMI_ROB_AXIS.ActualPosition := _axisActualPosition;
+HMI_ROB_AXIS.ActualVelocity := _axisActualVelocity;
+HMI_ROB_AXIS.AtMinLimit := _axisActualPosition <= (SET_A.MinPosition + SET_A.PositionTolerance);
+HMI_ROB_AXIS.AtMaxLimit := _axisActualPosition >= (SET_A.MaxPosition - SET_A.PositionTolerance);
+HMI_ROB_AXIS.InPosition := _axisTargetValid AND (ABS(_axisActualPosition - _axisTargetPosition) <= SET_A.PositionTolerance);
 
-  _Homed := _axisHomed;
+
+// ------ READ FROM HMI ---------------
+
+
+// ------ WRITE PROPS/METHODS ---------
+  Homed := _axisHomed;
   JointPos_PLCUnit.joint1 := _axisActualPosition;
   JointVel_PLCUnit.joint1 := _axisActualVelocity;
+  
+  
+IF SET_A.RequireHomedForPositioning THEN
+	Operational := HMI_ROB_AXIS.ConfigurationValid AND _axisHomed;
+ELSE
+	Operational := HMI_ROB_AXIS.ConfigurationValid;
+END_IF
 
-  _bReadyInhibit := NOT HMI_ROB_AXIS.ConfigurationValid OR NOT _axisPowered OR Messenger.HasActivError;
-  IF _pSettingsAxis = 0 THEN
-    _bReadyInhibit := TRUE;
-  ELSIF _pSettingsAxis^.RequireHomedForPositioning AND NOT _axisHomed THEN
-    _bReadyInhibit := TRUE;
-  END_IF
 
-  IF (COMM = 0) OR (COMM = ADR(emptyCOMM)) THEN
-    _bReadyInhibit := TRUE;
-  ELSE
-    _bReadyInhibit := _bReadyInhibit OR COMM^.MESSENGER.HasActivError;
+
+
+// ----- CALL POUS AND ERROR SURVEILLANCE ----------
+
+
+// ----- REST --------------------
+
+
+
     IF _axisCommandActive THEN
       eCommandStatus := COMM^.CommandState;
       eCommandResult := COMM^.CommandResult;
@@ -96,15 +111,8 @@ CommitAxisCommand := NewCommandID;]]></ST>
     END_IF
 END_IF
 
-CYCLIC_ROB();
-IF (_pSettingsAxis <> 0)
-   AND ((_pSettingsAxis^.StandardUnits.Joint = eUnit.rad)
-     OR (_pSettingsAxis^.StandardUnits.Joint = eUnit.deg)) THEN
-  HMI_ROB.bMoving := ABS(_axisActualVelocity) > SET_R.AngularStandStillLimit;
-ELSE
-  HMI_ROB.JointPos_HMIUnit.joint1 := _axisActualPosition;
-  HMI_ROB.bMoving := ABS(_axisActualVelocity) > SET_R.LinearStandStillLimit;
-END_IF]]></ST>
+
+]]></ST>
       </Implementation>
     </Action>
     <Method Name="MoveAbsolute" Id="{703f4764-794a-460f-a71a-f3edb4a5692c}">
@@ -151,6 +159,22 @@ END_VAR]]></Declaration>
 _axisTargetValid := FALSE;]]></ST>
       </Implementation>
     </Method>
+    <Property Name="Operational" Id="{1d20a798-1110-4d48-b45f-38bf9971ee10}">
+      <Declaration><![CDATA[PROPERTY Operational : BOOL]]></Declaration>
+      <Set Name="Set" Id="{23cd9c8d-e612-4507-a9f3-7894efcefcf9}">
+        <Declaration><![CDATA[
+VAR
+	h: BOOL;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[
+
+SUPER^.Operational := Operational;
+]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="PrepareAxisCommand" Id="{50fd267e-684c-4f32-aa42-74620d0a5a1e}">
       <Declaration><![CDATA[METHOD PROTECTED PrepareAxisCommand : BOOL
 VAR_INPUT
@@ -172,7 +196,7 @@ TargetValid := FALSE;
 EffectiveVelocity := 0.0;
 EffectiveAcceleration := 0.0;
 
-IF (_pSettingsAxis = 0) OR NOT Ready OR _axisCommandActive THEN RETURN; END_IF
+IF (_pSettingsAxis = 0) OR NOT FB_1_ROB.Operational OR _axisCommandActive THEN RETURN; END_IF
 
 CASE Cmd OF
     eCommands.MoveL,
@@ -198,52 +222,42 @@ ELSE
 END_CASE
 
 IF TargetValid THEN
-    IF (TargetPosition < _pSettingsAxis^.MinPosition) OR (TargetPosition > _pSettingsAxis^.MaxPosition) THEN RETURN; END_IF
+    IF (TargetPosition < SET_A.MinPosition) OR (TargetPosition > SET_A.MaxPosition) THEN RETURN; END_IF
     IF NOT ValidateDynamics(Velocity := Settings.Velocity, Acceleration := Settings.Acceleration) THEN RETURN; END_IF
 
     EffectiveVelocity := Settings.Velocity;
-    IF EffectiveVelocity = 0.0 THEN EffectiveVelocity := _pSettingsAxis^.DefaultVelocity; END_IF
+    IF EffectiveVelocity = 0.0 THEN EffectiveVelocity := SET_A.DefaultVelocity; END_IF
     EffectiveAcceleration := Settings.Acceleration;
-    IF EffectiveAcceleration = 0.0 THEN EffectiveAcceleration := _pSettingsAxis^.DefaultAcceleration; END_IF
+    IF EffectiveAcceleration = 0.0 THEN EffectiveAcceleration := SET_A.DefaultAcceleration; END_IF
 END_IF
 
 NewCommandID := AllocateCommandID();
 PrepareAxisCommand := NewCommandID <> 0;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="SyncAxisSettings" Id="{05ab1cc2-84ea-4456-8d7f-b06a88844668}">
-      <Declaration><![CDATA[METHOD PROTECTED SyncAxisSettings]]></Declaration>
+    <Action Name="SETUP_AXIS" Id="{2b3b66db-dbf7-4579-b8f6-9d533a2c5b9e}">
       <Implementation>
-        <ST><![CDATA[IF _pSettingsAxis = 0 THEN RETURN; END_IF
+        <ST><![CDATA[SET_R:=SET_A;
 
-SET_R.bAutoConfigure := _pSettingsAxis^.bAutoConfigure;
-SET_R.nMaxAutoRecoveryAttempts := _pSettingsAxis^.nMaxAutoRecoveryAttempts;
-SET_R.NameOfSafePosition := _pSettingsAxis^.NameOfSafePosition;
-SET_R.LinearStandStillLimit := _pSettingsAxis^.LinearStandStillLimit;
-SET_R.AngularStandStillLimit := _pSettingsAxis^.AngularStandStillLimit;
-SET_R.SafePosition := _pSettingsAxis^.SafePosition;
-SET_R.SafePositionTolerance := _pSettingsAxis^.SafePositionTolerance;
-SET_R.RegisterAsTopLevelRobot := _pSettingsAxis^.RegisterAsTopLevelRobot;
-SET_R.InstallationPose := _pSettingsAxis^.InstallationPose;
-SET_R.StandardUnits := _pSettingsAxis^.StandardUnits;]]></ST>
+HMI_ROB_AXIS.ConfigurationValid := ValidateConfiguration();]]></ST>
       </Implementation>
-    </Method>
+    </Action>
     <Method Name="ValidateConfiguration" Id="{8637ddc2-8443-4a23-a124-b1a4ea35a4ec}">
       <Declaration><![CDATA[METHOD PROTECTED ValidateConfiguration : BOOL]]></Declaration>
       <Implementation>
         <ST><![CDATA[ValidateConfiguration := FALSE;
       IF _pSettingsAxis = 0 THEN RETURN; END_IF
-      IF _pSettingsAxis^.MinPosition >= _pSettingsAxis^.MaxPosition THEN RETURN; END_IF
-      IF _pSettingsAxis^.PositionTolerance <= 0.0 THEN RETURN; END_IF
-      IF _pSettingsAxis^.PositionTolerance >= ((_pSettingsAxis^.MaxPosition - _pSettingsAxis^.MinPosition) * 0.5) THEN RETURN; END_IF
-      IF (_pSettingsAxis^.DefaultVelocity <= 0.0)
-         OR (_pSettingsAxis^.DefaultAcceleration <= 0.0)
-         OR (_pSettingsAxis^.DefaultDeceleration <= 0.0)
-         OR (_pSettingsAxis^.DefaultJerk <= 0.0) THEN RETURN; END_IF
-      IF (_pSettingsAxis^.MaxVelocity > 0.0) AND (_pSettingsAxis^.DefaultVelocity > _pSettingsAxis^.MaxVelocity) THEN RETURN; END_IF
-      IF (_pSettingsAxis^.MaxAcceleration > 0.0) AND (_pSettingsAxis^.DefaultAcceleration > _pSettingsAxis^.MaxAcceleration) THEN RETURN; END_IF
-      IF (_pSettingsAxis^.MaxDeceleration > 0.0) AND (_pSettingsAxis^.DefaultDeceleration > _pSettingsAxis^.MaxDeceleration) THEN RETURN; END_IF
-      IF (_pSettingsAxis^.MaxJerk > 0.0) AND (_pSettingsAxis^.DefaultJerk > _pSettingsAxis^.MaxJerk) THEN RETURN; END_IF
+      IF SET_A.MinPosition >= SET_A.MaxPosition THEN RETURN; END_IF
+      IF SET_A.PositionTolerance <= 0.0 THEN RETURN; END_IF
+      IF SET_A.PositionTolerance >= ((SET_A.MaxPosition - SET_A.MinPosition) * 0.5) THEN RETURN; END_IF
+      IF (SET_A.DefaultVelocity <= 0.0)
+         OR (SET_A.DefaultAcceleration <= 0.0)
+         OR (SET_A.DefaultDeceleration <= 0.0)
+         OR (SET_A.DefaultJerk <= 0.0) THEN RETURN; END_IF
+      IF (SET_A.MaxVelocity > 0.0) AND (SET_A.DefaultVelocity > SET_A.MaxVelocity) THEN RETURN; END_IF
+      IF (SET_A.MaxAcceleration > 0.0) AND (SET_A.DefaultAcceleration > SET_A.MaxAcceleration) THEN RETURN; END_IF
+      IF (SET_A.MaxDeceleration > 0.0) AND (SET_A.DefaultDeceleration > SET_A.MaxDeceleration) THEN RETURN; END_IF
+      IF (SET_A.MaxJerk > 0.0) AND (SET_A.DefaultJerk > SET_A.MaxJerk) THEN RETURN; END_IF
 ValidateConfiguration := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -263,13 +277,13 @@ IF _pSettingsAxis = 0 THEN RETURN; END_IF
 IF (Velocity < 0.0) OR (Acceleration < 0.0) THEN RETURN; END_IF
 
 EffectiveVelocity := Velocity;
-IF EffectiveVelocity = 0.0 THEN EffectiveVelocity := _pSettingsAxis^.DefaultVelocity; END_IF
+IF EffectiveVelocity = 0.0 THEN EffectiveVelocity := SET_A.DefaultVelocity; END_IF
 EffectiveAcceleration := Acceleration;
-IF EffectiveAcceleration = 0.0 THEN EffectiveAcceleration := _pSettingsAxis^.DefaultAcceleration; END_IF
+IF EffectiveAcceleration = 0.0 THEN EffectiveAcceleration := SET_A.DefaultAcceleration; END_IF
 
 IF (EffectiveVelocity <= 0.0) OR (EffectiveAcceleration <= 0.0) THEN RETURN; END_IF
-IF (_pSettingsAxis^.MaxVelocity > 0.0) AND (EffectiveVelocity > _pSettingsAxis^.MaxVelocity) THEN RETURN; END_IF
-IF (_pSettingsAxis^.MaxAcceleration > 0.0) AND (EffectiveAcceleration > _pSettingsAxis^.MaxAcceleration) THEN RETURN; END_IF
+IF (SET_A.MaxVelocity > 0.0) AND (EffectiveVelocity > SET_A.MaxVelocity) THEN RETURN; END_IF
+IF (SET_A.MaxAcceleration > 0.0) AND (EffectiveAcceleration > SET_A.MaxAcceleration) THEN RETURN; END_IF
 ValidateDynamics := TRUE;]]></ST>
       </Implementation>
     </Method>

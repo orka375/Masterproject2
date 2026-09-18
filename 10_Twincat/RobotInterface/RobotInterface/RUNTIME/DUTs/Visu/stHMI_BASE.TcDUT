@@ -6,7 +6,7 @@ STRUCT
 	sInstanceName: STRING;
 	eStatus: eState :=eState.Unconfigured;
 	bBusy : BOOL;
-	bReady: BOOL;
+	bOperational: BOOL;
 	RecoveryMode : eRecoveryMode := eRecoveryMode.AcknowledgeRequired;
 	bRecoveryPending : BOOL;
 	bAcknowledgeRequired : BOOL;

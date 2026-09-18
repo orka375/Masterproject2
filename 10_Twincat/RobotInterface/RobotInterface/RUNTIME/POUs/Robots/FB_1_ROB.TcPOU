@@ -38,7 +38,6 @@ VAR
 	
 	_INIT_ROB: BOOL;
 	_Homed: BOOL;
-  _bReadyInhibit : BOOL;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
@@ -227,7 +226,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[CommandResult := eCommandResult;
+          <ST><![CDATA[CommandResult := COMM^.CommandResult;
 ]]></ST>
         </Implementation>
       </Get>
@@ -239,7 +238,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[CommandState := eCommandStatus;
+          <ST><![CDATA[CommandState := COMM^.CommandState;
 ]]></ST>
         </Implementation>
       </Get>
@@ -320,7 +319,7 @@ HMI_BASE.bBusy := (nCommandID <> 0)
     AND ((eCommandStatus = INIT) OR (eCommandStatus = ACKNOWLEDGE) OR (eCommandStatus = RUNNING));
 
 // Ready means: the robot can accept a NEW semantic command now.
-HMI_ROB.bReady := Ready;
+HMI_ROB.bOperational := FB_1_ROB.Operational;
 
 ]]></ST>
       </Implementation>
@@ -743,16 +742,17 @@ OnShutdown := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="Ready" Id="{8f2c7f81-6dd1-4fa4-9c6b-42ea40f162a7}" FolderPath="Generic Status\">
-      <Declaration><![CDATA[PROPERTY Ready : BOOL]]></Declaration>
-      <Get Name="Get" Id="{64b31d92-9d68-4b99-8d36-01a37d3c1eb9}">
-        <Declaration><![CDATA[VAR
+    <Property Name="Operational" Id="{8f2c7f81-6dd1-4fa4-9c6b-42ea40f162a7}" FolderPath="Generic Status\">
+      <Declaration><![CDATA[PROPERTY Operational : BOOL]]></Declaration>
+      <Set Name="Set" Id="{54d641e5-fe9d-4485-81ab-0a9ea2273a9e}">
+        <Declaration><![CDATA[
+VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Ready := SUPER^.Ready AND CanAcceptCommand AND NOT _bReadyInhibit;]]></ST>
+          <ST><![CDATA[SUPER^.Operational := Operational AND COMM^.Operational;]]></ST>
         </Implementation>
-      </Get>
+      </Set>
     </Property>
     <Method Name="Reset" Id="{2c7d1a90-4e33-4b71-9a02-8f1a2b3c4d50}" FolderPath="StateControl\">
       <Declaration><![CDATA[{attribute 'TcRpcEnable':='1'}
@@ -943,7 +943,7 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[SetOperationMode := NONE;
-IF State <> eState.Active AND NOT Busy THEN
+IF State <> eState.Active AND NOT FB_0_Base.Busy THEN
 	HMI_ROB.eModus := mode;
 END_IF
 
@@ -976,6 +976,8 @@ SetSpeedOverride := TRUE;]]></ST>
 	IF Skills[j]<>0 THEN
 		Skills[j]^.pOwner:=THIS;
 	END_IF
+	
+	SUPER^.SET_B:=SET_R;
 END_FOR
 
 ]]></ST>

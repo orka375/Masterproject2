@@ -8,6 +8,7 @@ FUNCTION_BLOCK FB_2_ROB_MANIP EXTENDS FB_1_ROB
 VAR_INPUT
 	TOOL: POINTER TO FB_1_Tool;
 	JOG: FB_Jog_Manipulator;
+	SET_M: stSettings_Manip;
 END_VAR
 
 VAR_OUTPUT
@@ -20,6 +21,7 @@ VAR
 	//TODO What is this for?
 	_commandState : E_RobotCommandState := E_RobotCommandState.Idle;
 	
+	_Init_Manip: BOOL;
 END_VAR
 
 ]]></Declaration>
@@ -50,7 +52,7 @@ END_VAR
       <Implementation>
         <ST><![CDATA[AlignTcpZToBrfZ := 0;
 
-  IF NOT Ready THEN
+  IF NOT Operational THEN
     RETURN;
   END_IF
 
@@ -102,9 +104,25 @@ END_VAR
   ]]></ST>
       </Implementation>
     </Method>
+    <Property Name="Busy" Id="{903b7681-593d-4012-ae5f-8792130b9132}">
+      <Declaration><![CDATA[PROPERTY Busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{cfd25ac3-0ef1-4632-88cf-16478b3d4dc6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[
+Busy:=SUPER^.Busy OR Tool^.Busy;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Action Name="CYCLIC_MANIP" Id="{c5ea77dd-14da-4015-9108-0744e50afbab}">
       <Implementation>
-        <ST><![CDATA[CYCLIC_ROB();
+        <ST><![CDATA[IF NOT _Init_Manip THEN
+	_Init_Manip:=TRUE;
+	SETUP_MANIP();
+END_IF
+CYCLIC_ROB();
 
 IF TOOL <> 0 THEN
     TOOL^.MESSENGER.ParentMessenger := ADR(MESSENGER);
@@ -553,6 +571,18 @@ OnShutdown := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
+    <Property Name="Operational" Id="{01f3ee76-231c-45e7-98e1-d5154e8488a3}">
+      <Declaration><![CDATA[PROPERTY Operational : BOOL]]></Declaration>
+      <Set Name="Set" Id="{65a5b5a7-3a8c-4dfc-b126-5602adc71fb8}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SUPER^.Operational:= Operational AND Tool^.Operational;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="ReadDI" Id="{c8354a35-ffdd-4948-906a-367cdcf5dddc}" FolderPath="MotionControl\">
       <Declaration><![CDATA[METHOD ReadDI : UINT
 VAR_INPUT
@@ -601,5 +631,10 @@ Config.bValue:=bValue;
 SetDO:= CommandHandler(Cmd:=eCommands.SetDO,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
+    <Action Name="SETUP_MANIP" Id="{a373e3c3-35fa-4ad1-a3f0-33ccaf20da1b}">
+      <Implementation>
+        <ST><![CDATA[SUPER^.SET_R := SET_M;]]></ST>
+      </Implementation>
+    </Action>
   </POU>
 </TcPlcObject>

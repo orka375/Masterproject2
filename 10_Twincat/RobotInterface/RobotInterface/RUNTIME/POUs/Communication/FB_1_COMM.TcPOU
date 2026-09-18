@@ -51,13 +51,17 @@ VAR
     _commCommandBusy        : BOOL;
     _commCommandState       : eProgress := INIT;
     _commCommandResult      : eResult := NONE;
+	_bConnected: BOOL;
+	_Init_Comm: BOOL;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Folder Name="FINAL" Id="{d7990c19-4461-4ef9-a9c3-41dd59eb7d2b}" />
     <Folder Name="MotionControl" Id="{9ebe1908-93ac-4cf6-a7d5-d0a567358124}" />
+    <Folder Name="OVERRIDE" Id="{e2759980-4448-4b35-8dbf-1dfc78f02aca}" />
     <Folder Name="StateControl" Id="{c1b69548-4ff3-4256-aac8-59814ba2c761}" />
-    <Property Name="AcceptedCommandID" Id="{60d7e86d-2ef6-4d6f-bb21-251c22802799}">
+    <Property Name="AcceptedCommandID" Id="{60d7e86d-2ef6-4d6f-bb21-251c22802799}" FolderPath="FINAL\">
       <Declaration><![CDATA[PROPERTY AcceptedCommandID : UINT]]></Declaration>
       <Get Name="Get" Id="{8ce6a3a0-b19a-45ac-9d9d-9e72d8d8020c}">
         <Declaration><![CDATA[VAR
@@ -77,7 +81,7 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Property Name="ActiveCommandID" Id="{8c2c9e7e-d92a-463d-a9f9-5cb3ad54a055}">
+    <Property Name="ActiveCommandID" Id="{8c2c9e7e-d92a-463d-a9f9-5cb3ad54a055}" FolderPath="FINAL\">
       <Declaration><![CDATA[PROPERTY ActiveCommandID : UINT]]></Declaration>
       <Get Name="Get" Id="{99a81894-3218-4ebb-9c35-29038eb5479e}">
         <Declaration><![CDATA[VAR
@@ -87,7 +91,7 @@ END_VAR
           <ST><![CDATA[ActiveCommandID := _commActiveCommandID;]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{680f99ee-4027-44d7-ad97-cbc77356b5d0}">
+      <Set Name="Set" Id="{4a964539-a199-49d0-9456-608f00b9c1d0}">
         <Declaration><![CDATA[
 VAR
 END_VAR
@@ -97,23 +101,23 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Property Name="CanAcceptCommand" Id="{e36b9102-7992-44e5-8a2f-0ad461767e6c}">
+    <Property Name="CanAcceptCommand" Id="{e36b9102-7992-44e5-8a2f-0ad461767e6c}" FolderPath="FINAL\">
       <Declaration><![CDATA[PROPERTY CanAcceptCommand : BOOL]]></Declaration>
       <Get Name="Get" Id="{3dd26639-26ba-43fe-a217-d9d0461e2052}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[CanAcceptCommand := CommunicationReady AND _commCanAcceptCommand AND NOT _commCommandBusy;]]></ST>
+          <ST><![CDATA[CanAcceptCommand := Operational AND _commCanAcceptCommand;]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{3f9e9e98-0445-4b0b-9e83-58420a21c17a}">
+      <Set Name="Set" Id="{bbffabb9-2c8c-4c46-a5d3-734cc365cf61}">
         <Declaration><![CDATA[
 VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[CanAcceptCommand := CanAcceptCommand;]]></ST>
+          <ST><![CDATA[_commCanAcceptCommand := CanAcceptCommand;]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -127,27 +131,7 @@ END_VAR
         <ST><![CDATA[CancelCommand := FALSE;]]></ST>
       </Implementation>
     </Method>
-    <Property Name="CommandBusy" Id="{f1318a07-6a2a-4b15-8003-e25559d711ab}">
-      <Declaration><![CDATA[PROPERTY CommandBusy : BOOL]]></Declaration>
-      <Get Name="Get" Id="{849b20c6-d7b8-4f2b-89a2-ae356abe97ee}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[CommandBusy := _commCommandBusy;]]></ST>
-        </Implementation>
-      </Get>
-      <Set Name="Set" Id="{31b5e88c-4fce-4379-86ab-52395ec4d2be}">
-        <Declaration><![CDATA[
-VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[CommandBusy := CommandBusy;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
-    <Property Name="CommandResult" Id="{ef906cf3-c3b7-4110-a2da-473905a396c7}">
+    <Property Name="CommandResult" Id="{ef906cf3-c3b7-4110-a2da-473905a396c7}" FolderPath="FINAL\">
       <Declaration><![CDATA[PROPERTY CommandResult : eResult]]></Declaration>
       <Get Name="Get" Id="{460a019c-ad56-4214-8d20-9adaabd86832}">
         <Declaration><![CDATA[VAR
@@ -167,7 +151,7 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Property Name="CommandState" Id="{e88b06bd-b100-4d6c-9b6e-88e9b6397a70}">
+    <Property Name="CommandState" Id="{e88b06bd-b100-4d6c-9b6e-88e9b6397a70}" FolderPath="FINAL\">
       <Declaration><![CDATA[PROPERTY CommandState : eProgress]]></Declaration>
       <Get Name="Get" Id="{ebe78b68-751a-430d-9857-d1adb859ef46}">
         <Declaration><![CDATA[VAR
@@ -187,21 +171,6 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Property Name="CommunicationReady" Id="{90ec2b27-bfaf-45b4-9aa5-21ddf3a8865d}">
-      <Declaration><![CDATA[PROPERTY CommunicationReady : BOOL]]></Declaration>
-      <Get Name="Get" Id="{1c7da08c-6b2a-478b-a4df-eb2714f81d71}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[IF DEBUG_COMM.bSimConnected THEN
-    CommunicationReady := _ConnectionRequested;
-ELSE
-    CommunicationReady := HMI_COMM._CommunicationReady;
-END_IF]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
     <Method Name="Connect" Id="{0e03e6e3-746a-4d15-b30d-e1d35cd9fa73}">
       <Declaration><![CDATA[METHOD Connect : BOOL
 ]]></Declaration>
@@ -212,7 +181,7 @@ _ConnectionRequested := TRUE;
 Connect := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Property Name="Connected" Id="{12741b67-6a3c-4917-9eee-ef373e57c752}">
+    <Property Name="Connected" Id="{12741b67-6a3c-4917-9eee-ef373e57c752}" FolderPath="FINAL\">
       <Declaration><![CDATA[PROPERTY Connected : BOOL]]></Declaration>
       <Get Name="Get" Id="{e2f59856-76f0-4d1d-a064-5db7172878ee}">
         <Declaration><![CDATA[VAR
@@ -222,17 +191,31 @@ END_VAR
           <ST><![CDATA[IF DEBUG_COMM.bSimConnected THEN
     Connected := _ConnectionRequested;
 ELSE
-    Connected := HMI_COMM._CommunicationConnected;
+    Connected := _bConnected;
 END_IF]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{ecd2f951-5c05-47a3-ade8-e26970503204}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_bConnected := Connected;]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Action Name="CYCLIC_COMM" Id="{2920dcfd-53c5-448d-9932-add88782955c}">
       <Implementation>
-        <ST><![CDATA[CYCLIC_BASE();
+        <ST><![CDATA[IF NOT _Init_Comm THEN
+	_Init_Comm:=TRUE;
+	SETUP_COMM();
+END_IF
+
+CYCLIC_BASE();
 
 
-Busy :=
+FB_0_Base.Busy :=
     (_eCommState = E_CommState.eConnecting)
     OR
     (_eCommState = E_CommState.eDisconnecting)
@@ -310,7 +293,7 @@ CASE _eCommState OF
 
 
         // Communication fully initialized
-        ELSIF HMI_COMM._CommunicationReady THEN
+        ELSIF Operational THEN
 
             // Link healthy again: clear any comm messages this component raised.
             _ReconnectRequested := FALSE;
@@ -545,7 +528,7 @@ myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
 Connect();
-IF CommunicationReady  THEN
+IF FB_1_COMM.Operational  THEN
 	myResult:=SUCCESS;
 END_IF
 
@@ -646,6 +629,18 @@ OnShutdown := CombineResults(eParentResult,myResult);
 ]]></ST>
       </Implementation>
     </Method>
+    <Property Name="Operational" Id="{90ec2b27-bfaf-45b4-9aa5-21ddf3a8865d}" FolderPath="OVERRIDE\">
+      <Declaration><![CDATA[PROPERTY Operational : BOOL]]></Declaration>
+      <Set Name="Set" Id="{4f19d267-1340-49ac-92ec-f176abd048d2}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SUPER^.Operational:= Operational AND Connected;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="Reconnect" Id="{1b214bc4-2670-4530-9e2e-4fb9a9440c51}">
       <Declaration><![CDATA[METHOD Reconnect : BOOL
 ]]></Declaration>
@@ -656,6 +651,28 @@ _ReconnectRequested := TRUE;
 Reconnect := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <Property Name="RequestConnection" Id="{f2ed25bd-6424-4266-a820-528a5d6767d6}" FolderPath="FINAL\">
+      <Declaration><![CDATA[PROPERTY RequestConnection : BOOL]]></Declaration>
+      <Get Name="Get" Id="{3b6ef5bb-3136-4550-9ff2-b558ac527931}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RequestConnection := bRequestConnection;
+]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{977d3991-b84d-40b2-bdff-5fcf47db105f}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ bRequestConnection := RequestConnection;
+]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="ResetCommunication" Id="{ce234f47-9067-45ef-9d48-468fcefbc15a}">
       <Declaration><![CDATA[METHOD PUBLIC ResetCommunication : BOOL
 ]]></Declaration>
@@ -665,13 +682,18 @@ Reconnect := TRUE;]]></ST>
 CanAcceptCommand := TRUE;
 AcceptedCommandID := 0;
 ActiveCommandID := 0;
-CommandBusy := FALSE;
+FB_1_COMM.Busy := FALSE;
 CommandState := INIT;
 CommandResult := NONE;
 Reconnect();
 ResetCommunication := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <Action Name="SETUP_COMM" Id="{8953db30-ebf8-4ae1-b477-95a9c5b6fb8c}">
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Action>
     <Method Name="StopMotion" Id="{87fb0928-6cea-447d-8282-693d0d33345f}" FolderPath="MotionControl\">
       <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
 ]]></Declaration>
