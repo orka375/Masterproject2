@@ -214,6 +214,7 @@ ELSIF _rDelete.Q THEN
         DeleteById(nId := UDINT_TO_DINT(HMI_PM.nSelectedPointId));
     ELSE
         bError := TRUE;
+        MESSENGER.AddError(eMessageCategories.Undefined, Path, 'No point selected');
         nErrorID := 16#E802;
         Result := ERROR;
         HMI_PM.sLastOperation := 'No point selected';
@@ -343,6 +344,7 @@ IF NOT IsValidDatabaseName(sValue := sName) THEN
     _sName := '';
     _sDatabasePath := '';
     bError := TRUE;
+    MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Invalid PointManager name for file path');
     nErrorID := 16#E80B;
     Result := ERROR;
     HMI_PM.sLastOperation := 'Invalid PointManager name for file path';
@@ -524,6 +526,7 @@ END_VAR
 nIndex := FindIndex(sName := sName);
 IF nIndex = 0 THEN
     bError := TRUE;
+    MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Point name not found');
     nErrorID := 16#E802;
     Result := ERROR;
     HMI_PM.sLastOperation := 'Point name not found';
@@ -552,6 +555,7 @@ nIndex := FindIndexById(nId := nId);
 
 IF nIndex = 0 THEN
     bError := TRUE;
+    MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Point ID not found');
     nErrorID := 16#E802;
     Result := ERROR;
     HMI_PM.sLastOperation := 'Point ID not found';
@@ -831,6 +835,7 @@ nIndex := FindIndex(sName := sName);
 IF nIndex = 0 THEN
     bFound := FALSE;
     bError := TRUE;
+    MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Point name not found');
     nErrorID := 16#E802;
     Result := ERROR;
     HMI_PM.sLastOperation := 'Point name not found';
@@ -856,6 +861,7 @@ CASE _nLoadFileState OF
     0:
         IF NOT _bConfigured THEN
             bError := TRUE;
+            MESSENGER.AddError(eMessageCategories.Undefined, Path, 'PointManager name is not configured');
             nErrorID := 16#E80B;
             Result := ERROR;
             HMI_PM.sLastOperation := 'PointManager name is not configured';
@@ -885,6 +891,7 @@ CASE _nLoadFileState OF
 
         IF _fileOpen.bError THEN
             bError := TRUE;
+            MESSENGER.AddError(eMessageCategories.Undefined, Path, 'File open for load failed');
             nErrorID := _fileOpen.nErrId;
             Result := ERROR;
             HMI_PM.sLastOperation := 'File open for load failed';
@@ -913,6 +920,7 @@ CASE _nLoadFileState OF
 
         IF _fileRead.bError THEN
             bError := TRUE;
+            MESSENGER.AddError(eMessageCategories.Undefined, Path, 'File read failed');
             nErrorID := _fileRead.nErrId;
             Result := ERROR;
             HMI_PM.sLastOperation := 'File read failed';
@@ -942,11 +950,13 @@ CASE _nLoadFileState OF
 
         IF _fileRead.bError THEN
             bError := TRUE;
+            MESSENGER.AddError(eMessageCategories.Undefined, Path, 'File size check failed');
             nErrorID := _fileRead.nErrId;
             Result := ERROR;
             HMI_PM.sLastOperation := 'File size check failed';
         ELSIF _fileRead.cbRead > 0 THEN
             bError := TRUE;
+            MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Point file is larger than the PLC file buffer');
             nErrorID := 16#E808;
             Result := ERROR;
             HMI_PM.sLastOperation := 'Point file is larger than the PLC file buffer';
@@ -968,6 +978,7 @@ CASE _nLoadFileState OF
 
         IF _fileClose.bError THEN
             bError := TRUE;
+            MESSENGER.AddError(eMessageCategories.Undefined, Path, 'File close after load failed');
             nErrorID := _fileClose.nErrId;
             Result := ERROR;
             HMI_PM.sLastOperation := 'File close after load failed';
@@ -1049,6 +1060,7 @@ IF nIndex = 0 THEN
     bFound := FALSE;
     pPoint := 0;
     bError := TRUE;
+    MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Point ID not found');
     nErrorID := 16#E802;
     Result := ERROR;
     HMI_PM.sLastOperation := 'Point ID not found';
@@ -1116,6 +1128,7 @@ _nLoadPointCount := 0;
 
 IF _nFileBufferSize = 0 THEN
     bError := TRUE;
+    MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Point file is empty');
     nErrorID := 16#E806;
     Result := ERROR;
     HMI_PM.sLastOperation := 'Point file is empty';
@@ -1257,6 +1270,7 @@ WHILE TRUE DO
 
     IF (point.id < 1) OR (point.id > 10) THEN
         bError := TRUE;
+        MESSENGER.AddError(eMessageCategories.Undefined, Path, 'File contains point ID outside 1..10');
         nErrorID := 16#E807;
         Result := ERROR;
         HMI_PM.sLastOperation := 'File contains point ID outside 1..10';
@@ -1265,6 +1279,7 @@ WHILE TRUE DO
 
     IF point.name = '' THEN
         bError := TRUE;
+        MESSENGER.AddError(eMessageCategories.Undefined, Path, 'File contains an empty point name');
         nErrorID := 16#E803;
         Result := ERROR;
         HMI_PM.sLastOperation := 'File contains an empty point name';
@@ -1280,6 +1295,7 @@ WHILE TRUE DO
     FOR j := 1 TO _nLoadPointCount DO
         IF _loadPoints[j].id = point.id THEN
             bError := TRUE;
+            MESSENGER.AddError(eMessageCategories.Undefined, Path, 'File contains duplicate point IDs');
             nErrorID := 16#E807;
             Result := ERROR;
             HMI_PM.sLastOperation := 'File contains duplicate point IDs';
@@ -1288,6 +1304,7 @@ WHILE TRUE DO
 
         IF _loadPoints[j].name = point.name THEN
             bError := TRUE;
+            MESSENGER.AddError(eMessageCategories.Undefined, Path, 'File contains duplicate point names for one robot');
             nErrorID := 16#E804;
             Result := ERROR;
             HMI_PM.sLastOperation := 'File contains duplicate point names for one robot';
@@ -1297,6 +1314,7 @@ WHILE TRUE DO
 
     IF _nLoadPointCount >= 10 THEN
         bError := TRUE;
+        MESSENGER.AddError(eMessageCategories.Undefined, Path, 'File contains more than 10 points');
         nErrorID := 16#E801;
         Result := ERROR;
         HMI_PM.sLastOperation := 'File contains more than 10 points';
@@ -1390,6 +1408,7 @@ END_VAR
 
 IF nPointCount >= 10 THEN
     bError := TRUE;
+    MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Memory point store full');
     nErrorID := 16#E801;
     Result := ERROR;
     HMI_PM.sLastOperation := 'Memory point store full';
@@ -1399,6 +1418,7 @@ END_IF
 nId := FindFreeId();
 IF nId = 0 THEN
     bError := TRUE;
+    MESSENGER.AddError(eMessageCategories.Undefined, Path, 'No free point ID in range 1..10');
     nErrorID := 16#E805;
     Result := ERROR;
     HMI_PM.sLastOperation := 'No free point ID in range 1..10';
@@ -1472,6 +1492,7 @@ END_VAR
 // Rename edits only the working copy. SAVE POINT performs the actual RAM-array commit.
 IF sNewName = '' THEN
     bError := TRUE;
+    MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Point name cannot be empty');
     nErrorID := 16#E803;
     Result := ERROR;
     HMI_PM.sLastOperation := 'Point name cannot be empty';
@@ -1482,6 +1503,7 @@ IF _nEditingId = 0 THEN
     nIndex := FindIndex(sName := sOldName);
     IF nIndex = 0 THEN
         bError := TRUE;
+        MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Point not found');
         nErrorID := 16#E802;
         Result := ERROR;
         HMI_PM.sLastOperation := 'Point not found';
@@ -1525,6 +1547,7 @@ IF (_nEditingId = 0) AND (sCurrentName <> '') THEN
     nIndex := FindIndex(sName := sCurrentName);
     IF nIndex = 0 THEN
         bError := TRUE;
+        MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Point not found');
         nErrorID := 16#E802;
         Result := ERROR;
         HMI_PM.sLastOperation := 'Point not found';
@@ -1557,6 +1580,7 @@ CASE _nSaveFileState OF
     0:
         IF NOT _bConfigured THEN
             bError := TRUE;
+            MESSENGER.AddError(eMessageCategories.Undefined, Path, 'PointManager name is not configured');
             nErrorID := 16#E80B;
             Result := ERROR;
             HMI_PM.sLastOperation := 'PointManager name is not configured';
@@ -1566,6 +1590,7 @@ CASE _nSaveFileState OF
 
         IF NOT BuildSaveBuffer() THEN
             bError := TRUE;
+            MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Point file buffer overflow');
             nErrorID := 16#E809;
             Result := ERROR;
             HMI_PM.sLastOperation := 'Point file buffer overflow';
@@ -1594,6 +1619,7 @@ CASE _nSaveFileState OF
 
         IF _fileOpen.bError THEN
             bError := TRUE;
+            MESSENGER.AddError(eMessageCategories.Undefined, Path, 'File open for save failed');
             nErrorID := _fileOpen.nErrId;
             Result := ERROR;
             HMI_PM.sLastOperation := 'File open for save failed';
@@ -1622,11 +1648,13 @@ CASE _nSaveFileState OF
 
         IF _fileWrite.bError THEN
             bError := TRUE;
+            MESSENGER.AddError(eMessageCategories.Undefined, Path, 'File write failed');
             nErrorID := _fileWrite.nErrId;
             Result := ERROR;
             HMI_PM.sLastOperation := 'File write failed';
         ELSIF _fileWrite.cbWrite <> _nFileBufferSize THEN
             bError := TRUE;
+            MESSENGER.AddError(eMessageCategories.Undefined, Path, 'File write incomplete');
             nErrorID := 16#E80A;
             Result := ERROR;
             HMI_PM.sLastOperation := 'File write incomplete';
@@ -1648,6 +1676,7 @@ CASE _nSaveFileState OF
 
         IF _fileClose.bError THEN
             bError := TRUE;
+            MESSENGER.AddError(eMessageCategories.Undefined, Path, 'File close after save failed');
             nErrorID := _fileClose.nErrId;
             Result := ERROR;
             HMI_PM.sLastOperation := 'File close after save failed';
@@ -1683,6 +1712,7 @@ END_VAR
 
 IF (_nEditingId < 1) OR (_nEditingId > 10) THEN
     bError := TRUE;
+    MESSENGER.AddError(eMessageCategories.Undefined, Path, 'No valid edit point ID');
     nErrorID := 16#E802;
     Result := ERROR;
     HMI_PM.sLastOperation := 'No valid edit point ID';
@@ -1691,6 +1721,7 @@ END_IF
 
 IF NOT IsValidPointName(sValue := HMI_PM.editedPoint.name) THEN
     bError := TRUE;
+    MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Point name is empty or contains an invalid CSV character');
     nErrorID := 16#E803;
     Result := ERROR;
     HMI_PM.sLastOperation := 'Point name is empty or contains an invalid CSV character';
@@ -1699,6 +1730,7 @@ END_IF
 
 IF NOT CheckName(sInput := HMI_PM.editedPoint.name, nIgnoreId := _nEditingId) THEN
     bError := TRUE;
+    MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Point name already exists');
     nErrorID := 16#E804;
     Result := ERROR;
     HMI_PM.sLastOperation := 'Point name already exists';
@@ -1716,6 +1748,7 @@ IF nIndex = 0 THEN
     // New point: it only enters the RAM array here.
     IF NOT _bEditingNew THEN
         bError := TRUE;
+        MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Point ID is not present in RAM array');
         nErrorID := 16#E802;
         Result := ERROR;
         HMI_PM.sLastOperation := 'Point ID is not present in RAM array';
@@ -1724,6 +1757,7 @@ IF nIndex = 0 THEN
 
     IF nPointCount >= 10 THEN
         bError := TRUE;
+        MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Memory point store full');
         nErrorID := 16#E801;
         Result := ERROR;
         HMI_PM.sLastOperation := 'Memory point store full';
@@ -1781,6 +1815,7 @@ SaveEditedPoint := TRUE;
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[bError := TRUE;
+MESSENGER.AddError(eMessageCategories.Undefined, Path, 'Invalid or corrupt point file format');
 nErrorID := 16#E806;
 Result := ERROR;
 HMI_PM.sLastOperation := 'Invalid or corrupt point file format';
@@ -1890,6 +1925,7 @@ END_VAR
 
 IF (_nEditingId < 1) OR (_nEditingId > 10) THEN
     bError := TRUE;
+    MESSENGER.AddError(eMessageCategories.Undefined, Path, 'No point loaded or prepared for editing');
     nErrorID := 16#E802;
     Result := ERROR;
     HMI_PM.sLastOperation := 'No point loaded or prepared for editing';
