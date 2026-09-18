@@ -61,5 +61,15 @@
       <From>SETTINGS</From>
       <To>SET_M</To>
     </RenamedSymbol>
+    <RenamedType>
+      <Type guid="09a6e83b-4d7f-41d5-944b-97ebdab99cae">CONFIGURE</Type>
+      <From>Configure</From>
+      <To>Initialise</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="e049feb0-d020-4b0d-9355-74a020722637">CONFIGURE</Type>
+      <From>Configure</From>
+      <To>Initialise</To>
+    </RenamedType>
   </Renames>
 </Refactors>

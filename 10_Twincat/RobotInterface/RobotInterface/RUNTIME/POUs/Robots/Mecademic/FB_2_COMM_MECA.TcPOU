@@ -325,8 +325,7 @@ END_VAR
 ]]></Declaration>
         <Implementation>
           <ST><![CDATA[SUPER^.Operational := 
-	Operational 
-	]]></ST>
+	Operational;	]]></ST>
         </Implementation>
       </Set>
     </Property>

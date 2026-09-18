@@ -387,7 +387,7 @@ END_VAR
         <ST><![CDATA[GetSkillByTag := 0;
 FOR i:= 1 TO SETUP.MaxNrofSkills DO
 	IF (Skills[i] <> 0) THEN
-		IF (Skills[i]^.SET_S.TAG = sTag) THEN
+		IF (Skills[i]^.TAG = sTag) THEN
 			GetSkillByTag := Skills[i];
 			RETURN;
 		END_IF

@@ -600,7 +600,6 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-PM.LoadAllFromFile();
 
 IF Comm^.LastTransitionType = eTransitions.Configure THEN
 	
@@ -615,10 +614,13 @@ IF SIMMODE THEN
 		myResult:=SUCCESS;
 END_IF
 
-IF NOT PM.Configure(sName := Name) = SUCCESS THEN
+
+
+IF NOT PM.Initialise(sName := Name) = SUCCESS THEN
 	myResult:=NONE;
 END_IF
 
+PM.LoadAllFromFile();
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------
@@ -980,7 +982,8 @@ SetSpeedOverride := TRUE;]]></ST>
 	SUPER^.SET_B:=SET_R;
 END_FOR
 
-]]></ST>
+PM.NameOfRobot:=Name;
+PM.MESSENGER.ParentMessenger:=ADR(Messenger);]]></ST>
       </Implementation>
     </Action>
     <Method Name="StopMotion" Id="{2a9ef1f1-bebf-42b7-9028-b416fb72a19e}">

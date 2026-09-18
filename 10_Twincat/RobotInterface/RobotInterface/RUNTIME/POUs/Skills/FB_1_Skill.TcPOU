@@ -7,6 +7,7 @@
 
 
 VAR_INPUT
+	TAG: STRING := 'EMPTY'; 
 	DEBUG_SKILL: DEBUG_SKILL;
 	pOwner: POINTER TO FB_0_BASE;
 	SET_S: stSettings_Skill;

@@ -4,11 +4,6 @@
     <Declaration><![CDATA[TYPE stHMI_ROB_AXIS :
 STRUCT
     AxisPowered : BOOL;
-    AxisHomed : BOOL;
-
-    ActualPosition : LREAL;
-    ActualVelocity : LREAL;
-
     ConfigurationValid : BOOL;
     AtMinLimit : BOOL;
     AtMaxLimit : BOOL;

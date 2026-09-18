@@ -27,16 +27,34 @@ VAR_OUTPUT
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[AXIS_COMM(Axis := NCAxis);
+      <ST><![CDATA[// ------ CALL CYCLIC -----------------
+CYCLIC_LIN_AXIS();
+AXIS_COMM(Axis := NCAxis);
 COMM := ADR(AXIS_COMM);
-_pSettingsAxis := ADR(SETTINGS);
-_pSettingsLinAxis := ADR(SETTINGS);
 
+// ------ WRITE HMI -------------------
+		// NO HMI STRUCT
+
+// ------ READ FROM HMI ---------------
+		// NO HMI STRUCT
+	
+
+
+// ------ WRITE PROPS/METHODS ---------
 _axisPowered := AXIS_COMM.Powered;
-_axisHomed := AXIS_COMM.Homed;
+Homed := AXIS_COMM.Homed;
 _axisActualPosition := AXIS_COMM.ActualPosition;
 _axisActualVelocity := AXIS_COMM.ActualVelocity;
-CYCLIC_LIN_AXIS();]]></ST>
+
+
+// ----- CALL POUS AND ERROR SURVEILLANCE ----------
+
+
+// ----- REST --------------------
+
+
+
+]]></ST>
     </Implementation>
     <Folder Name="StateControl" Id="{f6663b81-da1a-49b7-a233-7f100a37ca74}" />
     <Method Name="CommandHandler" Id="{d915ac07-9e83-4079-af67-a4609f842e20}">

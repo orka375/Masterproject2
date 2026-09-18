@@ -235,21 +235,6 @@ ELSE
         100:
             bConfigured := TRUE;
 
-            Messenger.Clear(
-                Name,
-                'Gimatic gripper: pUR is not assigned'
-            );
-
-            Messenger.Clear(
-                Name,
-                'Gimatic gripper: nToolOutput must be 0 or 1'
-            );
-
-            Messenger.Clear(
-                Name,
-                'Gimatic gripper: URScript interface error'
-            );
-
             myResult := SUCCESS;
 
     END_CASE

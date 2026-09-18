@@ -61,9 +61,9 @@ CYCLIC_ROB();
 
 // ------ WRITE HMI -------------------
 HMI_ROB_AXIS.AxisPowered := _axisPowered;
-HMI_ROB_AXIS.AxisHomed := _axisHomed;
-HMI_ROB_AXIS.ActualPosition := _axisActualPosition;
-HMI_ROB_AXIS.ActualVelocity := _axisActualVelocity;
+Homed := _axisHomed;
+ActualPosition := _axisActualPosition;
+ActualVelocity := _axisActualVelocity;
 HMI_ROB_AXIS.AtMinLimit := _axisActualPosition <= (SET_A.MinPosition + SET_A.PositionTolerance);
 HMI_ROB_AXIS.AtMaxLimit := _axisActualPosition >= (SET_A.MaxPosition - SET_A.PositionTolerance);
 HMI_ROB_AXIS.InPosition := _axisTargetValid AND (ABS(_axisActualPosition - _axisTargetPosition) <= SET_A.PositionTolerance);
@@ -94,22 +94,22 @@ END_IF
 
 
 
-    IF _axisCommandActive THEN
-      eCommandStatus := COMM^.CommandState;
-      eCommandResult := COMM^.CommandResult;
+IF _axisCommandActive THEN
+  eCommandStatus := COMM^.CommandState;
+  eCommandResult := COMM^.CommandResult;
 
-        IF (eCommandStatus = eProgress.FINALIZED)
-           OR (eCommandStatus = eProgress.ABORTED) THEN
-        IF (eCommandStatus = eProgress.FINALIZED)
-           AND (eCommandResult = eResult.SUCCESS)
-           AND _axisTargetValid
-           AND NOT HMI_ROB_AXIS.InPosition THEN
-          eCommandResult := eResult.FAILURE;
-        END_IF
-            _axisCommandActive := FALSE;
-        END_IF
-    END_IF
+	IF (eCommandStatus = eProgress.FINALIZED)
+	   OR (eCommandStatus = eProgress.ABORTED) THEN
+	IF (eCommandStatus = eProgress.FINALIZED)
+	   AND (eCommandResult = eResult.SUCCESS)
+	   AND _axisTargetValid
+	   AND NOT HMI_ROB_AXIS.InPosition THEN
+	  eCommandResult := eResult.FAILURE;
+	END_IF
+		_axisCommandActive := FALSE;
+	END_IF
 END_IF
+
 
 
 ]]></ST>
@@ -196,7 +196,7 @@ TargetValid := FALSE;
 EffectiveVelocity := 0.0;
 EffectiveAcceleration := 0.0;
 
-IF (_pSettingsAxis = 0) OR NOT FB_1_ROB.Operational OR _axisCommandActive THEN RETURN; END_IF
+IF NOT Operational OR _axisCommandActive THEN RETURN; END_IF
 
 CASE Cmd OF
     eCommands.MoveL,
@@ -246,7 +246,7 @@ HMI_ROB_AXIS.ConfigurationValid := ValidateConfiguration();]]></ST>
       <Declaration><![CDATA[METHOD PROTECTED ValidateConfiguration : BOOL]]></Declaration>
       <Implementation>
         <ST><![CDATA[ValidateConfiguration := FALSE;
-      IF _pSettingsAxis = 0 THEN RETURN; END_IF
+
       IF SET_A.MinPosition >= SET_A.MaxPosition THEN RETURN; END_IF
       IF SET_A.PositionTolerance <= 0.0 THEN RETURN; END_IF
       IF SET_A.PositionTolerance >= ((SET_A.MaxPosition - SET_A.MinPosition) * 0.5) THEN RETURN; END_IF
@@ -273,7 +273,7 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[ValidateDynamics := FALSE;
-IF _pSettingsAxis = 0 THEN RETURN; END_IF
+
 IF (Velocity < 0.0) OR (Acceleration < 0.0) THEN RETURN; END_IF
 
 EffectiveVelocity := Velocity;
