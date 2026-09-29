@@ -44,7 +44,7 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[CommandHandler := 0;
 
-      IF Cmd <> eCommands.MoveJJoints OR _commandActive OR NOT bConfigurationValid OR NOT FB_1_ROB.Operational THEN
+      IF Cmd <> eCommands.MoveJJoints OR _commandActive OR NOT bConfigurationValid OR NOT Operational THEN
   RETURN;
 END_IF
 
@@ -166,7 +166,7 @@ END_FOR
 CYCLIC_ROB();
 HMI_ROB.bMoving := _anyAxisMoving;
 HMI_ROB.bInCollision := FALSE;
-HMI_ROB.bOperational := (State = eState.Active) AND bConfigurationValid AND _allAxesOperational AND NOT _anyAxisFault AND NOT FB_0_Base.Busy;]]></ST>
+HMI_ROB.bOperational := (State = eState.Active) AND bConfigurationValid AND _allAxesOperational AND NOT _anyAxisFault AND NOT Busy;]]></ST>
       </Implementation>
     </Action>
     <Method Name="EStop" Id="{4d434c0f-9f5a-427b-8613-87b080ccfc67}">

@@ -38,7 +38,7 @@ END_IF
 
 // Stop immediately
 IF HMI_SKILL.bStop THEN
-    HMI_BASE.bBusy := FALSE;
+    HMI_BASE.bBusy:=False;
     ExecutionDone:=TRUE;
 	ExecutionResult:= FAILURE;
 
@@ -78,7 +78,7 @@ ELSE
 
             // Maximum reached
             IF nCounter >= Param^.nMax THEN
-                HMI_BASE.bBusy := FALSE;
+                HMI_BASE.bBusy:=FALSE;
 				ExecutionDone:=TRUE;
 				ExecutionResult:= SUCCESS;
             END_IF

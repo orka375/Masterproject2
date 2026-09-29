@@ -94,6 +94,7 @@ VAR
 
     _mecaCommandWasRunning : BOOL;
     _mecaHomeCommandActive : BOOL;
+    _mecaStopClearRequired : BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -118,11 +119,6 @@ Operational :=
 	AND bFeedbackValid 
 	AND bDynamicDataValid 
 	AND NOT bInMonitoringMode;
-
-
-IF CommandState = ABORTED THEN			//BUG??
-    Busy := bRequestPause OR bRequestClearMove OR bInBusy;
-END_IF
 
 
 // ----- CALL POUS AND ERROR SURVEILLANCE ----------
@@ -201,12 +197,12 @@ ELSE
         ActiveCommandID := nPendingMoveId;
         CommandState := ACKNOWLEDGE;
         CommandResult :=NONE;
-        FB_1_COMM.Busy := TRUE;
+        Busy := TRUE;
     END_IF
 END_IF
 
 
-IF Busy THEN
+IF Busy AND NOT StopPending THEN
     IF NOT Operational
        OR bInConnectionDropped
        OR bInEStop
@@ -216,7 +212,7 @@ IF Busy THEN
         ActiveCommandID := 0;
         CommandState := FINALIZED;
         CommandResult :=ERROR;
-        FB_1_COMM.Busy := FALSE;
+        
         bCommandPending := FALSE;
         _mecaHomeCommandActive := FALSE;
 
@@ -225,14 +221,14 @@ IF Busy THEN
             ActiveCommandID := 0;
             CommandState := FINALIZED;
             CommandResult :=SUCCESS;
-            FB_1_COMM.Busy := FALSE;
+            
             _mecaHomeCommandActive := FALSE;
         ELSE
             CommandState := RUNNING;
             CommandResult :=NONE;
         END_IF
 
-    ELSIF (_commAcceptedCommandID <> 0) AND (_commAcceptedCommandID = _commActiveCommandID) THEN
+    ELSIF (AcceptedCommandID <> 0) AND (AcceptedCommandID = ActiveCommandID) THEN
         IF bInBusy OR NOT bInEom THEN
             _mecaCommandWasRunning := TRUE;
             CommandState := RUNNING;
@@ -241,7 +237,7 @@ IF Busy THEN
             ActiveCommandID := 0;
             CommandState := FINALIZED;
             CommandResult :=SUCCESS;
-            FB_1_COMM.Busy := FALSE;
+            
         ELSE
             CommandState := ACKNOWLEDGE;
         END_IF
@@ -278,7 +274,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[CancelCommand := FALSE;]]></ST>
+        <ST><![CDATA[CancelCommand := SUPER^.CancelCommand(CommandID := CommandID);]]></ST>
       </Implementation>
     </Method>
     <Method Name="ClearMotion" Id="{4e27c0e3-b74a-440c-bebc-156c0921230b}">
@@ -301,12 +297,38 @@ END_VAR
       </Get>
     </Property>
     <Method Name="EStop" Id="{1201c9fe-9f43-4ede-acd9-d1680b76e6d2}" FolderPath="ITF_Implementation\">
-      <Declaration><![CDATA[METHOD EStop : BOOL
+      <Declaration><![CDATA[{deprecated 'Use StopMotion. This method is not safety-rated.'}
+    METHOD EStop : BOOL
 VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[EStop:=FALSE;]]></ST>
+        <ST><![CDATA[EStop := StopMotion();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPhysicalStopFailed" Id="{ec5c2ca8-bfa3-4bfe-8344-ce091281263b}" FolderPath="ITF_Implementation\">
+      <Declaration><![CDATA[METHOD PROTECTED HasPhysicalStopFailed : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[HasPhysicalStopFailed :=
+    NOT bFeedbackValid
+    OR bInConnectionDropped
+    OR bInCollision
+    OR (nInErrorCode <> 0);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsPhysicalStopComplete" Id="{67c7a714-bc71-44a0-ae7b-b8132779995d}" FolderPath="ITF_Implementation\">
+      <Declaration><![CDATA[METHOD PROTECTED IsPhysicalStopComplete : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IsPhysicalStopComplete :=
+      NOT bInBusy
+      AND ((bInEStop OR bInPStop2)
+        OR (bInPaused AND (NOT _mecaStopClearRequired OR bInCleared)));
+
+IF IsPhysicalStopComplete THEN
+    _mecaStopClearRequired := FALSE;
+    bCommandPending := FALSE;
+    _mecaHomeCommandActive := FALSE;
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="Home" Id="{bde77e6a-1735-404c-a869-5ff38ebb95c0}">
@@ -380,6 +402,11 @@ RequestDeactivate := TRUE;]]></ST>
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[// Transport bookkeeping reset only; controller/safety error reset remains explicit ResetError().
+      IF StopPending THEN
+          ResetCommunication := FALSE;
+          RETURN;
+      END_IF
+
 bCommandPending := FALSE;
 bCommandAccepted := FALSE;
 _mecaHomeCommandActive := FALSE;
@@ -387,7 +414,7 @@ _mecaCommandWasRunning := FALSE;
 CanAcceptCommand := TRUE;
 AcceptedCommandID := 0;
 ActiveCommandID := 0;
-FB_1_COMM.Busy := FALSE;
+
 CommandState := INIT;
 CommandResult :=NONE;
 Reconnect();
@@ -406,6 +433,12 @@ ResetError := TRUE;]]></ST>
       <Implementation>
         <ST><![CDATA[bRequestResume := TRUE;
 ResumeMotion := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReadSafetyStopActive" Id="{4e644a4d-fefa-4032-916a-dca8c6ed86fe}" FolderPath="ITF_Implementation\">
+      <Declaration><![CDATA[METHOD PROTECTED ReadSafetyStopActive : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ReadSafetyStopActive := bInEStop OR bInPStop2;]]></ST>
       </Implementation>
     </Method>
     <Method Name="SendCommand" Id="{117a722d-2825-43a2-bbc5-d9c38667f200}">
@@ -445,7 +478,7 @@ AcceptedCommandID := 0;
 ActiveCommandID := CommandID;
 CommandState := INIT;
 CommandResult :=NONE;
-FB_1_COMM.Busy := TRUE;
+Busy := TRUE;
 SendCommand := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -474,7 +507,7 @@ AcceptedCommandID := CommandID; // no separate ID echo exists for Home in this E
 ActiveCommandID := CommandID;
 CommandState := ACKNOWLEDGE;
 CommandResult :=NONE;
-FB_1_COMM.Busy := TRUE;
+Busy := TRUE;
 SendHome := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -511,13 +544,43 @@ IF QueueMotion(
       <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[StopMotion := FALSE;
-IF NOT FB_1_COMM.Operational THEN
-    RETURN;
-END_IF
-bRequestPause := TRUE;
-StopMotion := TRUE;]]></ST>
+        <ST><![CDATA[StopMotion := SUPER^.StopMotion();]]></ST>
       </Implementation>
     </Method>
+      <Method Name="StartPhysicalStop" Id="{77adcb35-1435-44f6-ace2-3d6e2db0fe46}" FolderPath="ITF_Implementation\">
+        <Declaration><![CDATA[METHOD PROTECTED StartPhysicalStop : BOOL
+    VAR_INPUT
+      Mode : eStopMode;
+    END_VAR]]></Declaration>
+        <Implementation>
+        <ST><![CDATA[StartPhysicalStop := FALSE;
+    IF NOT bFeedbackValid
+       OR NOT bDynamicDataValid
+       OR bInConnectionDropped
+       OR (nInErrorCode <> 0) THEN
+      RETURN;
+    END_IF
+
+    IF bInEStop OR bInPStop2 THEN
+      _mecaStopClearRequired := FALSE;
+      StartPhysicalStop := TRUE;
+      RETURN;
+    END_IF
+
+    IF NOT bInActivated THEN
+      RETURN;
+    END_IF
+
+    // Remove commands not yet accepted and prevent queued movement from resuming.
+    bCommandPending := FALSE;
+    bRequestPause := TRUE;
+    _mecaStopClearRequired := ActiveCommandID <> 0;
+    IF _mecaStopClearRequired THEN
+      bRequestClearMove := TRUE;
+    END_IF
+
+    StartPhysicalStop := TRUE;]]></ST>
+        </Implementation>
+      </Method>
   </POU>
 </TcPlcObject>

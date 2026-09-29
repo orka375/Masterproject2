@@ -39,7 +39,7 @@ END_IF
 
 // Stop immediately
 IF HMI_SKILL.bStop THEN
-    HMI_BASE.bBusy := FALSE;
+    HMI_BASE.Busy:=False;
     ExecutionDone:=TRUE;
 	ExecutionResult:= FAILURE;
 	phase:=0;

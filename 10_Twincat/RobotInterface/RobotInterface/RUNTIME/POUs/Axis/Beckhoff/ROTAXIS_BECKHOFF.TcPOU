@@ -30,13 +30,16 @@ VAR_OUTPUT
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[AXIS_COMM(Axis := NCAxis);
+      <ST><![CDATA[AXIS_COMM(
+        Axis := NCAxis,
+        StopVelocityTolerance := SETTINGS.AngularStandStillLimit);
 COMM := ADR(AXIS_COMM);
-_pSettingsAxis := ADR(SETTINGS);
+SET_A := SETTINGS;
 _axisPowered := AXIS_COMM.Powered;
 _axisHomed := AXIS_COMM.Homed;
 _axisActualPosition := AXIS_COMM.ActualPosition;
 _axisActualVelocity := AXIS_COMM.ActualVelocity;
+
 TCPPos_PLCUnit := SETTINGS.InstallationPose;
 TCPPos_PLCUnit.yaw := TCPPos_PLCUnit.yaw + _axisActualPosition;
 TCPVel_PLCUnit.x := 0.0;
@@ -115,13 +118,14 @@ END_VAR]]></Declaration>
 eParentResult := SUPER^.OnActivate();
 myResult := eResult.NONE;
 
-IF AXIS_COMM.MESSENGER.HasActivError THEN
-    myResult := eResult.ERROR;
-ELSE
-    AXIS_COMM.Power(Enable := TRUE);
-    IF AXIS_COMM.Powered THEN
-        myResult := eResult.SUCCESS;
-    END_IF
+IF eParentResult <> eResult.SUCCESS THEN
+    OnActivate := eParentResult;
+    RETURN;
+END_IF
+
+AXIS_COMM.Power(Enable := FALSE);
+IF NOT AXIS_COMM.Powered THEN
+    myResult := eResult.SUCCESS;
 END_IF
 
 OnActivate := CombineResults(eParentResult, myResult);]]></ST>
@@ -179,6 +183,11 @@ END_VAR]]></Declaration>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
 myResult := eResult.NONE;
 _axisCommandActive := FALSE;
+
+IF eParentResult <> eResult.SUCCESS THEN
+    OnError := eParentResult;
+    RETURN;
+END_IF
 
 IF AXIS_COMM.MESSENGER.HasActivError THEN
     AXIS_COMM.ResetAxis();

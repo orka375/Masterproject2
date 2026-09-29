@@ -29,7 +29,9 @@ END_VAR
     <Implementation>
       <ST><![CDATA[// ------ CALL CYCLIC -----------------
 CYCLIC_LIN_AXIS();
-AXIS_COMM(Axis := NCAxis);
+AXIS_COMM(
+    Axis := NCAxis,
+    StopVelocityTolerance := SETTINGS.LinearStandStillLimit);
 COMM := ADR(AXIS_COMM);
 
 // ------ WRITE HMI -------------------
@@ -124,13 +126,14 @@ END_VAR]]></Declaration>
 eParentResult := SUPER^.OnActivate();
 myResult := eResult.NONE;
 
-IF AXIS_COMM.MESSENGER.HasActivError THEN
-    myResult := eResult.ERROR;
-ELSE
-    AXIS_COMM.Power(Enable := TRUE);
-    IF AXIS_COMM.Powered THEN
-        myResult := eResult.SUCCESS;
-    END_IF
+IF eParentResult <> eResult.SUCCESS THEN
+    OnDeactivate := eParentResult;
+    RETURN;
+END_IF
+
+AXIS_COMM.Power(Enable := FALSE);
+IF NOT AXIS_COMM.Powered THEN
+    myResult := eResult.SUCCESS;
 END_IF
 
 OnActivate := CombineResults(eParentResult, myResult);]]></ST>
@@ -188,6 +191,11 @@ END_VAR]]></Declaration>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
 myResult := eResult.NONE;
 _axisCommandActive := FALSE;
+
+IF eParentResult <> eResult.SUCCESS THEN
+    OnError := eParentResult;
+    RETURN;
+END_IF
 
 IF AXIS_COMM.MESSENGER.HasActivError THEN
     AXIS_COMM.ResetAxis();

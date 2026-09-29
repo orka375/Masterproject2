@@ -103,7 +103,6 @@ END_IF
 
 CASE State OF
 	eState.Inactive:
-		 HMI_BASE.bBusy := FALSE;
    		 _executionDone := FALSE;
 	
 	eState.Active:
@@ -524,7 +523,7 @@ IF myResult = SUCCESS THEN
     IF ExecutionResult = NONE OR ExecutionResult = SUCCESS THEN
         ExecutionResult := ERROR;
     END_IF
-    HMI_BASE.bBusy := FALSE;
+    HMI_BASE.bBusy:=False;
 END_IF
 
 onError := CombineResults(eParentResult, myResult);]]></ST>
@@ -562,7 +561,7 @@ ELSE
     SubSkillPhase := 0;
     ExecutionDone := TRUE;
     IF ExecutionResult = NONE THEN ExecutionResult := FAILURE; END_IF
-    HMI_BASE.bBusy := FALSE;
+    HMI_BASE.bBusy:=False;
     myResult := SUCCESS;
 END_IF
 

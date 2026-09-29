@@ -140,16 +140,9 @@ VAR_GLOBAL
 // // 		pA_Skills:= [ADR(R2_PP),ADR(R2_Counter)]
 // // 	);
 // 	
-	Settings_Charlie : stSettings_Manip := (
-		StandardUnits.Position            := eUnit.mm;
-		StandardUnits.Orientation         := eUnit.deg;
-		StandardUnits.Joint               := eUnit.deg;
-		StandardUnits.LinearVelocity      := eUnit.mm;
-		StandardUnits.AngularVelocity     := eUnit.deg;
-		StandardUnits.JointVelocity       := eUnit.deg;
-		StandardUnits.LinearAcceleration  := eUnit.mm;
-		StandardUnits.AngularAcceleration := eUnit.deg;
-		StandardUnits.JointAcceleration   := eUnit.deg;
+
+	Settings_Charlie : stSettings_Manip := ();
+		
 
 	MECA_CHARLIE: ROBOT_MECA500 := (
 		Skills:= [ADR(R2_PP),ADR(R2_Counter)],

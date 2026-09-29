@@ -6,6 +6,7 @@ FUNCTION_BLOCK FB_3_COMM_AXIS_JSC_XENAX EXTENDS FB_1_COMM
 VAR_INPUT
     ReferenceMode : INT := gcJS_MC.jsmcREFERENCE_MODE_DONT_CHANGE;
     PowerOverride : LREAL := 100.0;
+	StopVelocityTolerance : LREAL := 0.000001;
 	instJS_MC_Init : JS_MC_Init;
 END_VAR
 VAR_OUTPUT
@@ -58,7 +59,7 @@ instJS_MC_Init.pstAxis^.AxisRef:=NCAxis;
 // ------ WRITE PROPS/METHODS ---------
 	//FINAL
 Connected:= instJS_MC_Init.Valid AND instJS_MC_CyclicIn.Valid AND NOT instJS_MC_CyclicIn.Error;
-CanAcceptCommand := Operational AND NOT Busy AND NOT _stopExecute AND NOT _resetExecute;
+CanAcceptCommand := NOT _stopExecute AND NOT _resetExecute;
 
 	//OVERRIDE
 Operational := _startupResetDone;
@@ -193,10 +194,10 @@ THEN
 
     // ----- ACTIVE COMMAND HANDLING -----
 
-    IF Busy THEN
+    IF Busy AND NOT StopPending THEN
 
         IF Messenger.HasActivError
-            OR NOT FB_1_COMM.Operational
+            OR NOT Operational
         THEN
             _moveAbsExecute := FALSE;
             _moveRelExecute := FALSE;
@@ -206,7 +207,7 @@ THEN
             ActiveCommandID := 0;
             CommandState    := eProgress.FINALIZED;
             CommandResult   := eResult.ERROR;
-            FB_1_COMM.Busy  := FALSE;
+            Busy  := FALSE;
 
         ELSIF _fbMoveAbsolute.CommandAborted
             OR _fbMoveRelative.CommandAborted
@@ -219,7 +220,7 @@ THEN
             ActiveCommandID := 0;
             CommandState    := eProgress.ABORTED;
             CommandResult   := eResult.FAILURE;
-            FB_1_COMM.Busy  := FALSE;
+            Busy  := FALSE;
 
         ELSIF _fbMoveAbsolute.Done
             OR _fbMoveRelative.Done
@@ -237,7 +238,7 @@ THEN
             ActiveCommandID := 0;
             CommandState    := eProgress.FINALIZED;
             CommandResult   := eResult.SUCCESS;
-            FB_1_COMM.Busy  := FALSE;
+            Busy  := FALSE;
 
         ELSIF NOT _commandAccepted
             AND (
@@ -247,7 +248,7 @@ THEN
             )
         THEN
             _commandAccepted := TRUE;
-            AcceptedCommandID := _commActiveCommandID;
+            AcceptedCommandID := ActiveCommandID;
             CommandState      := eProgress.ACKNOWLEDGE;
 
             // PLCopen motion FBs only require the Execute edge.
@@ -295,11 +296,11 @@ ELSE
     _commandAccepted := FALSE;
     _startupResetDone := FALSE;
 
-    IF Busy THEN
+    IF Busy AND NOT StopPending THEN
         ActiveCommandID := 0;
         CommandState    := eProgress.FINALIZED;
         CommandResult   := eResult.ERROR;
-        FB_1_COMM.Busy  := FALSE;
+        Busy  := FALSE;
     END_IF
 
 END_IF
@@ -324,19 +325,25 @@ END_IF
       <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
 VAR_INPUT CommandID : UINT; END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[CancelCommand := FALSE;
-IF (CommandID = 0) OR (CommandID <> _commActiveCommandID) THEN RETURN; END_IF
-IF NOT StopMotion() THEN RETURN; END_IF
-_moveAbsExecute := FALSE;
-_moveRelExecute := FALSE;
-_homeExecute := FALSE;
-ActiveCommandID := 0;
-CommandState := eProgress.ABORTED;
-CommandResult :=eResult.FAILURE;
-FB_1_COMM.Busy := FALSE;
-CancelCommand := TRUE;]]></ST>
+                <ST><![CDATA[CancelCommand := SUPER^.CancelCommand(CommandID := CommandID);]]></ST>
       </Implementation>
     </Method>
+        <Method Name="HasPhysicalStopFailed" Id="{e2189263-6b4d-4d6b-a014-2c05313c251a}">
+            <Declaration><![CDATA[METHOD PROTECTED HasPhysicalStopFailed : BOOL]]></Declaration>
+            <Implementation>
+                <ST><![CDATA[HasPhysicalStopFailed :=
+        NOT Connected
+        OR instJS_MC_ReadAxisError.AxisError;]]></ST>
+            </Implementation>
+        </Method>
+        <Method Name="IsPhysicalStopComplete" Id="{a45e45f6-2c52-41ec-9afd-ad2a8a4eaf33}">
+            <Declaration><![CDATA[METHOD PROTECTED IsPhysicalStopComplete : BOOL]]></Declaration>
+            <Implementation>
+                <ST><![CDATA[IsPhysicalStopComplete :=
+        instJS_MC_Stop.Done
+        AND (ABS(ActualVelocity) <= StopVelocityTolerance);]]></ST>
+            </Implementation>
+        </Method>
     <Property Name="Operational" Id="{3082dfe5-e7b8-4a72-8bef-7a3622f99406}">
       <Declaration><![CDATA[PROPERTY Operational : BOOL]]></Declaration>
       <Set Name="Set" Id="{171050e5-ca18-45b7-8b14-978ef8b62a9f}">
@@ -368,7 +375,12 @@ ResetAxis := TRUE;]]></ST>
     <Method Name="ResetCommunication" Id="{6f453cd1-37c3-4b2f-8c3c-6f9c0288e8dd}">
       <Declaration><![CDATA[METHOD PUBLIC ResetCommunication : BOOL]]></Declaration>
       <Implementation>
-        <ST><![CDATA[instJS_MC_CyclicIn.Enable := FALSE;
+                <ST><![CDATA[IF StopPending THEN
+        ResetCommunication := FALSE;
+        RETURN;
+END_IF
+
+instJS_MC_CyclicIn.Enable := FALSE;
 _powerRequest := FALSE;
 _moveAbsExecute := FALSE;
 _moveRelExecute := FALSE;
@@ -384,7 +396,7 @@ ActualVelocity := 0.0;
 CanAcceptCommand := FALSE;
 AcceptedCommandID := 0;
 ActiveCommandID := 0;
-FB_1_COMM.Busy := FALSE;
+
 CommandState := eProgress.INIT;
 CommandResult :=eResult.NONE;
 Reconnect();
@@ -404,7 +416,7 @@ AcceptedCommandID := 0;
 ActiveCommandID := CommandID;
 CommandState := eProgress.INIT;
 CommandResult :=eResult.NONE;
-FB_1_COMM.Busy := TRUE;
+Busy := TRUE;
 SendHome := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -425,7 +437,7 @@ AcceptedCommandID := 0;
 ActiveCommandID := CommandID;
 CommandState := eProgress.INIT;
 CommandResult :=eResult.NONE;
-FB_1_COMM.Busy := TRUE;
+Busy := TRUE;
 SendMoveAbsolute := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -446,21 +458,33 @@ AcceptedCommandID := 0;
 ActiveCommandID := CommandID;
 CommandState := eProgress.INIT;
 CommandResult :=eResult.NONE;
-FB_1_COMM.Busy := TRUE;
+Busy := TRUE;
 SendMoveRelative := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="StopMotion" Id="{32bb82d3-54f6-4f6b-b9d4-38e883063dfe}">
       <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL]]></Declaration>
       <Implementation>
-        <ST><![CDATA[StopMotion := FALSE;
-IF NOT FB_1_COMM.Operational THEN RETURN; END_IF
+                <ST><![CDATA[StopMotion := SUPER^.StopMotion();]]></ST>
+      </Implementation>
+    </Method>
+        <Method Name="StartPhysicalStop" Id="{41894244-e836-4346-b9ba-c1e4a58979cc}">
+            <Declaration><![CDATA[METHOD PROTECTED StartPhysicalStop : BOOL
+VAR_INPUT
+        Mode : eStopMode;
+END_VAR]]></Declaration>
+            <Implementation>
+                <ST><![CDATA[StartPhysicalStop := FALSE;
+IF NOT Connected OR NOT instJS_MC_Init.Valid THEN
+        RETURN;
+END_IF
+
 _moveAbsExecute := FALSE;
 _moveRelExecute := FALSE;
 _homeExecute := FALSE;
 _stopExecute := TRUE;
-StopMotion := TRUE;]]></ST>
-      </Implementation>
-    </Method>
+StartPhysicalStop := TRUE;]]></ST>
+            </Implementation>
+        </Method>
   </POU>
 </TcPlcObject>

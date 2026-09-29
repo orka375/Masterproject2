@@ -64,7 +64,7 @@ CASE nState OF
 
 0: // idle / disconnected
     bConnected := FALSE;
-    bBusy := FALSE;
+    bBusy:=FALSE;
 
     IF bSendRequest THEN
         IF NOT bEnable THEN
@@ -105,7 +105,7 @@ CASE nState OF
             sErrorText := 'URScript TCP connect failed';
             bSendRequest := FALSE;
             nScriptLen := 0;
-            bBusy := FALSE;
+            bBusy:=False;
             nState := 0;
         ELSE
             hSocket := fbConnect.hSocket;
@@ -167,7 +167,7 @@ CASE nState OF
         END_IF
 
         bConnected := FALSE;
-        bBusy := FALSE;
+        Busy:=False;
         bSendRequest := FALSE;
         nScriptLen := 0;
         nState := 0;

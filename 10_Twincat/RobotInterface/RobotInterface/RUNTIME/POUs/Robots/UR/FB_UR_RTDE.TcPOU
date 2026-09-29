@@ -46,6 +46,8 @@ VAR_OUTPUT
     fTimestamp       : LREAL;
     aActualTCPPose   : ARRAY[0..5] OF LREAL;
     aActualQ         : ARRAY[0..5] OF LREAL;
+    aActualTCPSpeed  : ARRAY[0..5] OF LREAL;
+    aActualQd        : ARRAY[0..5] OF LREAL;
     nRobotMode       : DINT;
     nRuntimeState    : UDINT;
 
@@ -94,7 +96,7 @@ VAR
     aTx             : ARRAY[0..1023] OF BYTE;
     nTxLen          : UDINT;
 
-    sOutputRecipe   : STRING(1023) := 'timestamp,actual_TCP_pose,actual_q,robot_mode,runtime_state,output_int_register_24,output_int_register_25,output_int_register_26,output_int_register_27';
+    sOutputRecipe   : STRING(1023) := 'timestamp,actual_TCP_pose,actual_q,actual_TCP_speed,actual_qd,robot_mode,runtime_state,output_int_register_24,output_int_register_25,output_int_register_26,output_int_register_27';
     sInputRecipe    : STRING(1023) := 'speed_slider_mask,speed_slider_fraction,standard_digital_output_mask,standard_digital_output,input_int_register_24,input_double_register_24,input_double_register_25,input_double_register_26,input_double_register_27,input_double_register_28,input_double_register_29';
 
     bSendRequest    : BOOL;
@@ -181,7 +183,7 @@ CASE nState OF
     bConnected := FALSE;
     bOperational := FALSE;
     bStreaming := FALSE;
-    bBusy := FALSE;
+    Busy:=False;
 
     nRxState := 0;
     nRxLen := 0;
@@ -689,7 +691,7 @@ CASE nState OF
 
                 bOperational := TRUE;
                 bStreaming := TRUE;
-                bBusy := FALSE;
+                bBusy:=FALSE;
 
                 nState := 100;
 
@@ -740,7 +742,7 @@ CASE nState OF
     bConnected := TRUE;
     bOperational := TRUE;
     bStreaming := TRUE;
-    bBusy := FALSE;
+    Busy:=False;
 
 
     // If receive FB is already active,
@@ -858,7 +860,7 @@ CASE nState OF
     bConnected := TRUE;
     bOperational := TRUE;
     bStreaming := FALSE;
-    bBusy := FALSE;
+    Busy:=False;
 
     IF bResumeRequest THEN
 
@@ -952,7 +954,7 @@ CASE nState OF
         bConnected := FALSE;
         bOperational := FALSE;
         bStreaming := FALSE;
-        bBusy := FALSE;
+        bBusy:=False;
         bSocketMayBeOpen := FALSE;
 
         nRxState := 0;
@@ -1144,12 +1146,14 @@ END_VAR]]></Declaration>
     + timestamp 8
     + actual_TCP_pose 48
     + actual_q 48
+    + actual_TCP_speed 48
+    + actual_qd 48
     + robot_mode 4
     + runtime_state 4
     + output_int_register_24..27 16
-    = 132 bytes
+    = 228 bytes
 *)
-IF nPacketLen < 132 THEN RETURN; END_IF
+IF nPacketLen < 228 THEN RETURN; END_IF
 IF aPacket[3] <> byOutputRecipeID THEN RETURN; END_IF
 
 nIndex := 4;
@@ -1163,6 +1167,16 @@ END_FOR
 
 FOR i := 0 TO 5 DO
     aActualQ[i] := RxLReal(nIndex := nIndex);
+    nIndex := nIndex + 8;
+END_FOR
+
+FOR i := 0 TO 5 DO
+    aActualTCPSpeed[i] := RxLReal(nIndex := nIndex);
+    nIndex := nIndex + 8;
+END_FOR
+
+FOR i := 0 TO 5 DO
+    aActualQd[i] := RxLReal(nIndex := nIndex);
     nIndex := nIndex + 8;
 END_FOR
 

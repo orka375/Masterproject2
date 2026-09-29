@@ -153,7 +153,7 @@ CASE nState OF
     // --------------------------------------------------
     0:
         bConnected := FALSE;
-        bBusy := FALSE;
+        bBusy:=False;
 
         IF rConnect.Q OR bConnectRequest THEN
             bConnectRequest := FALSE;
@@ -185,7 +185,7 @@ CASE nState OF
             IF fbConnect.bError THEN
                 bError := TRUE;
                 nErrorID := fbConnect.nErrId;
-                bBusy := FALSE;
+                Busy:=False;
                 nState := 0;
             ELSE
                 hSocket := fbConnect.hSocket;
@@ -224,7 +224,7 @@ CASE nState OF
                 (* Greeting is useful but not required for command operation. *)
                 bError := TRUE;
                 nErrorID := fbReceive.nErrId;
-                bBusy := FALSE;
+                Busy:=False;
                 nState := 20;
 
             ELSIF fbReceive.nRecBytes > 0 THEN
@@ -235,13 +235,13 @@ CASE nState OF
                 END_IF
                 sGreeting := sRx;
                 bWaitingForGreeting := FALSE;
-                bBusy := FALSE;
+                Busy:=False;
                 nState := 20;
 
             ELSIF tonResponse.Q THEN
                 (* Continue even if greeting was not captured. *)
                 bWaitingForGreeting := FALSE;
-                bBusy := FALSE;
+                Busy:=False;
                 nState := 20;
 
             ELSE
@@ -257,7 +257,7 @@ CASE nState OF
     // --------------------------------------------------
     20:
         bConnected := TRUE;
-        bBusy := FALSE;
+        Busy:=False;
 
     IF rLoadProgram.Q THEN
         QueueCommand(sCmd := CONCAT('load ', sProgramPath), tWait := tResponseTimeout);
@@ -335,7 +335,7 @@ CASE nState OF
                 bError := TRUE;
                 nErrorID := fbSend.nErrId;
                 bConnected := FALSE;
-                bBusy := FALSE;
+                Busy:=False;
                 nState := 0;
             ELSE
                 (* Every Dashboard command has a reply. *)
@@ -368,7 +368,7 @@ CASE nState OF
             IF fbReceive.bError THEN
                 bError := TRUE;
                 nErrorID := fbReceive.nErrId;
-                bBusy := FALSE;
+                Busy:=False;
                 nState := 20;
 
             ELSIF fbReceive.nRecBytes > 0 THEN
@@ -382,7 +382,7 @@ CASE nState OF
 
                 sLastResponse := sRx;
                 bResponseValid := TRUE;
-                bBusy := FALSE;
+                Busy:=False;
 
                 (* quit/shutdown normally terminate the Dashboard connection. *)
                 IF (sLastCommand = 'quit') OR (sLastCommand = 'shutdown') THEN
@@ -398,7 +398,7 @@ CASE nState OF
                 nErrorID := 16#FFFF0001;
                 sLastResponse := 'Dashboard response timeout';
                 bResponseValid := TRUE;
-                bBusy := FALSE;
+                Busy:=False;
                 nState := 20;
 
             ELSE
@@ -431,7 +431,7 @@ CASE nState OF
             END_IF
 
             bConnected := FALSE;
-            bBusy := FALSE;
+            Busy:=False;
             nState := 0;
         END_IF
 

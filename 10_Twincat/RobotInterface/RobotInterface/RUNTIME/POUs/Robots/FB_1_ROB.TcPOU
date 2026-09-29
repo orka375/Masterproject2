@@ -38,6 +38,10 @@ VAR
 	
 	_INIT_ROB: BOOL;
 	_Homed: BOOL;
+  _cancelRequestID : UINT;
+  _cancelNotificationSent : BOOL;
+  _lifecycleStopRequested : BOOL;
+  _lifecycleStopComplete : BOOL;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
@@ -140,7 +144,11 @@ AllocateCommandID := Idcounter;
           <ST><![CDATA[CanAcceptCommand :=
     (State = eState.Active)
     AND NOT RecoveryPending
-    AND NOT ((nCommandID <> 0) AND ((eCommandStatus = INIT) OR (eCommandStatus = ACKNOWLEDGE) OR (eCommandStatus = RUNNING)));
+    AND NOT ((nCommandID <> 0)
+      AND ((eCommandStatus = INIT)
+        OR (eCommandStatus = ACKNOWLEDGE)
+        OR (eCommandStatus = RUNNING)
+        OR (eCommandStatus = CANCELLING)));
 
 IF CanAcceptCommand AND (COMM <> 0) AND (COMM <> ADR(emptyCOMM)) THEN
     CanAcceptCommand := COMM^.CanAcceptCommand;
@@ -181,14 +189,10 @@ IF NOT COMM^.CancelCommand(
     RETURN;
 END_IF
 
-// Generic command lifecycle.
-eCommandStatus := eProgress.ABORTED;
-eCommandResult := eResult.FAILURE;
-
-// Allow the concrete robot to clear adapter-specific tracking.
-OnCommandCancelled(
-    CommandID := CommandID
-);
+_cancelRequestID := CommandID;
+_cancelNotificationSent := FALSE;
+eCommandStatus := eProgress.CANCELLING;
+eCommandResult := eResult.NONE;
 
 CancelCommand := TRUE;]]></ST>
       </Implementation>
@@ -254,6 +258,26 @@ CYCLIC_BASE();
 PM.HMI_PM.xCurrentTcp := ActualPosition;
 PM(pRobot := THIS);
 
+IF (State <> eState.Deactivating)
+   AND (State <> eState.ErrorProcessing)
+   AND (State <> eState.ShuttingDown) THEN
+  _lifecycleStopRequested := FALSE;
+  _lifecycleStopComplete := FALSE;
+END_IF
+
+IF (_cancelRequestID <> 0) AND (COMM <> 0) AND (COMM <> ADR(emptyCOMM)) THEN
+  eCommandStatus := COMM^.CommandState;
+  eCommandResult := COMM^.CommandResult;
+
+  IF (eCommandStatus = eProgress.ABORTED) AND NOT _cancelNotificationSent THEN
+    _cancelNotificationSent := TRUE;
+    OnCommandCancelled(CommandID := _cancelRequestID);
+    _cancelRequestID := 0;
+  ELSIF eCommandStatus = eProgress.FINALIZED THEN
+    _cancelRequestID := 0;
+  END_IF
+END_IF
+
 
 
 // HMI display mirrors: _tcppos/_jointpos stay in PLC standard (mm/rad); display in mm/deg.
@@ -316,28 +340,56 @@ HMI_ROB.bMoving :=
 // Generic robot command contributes to FB_0_Base.Busy. Terminal command values remain latched,
 // therefore only non-terminal phases make the robot busy.
 HMI_BASE.bBusy := (nCommandID <> 0)
-    AND ((eCommandStatus = INIT) OR (eCommandStatus = ACKNOWLEDGE) OR (eCommandStatus = RUNNING));
+  AND ((eCommandStatus = INIT)
+    OR (eCommandStatus = ACKNOWLEDGE)
+    OR (eCommandStatus = RUNNING)
+    OR (eCommandStatus = CANCELLING));
+
+IF (COMM <> 0) AND (COMM <> ADR(emptyCOMM)) THEN
+  HMI_BASE.bBusy := HMI_BASE.bBusy OR COMM^.StopPending;
+END_IF
 
 // Ready means: the robot can accept a NEW semantic command now.
-HMI_ROB.bOperational := FB_1_ROB.Operational;
+HMI_ROB.bOperational := Operational;
 
 ]]></ST>
       </Implementation>
     </Action>
     <Method Name="EStop" Id="{ff1c583d-626a-4142-b727-591a7a8cf9e6}" FolderPath="Generic Control\">
-      <Declaration><![CDATA[{warning 'OVERRIDE'}
-METHOD EStop : BOOL]]></Declaration>
+        <Declaration><![CDATA[{deprecated 'Use StopMotion. This method is not safety-rated.'}
+    METHOD EStop : BOOL]]></Declaration>
       <Implementation>
-        <ST><![CDATA[HMI_ROB.bEStop := TRUE; //depend on Robot Type //TODO
-EStop := FALSE;
-
-IF (COMM = 0) OR (COMM = ADR(emptyCOMM)) THEN
-    RETURN;
-END_IF
-
-EStop := COMM^.EStop();]]></ST>
+        <ST><![CDATA[EStop := StopMotion();]]></ST>
       </Implementation>
     </Method>
+      <Method Name="EnsureMotionStopped" Id="{e0f87680-a790-4af7-9869-97c5d171646e}" FolderPath="StateControl\">
+        <Declaration><![CDATA[METHOD PROTECTED EnsureMotionStopped : BOOL]]></Declaration>
+        <Implementation>
+        <ST><![CDATA[EnsureMotionStopped := FALSE;
+
+    IF (COMM = 0) OR (COMM = ADR(emptyCOMM)) THEN
+      EnsureMotionStopped := TRUE;
+      RETURN;
+    END_IF
+
+    IF NOT _lifecycleStopRequested THEN
+      IF NOT COMM^.StopMotion() THEN
+        Messenger.AddError(
+          eMessageCategories.HardwareFailure,
+          CONCAT(Path, '.StopMotion'),
+          'Communication adapter rejected the lifecycle stop request');
+        RETURN;
+      END_IF
+      _lifecycleStopRequested := TRUE;
+    END_IF
+
+    IF COMM^.MotionStopped THEN
+      _lifecycleStopComplete := TRUE;
+    END_IF
+
+    EnsureMotionStopped := _lifecycleStopComplete;]]></ST>
+        </Implementation>
+      </Method>
     <Method Name="FB_Init" Id="{7b302bc2-af12-4e54-8aa2-dca07a2dd5cc}">
       <Declaration><![CDATA[METHOD FB_Init : BOOL
   VAR_INPUT
@@ -644,8 +696,9 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
 
-IF (eCommandStatus = INIT) OR (eCommandStatus = ACKNOWLEDGE) OR (eCommandStatus = RUNNING) THEN
-    StopMotion();
+IF NOT EnsureMotionStopped() THEN
+  OnDeactivate := CombineResults(eParentResult, eResult.NONE);
+  RETURN;
 END_IF
 //--------------------------------------------------
 myResult:=NONE;
@@ -682,12 +735,9 @@ END_VAR]]></Declaration>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
 myResult := NONE;
 
-// Stop the physical capability through the generic robot API. Vendor-specific
-// implementations decide how this is done. The interrupted command is terminal.
-IF (eCommandStatus = INIT) OR (eCommandStatus = ACKNOWLEDGE) OR (eCommandStatus = RUNNING) THEN
-    StopMotion();
-    eCommandStatus := ABORTED;
-    eCommandResult := ERROR;
+IF NOT EnsureMotionStopped() THEN
+  OnError := CombineResults(eParentResult, eResult.NONE);
+  RETURN;
 END_IF
 
 // Communication recovery owns its own policy. The robot only waits for it and
@@ -723,8 +773,9 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
 
-IF (eCommandStatus = INIT) OR (eCommandStatus = ACKNOWLEDGE) OR (eCommandStatus = RUNNING) THEN
-    StopMotion();
+IF NOT EnsureMotionStopped() THEN
+  OnShutdown := CombineResults(eParentResult, eResult.NONE);
+  RETURN;
 END_IF
 //--------------------------------------------------
 myResult:=NONE;
@@ -945,7 +996,7 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[SetOperationMode := NONE;
-IF State <> eState.Active AND NOT FB_0_Base.Busy THEN
+IF State <> eState.Active AND NOT Busy THEN
 	HMI_ROB.eModus := mode;
 END_IF
 

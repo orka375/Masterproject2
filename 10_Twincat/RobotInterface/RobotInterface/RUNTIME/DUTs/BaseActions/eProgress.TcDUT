@@ -9,7 +9,8 @@ TYPE eProgress :
 	ACKNOWLEDGE := 1,
 	RUNNING := 2,
 	FINALIZED := 3,
-	ABORTED := 4
+	ABORTED := 4,
+	CANCELLING := 5
 );
 END_TYPE
 ]]></Declaration>

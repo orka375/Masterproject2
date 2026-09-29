@@ -467,6 +467,10 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
 JOG.StopJog();
+    IF eParentResult <> eResult.SUCCESS THEN
+      OnDeactivate := eParentResult;
+      RETURN;
+    END_IF
 //--------------------------------------------------
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
@@ -511,6 +515,11 @@ myResult := NONE;
 JOG.StopJog();
 _commandState := E_RobotCommandState.Idle;
 
+IF eParentResult <> eResult.SUCCESS THEN
+  OnError := eParentResult;
+  RETURN;
+END_IF
+
 IF TOOL = 0 THEN
     myResult := SUCCESS;
 ELSE
@@ -551,6 +560,10 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
 JOG.StopJog();
+    IF eParentResult <> eResult.SUCCESS THEN
+      OnShutdown := eParentResult;
+      RETURN;
+    END_IF
 //--------------------------------------------------
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------

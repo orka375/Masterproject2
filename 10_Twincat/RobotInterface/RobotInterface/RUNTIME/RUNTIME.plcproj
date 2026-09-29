@@ -51,6 +51,9 @@
     <Compile Include="DUTs\Communication\E_CommState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\Communication\eStopMode.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\Communication\stComm_UR_Config.TcDUT">
       <SubType>Code</SubType>
     </Compile>

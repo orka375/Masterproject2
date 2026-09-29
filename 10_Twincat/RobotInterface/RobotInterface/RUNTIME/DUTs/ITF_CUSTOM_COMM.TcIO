@@ -3,74 +3,62 @@
   <Itf Name="ITF_CUSTOM_COMM" Id="{705fbbb0-7e1f-41af-ae6c-5f8a775a245d}">
     <Declaration><![CDATA[INTERFACE ITF_CUSTOM_COMM
 ]]></Declaration>
+    <Property Name="AcceptedCommandID" Id="{a4e57076-c4f8-48e2-b9c2-0794bd339f30}">
+      <Declaration><![CDATA[PROPERTY AcceptedCommandID : UINT]]></Declaration>
+      <Get Name="Get" Id="{724b3a60-63ea-4a92-8c2b-736135eaf21b}"><Declaration><![CDATA[]]></Declaration></Get>
+    </Property>
+    <Property Name="ActiveCommandID" Id="{bd85d58c-0bb5-47fa-a07f-8952909488f7}">
+      <Declaration><![CDATA[PROPERTY ActiveCommandID : UINT]]></Declaration>
+      <Get Name="Get" Id="{90763b00-a6c8-4e6a-a80b-42049a045eb0}"><Declaration><![CDATA[]]></Declaration></Get>
+    </Property>
     <Property Name="Busy" Id="{03db5392-2310-4cc1-a48f-0c7489fd794d}">
       <Declaration><![CDATA[PROPERTY Busy : BOOL]]></Declaration>
-      <Set Name="Set" Id="{6902bec1-8825-48f4-8a20-442ae99558e1}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Set>
+      <Get Name="Get" Id="{6902bec1-8825-48f4-8a20-442ae99558e1}"><Declaration><![CDATA[]]></Declaration></Get>
     </Property>
-    <Method Name="CancelMotion" Id="{23829302-619b-4356-baa1-c2489601722a}">
-      <Declaration><![CDATA[METHOD CancelMotion : BOOl
+    <Property Name="CanAcceptCommand" Id="{7400d67a-790b-4aa0-8e87-21a54418a26f}">
+      <Declaration><![CDATA[PROPERTY CanAcceptCommand : BOOL]]></Declaration>
+      <Get Name="Get" Id="{edff51ac-bbfc-44f9-a541-42a136d97278}"><Declaration><![CDATA[]]></Declaration></Get>
+    </Property>
+    <Method Name="CancelCommand" Id="{23829302-619b-4356-baa1-c2489601722a}">
+      <Declaration><![CDATA[METHOD CancelCommand : BOOL
 VAR_INPUT
-END_VAR
-]]></Declaration>
+    CommandID : UINT;
+END_VAR]]></Declaration>
     </Method>
+    <Property Name="CommandResult" Id="{65729931-c37c-403d-a919-b6dabac10e20}">
+      <Declaration><![CDATA[PROPERTY CommandResult : eResult]]></Declaration>
+      <Get Name="Get" Id="{1fc2102a-f53b-4be1-a44f-bfce1024a747}"><Declaration><![CDATA[]]></Declaration></Get>
+    </Property>
+    <Property Name="CommandState" Id="{981da808-66fa-4d43-983f-bafffd0d7c02}">
+      <Declaration><![CDATA[PROPERTY CommandState : eProgress]]></Declaration>
+      <Get Name="Get" Id="{60d5a6cc-e0eb-4970-9323-8e32bccbe87c}"><Declaration><![CDATA[]]></Declaration></Get>
+    </Property>
+    <Property Name="Connected" Id="{2d4204ec-f4cb-4b2d-8135-72e08c0c94b6}">
+      <Declaration><![CDATA[PROPERTY Connected : BOOL]]></Declaration>
+      <Get Name="Get" Id="{53f34b8f-f7a5-4f7e-8a97-f8ed0f2e03bb}"><Declaration><![CDATA[]]></Declaration></Get>
+    </Property>
     <Method Name="EStop" Id="{a69bb089-1a45-4a91-b2bc-7c3de8586518}">
-      <Declaration><![CDATA[METHOD EStop : BOOl
-VAR_INPUT
-END_VAR
-]]></Declaration>
+      <Declaration><![CDATA[{deprecated 'Use StopMotion. This method is not safety-rated.'}
+METHOD EStop : BOOL]]></Declaration>
     </Method>
-    <Method Name="OnActivate" Id="{bc5e8feb-518a-4d94-a06c-26f8c71c5f7b}">
-      <Declaration><![CDATA[METHOD OnActivate : eResult
-VAR_INPUT
-END_VAR
-
-]]></Declaration>
-    </Method>
-    <Method Name="OnCleanup" Id="{dc20472f-4622-4a01-b3d6-fc8e5ee1135b}">
-      <Declaration><![CDATA[METHOD OnCleanup : eResult
-VAR_INPUT
-END_VAR
-
-]]></Declaration>
-    </Method>
-    <Method Name="OnConfigure" Id="{68480dea-3f46-4c7a-bb01-751f99acd7cf}">
-      <Declaration><![CDATA[METHOD OnConfigure : eResult
-VAR_INPUT
-END_VAR
-]]></Declaration>
-    </Method>
-    <Method Name="OnDeactivate" Id="{d93ed970-a0a8-4421-92d1-a8c6b9f41ee9}">
-      <Declaration><![CDATA[METHOD OnDeactivate : eResult
-VAR_INPUT
-END_VAR
-
-]]></Declaration>
-    </Method>
-    <Method Name="OnError" Id="{82b4a937-bb20-4ea8-b734-c946feb88750}">
-      <Declaration><![CDATA[METHOD OnError : eResult
-VAR_INPUT
-END_VAR
-
-]]></Declaration>
-    </Method>
-    <Method Name="OnShutdown" Id="{b3d7eaad-c59b-415e-9d82-87bec9225677}">
-      <Declaration><![CDATA[METHOD OnShutdown : eResult
-VAR_INPUT
-END_VAR
-
-]]></Declaration>
-    </Method>
+    <Property Name="MotionStopped" Id="{d5704c0c-5dbc-4e65-90cc-fca46b208253}">
+      <Declaration><![CDATA[PROPERTY MotionStopped : BOOL]]></Declaration>
+      <Get Name="Get" Id="{c7f450a1-5638-4487-8d68-4d8dd43345f9}"><Declaration><![CDATA[]]></Declaration></Get>
+    </Property>
     <Property Name="Operational" Id="{8d54f598-8223-428a-9950-1007064a1ca0}">
       <Declaration><![CDATA[PROPERTY Operational : BOOL]]></Declaration>
-      <Set Name="Set" Id="{d813f0f2-e12c-4f30-8440-31ce33f6134a}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Set>
+      <Get Name="Get" Id="{d813f0f2-e12c-4f30-8440-31ce33f6134a}"><Declaration><![CDATA[]]></Declaration></Get>
+    </Property>
+    <Property Name="SafetyStopActive" Id="{c8b135d1-6c49-4dbc-9f81-63b4b43df3d1}">
+      <Declaration><![CDATA[PROPERTY SafetyStopActive : BOOL]]></Declaration>
+      <Get Name="Get" Id="{85460e67-bec9-410b-a5b6-c1ac1d3691d4}"><Declaration><![CDATA[]]></Declaration></Get>
     </Property>
     <Method Name="StopMotion" Id="{3b308f0d-1722-4c55-ad45-3e6af059b598}">
-      <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
-]]></Declaration>
+      <Declaration><![CDATA[METHOD StopMotion : BOOL]]></Declaration>
     </Method>
+    <Property Name="StopPending" Id="{0aa2a3db-80f2-430e-954b-da72a526bb31}">
+      <Declaration><![CDATA[PROPERTY StopPending : BOOL]]></Declaration>
+      <Get Name="Get" Id="{bfb8a4e3-a4e8-4d1a-ac55-25c66a080a11}"><Declaration><![CDATA[]]></Declaration></Get>
+    </Property>
   </Itf>
 </TcPlcObject>

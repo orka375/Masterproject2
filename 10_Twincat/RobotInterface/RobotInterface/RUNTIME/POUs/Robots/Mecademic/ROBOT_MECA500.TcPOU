@@ -71,6 +71,7 @@ IF (nTrackedMoveId <> 0) AND (eCommandStatus <> FINALIZED) AND (eCommandStatus <
     END_IF
 END_IF
 
+
 // Joint feedback: deg -> rad through central helper.
 JointPos_PLCUnit.joint1 := ChangeRealFromRobotStandard(
     Value := REAL_TO_LREAL(MECA_COMM.rInJoint1), Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits);
@@ -305,12 +306,7 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-IF NOT MECA_COMM.bInActivated THEN
-    MECA_COMM.RequestActivate();
-ELSE
-    myResult := SUCCESS;
-END_IF
-
+myResult:=SUCCESS;
 
 // ----- END YOUR CODE -----------------------------
 //--------------------------------------------------

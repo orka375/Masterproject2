@@ -123,15 +123,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Busy:=FALSE;
-FOR j:= TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO
-	IF Skills[j]<>0 THEN	
-		IF Skills[j]^.Busy THEN
-			Busy:=TRUE;
-			RETURN;
-		END_IF
-	END_IF
-END_FOR]]></ST>
+          <ST><![CDATA[Busy:=HMI_Base.bBusy;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -218,8 +210,8 @@ HMI_BASE.bManualActionRequired := HMI_BASE.bRecoveryPending
 HMI_BASE.nRecoveryAttempt := _recoveryAttempt;
 
 
-HMI_BASE.bOperational:=FB_0_Base.Operational;
-HMI_BASE.bBusy:=FB_0_Base.Busy;
+HMI_BASE.bOperational:=Operational;
+HMI_BASE.bBusy:=Busy;
 
 FOR j:= TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO
 	IF Skills[j]<>0 THEN
@@ -231,7 +223,7 @@ FOR j:= TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO
 		END_IF
 		
 		IF Skills[j]^.State = eState.Active THEN
-			Busy:=TRUE;
+			HMI_Base.bBusy:=TRUE;
 		END_IF
 	END_IF
 END_FOR

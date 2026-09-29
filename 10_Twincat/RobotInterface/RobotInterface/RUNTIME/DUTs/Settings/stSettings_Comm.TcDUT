@@ -6,6 +6,7 @@ STRUCT
 	tConnectTimeout    : TIME := T#10S;
     tDisconnectTimeout : TIME := T#5S;
     tReconnectDelay    : TIME := T#2S;
+    tStopTimeout       : TIME := T#10S;
     nMaxAutoReconnectAttempts : UINT := 3;
 	
 END_STRUCT

@@ -95,8 +95,8 @@ _fMoveToEditedPoint(CLK := HMI_PM.bMoveRobotToEditedPoint);
 
 IF _fMoveToEditedPoint.Q THEN					//TODO
     IF (_moveToEditedPointExecuteId <> 0) AND (pRobot <> 0) THEN
-        IF pRobot^.CancelCommand(_moveToEditedPointExecuteId) THEN
-            pRobot^.EStop();
+        IF NOT pRobot^.CancelCommand(CommandID := _moveToEditedPointExecuteId) THEN
+            pRobot^.StopMotion();
         END_IF
     END_IF
     _moveToEditedPointExecuteId := 0;
@@ -529,7 +529,7 @@ _bEditingNew := FALSE;
 HMI_PM.loadedPoint := _emptyPoint;
 HMI_PM.editedPoint := _emptyPoint;
 
-bFound := FALSE;
+
 
 HMI_PM.nSelectedPointId := 0;
 _nLastSelectedPointId := 0;
@@ -544,7 +544,7 @@ END_IF
 ;
 ;
 
-bDone := TRUE;
+
 HMI_PM.sLastOperation := 'Deleted point from RAM array only';
 
 DeleteById := TRUE;
@@ -823,8 +823,6 @@ END_VAR
 
 nIndex := FindIndex(sName := sName);
 IF nIndex = 0 THEN
-    bFound := FALSE;
-    ;
     MESSENGER.AddError(eMessageCategories.Undefined, CONCAT(NameOfRobot,' PM'), 'Point name not found');
     
     
@@ -977,11 +975,6 @@ CASE _nLoadFileState OF
         _fileClose(bExecute := FALSE);
         _hLoadFile := 0;
 
-        IF bError THEN
-            _nLoadFileState := 0;
-            _bReadFileActive := FALSE;
-            RETURN;
-        END_IF
 
         _nLoadFileState := 40;
         RETURN;
@@ -1008,7 +1001,7 @@ CASE _nLoadFileState OF
         HMI_PM.loadedPoint := _emptyPoint;
         HMI_PM.editedPoint := _emptyPoint;
 
-        bFound := FALSE;
+
 
         HMI_PM.nSelectedPointId := 0;
         _nLastSelectedPointId := 0;
@@ -1019,10 +1012,7 @@ CASE _nLoadFileState OF
             LoadById(nId := nFirstId);
         END_IF
 
-        ;
-        ;
-        
-        bDone := TRUE;
+  
         HMI_PM.sLastOperation := 'Loaded and validated point file into RAM array';
 
         _nLoadFileState := 0;
@@ -1047,12 +1037,7 @@ END_VAR
 nIndex := FindIndexById(nId := nId);
 
 IF nIndex = 0 THEN
-    bFound := FALSE;
-    pPoint := 0;
-    ;
     MESSENGER.AddError(eMessageCategories.Undefined, CONCAT(NameOfRobot,' PM'), 'Point ID not found');
-    
-    
     HMI_PM.sLastOperation := 'Point ID not found';
 	LoadById := ERROR;
     RETURN;
@@ -1071,12 +1056,7 @@ HMI_PM.editedPoint.id := _nEditingId;
 HMI_PM.nSelectedPointId := DINT_TO_UDINT(_nEditingId);
 _nLastSelectedPointId := HMI_PM.nSelectedPointId;
 
-pPoint := ADR(HMI_PM.loadedPoint);
-bFound := TRUE;
-;
-;
 
-bDone := TRUE;
 HMI_PM.sLastOperation := 'Loaded stored point into edit buffer';
 
 LoadById := SUCCESS;
@@ -1677,14 +1657,7 @@ CASE _nSaveFileState OF
         _nSaveFileState := 0;
         _bWriteFileActive := FALSE;
 
-        IF bError THEN
-            RETURN;
-        END_IF
 
-        ;
-        ;
-        
-        bDone := TRUE;
         SaveAllToFile := TRUE;
         HMI_PM.sLastOperation := 'Overwrote point file with current RAM array';
 END_CASE
@@ -1932,10 +1905,6 @@ HMI_PM.editedPoint.rz := pose.yaw;
 
 HMI_PM.editedPoint := PointToHMI(Point := HMI_PM.editedPoint);
 
-;
-;
-
-bDone := TRUE;
 HMI_PM.sLastOperation := 'Current robot TCP copied to edited point only';
 
 Touchup := TRUE;

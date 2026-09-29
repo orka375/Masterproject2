@@ -3,6 +3,9 @@
   <POU Name="FB_3_COMM_AXIS_BECKHOFF" Id="{6590ca91-e828-49ed-96d5-a1b6fe08b87c}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'hide_all_locals'}
 FUNCTION_BLOCK FB_3_COMM_AXIS_BECKHOFF EXTENDS FB_1_COMM
+VAR_INPUT
+  StopVelocityTolerance : LREAL := 0.000001;
+END_VAR
 VAR_IN_OUT
     Axis : AXIS_REF;
 END_VAR
@@ -47,7 +50,7 @@ CYCLIC_COMM();
 Connected := RequestConnection;
 Operational := RequestConnection;
 
-CanAcceptCommand := SUPER^.CanAcceptCommand AND NOT _fbStop.Busy AND NOT _resetExecute;
+CanAcceptCommand := NOT _fbStop.Busy AND NOT _stopExecute AND NOT _resetExecute;
 
 
 // ----- CALL POUS AND ERROR SURVEILLANCE ----------
@@ -76,7 +79,7 @@ ActualPosition := Axis.NcToPlc.ActPos;
 ActualVelocity := Axis.NcToPlc.ActVelo;
 
 
-IF Busy THEN
+IF Busy AND NOT StopPending THEN
   IF Messenger.HasActivError OR NOT Operational THEN
         _moveAbsExecute := FALSE;
         _moveRelExecute := FALSE;
@@ -84,7 +87,8 @@ IF Busy THEN
         ActiveCommandID := 0;
         CommandState := eProgress.FINALIZED;
         CommandResult :=eResult.ERROR;
-        FB_1_COMM.Busy := FALSE;
+        Busy := FALSE;
+
     ELSIF _fbMoveAbsolute.CommandAborted OR _fbMoveRelative.CommandAborted OR _fbHome.CommandAborted THEN
         _moveAbsExecute := FALSE;
         _moveRelExecute := FALSE;
@@ -92,7 +96,8 @@ IF Busy THEN
         ActiveCommandID := 0;
         CommandState := eProgress.ABORTED;
         CommandResult :=eResult.FAILURE;
-        FB_1_COMM.Busy := FALSE;
+        Busy := FALSE;
+
     ELSIF _fbMoveAbsolute.Done OR _fbMoveRelative.Done OR _fbHome.Done THEN
         IF _fbHome.Done THEN Homed := TRUE; END_IF
         _moveAbsExecute := FALSE;
@@ -101,10 +106,11 @@ IF Busy THEN
         ActiveCommandID := 0;
         CommandState := eProgress.FINALIZED;
         CommandResult :=eResult.SUCCESS;
-        FB_1_COMM.Busy := FALSE;
+        Busy := FALSE;
+
     ELSIF NOT _commandAccepted AND (_fbMoveAbsolute.Busy OR _fbMoveRelative.Busy OR _fbHome.Busy) THEN
         _commandAccepted := TRUE;
-        AcceptedCommandID := _commActiveCommandID;
+        AcceptedCommandID := ActiveCommandID;
         CommandState := eProgress.ACKNOWLEDGE;
         _moveAbsExecute := FALSE;
         _moveRelExecute := FALSE;
@@ -122,17 +128,21 @@ IF _fbReset.Done OR _fbReset.Error THEN _resetExecute := FALSE; END_IF
       <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
 VAR_INPUT CommandID : UINT; END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[CancelCommand := FALSE;
-IF (CommandID = 0) OR (CommandID <> _commActiveCommandID) THEN RETURN; END_IF
-IF NOT StopMotion() THEN RETURN; END_IF
-_moveAbsExecute := FALSE;
-_moveRelExecute := FALSE;
-_homeExecute := FALSE;
-ActiveCommandID := 0;
-CommandState := eProgress.ABORTED;
-CommandResult :=eResult.FAILURE;
-FB_1_COMM.Busy := FALSE;
-CancelCommand := TRUE;]]></ST>
+        <ST><![CDATA[CancelCommand := SUPER^.CancelCommand(CommandID := CommandID);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPhysicalStopFailed" Id="{07ba1865-cb6a-4a8c-96a0-eef840195aa0}">
+      <Declaration><![CDATA[METHOD PROTECTED HasPhysicalStopFailed : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[HasPhysicalStopFailed := _fbStop.Error OR _fbStop.CommandAborted;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsPhysicalStopComplete" Id="{a22113a2-02df-430f-b71d-3b7827035089}">
+      <Declaration><![CDATA[METHOD PROTECTED IsPhysicalStopComplete : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IsPhysicalStopComplete :=
+    _fbStop.Done
+    AND (ABS(ActualVelocity) <= StopVelocityTolerance);]]></ST>
       </Implementation>
     </Method>
     <Property Name="Operational" Id="{4e3d4c82-6c3e-4a6a-814a-07ce7bf49eff}">
@@ -170,7 +180,7 @@ _homeExecute := FALSE;
 _stopExecute := FALSE;
 AcceptedCommandID := 0;
 ActiveCommandID := 0;
-FB_1_COMM.Busy := FALSE;
+
 CommandState := eProgress.INIT;
 CommandResult :=eResult.NONE;
 Reconnect();
@@ -190,7 +200,6 @@ AcceptedCommandID := 0;
 ActiveCommandID := CommandID;
 CommandState := eProgress.INIT;
 CommandResult :=eResult.NONE;
-FB_1_COMM.Busy := TRUE;
 SendHome := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -213,7 +222,6 @@ AcceptedCommandID := 0;
 ActiveCommandID := CommandID;
 CommandState := eProgress.INIT;
 CommandResult :=eResult.NONE;
-FB_1_COMM.Busy := TRUE;
 SendMoveAbsolute := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -236,22 +244,31 @@ AcceptedCommandID := 0;
 ActiveCommandID := CommandID;
 CommandState := eProgress.INIT;
 CommandResult :=eResult.NONE;
-FB_1_COMM.Busy := TRUE;
 SendMoveRelative := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="StopMotion" Id="{c0fae11f-2aa8-4051-9726-2a746e1e0326}">
       <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL]]></Declaration>
       <Implementation>
-        <ST><![CDATA[StopMotion := FALSE;
-IF NOT FB_1_COMM.Operational THEN RETURN; END_IF
+        <ST><![CDATA[StopMotion := SUPER^.StopMotion();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StartPhysicalStop" Id="{a2ac5ac5-15e0-4ed8-95b0-80d6f3ff3736}">
+      <Declaration><![CDATA[METHOD PROTECTED StartPhysicalStop : BOOL
+VAR_INPUT
+    Mode : eStopMode;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StartPhysicalStop := FALSE;
+IF NOT Connected THEN
+    RETURN;
+END_IF
+
 _moveAbsExecute := FALSE;
 _moveRelExecute := FALSE;
 _homeExecute := FALSE;
-IF _fbStop.Busy OR _stopExecute THEN StopMotion := TRUE; RETURN; END_IF
-IF ABS(ActualVelocity) <= 0.000001 THEN StopMotion := TRUE; RETURN; END_IF
 _stopExecute := TRUE;
-StopMotion := TRUE;]]></ST>
+StartPhysicalStop := TRUE;]]></ST>
       </Implementation>
     </Method>
   </POU>
