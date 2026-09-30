@@ -82,189 +82,109 @@ VAR
     bRunDone          : BOOL;
     fSum              : LREAL;
     resSubskill       : eResult;
-    aCameraMatrixLocal            : TcVnMatrix3x3_LREAL;
-	aDistortionCoefficientsLocal  : TcVnArray8_LREAL;
+
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF SFCInit THEN
-    phase := 0;
-END_IF
-
+      <ST><![CDATA[
 IF State = eState.Active THEN
-    CASE phase OF
-        0: // Init
-            bLandmarkFound := FALSE;
-            sLandmarkId := '';
-            fReprojectionErrorPx := 0.0;
-            hrLastError := S_OK;
-            bStartedSubskill := FALSE;
-            bRunDone := FALSE;
-            ipImagePoints := 0;
-            ipReferencePoints := 0;
-            ExecutionDone := FALSE;
-            ExecutionResult := NONE;
+    
+	pQRCodeSkill^.Execute();
+	
+	IF pQRCodeSkill^.ExecutionDone AND pQRCodeSkill^.ExecutionResult = SUCCESS THEN
+		sLandmarkId := pQRCodeSkill^.sCodeAsString;
+		fHalfEdge := fQRCodeEdgeLengthMm * 0.5;
 
-            IF pQRCodeSkill = 0 THEN
-                FailSkill(E_FAIL, 'QR code subskill is not assigned');
-            ELSIF fQRCodeEdgeLengthMm <= 0.0 THEN
-                FailSkill(E_FAIL, 'QR symbol edge length must be greater than zero');
-            ELSIF fMaxReprojectionErrorPx <= 0.0 THEN
-                FailSkill(E_FAIL, 'Maximum reprojection error must be greater than zero');
-            ELSE
-                SFCInit := FALSE;
-                phase := 10;
-            END_IF
+		FOR l := 0 TO 3 DO
+			aImagePoints[l][0] := DINT_TO_REAL(pQRCodeSkill^.ipCodeContourList[i][0]);
+			aImagePoints[l][1] := DINT_TO_REAL(pQRCodeSkill^.ipCodeContourList[i][1]);
+		END_FOR
 
-        10: // StartReadQRCode_entry: call previously created skill once
-            IF NOT bStartedSubskill THEN
-                bSubSkillRunning := TRUE;
-                resSubskill := pQRCodeSkill^.Execute();
-                IF resSubskill > SUCCESS THEN
-                    FailSkill(E_FAIL, 'Could not start QR code subskill');
-                ELSE
-                    bStartedSubskill := TRUE;
-                    phase := 20;
-                END_IF
-            END_IF
+		// Known physical QR corners around the landmark origin.
+		// Punkt 0: links oben beziehungsweise definierter Startpunkt
+		aReferencePoints[0][0] := -fHalfEdge;
+		aReferencePoints[0][1] := -fHalfEdge;
+		aReferencePoints[0][2] := 0.0;
+		
+		// Punkt 1
+		aReferencePoints[1][0] := fHalfEdge;
+		aReferencePoints[1][1] := -fHalfEdge;
+		aReferencePoints[1][2] := 0.0;
+		
+		// Punkt 2
+		aReferencePoints[2][0] := fHalfEdge;
+		aReferencePoints[2][1] := fHalfEdge;
+		aReferencePoints[2][2] := 0.0;
+		
+		// Punkt 3
+		aReferencePoints[3][0] := -fHalfEdge;
+		aReferencePoints[3][1] := fHalfEdge;
+		aReferencePoints[3][2] := 0.0;
 
-        20: // WaitReadQRCode_active
-            IF pQRCodeSkill^.ExecutionDone THEN
-                bSubSkillRunning := FALSE;
-                
-
-                IF pQRCodeSkill^.ExecutionResult <> SUCCESS THEN
-                    FailSkill(pQRCodeSkill^.hrLastError, 'QR code subskill failed');
-                ELSIF NOT pQRCodeSkill^.bQRCodeFound THEN
-                    // A valid inspection without a landmark is not a technical error.
-                    bLandmarkFound := FALSE;
-                    phase := 100;
-                ELSIF NOT pQRCodeSkill^.bCornersValid THEN
-					FailSkill(E_FAIL, 'QR code subskill returned no valid corners');
-				ELSE
-					sLandmarkId := pQRCodeSkill^.sQRCode;
-				
-					aCameraMatrixLocal :=aCameraMatrix;
-				
-					aDistortionCoefficientsLocal :=aDistortionCoefficients;
-				
-					phase := 30;
-				END_IF
-            END_IF
-
-        30: // BuildPointCorrespondences_active
-            fHalfEdge := fQRCodeEdgeLengthMm * 0.5;
-
-            // Convert the four decoded DINT image corners to REAL.
-            FOR l := 0 TO 3 DO
-                aImagePoints[l][0] := DINT_TO_REAL(pQRCodeSkill^.aQRCodeCorners[i][0]);
-                aImagePoints[l][1] := DINT_TO_REAL(pQRCodeSkill^.aQRCodeCorners[i][1]);
-            END_FOR
-
-            // Known physical QR corners around the landmark origin.
-            // Punkt 0: links oben beziehungsweise definierter Startpunkt
-			aReferencePoints[0][0] := -fHalfEdge;
-			aReferencePoints[0][1] := -fHalfEdge;
-			aReferencePoints[0][2] := 0.0;
-			
-			// Punkt 1
-			aReferencePoints[1][0] := fHalfEdge;
-			aReferencePoints[1][1] := -fHalfEdge;
-			aReferencePoints[1][2] := 0.0;
-			
-			// Punkt 2
-			aReferencePoints[2][0] := fHalfEdge;
-			aReferencePoints[2][1] := fHalfEdge;
-			aReferencePoints[2][2] := 0.0;
-			
-			// Punkt 3
-			aReferencePoints[3][0] := -fHalfEdge;
-			aReferencePoints[3][1] := fHalfEdge;
-			aReferencePoints[3][2] := 0.0;
-
-			hr := F_VN_CreateContainer(
+		hr := F_VN_CreateContainer(
+			ipImagePoints,
+			ContainerType_Vector_TcVnPoint2_REAL,
+			0,
+			S_OK);
+		
+		hr := F_VN_CreateContainer(
+			ipReferencePoints,
+			ContainerType_Vector_TcVnPoint3_REAL,
+			0,
+			hr);
+		
+		FOR l := 0 TO 3 DO
+			hr := F_VN_AppendToContainer_TcVnPoint2_REAL(
+				aImagePoints[l],
 				ipImagePoints,
-				ContainerType_Vector_TcVnPoint2_REAL,
-				0,
-				S_OK);
-			
-			hr := F_VN_CreateContainer(
-				ipReferencePoints,
-				ContainerType_Vector_TcVnPoint3_REAL,
-				0,
 				hr);
-			
-			FOR l := 0 TO 3 DO
-				hr := F_VN_AppendToContainer_TcVnPoint2_REAL(
-					aImagePoints[l],
-					ipImagePoints,
-					hr);
-			
-				hr := F_VN_AppendToContainer_TcVnPoint3_REAL(
-					aReferencePoints[l],
-					ipReferencePoints,
-					hr);
+		
+			hr := F_VN_AppendToContainer_TcVnPoint3_REAL(
+				aReferencePoints[l],
+				ipReferencePoints,
+				hr);
+		END_FOR
+
+
+
+  
+		hr := F_VN_SolvePnP(
+			ipImagePoints           := ipImagePoints,
+			ipReferencePoints       := ipReferencePoints,
+			aCameraMatrix           := aCameraMatrix,
+			aDistortionCoefficients := aDistortionCoefficients,
+			aRotationMatrix         := aRotation_CameraLandmark,
+			aTranslationVector      := aTranslation_CameraLandmark,
+			fReprojError            := fReprojectionErrorPx,
+			hrPrev                  := S_OK);
+
+		IF hr = S_OK THEN
+			FOR l := 0 TO 2 DO
+				FOR m := 0 TO 2 DO
+					fSum := 0.0;
+					FOR k := 0 TO 2 DO
+						fSum := fSum
+							+ aRotation_BaseCamera[l, k]
+							* aRotation_CameraLandmark[k, m];
+					END_FOR
+					aRotation_BaseLandmark[l, m] := fSum;
+				END_FOR
 			END_FOR
 
-            IF FAILED(hr) THEN
-                FailSkill(hr, 'Could not build SolvePnP point containers');
-            ELSE
-                phase := 40;
-            END_IF
+			// t_B_L = R_B_C * t_C_L + t_B_C
+			FOR l := 0 TO 2 DO
+				fSum := aTranslation_BaseCamera[l];
+				FOR k := 0 TO 2 DO
+					fSum := fSum
+						+ aRotation_BaseCamera[l, k]
+						* aTranslation_CameraLandmark[k];
+				END_FOR
+				aTranslation_BaseLandmark[l] := fSum;
+			END_FOR
 
-        40: // EstimatePose6D_active
-            hr := F_VN_SolvePnP(
-				ipImagePoints           := ipImagePoints,
-				ipReferencePoints       := ipReferencePoints,
-				aCameraMatrix           := aCameraMatrixLocal,
-				aDistortionCoefficients := aDistortionCoefficientsLocal,
-				aRotationMatrix         := aRotation_CameraLandmark,
-				aTranslationVector      := aTranslation_CameraLandmark,
-				fReprojError            := fReprojectionErrorPx,
-				hrPrev                  := S_OK);
-
-            IF FAILED(hr) THEN
-                FailSkill(hr, 'SolvePnP failed');
-            ELSIF fReprojectionErrorPx > fMaxReprojectionErrorPx THEN
-                FailSkill(S_FALSE, 'Landmark reprojection error is too high');
-            ELSE
-                phase := 50;
-            END_IF
-
-        50: // TransformCameraToBase_active
-            // R_B_L = R_B_C * R_C_L
-            FOR l := 0 TO 2 DO
-                FOR m := 0 TO 2 DO
-                    fSum := 0.0;
-                    FOR k := 0 TO 2 DO
-                        fSum := fSum
-                            + aRotation_BaseCamera[l, k]
-                            * aRotation_CameraLandmark[k, m];
-                    END_FOR
-                    aRotation_BaseLandmark[l, m] := fSum;
-                END_FOR
-            END_FOR
-
-            // t_B_L = R_B_C * t_C_L + t_B_C
-            FOR l := 0 TO 2 DO
-                fSum := aTranslation_BaseCamera[l];
-                FOR k := 0 TO 2 DO
-                    fSum := fSum
-                        + aRotation_BaseCamera[l, k]
-                        * aTranslation_CameraLandmark[k];
-                END_FOR
-                aTranslation_BaseLandmark[l] := fSum;
-            END_FOR
-
-            bLandmarkFound := TRUE;
-            phase := 100;
-
-        100: // Done_active
-            IF NOT bRunDone THEN
-                ExecutionResult := SUCCESS;
-                ExecutionDone := TRUE;
-                bRunDone := TRUE;
-            END_IF
-    END_CASE
+		 bLandmarkFound := TRUE;
+   
+		END_IF
+	END_IF
 END_IF]]></ST>
     </Implementation>
     <Folder Name="Internal" Id="{fd5d0038-a1df-4790-910c-093be1ff8c36}" />

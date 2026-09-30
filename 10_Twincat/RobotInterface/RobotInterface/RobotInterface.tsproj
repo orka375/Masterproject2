@@ -4511,6 +4511,647 @@ External Setpoint Generation:
 			</ArrayInfo>
 		</DataType>
 		<DataType>
+			<Name GUID="{03010035-0000-0000-E000-000000000064}" TcBaseType="true">ITcIoEthProtocol</Name>
+			<BitSize X64="64">32</BitSize>
+			<BaseType GUID="{00000001-0000-0000-E000-000000000064}">ITcUnknown</BaseType>
+			<Method>
+				<Name>CheckFrame</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>pData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000018}">PVOID</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nVLanTag</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nTimeStamp</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>LinkStatusChanged</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>bLinkError</Name>
+					<Type GUID="{9060AE9D-214D-4685-A4C0-CD1082626764}">BOOL32</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+			</Method>
+		</DataType>
+		<DataType>
+			<Name GUID="{03010096-0000-0000-E000-000000000064}" TcBaseType="true">ITcIoArpPingRecv</Name>
+			<BitSize X64="64">32</BitSize>
+			<BaseType GUID="{00000001-0000-0000-E000-000000000064}">ITcUnknown</BaseType>
+			<Method>
+				<Name>ArpReply</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipAddr</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>macAddr</Name>
+					<Type GUID="{CC07E0A0-FC03-45CD-BFD9-D46B7C731E7C}">ETHERNET_ADDRESS</Type>
+					<BitSize>48</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pVlan</Name>
+					<Type GUID="{478C4436-6F33-4F6F-B4A8-88074B54DCD4}" PointerTo="1" Optional="0">ETYPE_VLAN_HEADER</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>PingReply</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipAddr</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000018}">PVOID</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pVlan</Name>
+					<Type GUID="{478C4436-6F33-4F6F-B4A8-88074B54DCD4}" PointerTo="1" Optional="0">ETYPE_VLAN_HEADER</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+		</DataType>
+		<DataType>
+			<Name GUID="{0301009E-0000-0000-E000-000000000064}" TcBaseType="true">ITcIoArpPing</Name>
+			<BitSize X64="64">32</BitSize>
+			<BaseType GUID="{00000001-0000-0000-E000-000000000064}">ITcUnknown</BaseType>
+			<Method>
+				<Name>PingRequest</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipAddr</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}" Optional="0">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000018}" Optional="0">PVOID</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pVlan</Name>
+					<Type GUID="{478C4436-6F33-4F6F-B4A8-88074B54DCD4}" PointerTo="1" Optional="0">ETYPE_VLAN_HEADER</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>ArpRequest</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipAddr</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>macAddr</Name>
+					<Type GUID="{CC07E0A0-FC03-45CD-BFD9-D46B7C731E7C}" PointerTo="1" Optional="0">ETHERNET_ADDRESS</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pVlan</Name>
+					<Type GUID="{478C4436-6F33-4F6F-B4A8-88074B54DCD4}" PointerTo="1" Optional="0">ETYPE_VLAN_HEADER</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>RegisterReceiver</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipRecv</Name>
+					<Type GUID="{03010096-0000-0000-E000-000000000064}">ITcIoArpPingRecv</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>UnregisterReceiver</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipRecv</Name>
+					<Type GUID="{03010096-0000-0000-E000-000000000064}">ITcIoArpPingRecv</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>CheckReceived</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+			</Method>
+		</DataType>
+		<DataType>
+			<Name GUID="{0301009D-0000-0000-E000-000000000064}" TcBaseType="true">ITcIoIpStackControl</Name>
+			<Comment><![CDATA[Interface for IP stack control.]]></Comment>
+			<BitSize X64="64">32</BitSize>
+			<BaseType GUID="{00000001-0000-0000-E000-000000000064}">ITcUnknown</BaseType>
+			<Method>
+				<Name>DeleteArpCache</Name>
+				<Comment><![CDATA[Delete the ARP cache.]]></Comment>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>GetIpData</Name>
+				<Comment><![CDATA[Get the IP data]]></Comment>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>pIpAddr</Name>
+					<Comment><![CDATA[IP address]]></Comment>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}" PointerTo="1">UDINT</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pIpSubnetMask</Name>
+					<Comment><![CDATA[Subnet mask]]></Comment>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}" PointerTo="1">UDINT</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pIpGateway</Name>
+					<Comment><![CDATA[IP gateway]]></Comment>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}" PointerTo="1">UDINT</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Properties>
+				<Property>
+					<Name>docuFolder</Name>
+					<Value>Interfaces\GigEVision</Value>
+				</Property>
+			</Properties>
+		</DataType>
+		<DataType>
+			<Name GUID="{03010097-0000-0000-E000-000000000064}" TcBaseType="true">ITcIoUdpProtocol</Name>
+			<Comment><![CDATA[Interface for a UDP protocol.]]></Comment>
+			<BitSize X64="64">32</BitSize>
+			<BaseType GUID="{00000001-0000-0000-E000-000000000064}">ITcUnknown</BaseType>
+			<Method>
+				<Name>SendData</Name>
+				<Comment><![CDATA[Send data.]]></Comment>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipDestAddr</Name>
+					<Comment><![CDATA[Destination IP address]]></Comment>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>udpDestPort</Name>
+					<Comment><![CDATA[Destination UDP port]]></Comment>
+					<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+					<BitSize>16</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>udpSrcPort</Name>
+					<Comment><![CDATA[Source UDP port]]></Comment>
+					<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+					<BitSize>16</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nData</Name>
+					<Comment><![CDATA[Size of the data]]></Comment>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pData</Name>
+					<Comment><![CDATA[Pointer to the data]]></Comment>
+					<Type GUID="{18071995-0000-0000-0000-000000000018}">PVOID</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>bCalcUdpCheckSum</Name>
+					<Comment><![CDATA[Specify if the UDP checksum should be calculated]]></Comment>
+					<Type GUID="{18071995-0000-0000-0000-000000000030}" Optional="0">BOOL</Type>
+					<BitSize>8</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pVlan</Name>
+					<Comment><![CDATA[VLAN header.]]></Comment>
+					<Type GUID="{478C4436-6F33-4F6F-B4A8-88074B54DCD4}" PointerTo="1" Optional="0">ETYPE_VLAN_HEADER</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>CheckReceived</Name>
+				<Comment><![CDATA[Check for received data and process it.]]></Comment>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>RegisterReceiver</Name>
+				<Comment><![CDATA[Register a UDP receiver.]]></Comment>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>udpPort</Name>
+					<Comment><![CDATA[UDP port]]></Comment>
+					<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+					<BitSize>16</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>ipRecv</Name>
+					<Comment><![CDATA[Interface containing the callback methods]]></Comment>
+					<Type GUID="{03010095-0000-0000-E000-000000000064}">ITcIoUdpProtocolRecv</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>UnregisterReceiver</Name>
+				<Comment><![CDATA[Unregister a UDP receiver]]></Comment>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>udpPort</Name>
+					<Comment><![CDATA[UDP port]]></Comment>
+					<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+					<BitSize>16</BitSize>
+				</Parameter>
+			</Method>
+			<Properties>
+				<Property>
+					<Name>docuFolder</Name>
+					<Value>Interfaces\GigEVision</Value>
+				</Property>
+			</Properties>
+		</DataType>
+		<DataType>
+			<Name GUID="{7CECC506-F55F-4594-B611-972D650865D2}" TcBaseType="true">TCPIP_EVENT</Name>
+			<BitSize>32</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_NONE]]></Text>
+				<Enum>0</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_ERROR]]></Text>
+				<Enum>1</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_RESET]]></Text>
+				<Enum>2</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_TIMEOUT]]></Text>
+				<Enum>3</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_CONN_ESTABLISHED]]></Text>
+				<Enum>4</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_CONN_INCOMING]]></Text>
+				<Enum>5</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_CONN_CLOSED]]></Text>
+				<Enum>6</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_CONN_IDLE]]></Text>
+				<Enum>7</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_DATA_RECEIVED]]></Text>
+				<Enum>8</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_DATA_SENT]]></Text>
+				<Enum>9</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_KEEP_ALIVE]]></Text>
+				<Enum>10</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_LINKCONNECT]]></Text>
+				<Enum>11</Enum>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[TCPIP_EVENT_LINKDISCONNECT]]></Text>
+				<Enum>12</Enum>
+			</EnumInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{03010099-0000-0000-E000-000000000064}" TcBaseType="true">ITcIoTcpProtocolRecv</Name>
+			<BitSize X64="64">32</BitSize>
+			<BaseType GUID="{00000001-0000-0000-E000-000000000064}">ITcUnknown</BaseType>
+			<Method>
+				<Name>ReceiveData</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000018}">PVOID</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>ReceiveEvent</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>tcpEvent</Name>
+					<Type GUID="{7CECC506-F55F-4594-B611-972D650865D2}">TCPIP_EVENT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+			</Method>
+		</DataType>
+		<DataType>
+			<Name GUID="{03010098-0000-0000-E000-000000000064}" TcBaseType="true">ITcIoTcpProtocol</Name>
+			<BitSize X64="64">32</BitSize>
+			<BaseType GUID="{00000001-0000-0000-E000-000000000064}">ITcUnknown</BaseType>
+			<Method>
+				<Name>AllocSocket</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>ipRecv</Name>
+					<Type GUID="{03010099-0000-0000-E000-000000000064}">ITcIoTcpProtocolRecv</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}" ReferenceTo="true">UDINT</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>FreeSocket</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>Connect</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>ipRemoteAddress</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>tcpPort</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+					<BitSize>16</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>IsConnected</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>Close</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>Listen</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>tcpPort</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+					<BitSize>16</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>Accept</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>SendData</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>pData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000018}">PVOID</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nSendData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}" ReferenceTo="true">UDINT</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>CheckReceived</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+			</Method>
+			<Method>
+				<Name>GetRemoteIpAddr</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>remoteIpAddr</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}" ReferenceTo="true">UDINT</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+			<Method>
+				<Name>GetFreeSendDataSize</Name>
+				<ReturnType GUID="{18071995-0000-0000-0000-000000000019}">HRESULT</ReturnType>
+				<ReturnBitSize>32</ReturnBitSize>
+				<Parameter>
+					<Name>socketId</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+					<BitSize>32</BitSize>
+				</Parameter>
+				<Parameter>
+					<Name>nData</Name>
+					<Type GUID="{18071995-0000-0000-0000-000000000008}" ReferenceTo="true">UDINT</Type>
+					<BitSize X64="64">32</BitSize>
+				</Parameter>
+			</Method>
+		</DataType>
+		<DataType>
+			<Name GUID="{C5CDC22A-4E80-47FE-859B-49877A88E874}">IpStackServiceDiagnosis</Name>
+			<BitSize>128</BitSize>
+			<SubItem>
+				<Name>nSendCnt</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nSendFailCnt</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>32</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nRecvCnt</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>64</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nRecvFailCnt</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>96</BitOffs>
+			</SubItem>
+		</DataType>
+		<DataType>
+			<Name GUID="{38621CD5-4239-4327-97F7-35F1414B7265}">IpStackDiagnosis</Name>
+			<BitSize>768</BitSize>
+			<SubItem>
+				<Name>ip</Name>
+				<Type GUID="{C5CDC22A-4E80-47FE-859B-49877A88E874}">IpStackServiceDiagnosis</Type>
+				<BitSize>128</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>arpRequest</Name>
+				<Type GUID="{C5CDC22A-4E80-47FE-859B-49877A88E874}">IpStackServiceDiagnosis</Type>
+				<BitSize>128</BitSize>
+				<BitOffs>128</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>arpReply</Name>
+				<Type GUID="{C5CDC22A-4E80-47FE-859B-49877A88E874}">IpStackServiceDiagnosis</Type>
+				<BitSize>128</BitSize>
+				<BitOffs>256</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>pingRequest</Name>
+				<Type GUID="{C5CDC22A-4E80-47FE-859B-49877A88E874}">IpStackServiceDiagnosis</Type>
+				<BitSize>128</BitSize>
+				<BitOffs>384</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>pingReply</Name>
+				<Type GUID="{C5CDC22A-4E80-47FE-859B-49877A88E874}">IpStackServiceDiagnosis</Type>
+				<BitSize>128</BitSize>
+				<BitOffs>512</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nLinkStatusChangedCnt</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>640</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nAllocFailCnt</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>672</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nArpTimeoutFrames</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>704</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nDroppedFrames</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<BitSize>32</BitSize>
+				<BitOffs>736</BitOffs>
+			</SubItem>
+		</DataType>
+		<DataType>
 			<Name GUID="{AC23D64B-CDFA-4D43-AE8B-364A856EB3E2}">ITcVnMlModel</Name>
 			<Comment><![CDATA[Interface for a machine learning model.]]></Comment>
 			<BitSize X64="64">32</BitSize>
@@ -5155,9 +5796,11 @@ External Setpoint Generation:
 		<ImageData Id="1005">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000c40e0000c40e00000000000000000000ff00ffff00ffff00ffff00ffff00ffff00ff808080808080808080808080808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff</ImageData>
 		<ImageData Id="1006">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000f00a0000f00a00000000000000000000443c434440453f41413e434145414045403d8d8683dad5d2d9d4d6838082454642454642443e43433d42444143424040453e45433f444042423c3f3d45423e787370f0ebec6f6a6c726d6ff4eff06d696842403f403f41414044403f414444444243473b3c4040424244454168665ebdbab682818a403e4a47404591898ac3b9b96b66653d41423b43433d42413d403e3a3c3d4244454242423f3e3a9f9e94b1b5b0535c6a323b4f393b455a565bbdb5b69893943f44453640403e43413e423d464443434140403e3e484443bcbbb1848d8a2e495d91b0c92c4051404a54888b90babcbd3b3f403d42413d3c3849464141403c44424142404042403fdadad4626c6c95b5c8173e5a92b4cb253e4e5c666dd9dbdc3d41423b3d3d4b4b454240384144423f42403a3f3e3f4141e9ebeb4b51567b8d9e1e3c5588b0cd1b3d544a565ceaebe93d3f403f41423f403c40403a3d3f3f3e40404244453d4142e8eced50565b363e4b283d528db5d2163c544d595deaebe93c40413d404447454446433f433e40433f444440463e3f43d4d9da5e66663c3f44333e4c8db2c81b40545b666ad8d9d73e43443e41453f3639504145474146474146403940424046b5bab9868b8a4c4b4d3b40499db6c6324c5a80898cbfc1c13941413a3d414d43494b3b423d3e424342464642484440459a9897bcbbb75e5b5d3f3d433c3f4751575eb0b3b7939798373f3f404546433e404a41444145463e4041403d3f474243666561b6b5b18c898b433f444340428b888abebabf636566393e3f3d43423f403e4341403a3f3e3c3f3d49444145423e4347426d7270f0edef7370726f7171e8eaea736c6f4843453f43443a413e3f463f41463d3d424045464244403b44413c3d433e404645807d7fd7d4d6cfd4d2828785494043473e413d3f403c433e3b43393d4639</ImageData>
 		<ImageData Id="1007">424de6000000000000007600000028000000100000000e000000010004000000000070000000c21e0000c21e000000000000000000006865630089786200c18c5600c89a64009f918300a9a7a600d7b69400e2d1bf00e2e2e200f4e9db00f7efe700f3efef00f7f7ef00f7f7f700fff7f700ffffff00ffffffffffffffffffffffffffffffff63fffff66fffff44327fffb639fff704723fff4626fff407f329f80522af800df726f505626f505ffc22a00ba22a00bfff62604ff62605ffff92358ff92358fffff337ffff337ffffff969ffff769fffffffffffffffffffffffffffffffffff</ImageData>
+		<ImageData Id="1008">424de6000000000000007600000028000000100000000e000000010004000000000070000000000000000000000000000000000000000000000000008000008000000080800080000000800080008080000080808000c0c0c0000000ff0000ff000000ffff00ff000000ff00ff00ffff0000ffffff00ffffffffffffffffff788833338887ffff78883bb38887ffffffff3bb3ffffffffffff8778fffffffffffffffffffffffffffffffff999ffff78f78fffffffffff78f78ffff999ffff78f7888fffffffff78f78f78f999ffff78f78f78ffffffff78f7888ff999ffffffffffffffffff</ImageData>
 	</ImageDatas>
-	<Project ProjectGUID="{C2A5BCD8-9187-4B62-B358-2BB7D90503F4}" Target64Bit="true" ShowHideConfigurations="#x6">
+	<Project ProjectGUID="{C2A5BCD8-9187-4B62-B358-2BB7D90503F4}" TargetNetId="192.168.250.100.1.1" Target64Bit="true" ShowHideConfigurations="#x6">
 		<System>
+			<Settings RouterMemory="134217728"/>
 			<Licenses>
 				<Target>
 					<ManualSelect>{67B4BA05-C1F2-4184-AE5F-4BAB0FFB09E1}</ManualSelect>
@@ -5166,7 +5809,7 @@ External Setpoint Generation:
 				</Target>
 			</Licenses>
 			<Tasks>
-				<Task Id="3" Priority="20" CycleTime="100000" AmsPort="350" AdtTasks="true">
+				<Task Id="3" Priority="20" CycleTime="100000" AmsPort="350" DisableFpExceptions="true" WatchdogStackCapacity="10" AdtTasks="true">
 					<Name>PlcTask</Name>
 				</Task>
 				<Task Id="6" Priority="5" CycleTime="10000" AmsPort="351" AdtTasks="true">
@@ -5476,7 +6119,7 @@ External Setpoint Generation:
 		</Motion>
 		<Plc>
 			<Project GUID="{2A46B7D0-5025-44A3-8091-A92824C85949}" Name="RUNTIME" PrjFilePath="RUNTIME\RUNTIME.plcproj" TmcFilePath="RUNTIME\RUNTIME.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{52992A7B-498A-C83D-A210-234573FC078A}" TmcPath="RUNTIME\RUNTIME.tmc">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{C25DF79A-B2B0-E296-B0D2-C8296682F5BC}" TmcPath="RUNTIME\RUNTIME.tmc">
 					<Name>RUNTIME Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="2" AreaNo="1">
@@ -5877,12 +6520,91 @@ External Setpoint Generation:
 					</ParameterValues>
 				</TmcDesc>
 			</JobPool>
-			<App VisionAppGUID="{8B57EA84-8DE8-4BA6-8A71-C0758843F55B}">
+			<App VisionAppGUID="{8E2BD369-4E85-4230-B513-85592CD35028}">
 				<Name>Application1</Name>
-				<Camera Id="1" VisionObjectGUID="{003A7717-EB03-402F-B9B6-2B0E9644880F}">
+				<Camera Id="1" VisionObjectGUID="{7942EC08-BF40-4D4A-93BF-91A1EB2E779E}">
 					<Name>Camera1</Name>
 					<Xml>
 						<TcSmExtensions>
+							<TcSmExtension Guid="{33C329CA-0FC8-4642-AAD4-8B686DE88046}">
+								<Settings>
+									<CameraCalibration>
+										<PatternType Type="System.String">Chessboard</PatternType>
+										<PatternOrigin Type="System.String">Center</PatternOrigin>
+										<WorldCoordinateSystem Type="System.String">WCS_X_RIGHT_Y_DOWN</WorldCoordinateSystem>
+										<PatternFilePath Type="System.String"/>
+										<PatternWidth Type="System.Int32">9</PatternWidth>
+										<PatternHeight Type="System.Int32">6</PatternHeight>
+										<PatternPointDistX Type="System.Single">16.5</PatternPointDistX>
+										<PatternPointDistY Type="System.Single">16.5</PatternPointDistY>
+										<AsymFirstRowIndented Type="System.Boolean">False</AsymFirstRowIndented>
+										<InvertColor Type="System.Boolean">False</InvertColor>
+										<FixAspectRatio Type="System.Boolean">True</FixAspectRatio>
+										<FixCenterPoint Type="System.Boolean">True</FixCenterPoint>
+										<FixP1P2 Type="System.Boolean">False</FixP1P2>
+										<FixK3 Type="System.Boolean">False</FixK3>
+										<FixK4 Type="System.Boolean">False</FixK4>
+										<FixK5K6 Type="System.Boolean">True</FixK5K6>
+										<bFilterByArea Type="System.Boolean">True</bFilterByArea>
+										<eBlobCombination Type="System.String">MEDIAN_THRESHOLD</eBlobCombination>
+										<nMinRepeatability Type="System.UInt32">2</nMinRepeatability>
+										<fMinBlobDistance Type="System.Single">10</fMinBlobDistance>
+										<fThresholdStep Type="System.Single">10</fThresholdStep>
+										<fMaxThreshold Type="System.Single">220</fMaxThreshold>
+										<fMinThreshold Type="System.Single">50</fMinThreshold>
+										<eThresholdType Type="System.String">BINARY</eThresholdType>
+										<fMaxInertiaRatio Type="System.Single">1</fMaxInertiaRatio>
+										<fMinInertiaRatio Type="System.Single">0.1</fMinInertiaRatio>
+										<fMaxEccentricity Type="System.Single">0.2</fMaxEccentricity>
+										<fMinEccentricity Type="System.Single">0</fMinEccentricity>
+										<fMaxConvexity Type="System.Single">1</fMaxConvexity>
+										<fMinConvexity Type="System.Single">0.9</fMinConvexity>
+										<fMaxCircularity Type="System.Single">1</fMaxCircularity>
+										<fMinCircularity Type="System.Single">0.7</fMinCircularity>
+										<fMaxArea Type="System.Single">15000</fMaxArea>
+										<fMinArea Type="System.Single">25</fMinArea>
+										<bFilterByInertiaRatio Type="System.Boolean">True</bFilterByInertiaRatio>
+										<bFilterByEccentricity Type="System.Boolean">True</bFilterByEccentricity>
+										<bFilterByConvexity Type="System.Boolean">True</bFilterByConvexity>
+										<bFilterByCircularity Type="System.Boolean">True</bFilterByCircularity>
+										<bExcludeBorderBlobs Type="System.Boolean">False</bExcludeBorderBlobs>
+										<Encoding Type="System.String">None</Encoding>
+										<Algorithm Type="System.String">PIXEL_CONTOURS</Algorithm>
+										<ReprojectionError Type="System.Double">0.530467170289856</ReprojectionError>
+										<CameraMatrix0 Type="System.Double">2645.61681647355</CameraMatrix0>
+										<CameraMatrix1 Type="System.Double">0</CameraMatrix1>
+										<CameraMatrix2 Type="System.Double">1225.5</CameraMatrix2>
+										<CameraMatrix3 Type="System.Double">0</CameraMatrix3>
+										<CameraMatrix4 Type="System.Double">2645.61681647355</CameraMatrix4>
+										<CameraMatrix5 Type="System.Double">1027.5</CameraMatrix5>
+										<CameraMatrix6 Type="System.Double">0</CameraMatrix6>
+										<CameraMatrix7 Type="System.Double">0</CameraMatrix7>
+										<CameraMatrix8 Type="System.Double">1</CameraMatrix8>
+										<DistortionCoefficients0 Type="System.Double">12.1327027662466</DistortionCoefficients0>
+										<DistortionCoefficients1 Type="System.Double">-2.58876813154685</DistortionCoefficients1>
+										<DistortionCoefficients2 Type="System.Double">0.000680116041069277</DistortionCoefficients2>
+										<DistortionCoefficients3 Type="System.Double">0.00279357974042024</DistortionCoefficients3>
+										<DistortionCoefficients4 Type="System.Double">0.144663407571136</DistortionCoefficients4>
+										<DistortionCoefficients5 Type="System.Double">12.4351146026131</DistortionCoefficients5>
+										<DistortionCoefficients6 Type="System.Double">0</DistortionCoefficients6>
+										<DistortionCoefficients7 Type="System.Double">0</DistortionCoefficients7>
+										<RotationMatrix0 Type="System.Double">1</RotationMatrix0>
+										<RotationMatrix1 Type="System.Double">0</RotationMatrix1>
+										<RotationMatrix2 Type="System.Double">0</RotationMatrix2>
+										<RotationMatrix3 Type="System.Double">0</RotationMatrix3>
+										<RotationMatrix4 Type="System.Double">1</RotationMatrix4>
+										<RotationMatrix5 Type="System.Double">0</RotationMatrix5>
+										<RotationMatrix6 Type="System.Double">0</RotationMatrix6>
+										<RotationMatrix7 Type="System.Double">0</RotationMatrix7>
+										<RotationMatrix8 Type="System.Double">1</RotationMatrix8>
+										<TranslationVector0 Type="System.Double">0</TranslationVector0>
+										<TranslationVector1 Type="System.Double">0</TranslationVector1>
+										<TranslationVector2 Type="System.Double">0</TranslationVector2>
+										<PatternReferencePoints Type="System.String">AACEwgAAJcIAAAAAAABGwgAAJcIAAAAAAAAEwgAAJcIAAAAAAACEwQAAJcIAAAAAAAAAAAAAJcIAAAAAAACEQQAAJcIAAAAAAAAEQgAAJcIAAAAAAABGQgAAJcIAAAAAAACEQgAAJcIAAAAAAACEwgAAxsEAAAAAAABGwgAAxsEAAAAAAAAEwgAAxsEAAAAAAACEwQAAxsEAAAAAAAAAAAAAxsEAAAAAAACEQQAAxsEAAAAAAAAEQgAAxsEAAAAAAABGQgAAxsEAAAAAAACEQgAAxsEAAAAAAACEwgAABMEAAAAAAABGwgAABMEAAAAAAAAEwgAABMEAAAAAAACEwQAABMEAAAAAAAAAAAAABMEAAAAAAACEQQAABMEAAAAAAAAEQgAABMEAAAAAAABGQgAABMEAAAAAAACEQgAABMEAAAAAAACEwgAABEEAAAAAAABGwgAABEEAAAAAAAAEwgAABEEAAAAAAACEwQAABEEAAAAAAAAAAAAABEEAAAAAAACEQQAABEEAAAAAAAAEQgAABEEAAAAAAABGQgAABEEAAAAAAACEQgAABEEAAAAAAACEwgAAxkEAAAAAAABGwgAAxkEAAAAAAAAEwgAAxkEAAAAAAACEwQAAxkEAAAAAAAAAAAAAxkEAAAAAAACEQQAAxkEAAAAAAAAEQgAAxkEAAAAAAABGQgAAxkEAAAAAAACEQgAAxkEAAAAAAACEwgAAJUIAAAAAAABGwgAAJUIAAAAAAAAEwgAAJUIAAAAAAACEwQAAJUIAAAAAAAAAAAAAJUIAAAAAAACEQQAAJUIAAAAAAAAEQgAAJUIAAAAAAABGQgAAJUIAAAAAAACEQgAAJUIAAAAA</PatternReferencePoints>
+										<IntrinsicCalibrationDone Type="System.Boolean">True</IntrinsicCalibrationDone>
+									</CameraCalibration>
+								</Settings>
+							</TcSmExtension>
 							<TcSmExtension Guid="{E1903838-ED0C-4FE8-A3F7-E433F11BFE82}">
 								<Settings>
 									<CameraController>
@@ -5898,7 +6620,7 @@ External Setpoint Generation:
 										<CommunicationTimeout Type="System.Int32">3000</CommunicationTimeout>
 										<Visibility Type="System.String">Beginner</Visibility>
 										<ExpandedNodes Type="System.String">Root;Camera Features;Acquisition</ExpandedNodes>
-										<SelectedNodeName Type="System.String">AcquisitionFrameCount</SelectedNodeName>
+										<SelectedNodeName Type="System.String">Acquisition</SelectedNodeName>
 										<useSelector Type="System.Boolean">True</useSelector>
 										<UsePacketDelayInConfigMode Type="System.Boolean">True</UsePacketDelayInConfigMode>
 									</CameraConfig>
@@ -5907,1087 +6629,6 @@ External Setpoint Generation:
 									</StreamingTab>
 								</Settings>
 								<GenApiFileName>avt_E0022020_1.44.xml</GenApiFileName>
-								<TreeValueCache>
-									<RegisterValues>
-										<Register Address="0x0000F110">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x0000F114">
-											<RegisterValue>00-00-00-2C</RegisterValue>
-										</Register>
-										<Register Address="0x0000F118">
-											<RegisterValue>00-00-00-09</RegisterValue>
-										</Register>
-										<Register Address="0x00011020">
-											<RegisterValue>00-00-0C-00</RegisterValue>
-										</Register>
-										<Register Address="0x00000048">
-											<RegisterValue>41-6C-6C-69</RegisterValue>
-										</Register>
-										<Register Address="0x0000004C">
-											<RegisterValue>65-64-20-56</RegisterValue>
-										</Register>
-										<Register Address="0x00000050">
-											<RegisterValue>69-73-69-6F</RegisterValue>
-										</Register>
-										<Register Address="0x00000054">
-											<RegisterValue>6E-20-54-65</RegisterValue>
-										</Register>
-										<Register Address="0x00000058">
-											<RegisterValue>63-68-6E-6F</RegisterValue>
-										</Register>
-										<Register Address="0x0000005C">
-											<RegisterValue>6C-6F-67-69</RegisterValue>
-										</Register>
-										<Register Address="0x00000060">
-											<RegisterValue>65-73-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00000064">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0000F200">
-											<RegisterValue>4D-61-6E-74</RegisterValue>
-										</Register>
-										<Register Address="0x0000F204">
-											<RegisterValue>61-5F-47-2D</RegisterValue>
-										</Register>
-										<Register Address="0x0000F208">
-											<RegisterValue>35-30-34-42</RegisterValue>
-										</Register>
-										<Register Address="0x0000F20C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0000F210">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0000F214">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0000F218">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0000F21C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00000088">
-											<RegisterValue>30-30-2E-30</RegisterValue>
-										</Register>
-										<Register Address="0x0000008C">
-											<RegisterValue>31-2E-34-34</RegisterValue>
-										</Register>
-										<Register Address="0x00000090">
-											<RegisterValue>2E-30-39-20</RegisterValue>
-										</Register>
-										<Register Address="0x00000094">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00000098">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0000009C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000000A0">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000000A4">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000000D8">
-											<RegisterValue>35-30-2D-30</RegisterValue>
-										</Register>
-										<Register Address="0x000000DC">
-											<RegisterValue>35-30-33-33</RegisterValue>
-										</Register>
-										<Register Address="0x000000E0">
-											<RegisterValue>34-39-38-32</RegisterValue>
-										</Register>
-										<Register Address="0x000000E4">
-											<RegisterValue>39-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0000F220">
-											<RegisterValue>45-30-30-32</RegisterValue>
-										</Register>
-										<Register Address="0x0000F224">
-											<RegisterValue>32-30-32-30</RegisterValue>
-										</Register>
-										<Register Address="0x0000F228">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0000F22C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0000F230">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0000F234">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0000F238">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0000F23C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00011144">
-											<RegisterValue>06-DA-C2-C0</RegisterValue>
-										</Register>
-										<Register Address="0x00011140">
-											<RegisterValue>07-64-17-00</RegisterValue>
-										</Register>
-										<Register Address="0x00011150">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00011160">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00011164">
-											<RegisterValue>00-00-00-06</RegisterValue>
-										</Register>
-										<Register Address="0x00000940">
-											<RegisterValue>03-93-87-00</RegisterValue>
-										</Register>
-										<Register Address="0x0000094C">
-											<RegisterValue>B4-23-1E-C2</RegisterValue>
-										</Register>
-										<Register Address="0x00000948">
-											<RegisterValue>00-00-00-04</RegisterValue>
-										</Register>
-										<Register Address="0x00000D04">
-											<RegisterValue>40-00-05-DC</RegisterValue>
-										</Register>
-										<Register Address="0x00000D24">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00011170">
-											<RegisterValue>00-4C-EC-A0</RegisterValue>
-										</Register>
-										<Register Address="0x00011174">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00011168">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00013000">
-											<RegisterValue>00-00-59-05</RegisterValue>
-										</Register>
-										<Register Address="0x00013410">
-											<RegisterValue>80-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00013410">
-											<Selector SelectorName="TriggerSelector">0</Selector>
-											<RegisterValue>80-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00013408">
-											<RegisterValue>00-00-00-67</RegisterValue>
-										</Register>
-										<Register Address="0x00013400">
-											<RegisterValue>00-00-00-07</RegisterValue>
-										</Register>
-										<Register Address="0x00013418">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00013418">
-											<Selector SelectorName="TriggerSelector">0</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00013414">
-											<RegisterValue>00-00-00-1F</RegisterValue>
-										</Register>
-										<Register Address="0x00013424">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00013424">
-											<Selector SelectorName="TriggerSelector">0</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00013420">
-											<RegisterValue>00-00-00-05</RegisterValue>
-										</Register>
-										<Register Address="0x0001341C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0001341C">
-											<Selector SelectorName="TriggerSelector">0</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00013164">
-											<RegisterValue>02-22-22-22</RegisterValue>
-										</Register>
-										<Register Address="0x00013104">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00013100">
-											<RegisterValue>00-00-00-1E</RegisterValue>
-										</Register>
-										<Register Address="0x00013108">
-											<RegisterValue>00-00-00-03</RegisterValue>
-										</Register>
-										<Register Address="0x00013138">
-											<RegisterValue>00-01-A7-E2</RegisterValue>
-										</Register>
-										<Register Address="0x00013130">
-											<RegisterValue>00-01-A7-E2</RegisterValue>
-										</Register>
-										<Register Address="0x00013134">
-											<RegisterValue>04-44-44-44</RegisterValue>
-										</Register>
-										<Register Address="0x0001313C">
-											<RegisterValue>00-01-A7-E2</RegisterValue>
-										</Register>
-										<Register Address="0x0001310C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00011024">
-											<RegisterValue>00-00-09-94</RegisterValue>
-										</Register>
-										<Register Address="0x00011028">
-											<RegisterValue>00-00-08-08</RegisterValue>
-										</Register>
-										<Register Address="0x00011000">
-											<RegisterValue>00-00-01-FF</RegisterValue>
-										</Register>
-										<Register Address="0x00011108">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00011104">
-											<RegisterValue>00-00-00-07</RegisterValue>
-										</Register>
-										<Register Address="0x00011128">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00011124">
-											<RegisterValue>00-00-00-0D</RegisterValue>
-										</Register>
-										<Register Address="0x00011184">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00011180">
-											<RegisterValue>00-00-00-08</RegisterValue>
-										</Register>
-										<Register Address="0x00011194">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00011190">
-											<RegisterValue>00-00-00-08</RegisterValue>
-										</Register>
-										<Register Address="0x00012110">
-											<RegisterValue>00-00-09-94</RegisterValue>
-										</Register>
-										<Register Address="0x00012114">
-											<RegisterValue>00-00-08-08</RegisterValue>
-										</Register>
-										<Register Address="0x00012120">
-											<RegisterValue>01-08-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00012100">
-											<RegisterValue>00-00-00-62</RegisterValue>
-										</Register>
-										<Register Address="0x00012104">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00012124">
-											<RegisterValue>00-00-09-94</RegisterValue>
-										</Register>
-										<Register Address="0x00012128">
-											<RegisterValue>00-00-08-08</RegisterValue>
-										</Register>
-										<Register Address="0x0001212C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00012130">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00012200">
-											<RegisterValue>00-4C-EC-A0</RegisterValue>
-										</Register>
-										<Register Address="0x000140F0">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000140F4">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000140F8">
-											<RegisterValue>00-00-09-94</RegisterValue>
-										</Register>
-										<Register Address="0x000140FC">
-											<RegisterValue>00-00-08-08</RegisterValue>
-										</Register>
-										<Register Address="0x00014110">
-											<RegisterValue>00-00-3A-98</RegisterValue>
-										</Register>
-										<Register Address="0x00014108">
-											<RegisterValue>00-00-00-26</RegisterValue>
-										</Register>
-										<Register Address="0x0001410C">
-											<RegisterValue>03-93-87-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014104">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00014100">
-											<RegisterValue>00-00-00-1E</RegisterValue>
-										</Register>
-										<Register Address="0x00014124">
-											<RegisterValue>00-00-00-32</RegisterValue>
-										</Register>
-										<Register Address="0x00014118">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014114">
-											<RegisterValue>00-00-00-03</RegisterValue>
-										</Register>
-										<Register Address="0x0001411C">
-											<RegisterValue>00-00-00-26</RegisterValue>
-										</Register>
-										<Register Address="0x00014120">
-											<RegisterValue>00-07-A1-20</RegisterValue>
-										</Register>
-										<Register Address="0x00014128">
-											<RegisterValue>00-00-00-64</RegisterValue>
-										</Register>
-										<Register Address="0x0001412C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014130">
-											<RegisterValue>00-00-00-05</RegisterValue>
-										</Register>
-										<Register Address="0x00014150">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014148">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0001414C">
-											<RegisterValue>00-00-00-20</RegisterValue>
-										</Register>
-										<Register Address="0x00014144">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00014140">
-											<RegisterValue>00-00-00-0E</RegisterValue>
-										</Register>
-										<Register Address="0x0001415C">
-											<RegisterValue>00-00-00-32</RegisterValue>
-										</Register>
-										<Register Address="0x00014154">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014158">
-											<RegisterValue>00-00-00-20</RegisterValue>
-										</Register>
-										<Register Address="0x00014160">
-											<RegisterValue>00-00-00-64</RegisterValue>
-										</Register>
-										<Register Address="0x00014164">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014168">
-											<RegisterValue>00-00-00-05</RegisterValue>
-										</Register>
-										<Register Address="0x00014000">
-											<RegisterValue>00-00-29-1B</RegisterValue>
-										</Register>
-										<Register Address="0x000141D0">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000141C8">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000141CC">
-											<RegisterValue>00-00-03-FF</RegisterValue>
-										</Register>
-										<Register Address="0x00014364">
-											<RegisterValue>3F-80-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0001435C">
-											<RegisterValue>3E-E6-66-66</RegisterValue>
-										</Register>
-										<Register Address="0x00014360">
-											<RegisterValue>3F-80-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014204">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014208">
-											<RegisterValue>00-00-00-32</RegisterValue>
-										</Register>
-										<Register Address="0x00014214">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0001420C">
-											<RegisterValue>00-00-00-5A</RegisterValue>
-										</Register>
-										<Register Address="0x00014210">
-											<RegisterValue>00-00-00-6E</RegisterValue>
-										</Register>
-										<Register Address="0x00014240">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000142B0">
-											<RegisterValue>00-00-22-60</RegisterValue>
-										</Register>
-										<Register Address="0x00014374">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014370">
-											<RegisterValue>00-00-00-03</RegisterValue>
-										</Register>
-										<Register Address="0x00014394">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014394">
-											<Selector SelectorName="LUTSelector">0</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014394">
-											<Selector SelectorName="LUTSelector">1</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014394">
-											<Selector SelectorName="LUTSelector">2</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014380">
-											<RegisterValue>00-00-00-CC</RegisterValue>
-										</Register>
-										<Register Address="0x00014380">
-											<Selector SelectorName="LUTSelector">0</Selector>
-											<RegisterValue>00-00-00-CC</RegisterValue>
-										</Register>
-										<Register Address="0x00014380">
-											<Selector SelectorName="LUTSelector">1</Selector>
-											<RegisterValue>00-00-00-CC</RegisterValue>
-										</Register>
-										<Register Address="0x00014380">
-											<Selector SelectorName="LUTSelector">2</Selector>
-											<RegisterValue>00-00-00-CC</RegisterValue>
-										</Register>
-										<Register Address="0x0001438C">
-											<RegisterValue>00-03-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0001438C">
-											<Selector SelectorName="LUTSelector">0</Selector>
-											<RegisterValue>00-03-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0001438C">
-											<Selector SelectorName="LUTSelector">1</Selector>
-											<RegisterValue>00-03-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0001438C">
-											<Selector SelectorName="LUTSelector">2</Selector>
-											<RegisterValue>00-03-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014390">
-											<RegisterValue>00-00-20-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014390">
-											<Selector SelectorName="LUTSelector">0</Selector>
-											<RegisterValue>00-00-20-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014390">
-											<Selector SelectorName="LUTSelector">1</Selector>
-											<RegisterValue>00-00-20-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014390">
-											<Selector SelectorName="LUTSelector">2</Selector>
-											<RegisterValue>00-00-20-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014384">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014384">
-											<Selector SelectorName="LUTSelector">0</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014384">
-											<Selector SelectorName="LUTSelector">1</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014384">
-											<Selector SelectorName="LUTSelector">2</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014378">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00014398">
-											<RegisterValue>00-00-0F-FF</RegisterValue>
-										</Register>
-										<Register Address="0x00014398">
-											<Selector SelectorName="LUTIndex">0</Selector>
-											<Selector SelectorName="LUTSelector">0</Selector>
-											<RegisterValue>00-00-0F-FF</RegisterValue>
-										</Register>
-										<Register Address="0x00014398">
-											<Selector SelectorName="LUTIndex">0</Selector>
-											<Selector SelectorName="LUTSelector">1</Selector>
-											<RegisterValue>00-00-0F-FF</RegisterValue>
-										</Register>
-										<Register Address="0x00014398">
-											<Selector SelectorName="LUTIndex">0</Selector>
-											<Selector SelectorName="LUTSelector">2</Selector>
-											<RegisterValue>00-00-0F-FF</RegisterValue>
-										</Register>
-										<Register Address="0x00015110">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00015000">
-											<RegisterValue>00-00-11-33</RegisterValue>
-										</Register>
-										<Register Address="0x000151D0">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000151D0">
-											<Selector SelectorName="SyncInSelector">0</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000151C0">
-											<RegisterValue>00-00-C3-50</RegisterValue>
-										</Register>
-										<Register Address="0x00015114">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00015144">
-											<RegisterValue>00-00-00-03</RegisterValue>
-										</Register>
-										<Register Address="0x00015144">
-											<Selector SelectorName="SyncOutSelector">0</Selector>
-											<RegisterValue>00-00-00-03</RegisterValue>
-										</Register>
-										<Register Address="0x00015174">
-											<RegisterValue>00-00-00-03</RegisterValue>
-										</Register>
-										<Register Address="0x00015178">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00015160">
-											<RegisterValue>02-22-22-22</RegisterValue>
-										</Register>
-										<Register Address="0x0001517C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022000">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00022020">
-											<RegisterValue>00-00-9C-40</RegisterValue>
-										</Register>
-										<Register Address="0x00022010">
-											<RegisterValue>00-03-FC-1F</RegisterValue>
-										</Register>
-										<Register Address="0x00022024">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022024">
-											<Selector SelectorName="EventSelector">40000</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022024">
-											<Selector SelectorName="EventSelector">40001</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022024">
-											<Selector SelectorName="EventSelector">40002</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022024">
-											<Selector SelectorName="EventSelector">40003</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022024">
-											<Selector SelectorName="EventSelector">40004</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022024">
-											<Selector SelectorName="EventSelector">40010</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022024">
-											<Selector SelectorName="EventSelector">40011</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022024">
-											<Selector SelectorName="EventSelector">40012</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022024">
-											<Selector SelectorName="EventSelector">40013</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022024">
-											<Selector SelectorName="EventSelector">40014</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022024">
-											<Selector SelectorName="EventSelector">40015</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022024">
-											<Selector SelectorName="EventSelector">40016</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022024">
-											<Selector SelectorName="EventSelector">40017</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022018">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00017000">
-											<RegisterValue>00-00-00-03</RegisterValue>
-										</Register>
-										<Register Address="0x00017104">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00017104">
-											<Selector SelectorName="UserSetSelector">0</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00017100">
-											<RegisterValue>00-00-00-06</RegisterValue>
-										</Register>
-										<Register Address="0x00017108">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000134D0">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x000134D0">
-											<Selector SelectorName="TriggerSelector">3</Selector>
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x000134C8">
-											<RegisterValue>00-00-00-06</RegisterValue>
-										</Register>
-										<Register Address="0x000134C0">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x000134D8">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000134D8">
-											<Selector SelectorName="TriggerSelector">3</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00013510">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00013510">
-											<Selector SelectorName="TriggerSelector">4</Selector>
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00013508">
-											<RegisterValue>00-00-00-06</RegisterValue>
-										</Register>
-										<Register Address="0x00013500">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00013518">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00013518">
-											<Selector SelectorName="TriggerSelector">4</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00013590">
-											<RegisterValue>80-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00013590">
-											<Selector SelectorName="TriggerSelector">6</Selector>
-											<RegisterValue>80-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00013588">
-											<RegisterValue>00-00-00-06</RegisterValue>
-										</Register>
-										<Register Address="0x00013580">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00013598">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00013598">
-											<Selector SelectorName="TriggerSelector">6</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000151D4">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000151D4">
-											<Selector SelectorName="SyncInSelector">1</Selector>
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0001514C">
-											<RegisterValue>00-00-00-04</RegisterValue>
-										</Register>
-										<Register Address="0x0001514C">
-											<Selector SelectorName="SyncOutSelector">1</Selector>
-											<RegisterValue>00-00-00-04</RegisterValue>
-										</Register>
-										<Register Address="0x00000D08">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00000034">
-											<RegisterValue>FF-FF-FF-00</RegisterValue>
-										</Register>
-										<Register Address="0x00000044">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00000000">
-											<RegisterValue>00-01-00-02</RegisterValue>
-										</Register>
-										<Register Address="0x00000068">
-											<RegisterValue>4D-61-6E-74</RegisterValue>
-										</Register>
-										<Register Address="0x0000006C">
-											<RegisterValue>61-5F-47-2D</RegisterValue>
-										</Register>
-										<Register Address="0x00000070">
-											<RegisterValue>35-30-34-42</RegisterValue>
-										</Register>
-										<Register Address="0x00000074">
-											<RegisterValue>20-28-45-30</RegisterValue>
-										</Register>
-										<Register Address="0x00000078">
-											<RegisterValue>30-32-32-30</RegisterValue>
-										</Register>
-										<Register Address="0x0000007C">
-											<RegisterValue>32-30-29-00</RegisterValue>
-										</Register>
-										<Register Address="0x00000080">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00000084">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000000A8">
-											<RegisterValue>4D-61-6E-74</RegisterValue>
-										</Register>
-										<Register Address="0x000000AC">
-											<RegisterValue>61-5F-47-2D</RegisterValue>
-										</Register>
-										<Register Address="0x000000B0">
-											<RegisterValue>35-30-34-42</RegisterValue>
-										</Register>
-										<Register Address="0x000000B4">
-											<RegisterValue>7C-45-30-30</RegisterValue>
-										</Register>
-										<Register Address="0x000000B8">
-											<RegisterValue>32-32-30-32</RegisterValue>
-										</Register>
-										<Register Address="0x000000BC">
-											<RegisterValue>30-7C-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000000C0">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000000C4">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000000C8">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000000CC">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000000D0">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000000D4">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000000E8">
-											<RegisterValue>41-56-54-00</RegisterValue>
-										</Register>
-										<Register Address="0x000000EC">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000000F0">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000000F4">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00000938">
-											<RegisterValue>00-00-0B-B8</RegisterValue>
-										</Register>
-										<Register Address="0x00000008">
-											<RegisterValue>00-00-00-0F</RegisterValue>
-										</Register>
-										<Register Address="0x0000000C">
-											<RegisterValue>31-4C-CB-E1</RegisterValue>
-										</Register>
-										<Register Address="0x00000024">
-											<RegisterValue>C0-A8-FA-DF</RegisterValue>
-										</Register>
-										<Register Address="0x00000014">
-											<RegisterValue>00-00-00-06</RegisterValue>
-										</Register>
-										<Register Address="0x0000064C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0000065C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0000066C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00000934">
-											<RegisterValue>C0-00-00-0F</RegisterValue>
-										</Register>
-										<Register Address="0x0000092C">
-											<RegisterValue>80-00-00-00</RegisterValue>
-										</Register>
-									</RegisterValues>
-									<MetaData>
-										<IntTriggerSelector>
-											<FloatingValue>0</FloatingValue>
-										</IntTriggerSelector>
-										<ExposureMode>
-											<FloatingValue>1</FloatingValue>
-										</ExposureMode>
-										<GainSelector>
-											<FloatingValue>0</FloatingValue>
-										</GainSelector>
-										<BlackLevelSelector>
-											<FloatingValue>0</FloatingValue>
-										</BlackLevelSelector>
-										<IntBalanceRatioSelector>
-											<FloatingValue>0</FloatingValue>
-										</IntBalanceRatioSelector>
-										<ColorTransformationValueIndex>
-											<FloatingValue>0</FloatingValue>
-										</ColorTransformationValueIndex>
-										<IntSyncInSelector>
-											<FloatingValue>0</FloatingValue>
-										</IntSyncInSelector>
-										<IntSyncOutSelector>
-											<FloatingValue>0</FloatingValue>
-										</IntSyncOutSelector>
-									</MetaData>
-									<DesiredValues>
-										<Register Address="0x00011144">
-											<RegisterValue>06-DA-C2-C0</RegisterValue>
-										</Register>
-										<Register Address="0x00011150">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00011160">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00000D24">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00011168">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00013410">
-											<RegisterValue>80-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00013418">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00013424">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0001341C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00013104">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00013108">
-											<RegisterValue>00-00-00-03</RegisterValue>
-										</Register>
-										<Register Address="0x00013138">
-											<RegisterValue>00-01-A7-E2</RegisterValue>
-										</Register>
-										<Register Address="0x0001310C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00011108">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00011128">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00011184">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00011194">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00012120">
-											<RegisterValue>01-08-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00012124">
-											<RegisterValue>00-00-09-94</RegisterValue>
-										</Register>
-										<Register Address="0x00012128">
-											<RegisterValue>00-00-08-08</RegisterValue>
-										</Register>
-										<Register Address="0x0001212C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00012130">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000140F0">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000140F4">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x000140F8">
-											<RegisterValue>00-00-09-94</RegisterValue>
-										</Register>
-										<Register Address="0x000140FC">
-											<RegisterValue>00-00-08-08</RegisterValue>
-										</Register>
-										<Register Address="0x00014110">
-											<RegisterValue>00-00-3A-98</RegisterValue>
-										</Register>
-										<Register Address="0x00014104">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x00014124">
-											<RegisterValue>00-00-00-32</RegisterValue>
-										</Register>
-										<Register Address="0x00014118">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0001411C">
-											<RegisterValue>00-00-00-26</RegisterValue>
-										</Register>
-										<Register Address="0x00014120">
-											<RegisterValue>00-07-A1-20</RegisterValue>
-										</Register>
-										<Register Address="0x00014128">
-											<RegisterValue>00-00-00-64</RegisterValue>
-										</Register>
-										<Register Address="0x0001412C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014130">
-											<RegisterValue>00-00-00-05</RegisterValue>
-										</Register>
-										<Register Address="0x00014150">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014144">
-											<RegisterValue>00-00-00-01</RegisterValue>
-										</Register>
-										<Register Address="0x0001415C">
-											<RegisterValue>00-00-00-32</RegisterValue>
-										</Register>
-										<Register Address="0x00014154">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014158">
-											<RegisterValue>00-00-00-20</RegisterValue>
-										</Register>
-										<Register Address="0x00014160">
-											<RegisterValue>00-00-00-64</RegisterValue>
-										</Register>
-										<Register Address="0x00014164">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014168">
-											<RegisterValue>00-00-00-05</RegisterValue>
-										</Register>
-										<Register Address="0x000141D0">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014364">
-											<RegisterValue>3F-80-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014204">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014208">
-											<RegisterValue>00-00-00-32</RegisterValue>
-										</Register>
-										<Register Address="0x0001420C">
-											<RegisterValue>00-00-00-5A</RegisterValue>
-										</Register>
-										<Register Address="0x00014210">
-											<RegisterValue>00-00-00-6E</RegisterValue>
-										</Register>
-										<Register Address="0x00014374">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014384">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014394">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00014398">
-											<RegisterValue>00-00-0F-FF</RegisterValue>
-										</Register>
-										<Register Address="0x000151D0">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00015114">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00015144">
-											<RegisterValue>00-00-00-03</RegisterValue>
-										</Register>
-										<Register Address="0x00015174">
-											<RegisterValue>00-00-00-03</RegisterValue>
-										</Register>
-										<Register Address="0x00015178">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x0001517C">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022020">
-											<RegisterValue>00-00-9C-40</RegisterValue>
-										</Register>
-										<Register Address="0x00022024">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00022018">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00017104">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-										<Register Address="0x00017108">
-											<RegisterValue>00-00-00-00</RegisterValue>
-										</Register>
-									</DesiredValues>
-								</TreeValueCache>
-								<CommonFeature>
-									<CommonFeatureName>DeviceVendorName</CommonFeatureName>
-									<CommonFeatureName>DeviceModelName</CommonFeatureName>
-									<CommonFeatureName>DeviceVersion</CommonFeatureName>
-									<CommonFeatureName>DeviceFirmwareVersion</CommonFeatureName>
-									<CommonFeatureName>DeviceLinkSpeed</CommonFeatureName>
-									<CommonFeatureName>SensorWidth</CommonFeatureName>
-									<CommonFeatureName>SensorHeight</CommonFeatureName>
-									<CommonFeatureName>RegionSelector</CommonFeatureName>
-									<CommonFeatureName>RegionMode</CommonFeatureName>
-									<CommonFeatureName>Width</CommonFeatureName>
-									<CommonFeatureName>Height</CommonFeatureName>
-									<CommonFeatureName>OffsetX</CommonFeatureName>
-									<CommonFeatureName>OffsetY</CommonFeatureName>
-									<CommonFeatureName>ReverseX</CommonFeatureName>
-									<CommonFeatureName>ReverseY</CommonFeatureName>
-									<CommonFeatureName>PixelFormat</CommonFeatureName>
-									<CommonFeatureName>AcquisitionMode</CommonFeatureName>
-									<CommonFeatureName>AcquisitionFrameRate</CommonFeatureName>
-									<CommonFeatureName>AcquisitionFrameRateEnable</CommonFeatureName>
-									<CommonFeatureName>TriggerSelector</CommonFeatureName>
-									<CommonFeatureName>TriggerMode</CommonFeatureName>
-									<CommonFeatureName>TriggerSource</CommonFeatureName>
-									<CommonFeatureName>ExposureTimeSelector</CommonFeatureName>
-									<CommonFeatureName>ExposureTime</CommonFeatureName>
-									<CommonFeatureName>BalanceRatioSelector</CommonFeatureName>
-									<CommonFeatureName>BalanceRatio</CommonFeatureName>
-								</CommonFeature>
 								<GenApiFileCache>
 									<RegisterDescription ModelName="MANTA_A_SONY" VendorName="Allied_Vision_Technologies" StandardNameSpace="None" SchemaMajorVersion="1" SchemaMinorVersion="0" SchemaSubMinorVersion="1" MajorVersion="300" MinorVersion="9" SubMinorVersion="0" ToolTip="Allied_Vision_Technologies" ProductGuid="c04c739b-1f97-4e2f-9231-56a8796640ac" VersionGuid="0e47bc53-53c0-4b46-bbe4-1956d3526e82" xmlns="http://www.genicam.org/GenApi/Version_1_0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 										<TcVnSerializationNode TcVnAttributeName="{http://www.w3.org/2001/XMLSchema-instance}schemaLocation" TcVnAttributeValue="http://www.genicam.org/GenApi/Version_1_0 http://www.genicam.org/GenApi/GenApiSchema_Version_1_0.xsd" xmlns=""/>
@@ -12320,6 +11961,1106 @@ External Setpoint Generation:
 										<Port Name="Device" NameSpace="Standard"/>
 									</RegisterDescription>
 								</GenApiFileCache>
+								<TreeValueCache>
+									<RegisterValues>
+										<Register Address="0x0000F110">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x0000F114">
+											<RegisterValue>00-00-00-2C</RegisterValue>
+										</Register>
+										<Register Address="0x0000F118">
+											<RegisterValue>00-00-00-09</RegisterValue>
+										</Register>
+										<Register Address="0x00011020">
+											<RegisterValue>00-00-0C-00</RegisterValue>
+										</Register>
+										<Register Address="0x00000048">
+											<RegisterValue>41-6C-6C-69</RegisterValue>
+										</Register>
+										<Register Address="0x0000004C">
+											<RegisterValue>65-64-20-56</RegisterValue>
+										</Register>
+										<Register Address="0x00000050">
+											<RegisterValue>69-73-69-6F</RegisterValue>
+										</Register>
+										<Register Address="0x00000054">
+											<RegisterValue>6E-20-54-65</RegisterValue>
+										</Register>
+										<Register Address="0x00000058">
+											<RegisterValue>63-68-6E-6F</RegisterValue>
+										</Register>
+										<Register Address="0x0000005C">
+											<RegisterValue>6C-6F-67-69</RegisterValue>
+										</Register>
+										<Register Address="0x00000060">
+											<RegisterValue>65-73-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00000064">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0000F200">
+											<RegisterValue>4D-61-6E-74</RegisterValue>
+										</Register>
+										<Register Address="0x0000F204">
+											<RegisterValue>61-5F-47-2D</RegisterValue>
+										</Register>
+										<Register Address="0x0000F208">
+											<RegisterValue>35-30-34-42</RegisterValue>
+										</Register>
+										<Register Address="0x0000F20C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0000F210">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0000F214">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0000F218">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0000F21C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00000088">
+											<RegisterValue>30-30-2E-30</RegisterValue>
+										</Register>
+										<Register Address="0x0000008C">
+											<RegisterValue>31-2E-34-34</RegisterValue>
+										</Register>
+										<Register Address="0x00000090">
+											<RegisterValue>2E-30-39-20</RegisterValue>
+										</Register>
+										<Register Address="0x00000094">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00000098">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0000009C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000000A0">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000000A4">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000000D8">
+											<RegisterValue>35-30-2D-30</RegisterValue>
+										</Register>
+										<Register Address="0x000000DC">
+											<RegisterValue>35-30-33-33</RegisterValue>
+										</Register>
+										<Register Address="0x000000E0">
+											<RegisterValue>34-39-38-32</RegisterValue>
+										</Register>
+										<Register Address="0x000000E4">
+											<RegisterValue>39-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0000F220">
+											<RegisterValue>45-30-30-32</RegisterValue>
+										</Register>
+										<Register Address="0x0000F224">
+											<RegisterValue>32-30-32-30</RegisterValue>
+										</Register>
+										<Register Address="0x0000F228">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0000F22C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0000F230">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0000F234">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0000F238">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0000F23C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00011144">
+											<RegisterValue>00-BD-35-80</RegisterValue>
+										</Register>
+										<Register Address="0x00011140">
+											<RegisterValue>00-BD-35-80</RegisterValue>
+										</Register>
+										<Register Address="0x00011150">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00011160">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00011164">
+											<RegisterValue>00-00-00-06</RegisterValue>
+										</Register>
+										<Register Address="0x00000940">
+											<RegisterValue>03-93-87-00</RegisterValue>
+										</Register>
+										<Register Address="0x0000094C">
+											<RegisterValue>79-07-07-0E</RegisterValue>
+										</Register>
+										<Register Address="0x00000948">
+											<RegisterValue>00-00-00-40</RegisterValue>
+										</Register>
+										<Register Address="0x00000D04">
+											<RegisterValue>40-00-05-DC</RegisterValue>
+										</Register>
+										<Register Address="0x00000D24">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00011170">
+											<RegisterValue>00-4C-EC-A0</RegisterValue>
+										</Register>
+										<Register Address="0x00011174">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00011168">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00013000">
+											<RegisterValue>00-00-59-05</RegisterValue>
+										</Register>
+										<Register Address="0x00013410">
+											<RegisterValue>80-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00013410">
+											<Selector SelectorName="TriggerSelector">0</Selector>
+											<RegisterValue>80-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00013408">
+											<RegisterValue>00-00-00-67</RegisterValue>
+										</Register>
+										<Register Address="0x00013400">
+											<RegisterValue>00-00-00-07</RegisterValue>
+										</Register>
+										<Register Address="0x00013418">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00013418">
+											<Selector SelectorName="TriggerSelector">0</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00013414">
+											<RegisterValue>00-00-00-1F</RegisterValue>
+										</Register>
+										<Register Address="0x00013424">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00013424">
+											<Selector SelectorName="TriggerSelector">0</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00013420">
+											<RegisterValue>00-00-00-05</RegisterValue>
+										</Register>
+										<Register Address="0x0001341C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0001341C">
+											<Selector SelectorName="TriggerSelector">0</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00013164">
+											<RegisterValue>02-22-22-22</RegisterValue>
+										</Register>
+										<Register Address="0x00013104">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00013100">
+											<RegisterValue>00-00-00-1E</RegisterValue>
+										</Register>
+										<Register Address="0x00013108">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00013138">
+											<RegisterValue>00-06-9B-04</RegisterValue>
+										</Register>
+										<Register Address="0x00013130">
+											<RegisterValue>00-06-9B-04</RegisterValue>
+										</Register>
+										<Register Address="0x00013134">
+											<RegisterValue>04-44-44-44</RegisterValue>
+										</Register>
+										<Register Address="0x0001313C">
+											<RegisterValue>00-06-9B-04</RegisterValue>
+										</Register>
+										<Register Address="0x0001310C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00011024">
+											<RegisterValue>00-00-09-94</RegisterValue>
+										</Register>
+										<Register Address="0x00011028">
+											<RegisterValue>00-00-08-08</RegisterValue>
+										</Register>
+										<Register Address="0x00011000">
+											<RegisterValue>00-00-01-FF</RegisterValue>
+										</Register>
+										<Register Address="0x00011108">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00011104">
+											<RegisterValue>00-00-00-07</RegisterValue>
+										</Register>
+										<Register Address="0x00011128">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00011124">
+											<RegisterValue>00-00-00-0D</RegisterValue>
+										</Register>
+										<Register Address="0x00011184">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00011180">
+											<RegisterValue>00-00-00-08</RegisterValue>
+										</Register>
+										<Register Address="0x00011194">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00011190">
+											<RegisterValue>00-00-00-08</RegisterValue>
+										</Register>
+										<Register Address="0x00012110">
+											<RegisterValue>00-00-09-94</RegisterValue>
+										</Register>
+										<Register Address="0x00012114">
+											<RegisterValue>00-00-08-08</RegisterValue>
+										</Register>
+										<Register Address="0x00012120">
+											<RegisterValue>01-08-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00012100">
+											<RegisterValue>00-00-00-62</RegisterValue>
+										</Register>
+										<Register Address="0x00012104">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00012124">
+											<RegisterValue>00-00-09-94</RegisterValue>
+										</Register>
+										<Register Address="0x00012128">
+											<RegisterValue>00-00-08-08</RegisterValue>
+										</Register>
+										<Register Address="0x0001212C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00012130">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00012200">
+											<RegisterValue>00-4C-EC-A0</RegisterValue>
+										</Register>
+										<Register Address="0x000140F0">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000140F4">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000140F8">
+											<RegisterValue>FF-FF-FF-FF</RegisterValue>
+										</Register>
+										<Register Address="0x000140FC">
+											<RegisterValue>FF-FF-FF-FF</RegisterValue>
+										</Register>
+										<Register Address="0x00014110">
+											<RegisterValue>00-00-3A-98</RegisterValue>
+										</Register>
+										<Register Address="0x00014108">
+											<RegisterValue>00-00-00-26</RegisterValue>
+										</Register>
+										<Register Address="0x0001410C">
+											<RegisterValue>03-93-87-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014104">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00014100">
+											<RegisterValue>00-00-00-1E</RegisterValue>
+										</Register>
+										<Register Address="0x00014124">
+											<RegisterValue>00-00-00-32</RegisterValue>
+										</Register>
+										<Register Address="0x00014118">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014114">
+											<RegisterValue>00-00-00-03</RegisterValue>
+										</Register>
+										<Register Address="0x0001411C">
+											<RegisterValue>00-00-00-26</RegisterValue>
+										</Register>
+										<Register Address="0x00014120">
+											<RegisterValue>00-07-A1-20</RegisterValue>
+										</Register>
+										<Register Address="0x00014128">
+											<RegisterValue>00-00-00-64</RegisterValue>
+										</Register>
+										<Register Address="0x0001412C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014130">
+											<RegisterValue>00-00-00-05</RegisterValue>
+										</Register>
+										<Register Address="0x00014150">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014148">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0001414C">
+											<RegisterValue>00-00-00-20</RegisterValue>
+										</Register>
+										<Register Address="0x00014144">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00014140">
+											<RegisterValue>00-00-00-0E</RegisterValue>
+										</Register>
+										<Register Address="0x0001415C">
+											<RegisterValue>00-00-00-32</RegisterValue>
+										</Register>
+										<Register Address="0x00014154">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014158">
+											<RegisterValue>00-00-00-20</RegisterValue>
+										</Register>
+										<Register Address="0x00014160">
+											<RegisterValue>00-00-00-64</RegisterValue>
+										</Register>
+										<Register Address="0x00014164">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014168">
+											<RegisterValue>00-00-00-05</RegisterValue>
+										</Register>
+										<Register Address="0x00014000">
+											<RegisterValue>00-00-29-1B</RegisterValue>
+										</Register>
+										<Register Address="0x000141D0">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000141C8">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000141CC">
+											<RegisterValue>00-00-03-FF</RegisterValue>
+										</Register>
+										<Register Address="0x00014364">
+											<RegisterValue>3F-80-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0001435C">
+											<RegisterValue>3E-E6-66-66</RegisterValue>
+										</Register>
+										<Register Address="0x00014360">
+											<RegisterValue>3F-80-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014204">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014208">
+											<RegisterValue>00-00-00-32</RegisterValue>
+										</Register>
+										<Register Address="0x00014214">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0001420C">
+											<RegisterValue>00-00-00-5A</RegisterValue>
+										</Register>
+										<Register Address="0x00014210">
+											<RegisterValue>00-00-00-6E</RegisterValue>
+										</Register>
+										<Register Address="0x00014240">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000142B0">
+											<RegisterValue>00-00-22-60</RegisterValue>
+										</Register>
+										<Register Address="0x00014374">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014370">
+											<RegisterValue>00-00-00-03</RegisterValue>
+										</Register>
+										<Register Address="0x00014394">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014394">
+											<Selector SelectorName="LUTSelector">0</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014394">
+											<Selector SelectorName="LUTSelector">1</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014394">
+											<Selector SelectorName="LUTSelector">2</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014380">
+											<RegisterValue>00-00-00-CC</RegisterValue>
+										</Register>
+										<Register Address="0x00014380">
+											<Selector SelectorName="LUTSelector">0</Selector>
+											<RegisterValue>00-00-00-CC</RegisterValue>
+										</Register>
+										<Register Address="0x00014380">
+											<Selector SelectorName="LUTSelector">1</Selector>
+											<RegisterValue>00-00-00-CC</RegisterValue>
+										</Register>
+										<Register Address="0x00014380">
+											<Selector SelectorName="LUTSelector">2</Selector>
+											<RegisterValue>00-00-00-CC</RegisterValue>
+										</Register>
+										<Register Address="0x0001438C">
+											<RegisterValue>00-03-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0001438C">
+											<Selector SelectorName="LUTSelector">0</Selector>
+											<RegisterValue>00-03-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0001438C">
+											<Selector SelectorName="LUTSelector">1</Selector>
+											<RegisterValue>00-03-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0001438C">
+											<Selector SelectorName="LUTSelector">2</Selector>
+											<RegisterValue>00-03-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014390">
+											<RegisterValue>00-00-20-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014390">
+											<Selector SelectorName="LUTSelector">0</Selector>
+											<RegisterValue>00-00-20-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014390">
+											<Selector SelectorName="LUTSelector">1</Selector>
+											<RegisterValue>00-00-20-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014390">
+											<Selector SelectorName="LUTSelector">2</Selector>
+											<RegisterValue>00-00-20-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014384">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014384">
+											<Selector SelectorName="LUTSelector">0</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014384">
+											<Selector SelectorName="LUTSelector">1</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014384">
+											<Selector SelectorName="LUTSelector">2</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014378">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00014398">
+											<RegisterValue>00-00-0F-FF</RegisterValue>
+										</Register>
+										<Register Address="0x00014398">
+											<Selector SelectorName="LUTIndex">0</Selector>
+											<Selector SelectorName="LUTSelector">0</Selector>
+											<RegisterValue>00-00-0F-FF</RegisterValue>
+										</Register>
+										<Register Address="0x00014398">
+											<Selector SelectorName="LUTIndex">0</Selector>
+											<Selector SelectorName="LUTSelector">1</Selector>
+											<RegisterValue>00-00-0F-FF</RegisterValue>
+										</Register>
+										<Register Address="0x00014398">
+											<Selector SelectorName="LUTIndex">0</Selector>
+											<Selector SelectorName="LUTSelector">2</Selector>
+											<RegisterValue>00-00-0F-FF</RegisterValue>
+										</Register>
+										<Register Address="0x00015110">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00015000">
+											<RegisterValue>00-00-11-33</RegisterValue>
+										</Register>
+										<Register Address="0x000151D0">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000151D0">
+											<Selector SelectorName="SyncInSelector">0</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000151C0">
+											<RegisterValue>00-00-C3-50</RegisterValue>
+										</Register>
+										<Register Address="0x00015114">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00015144">
+											<RegisterValue>00-00-00-03</RegisterValue>
+										</Register>
+										<Register Address="0x00015144">
+											<Selector SelectorName="SyncOutSelector">0</Selector>
+											<RegisterValue>00-00-00-03</RegisterValue>
+										</Register>
+										<Register Address="0x00015174">
+											<RegisterValue>00-00-00-03</RegisterValue>
+										</Register>
+										<Register Address="0x00015178">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00015160">
+											<RegisterValue>02-22-22-22</RegisterValue>
+										</Register>
+										<Register Address="0x0001517C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022000">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00022020">
+											<RegisterValue>00-00-9C-40</RegisterValue>
+										</Register>
+										<Register Address="0x00022010">
+											<RegisterValue>00-03-FC-1F</RegisterValue>
+										</Register>
+										<Register Address="0x00022024">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022024">
+											<Selector SelectorName="EventSelector">40000</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022024">
+											<Selector SelectorName="EventSelector">40001</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022024">
+											<Selector SelectorName="EventSelector">40002</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022024">
+											<Selector SelectorName="EventSelector">40003</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022024">
+											<Selector SelectorName="EventSelector">40004</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022024">
+											<Selector SelectorName="EventSelector">40010</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022024">
+											<Selector SelectorName="EventSelector">40011</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022024">
+											<Selector SelectorName="EventSelector">40012</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022024">
+											<Selector SelectorName="EventSelector">40013</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022024">
+											<Selector SelectorName="EventSelector">40014</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022024">
+											<Selector SelectorName="EventSelector">40015</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022024">
+											<Selector SelectorName="EventSelector">40016</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022024">
+											<Selector SelectorName="EventSelector">40017</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022018">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00017000">
+											<RegisterValue>00-00-00-03</RegisterValue>
+										</Register>
+										<Register Address="0x00017104">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00017104">
+											<Selector SelectorName="UserSetSelector">0</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00017100">
+											<RegisterValue>00-00-00-06</RegisterValue>
+										</Register>
+										<Register Address="0x00017108">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000134D0">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x000134D0">
+											<Selector SelectorName="TriggerSelector">3</Selector>
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x000134C8">
+											<RegisterValue>00-00-00-06</RegisterValue>
+										</Register>
+										<Register Address="0x000134C0">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x000134D8">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000134D8">
+											<Selector SelectorName="TriggerSelector">3</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00013510">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00013510">
+											<Selector SelectorName="TriggerSelector">4</Selector>
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00013508">
+											<RegisterValue>00-00-00-06</RegisterValue>
+										</Register>
+										<Register Address="0x00013500">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00013518">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00013518">
+											<Selector SelectorName="TriggerSelector">4</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00013590">
+											<RegisterValue>80-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00013590">
+											<Selector SelectorName="TriggerSelector">6</Selector>
+											<RegisterValue>80-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00013588">
+											<RegisterValue>00-00-00-06</RegisterValue>
+										</Register>
+										<Register Address="0x00013580">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00013598">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00013598">
+											<Selector SelectorName="TriggerSelector">6</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000151D4">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000151D4">
+											<Selector SelectorName="SyncInSelector">1</Selector>
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0001514C">
+											<RegisterValue>00-00-00-04</RegisterValue>
+										</Register>
+										<Register Address="0x0001514C">
+											<Selector SelectorName="SyncOutSelector">1</Selector>
+											<RegisterValue>00-00-00-04</RegisterValue>
+										</Register>
+										<Register Address="0x00000D08">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00000034">
+											<RegisterValue>FF-FF-FF-00</RegisterValue>
+										</Register>
+										<Register Address="0x00000044">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00000068">
+											<RegisterValue>4D-61-6E-74</RegisterValue>
+										</Register>
+										<Register Address="0x0000006C">
+											<RegisterValue>61-5F-47-2D</RegisterValue>
+										</Register>
+										<Register Address="0x00000070">
+											<RegisterValue>35-30-34-42</RegisterValue>
+										</Register>
+										<Register Address="0x00000074">
+											<RegisterValue>20-28-45-30</RegisterValue>
+										</Register>
+										<Register Address="0x00000078">
+											<RegisterValue>30-32-32-30</RegisterValue>
+										</Register>
+										<Register Address="0x0000007C">
+											<RegisterValue>32-30-29-00</RegisterValue>
+										</Register>
+										<Register Address="0x00000080">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00000084">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000000A8">
+											<RegisterValue>4D-61-6E-74</RegisterValue>
+										</Register>
+										<Register Address="0x000000AC">
+											<RegisterValue>61-5F-47-2D</RegisterValue>
+										</Register>
+										<Register Address="0x000000B0">
+											<RegisterValue>35-30-34-42</RegisterValue>
+										</Register>
+										<Register Address="0x000000B4">
+											<RegisterValue>7C-45-30-30</RegisterValue>
+										</Register>
+										<Register Address="0x000000B8">
+											<RegisterValue>32-32-30-32</RegisterValue>
+										</Register>
+										<Register Address="0x000000BC">
+											<RegisterValue>30-7C-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000000C0">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000000C4">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000000C8">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000000CC">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000000D0">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000000D4">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00000938">
+											<RegisterValue>00-00-0B-B8</RegisterValue>
+										</Register>
+										<Register Address="0x00000024">
+											<RegisterValue>C0-A8-FA-C0</RegisterValue>
+										</Register>
+										<Register Address="0x0000064C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0000065C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0000066C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000000E8">
+											<RegisterValue>41-56-54-00</RegisterValue>
+										</Register>
+										<Register Address="0x000000EC">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000000F0">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000000F4">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00000000">
+											<RegisterValue>00-01-00-02</RegisterValue>
+										</Register>
+										<Register Address="0x00000008">
+											<RegisterValue>00-00-00-0F</RegisterValue>
+										</Register>
+										<Register Address="0x0000000C">
+											<RegisterValue>31-4C-CB-E1</RegisterValue>
+										</Register>
+										<Register Address="0x00000014">
+											<RegisterValue>00-00-00-06</RegisterValue>
+										</Register>
+										<Register Address="0x00000934">
+											<RegisterValue>C0-00-00-0F</RegisterValue>
+										</Register>
+										<Register Address="0x0000092C">
+											<RegisterValue>80-00-00-00</RegisterValue>
+										</Register>
+									</RegisterValues>
+									<MetaData>
+										<IntTriggerSelector>
+											<FloatingValue>0</FloatingValue>
+										</IntTriggerSelector>
+										<ExposureMode>
+											<FloatingValue>1</FloatingValue>
+										</ExposureMode>
+										<GainSelector>
+											<FloatingValue>0</FloatingValue>
+										</GainSelector>
+										<BlackLevelSelector>
+											<FloatingValue>0</FloatingValue>
+										</BlackLevelSelector>
+										<IntBalanceRatioSelector>
+											<FloatingValue>0</FloatingValue>
+										</IntBalanceRatioSelector>
+										<ColorTransformationValueIndex>
+											<FloatingValue>0</FloatingValue>
+										</ColorTransformationValueIndex>
+										<IntSyncInSelector>
+											<FloatingValue>0</FloatingValue>
+										</IntSyncInSelector>
+										<IntSyncOutSelector>
+											<FloatingValue>0</FloatingValue>
+										</IntSyncOutSelector>
+									</MetaData>
+									<DesiredValues>
+										<Register Address="0x00011144">
+											<RegisterValue>00-BD-35-80</RegisterValue>
+										</Register>
+										<Register Address="0x00011150">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00011160">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00000D24">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00011168">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00013410">
+											<RegisterValue>80-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00013418">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00013424">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0001341C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00013104">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00013108">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00013138">
+											<RegisterValue>00-01-A7-E2</RegisterValue>
+										</Register>
+										<Register Address="0x0001310C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00011108">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00011128">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00011184">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00011194">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00012120">
+											<RegisterValue>01-08-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00012124">
+											<RegisterValue>00-00-09-94</RegisterValue>
+										</Register>
+										<Register Address="0x00012128">
+											<RegisterValue>00-00-08-08</RegisterValue>
+										</Register>
+										<Register Address="0x0001212C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00012130">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000140F0">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000140F4">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x000140F8">
+											<RegisterValue>FF-FF-FF-FF</RegisterValue>
+										</Register>
+										<Register Address="0x000140FC">
+											<RegisterValue>FF-FF-FF-FF</RegisterValue>
+										</Register>
+										<Register Address="0x00014110">
+											<RegisterValue>00-00-3A-98</RegisterValue>
+										</Register>
+										<Register Address="0x00014104">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x00014124">
+											<RegisterValue>00-00-00-32</RegisterValue>
+										</Register>
+										<Register Address="0x00014118">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0001411C">
+											<RegisterValue>00-00-00-26</RegisterValue>
+										</Register>
+										<Register Address="0x00014120">
+											<RegisterValue>00-07-A1-20</RegisterValue>
+										</Register>
+										<Register Address="0x00014128">
+											<RegisterValue>00-00-00-64</RegisterValue>
+										</Register>
+										<Register Address="0x0001412C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014130">
+											<RegisterValue>00-00-00-05</RegisterValue>
+										</Register>
+										<Register Address="0x00014150">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014144">
+											<RegisterValue>00-00-00-01</RegisterValue>
+										</Register>
+										<Register Address="0x0001415C">
+											<RegisterValue>00-00-00-32</RegisterValue>
+										</Register>
+										<Register Address="0x00014154">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014158">
+											<RegisterValue>00-00-00-20</RegisterValue>
+										</Register>
+										<Register Address="0x00014160">
+											<RegisterValue>00-00-00-64</RegisterValue>
+										</Register>
+										<Register Address="0x00014164">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014168">
+											<RegisterValue>00-00-00-05</RegisterValue>
+										</Register>
+										<Register Address="0x000141D0">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014364">
+											<RegisterValue>3F-80-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014204">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014208">
+											<RegisterValue>00-00-00-32</RegisterValue>
+										</Register>
+										<Register Address="0x0001420C">
+											<RegisterValue>00-00-00-5A</RegisterValue>
+										</Register>
+										<Register Address="0x00014210">
+											<RegisterValue>00-00-00-6E</RegisterValue>
+										</Register>
+										<Register Address="0x00014374">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014384">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014394">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00014398">
+											<RegisterValue>00-00-0F-FF</RegisterValue>
+										</Register>
+										<Register Address="0x000151D0">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00015114">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00015144">
+											<RegisterValue>00-00-00-03</RegisterValue>
+										</Register>
+										<Register Address="0x00015174">
+											<RegisterValue>00-00-00-03</RegisterValue>
+										</Register>
+										<Register Address="0x00015178">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x0001517C">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022020">
+											<RegisterValue>00-00-9C-40</RegisterValue>
+										</Register>
+										<Register Address="0x00022024">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00022018">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00017104">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+										<Register Address="0x00017108">
+											<RegisterValue>00-00-00-00</RegisterValue>
+										</Register>
+									</DesiredValues>
+								</TreeValueCache>
+								<CameraInfoCache>
+									<DeviceInformation>
+										<Version>65538</Version>
+										<DeviceMode>2147483649</DeviceMode>
+										<MacAddress>65251625953</MacAddress>
+										<IpAddress>3232299712</IpAddress>
+										<SubnetMask>4294967040</SubnetMask>
+										<DefaultGateway>0</DefaultGateway>
+										<ManufacturerName>Allied Vision Technologies</ManufacturerName>
+										<ModelName>Manta_G-504B (E0022020)</ModelName>
+										<DeviceVersion>00.01.44.09 </DeviceVersion>
+										<ManufacturerInfo>Manta_G-504B|E0022020|</ManufacturerInfo>
+										<SerialNumber>50-0503349829</SerialNumber>
+										<UserDefinedName>AVT</UserDefinedName>
+										<GvcpCapability>3221225487</GvcpCapability>
+										<TimestampTickFrequency>60000000</TimestampTickFrequency>
+										<NumberMessageChannels>1</NumberMessageChannels>
+									</DeviceInformation>
+								</CameraInfoCache>
+								<CommonFeature>
+									<CommonFeatureName>DeviceVendorName</CommonFeatureName>
+									<CommonFeatureName>DeviceModelName</CommonFeatureName>
+									<CommonFeatureName>DeviceVersion</CommonFeatureName>
+									<CommonFeatureName>DeviceFirmwareVersion</CommonFeatureName>
+									<CommonFeatureName>DeviceLinkSpeed</CommonFeatureName>
+									<CommonFeatureName>SensorWidth</CommonFeatureName>
+									<CommonFeatureName>SensorHeight</CommonFeatureName>
+									<CommonFeatureName>RegionSelector</CommonFeatureName>
+									<CommonFeatureName>RegionMode</CommonFeatureName>
+									<CommonFeatureName>Width</CommonFeatureName>
+									<CommonFeatureName>Height</CommonFeatureName>
+									<CommonFeatureName>OffsetX</CommonFeatureName>
+									<CommonFeatureName>OffsetY</CommonFeatureName>
+									<CommonFeatureName>ReverseX</CommonFeatureName>
+									<CommonFeatureName>ReverseY</CommonFeatureName>
+									<CommonFeatureName>PixelFormat</CommonFeatureName>
+									<CommonFeatureName>AcquisitionMode</CommonFeatureName>
+									<CommonFeatureName>AcquisitionFrameRate</CommonFeatureName>
+									<CommonFeatureName>AcquisitionFrameRateEnable</CommonFeatureName>
+									<CommonFeatureName>TriggerSelector</CommonFeatureName>
+									<CommonFeatureName>TriggerMode</CommonFeatureName>
+									<CommonFeatureName>TriggerSource</CommonFeatureName>
+									<CommonFeatureName>ExposureTimeSelector</CommonFeatureName>
+									<CommonFeatureName>ExposureTime</CommonFeatureName>
+									<CommonFeatureName>BalanceRatioSelector</CommonFeatureName>
+									<CommonFeatureName>BalanceRatio</CommonFeatureName>
+								</CommonFeature>
 								<InitCameraCommandsEditorSettings>
 									<CameraRegisterCategoryVisibility>0</CameraRegisterCategoryVisibility>
 								</InitCameraCommandsEditorSettings>
@@ -12327,7 +13068,7 @@ External Setpoint Generation:
 									<UserSet Name="UserSet" IsChecked="false" Data="0"/>
 									<ForceIp Name="ForceIp" IsChecked="false"/>
 									<CameraRegister Name="Camera Features" IsChecked="true">
-										<CameraRegisterChild Index="0" Name="StreamBytesPerSecond" Address="0x00011144" Data="06-DA-C2-C0" Value="115000000" Key="0" InternalKey="0" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
+										<CameraRegisterChild Index="0" Name="StreamBytesPerSecond" Address="0x00011144" Data="00-BD-35-80" Value="12400000" Key="0" InternalKey="0" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 										<CameraRegisterChild Index="1" Name="BandwidthControlMode" Address="0x00011150" Data="00-00-00-00" Value="0" Key="1" InternalKey="1" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 										<CameraRegisterChild Index="2" Name="StreamHoldEnable" Address="0x00011160" Data="00-00-00-00" Value="0" Key="2" InternalKey="2" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 										<CameraRegisterChild Index="3" Name="StreamFrameRateConstrain" Address="0x00011168" Data="00-00-00-01" Value="1" Key="5" InternalKey="5" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
@@ -12353,7 +13094,7 @@ External Setpoint Generation:
 										</CameraRegisterChild>
 										<CameraRegisterChild Index="6" Name="TriggerSelector" Address="0xFFFFFFFF" Key="27" InternalKey="27" SelectedIndex="6" SelectedValue="0" Flags="01-00-00-01">
 											<CameraRegisterChild Index="0" Name="TriggerMode" Address="0x00013590" Data="80-00-00-01" Value="0" Key="28" InternalKey="28" SelectedIndex="1" SelectedValue="0" Flags="01-00-00-00"/>
-											<CameraRegisterChild Index="1" Name="TriggerSource" Address="0x00013590" Data="80-00-00-01" Value="0" Key="28" InternalKey="186" SelectedIndex="1" SelectedValue="0" Flags="01-00-00-00"/>
+											<CameraRegisterChild Index="1" Name="TriggerSource" Address="0x00013590" Data="80-00-00-01" Value="0" Key="28" InternalKey="186" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 											<CameraRegisterChild Index="2" Name="TriggerSoftware" Address="0xFFFFFFFF" Key="29" InternalKey="29" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 											<CameraRegisterChild Index="3" Name="TriggerSource" Address="0xFFFFFFFF" Value="1" Key="30" InternalKey="30" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 											<CameraRegisterChild Index="4" Name="TriggerMode" Address="0xFFFFFFFF" Value="1" Key="30" InternalKey="187" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
@@ -12363,7 +13104,7 @@ External Setpoint Generation:
 										</CameraRegisterChild>
 										<CameraRegisterChild Index="7" Name="TriggerSelector" Address="0xFFFFFFFF" Key="6" InternalKey="6" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-01">
 											<CameraRegisterChild Index="0" Name="TriggerMode" Address="0x00013410" Data="80-00-00-00" Value="0" Key="7" InternalKey="7" SelectedIndex="1" SelectedValue="0" Flags="01-00-00-00"/>
-											<CameraRegisterChild Index="1" Name="TriggerSource" Address="0x00013410" Data="80-00-00-00" Value="0" Key="7" InternalKey="188" SelectedIndex="1" SelectedValue="0" Flags="01-00-00-00"/>
+											<CameraRegisterChild Index="1" Name="TriggerSource" Address="0x00013410" Data="80-00-00-00" Value="0" Key="7" InternalKey="188" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 											<CameraRegisterChild Index="2" Name="TriggerSoftware" Address="0xFFFFFFFF" Key="8" InternalKey="8" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 											<CameraRegisterChild Index="3" Name="TriggerSource" Address="0xFFFFFFFF" Value="1" Key="9" InternalKey="9" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 											<CameraRegisterChild Index="4" Name="TriggerMode" Address="0xFFFFFFFF" Value="1" Key="9" InternalKey="189" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
@@ -12372,8 +13113,8 @@ External Setpoint Generation:
 											<CameraRegisterChild Index="7" Name="TriggerDelayAbs" Address="0x0001341C" Data="00-00-00-00" Value="0" Key="12" InternalKey="12" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 										</CameraRegisterChild>
 										<CameraRegisterChild Index="8" Name="AcquisitionMode" Address="0x00013104" Data="00-00-00-01" Value="1" Key="34" InternalKey="34" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
-										<CameraRegisterChild Index="9" Name="AcquisitionFrameCount" Address="0x00013108" Data="00-00-00-03" Value="3" Key="35" InternalKey="35" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
-										<CameraRegisterChild Index="10" Name="AcquisitionFrameRateAbs" Address="0x00013138" Data="00-01-A7-E2" Value="9.215401" Key="36" InternalKey="36" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
+										<CameraRegisterChild Index="9" Name="AcquisitionFrameCount" Address="0x00013108" Data="00-00-00-01" Value="1" Key="35" InternalKey="35" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
+										<CameraRegisterChild Index="10" Name="AcquisitionFrameRateAbs" Address="0x00013138" Data="00-06-9B-04" Value="2.310002" Key="36" InternalKey="36" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 										<CameraRegisterChild Index="11" Name="RecorderPreEventCount" Address="0x0001310C" Data="00-00-00-00" Value="0" Key="37" InternalKey="37" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 										<CameraRegisterChild Index="12" Name="BinningHorizontal" Address="0x00011108" Data="00-00-00-00" Value="1" Key="38" InternalKey="38" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 										<CameraRegisterChild Index="13" Name="BinningVertical" Address="0x00011128" Data="00-00-00-00" Value="1" Key="39" InternalKey="39" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
@@ -12386,8 +13127,8 @@ External Setpoint Generation:
 										<CameraRegisterChild Index="20" Name="OffsetY" Address="0x00012130" Data="00-00-00-00" Value="0" Key="46" InternalKey="46" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 										<CameraRegisterChild Index="21" Name="DSPSubregionLeft" Address="0x000140F0" Data="00-00-00-00" Value="0" Key="47" InternalKey="47" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 										<CameraRegisterChild Index="22" Name="DSPSubregionTop" Address="0x000140F4" Data="00-00-00-00" Value="0" Key="48" InternalKey="48" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
-										<CameraRegisterChild Index="23" Name="DSPSubregionRight" Address="0x000140F8" Data="00-00-09-94" Value="2452" Key="49" InternalKey="49" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
-										<CameraRegisterChild Index="24" Name="DSPSubregionBottom" Address="0x000140FC" Data="00-00-08-08" Value="2056" Key="50" InternalKey="50" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
+										<CameraRegisterChild Index="23" Name="DSPSubregionRight" Address="0x000140F8" Data="FF-FF-FF-FF" Value="4294967295" Key="49" InternalKey="49" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
+										<CameraRegisterChild Index="24" Name="DSPSubregionBottom" Address="0x000140FC" Data="FF-FF-FF-FF" Value="4294967295" Key="50" InternalKey="50" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 										<CameraRegisterChild Index="25" Name="ExposureTimeAbs" Address="0x00014110" Data="00-00-3A-98" Value="15000" Key="51" InternalKey="51" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 										<CameraRegisterChild Index="26" Name="ExposureAuto" Address="0x00014104" Data="00-00-00-01" Value="1" Key="52" InternalKey="52" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 										<CameraRegisterChild Index="27" Name="ExposureAutoTarget" Address="0x00014124" Data="00-00-00-32" Value="50" Key="53" InternalKey="53" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
@@ -12477,7 +13218,7 @@ External Setpoint Generation:
 										<CameraRegisterChild Index="69" Name="SyncOutLevels" Address="0x00015114" Data="00-00-00-00" Value="0" Key="119" InternalKey="119" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 										<CameraRegisterChild Index="70" Name="SyncOutSelector" Address="0xFFFFFFFF" Key="123" InternalKey="123" SelectedIndex="1" SelectedValue="0" Flags="01-00-00-01">
 											<CameraRegisterChild Index="0" Name="SyncOutSource" Address="0x0001514C" Data="00-00-00-04" Value="0" Key="124" InternalKey="124" SelectedIndex="4" SelectedValue="0" Flags="01-00-00-00"/>
-											<CameraRegisterChild Index="1" Name="SyncOutPolarity" Address="0x0001514C" Data="00-00-00-04" Value="0" Key="124" InternalKey="199" SelectedIndex="4" SelectedValue="0" Flags="01-00-00-00"/>
+											<CameraRegisterChild Index="1" Name="SyncOutPolarity" Address="0x0001514C" Data="00-00-00-04" Value="0" Key="124" InternalKey="199" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 											<CameraRegisterChild Index="2" Name="SyncOutPolarity" Address="0xFFFFFFFF" Value="3" Key="125" InternalKey="125" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 											<CameraRegisterChild Index="3" Name="SyncOutSource" Address="0xFFFFFFFF" Value="3" Key="125" InternalKey="200" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 										</CameraRegisterChild>
@@ -12495,7 +13236,7 @@ External Setpoint Generation:
 										</CameraRegisterChild>
 										<CameraRegisterChild Index="73" Name="SyncOutSelector" Address="0xFFFFFFFF" Key="120" InternalKey="120" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-01">
 											<CameraRegisterChild Index="0" Name="SyncOutSource" Address="0x00015144" Data="00-00-00-03" Value="0" Key="121" InternalKey="121" SelectedIndex="3" SelectedValue="0" Flags="01-00-00-00"/>
-											<CameraRegisterChild Index="1" Name="SyncOutPolarity" Address="0x00015144" Data="00-00-00-03" Value="0" Key="121" InternalKey="205" SelectedIndex="3" SelectedValue="0" Flags="01-00-00-00"/>
+											<CameraRegisterChild Index="1" Name="SyncOutPolarity" Address="0x00015144" Data="00-00-00-03" Value="0" Key="121" InternalKey="205" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 											<CameraRegisterChild Index="2" Name="SyncOutPolarity" Address="0xFFFFFFFF" Value="3" Key="122" InternalKey="122" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 											<CameraRegisterChild Index="3" Name="SyncOutSource" Address="0xFFFFFFFF" Value="3" Key="122" InternalKey="206" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 										</CameraRegisterChild>
@@ -12608,32 +13349,13 @@ External Setpoint Generation:
 										<CameraRegisterChild Index="100" Name="UserSetDefaultSelector" Address="0x00017108" Data="00-00-00-00" Value="0" Key="181" InternalKey="181" SelectedIndex="0" SelectedValue="0" Flags="01-00-00-00"/>
 									</CameraRegister>
 								</InitCameraCommandsRoot>
-								<CameraInfoCache>
-									<DeviceInformation>
-										<Version>65538</Version>
-										<DeviceMode>2147483649</DeviceMode>
-										<MacAddress>65251625953</MacAddress>
-										<IpAddress>3232299743</IpAddress>
-										<SubnetMask>4294967040</SubnetMask>
-										<DefaultGateway>0</DefaultGateway>
-										<ManufacturerName>Allied Vision Technologies</ManufacturerName>
-										<ModelName>Manta_G-504B (E0022020)</ModelName>
-										<DeviceVersion>00.01.44.09 </DeviceVersion>
-										<ManufacturerInfo>Manta_G-504B|E0022020|</ManufacturerInfo>
-										<SerialNumber>50-0503349829</SerialNumber>
-										<UserDefinedName>AVT</UserDefinedName>
-										<GvcpCapability>3221225487</GvcpCapability>
-										<TimestampTickFrequency>60000000</TimestampTickFrequency>
-										<NumberMessageChannels>1</NumberMessageChannels>
-									</DeviceInformation>
-								</CameraInfoCache>
 							</TcSmExtension>
 						</TcSmExtensions>
 					</Xml>
-					<Module Id="#x01010030" KeepUnrestoredLinks="2" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.9.19.0" TcSmClass="CTComVisionObjDef">
+					<Module Id="#x01010030" KeepUnrestoredLinks="2" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.10.3.0" TcSmClass="CTComVisionObjDef">
 						<Name>Camera1 Image Acquisition (CGevImageAcquisition)</Name>
 						<ImageId>1000</ImageId>
-						<TmcDesc GUID="{8B8C3693-0B4E-4D00-A22A-AFC6977207C3}" TcSmClass="CTComVisionObjDef" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.9.19.0">
+						<TmcDesc GUID="{8B8C3693-0B4E-4D00-A22A-AFC6977207C3}" TcSmClass="CTComVisionObjDef" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.10.3.0">
 							<Name>CGevImageAcquisition</Name>
 							<CLSID ClassFactory="TcIoGigEVision">{8B8C3693-0B4E-4D00-A22A-AFC6977207C3}</CLSID>
 							<Info>
@@ -12812,7 +13534,7 @@ External Setpoint Generation:
 								</Value>
 								<Value>
 									<Name>CameraIpAddress</Name>
-									<Value>3232299743</Value>
+									<Value>3232299712</Value>
 								</Value>
 								<Value>
 									<Name>StartAcquisitionCommands[0]</Name>
@@ -12852,7 +13574,7 @@ External Setpoint Generation:
 								</Value>
 								<Value>
 									<Name>InitCameraCommands</Name>
-									<Data>8107000000000000770000000000000042cbdb1399998d428f386733fbaf00b13800000001000000010000001f0020000000000000000000496e697469616c697a6174696f6e20436f6d6d616e64732048656164657200496e697469616c697a6174696f6e20436f6d6d616e647320436f6d6d656e74006400040001006200100044110100040006dac2c0010061001000501101000400000000000100600010006011010004000000000001005f0010006811010004000000000101005e001000d034010004000000000101005d001000d834010004000000000001005c0010001035010004000000000101005b0010001835010004000000000001005a00100090350100040080000001010059001000983501000400000000000100580010001034010004008000000001005700100018340100040000000000010056001000243401000400000000000100550010001c34010004000000000001005400100004310100040000000001010053001000083101000400000000030100520010003831010004000001a7e20100510010000c3101000400000000000100500010000811010004000000000001004f0010002811010004000000000001004e0010008411010004000000000101004d0010009411010004000000000101004c0010002021010004000108000101004b0010002421010004000000099401004a001000282101000400000008080100490010002c21010004000000000001004800100030210100040000000000010047001000f0400100040000000000010046001000f4400100040000000000010045001000f8400100040000000994010044001000fc40010004000000080801004300100010410100040000003a9801004200100004410100040000000001010041001000244101000400000000320100400010001841010004000000000001003f0010001c41010004000000002601003e0010002041010004000007a12001003d0010002841010004000000006401003c0010002c41010004000000000001003b0010003041010004000000000501003a00100050410100040000000000010039001000444101000400000000010100380010005c4101000400000000320100370010005441010004000000000001003600100058410100040000000020010035001000604101000400000000640100340010006441010004000000000001003300100068410100040000000005010032001000d04101000400000000000100310010006443010004003f8000000100300010000442010004000000000001002f0010000842010004000000003201002e0010000c42010004000000005a01002d0010001042010004000000006e01002c0010007443010004000000000101002b0010008443010004000000000001002a00100098430100040000000fff010029001000744301000400000000020100280010008443010004000000000001002700100098430100040000000fff010026001000744301000400000000000100250010008443010004000000000001002400100098430100040000000fff010023001000d4510100040000000000010022001000d0510100040000000000010021001000145101000400000000000100200010004c51010004000000000401001f0010004451010004000000000301001e0010007451010004000000000301001d0010007851010004000000000001001c0010007c51010004000000000001001b00100020200200040000009c4101001a0010002420020004000000000001001900100020200200040000009c420100180010002420020004000000000001001700100020200200040000009c430100160010002420020004000000000001001500100020200200040000009c440100140010002420020004000000000001001300100020200200040000009c4a0100120010002420020004000000000001001100100020200200040000009c4b0100100010002420020004000000000001000f00100020200200040000009c4c01000e0010002420020004000000000001000d00100020200200040000009c4d01000c0010002420020004000000000001000b00100020200200040000009c4e01000a0010002420020004000000000001000900100020200200040000009c4f0100080010002420020004000000000001000700100020200200040000009c500100060010002420020004000000000001000500100020200200040000009c510100040010002420020004000000000001000300100020200200040000009c4001000200100024200200040000000000010001001000182002000400000000000100000010000871010004000000000004000000d6000a00d0000a006300020000000100020005000e001100150018001c001f0007000a000b000c00220023002400250026002700280029002a002b002c002d002e002f0030003100320033003400350036003700380039003a003b003c003d003e003f004000410042004300440045004d004e004f005000610062006500680069006c005a005b005e007200700077007c0079008400860087008a008b008c008d008e008f0090009100920093009400950096009700980099009a009b009c009d009e009f00a000a10088008900a200b500</Data>
+									<Data>8107000000000000770000000000000042cbdb1399998d428f386733fbaf00b13800000001000000010000001f0020000000000000000000496e697469616c697a6174696f6e20436f6d6d616e64732048656164657200496e697469616c697a6174696f6e20436f6d6d616e647320436f6d6d656e74006400040001006200100044110100040000bd3580010061001000501101000400000000000100600010006011010004000000000001005f0010006811010004000000000101005e001000d034010004000000000101005d001000d834010004000000000001005c0010001035010004000000000101005b0010001835010004000000000001005a00100090350100040080000001010059001000983501000400000000000100580010001034010004008000000001005700100018340100040000000000010056001000243401000400000000000100550010001c340100040000000000010054001000043101000400000000010100530010000831010004000000000101005200100038310100040000069b040100510010000c3101000400000000000100500010000811010004000000000001004f0010002811010004000000000001004e0010008411010004000000000101004d0010009411010004000000000101004c0010002021010004000108000101004b0010002421010004000000099401004a001000282101000400000008080100490010002c21010004000000000001004800100030210100040000000000010047001000f0400100040000000000010046001000f4400100040000000000010045001000f84001000400ffffffff010044001000fc4001000400ffffffff01004300100010410100040000003a9801004200100004410100040000000001010041001000244101000400000000320100400010001841010004000000000001003f0010001c41010004000000002601003e0010002041010004000007a12001003d0010002841010004000000006401003c0010002c41010004000000000001003b0010003041010004000000000501003a00100050410100040000000000010039001000444101000400000000010100380010005c4101000400000000320100370010005441010004000000000001003600100058410100040000000020010035001000604101000400000000640100340010006441010004000000000001003300100068410100040000000005010032001000d04101000400000000000100310010006443010004003f8000000100300010000442010004000000000001002f0010000842010004000000003201002e0010000c42010004000000005a01002d0010001042010004000000006e01002c0010007443010004000000000101002b0010008443010004000000000001002a00100098430100040000000fff010029001000744301000400000000020100280010008443010004000000000001002700100098430100040000000fff010026001000744301000400000000000100250010008443010004000000000001002400100098430100040000000fff010023001000d4510100040000000000010022001000d0510100040000000000010021001000145101000400000000000100200010004c51010004000000000401001f0010004451010004000000000301001e0010007451010004000000000301001d0010007851010004000000000001001c0010007c51010004000000000001001b00100020200200040000009c4101001a0010002420020004000000000001001900100020200200040000009c420100180010002420020004000000000001001700100020200200040000009c430100160010002420020004000000000001001500100020200200040000009c440100140010002420020004000000000001001300100020200200040000009c4a0100120010002420020004000000000001001100100020200200040000009c4b0100100010002420020004000000000001000f00100020200200040000009c4c01000e0010002420020004000000000001000d00100020200200040000009c4d01000c0010002420020004000000000001000b00100020200200040000009c4e01000a0010002420020004000000000001000900100020200200040000009c4f0100080010002420020004000000000001000700100020200200040000009c500100060010002420020004000000000001000500100020200200040000009c510100040010002420020004000000000001000300100020200200040000009c4001000200100024200200040000000000010001001000182002000400000000000100000010000871010004000000000004000000d6000a00d0000a006300020000000100020005000e001100150018001c001f0007000a000b000c00220023002400250026002700280029002a002b002c002d002e002f0030003100320033003400350036003700380039003a003b003c003d003e003f004000410042004300440045004d004e004f005000610062006500680069006c005a005b005e007200700077007c0079008400860087008a008b008c008d008e008f0090009100920093009400950096009700980099009a009b009c009d009e009f00a000a10088008900a200b500</Data>
 								</Value>
 								<Value>
 									<Name>InitializationTimeout</Name>
@@ -12886,10 +13608,10 @@ External Setpoint Generation:
 								</Value>
 							</InterfacePointerValues>
 						</TmcDesc>
-						<Module Id="#x01010040" KeepUnrestoredLinks="2" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.9.19.0" TcSmClass="CTComVisionObjDef">
+						<Module Id="#x01010040" KeepUnrestoredLinks="2" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.10.3.0" TcSmClass="CTComVisionObjDef">
 							<Name>Camera1 Gvcp Module (CGvcpProtocol)</Name>
 							<ImageId>1000</ImageId>
-							<TmcDesc GUID="{A2F12437-8A89-453B-BAFC-5E9934B8C8DC}" TcSmClass="CTComVisionObjDef" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.9.19.0">
+							<TmcDesc GUID="{A2F12437-8A89-453B-BAFC-5E9934B8C8DC}" TcSmClass="CTComVisionObjDef" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.10.3.0">
 								<Name>CGvcpProtocol</Name>
 								<CLSID ClassFactory="TcIoGigEVision">{A2F12437-8A89-453B-BAFC-5E9934B8C8DC}</CLSID>
 								<Info>
@@ -13008,10 +13730,10 @@ External Setpoint Generation:
 								</ParameterValues>
 							</TmcDesc>
 						</Module>
-						<Module Id="#x01010050" KeepUnrestoredLinks="2" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.9.19.0" TcSmClass="CTComVisionObjDef">
+						<Module Id="#x01010050" KeepUnrestoredLinks="2" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.10.3.0" TcSmClass="CTComVisionObjDef">
 							<Name>Camera1 Gvsp Module (CGvspProtocol)</Name>
 							<ImageId>1000</ImageId>
-							<TmcDesc GUID="{9D2B8D47-8462-4251-80A0-5AA35A79EF48}" TcSmClass="CTComVisionObjDef" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.9.19.0">
+							<TmcDesc GUID="{9D2B8D47-8462-4251-80A0-5AA35A79EF48}" TcSmClass="CTComVisionObjDef" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.10.3.0">
 								<Name>CGvspProtocol</Name>
 								<CLSID ClassFactory="TcIoGigEVision">{9D2B8D47-8462-4251-80A0-5AA35A79EF48}</CLSID>
 								<Info>
@@ -13175,10 +13897,10 @@ External Setpoint Generation:
 							</TmcDesc>
 						</Module>
 					</Module>
-					<Module Id="#x01010060" Disabled="true" KeepUnrestoredLinks="2" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.9.19.0" TcSmClass="CTComVisionObjDef">
+					<Module Id="#x01010060" Disabled="true" KeepUnrestoredLinks="2" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.10.3.0" TcSmClass="CTComVisionObjDef">
 						<Name>Camera1 Image Acquisition Simulation (CGevImageAcquisitionSimulation)</Name>
 						<ImageId>1000</ImageId>
-						<TmcDesc GUID="{F6C5A2D8-F17E-45DE-A68A-B78B3B54B4EC}" TcSmClass="CTComVisionObjDef" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.9.19.0">
+						<TmcDesc GUID="{F6C5A2D8-F17E-45DE-A68A-B78B3B54B4EC}" TcSmClass="CTComVisionObjDef" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.10.3.0">
 							<Name>CGevImageAcquisitionSimulation</Name>
 							<CLSID ClassFactory="TcIoGigEVision">{F6C5A2D8-F17E-45DE-A68A-B78B3B54B4EC}</CLSID>
 							<Info>
@@ -13316,10 +14038,10 @@ External Setpoint Generation:
 							</InterfacePointerValues>
 						</TmcDesc>
 					</Module>
-					<Module Id="#x01010070" Disabled="true" KeepUnrestoredLinks="2" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.9.19.0" TcSmClass="CTComVisionObjDef">
+					<Module Id="#x01010070" Disabled="true" KeepUnrestoredLinks="2" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.10.3.0" TcSmClass="CTComVisionObjDef">
 						<Name>Camera1 Ads Communicator (CGevAdsCommunicator)</Name>
 						<ImageId>1000</ImageId>
-						<TmcDesc GUID="{D3AC2B42-00B6-4F04-B20D-A1A9E3949D9B}" TcSmClass="CTComVisionObjDef" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.9.19.0">
+						<TmcDesc GUID="{D3AC2B42-00B6-4F04-B20D-A1A9E3949D9B}" TcSmClass="CTComVisionObjDef" ClassFactoryId="Beckhoff Automation GmbH|TcIoGigEVision|5.10.3.0">
 							<Name>CGevAdsCommunicator</Name>
 							<CLSID ClassFactory="TcIoGigEVision">{D3AC2B42-00B6-4F04-B20D-A1A9E3949D9B}</CLSID>
 							<Info>
@@ -13427,10 +14149,10 @@ External Setpoint Generation:
 							</InterfacePointerValues>
 						</TmcDesc>
 					</Module>
-					<Module Id="#x01010080" KeepUnrestoredLinks="2" ClassFactoryId="Beckhoff Automation GmbH|TcVision|5.9.19.0" TcSmClass="CTComVisionObjDef">
+					<Module Id="#x01010080" KeepUnrestoredLinks="2" ClassFactoryId="Beckhoff Automation GmbH|TcVision|5.10.3.0" TcSmClass="CTComVisionObjDef">
 						<Name>Camera1 Image Provider (CGevImageProvider)</Name>
 						<ImageId>1000</ImageId>
-						<TmcDesc GUID="{F81ECC63-F412-4CF1-ABEC-DA193F5F64AE}" TcSmClass="CTComVisionObjDef" ClassFactoryId="Beckhoff Automation GmbH|TcVision|5.9.19.0">
+						<TmcDesc GUID="{F81ECC63-F412-4CF1-ABEC-DA193F5F64AE}" TcSmClass="CTComVisionObjDef" ClassFactoryId="Beckhoff Automation GmbH|TcVision|5.10.3.0">
 							<Name>CTcVnGevImageProvider</Name>
 							<CLSID ClassFactory="TcVision">{F81ECC63-F412-4CF1-ABEC-DA193F5F64AE}</CLSID>
 							<Info>
@@ -13514,11 +14236,11 @@ External Setpoint Generation:
 								</Parameter>
 								<Parameter HideParameter="true">
 									<Name>CalibPatternRef</Name>
-									<BitSize>0</BitSize>
+									<BitSize>5184</BitSize>
 									<BaseType GUID="{18071995-0000-0000-0000-00000000000D}">REAL</BaseType>
 									<ArrayInfo>
 										<LBound>0</LBound>
-										<Elements Min="0" MaxUnbounded="true">0</Elements>
+										<Elements Min="0" MaxUnbounded="true">162</Elements>
 									</ArrayInfo>
 									<PTCID>#x00000006</PTCID>
 									<ContextId>1</ContextId>
@@ -13557,7 +14279,7 @@ External Setpoint Generation:
 							<ParameterValues>
 								<Value>
 									<Name>CameraMatrix[0,0]</Name>
-									<Value>0</Value>
+									<Value>2645.61681647355</Value>
 								</Value>
 								<Value>
 									<Name>CameraMatrix[0,1]</Name>
@@ -13565,7 +14287,7 @@ External Setpoint Generation:
 								</Value>
 								<Value>
 									<Name>CameraMatrix[0,2]</Name>
-									<Value>0</Value>
+									<Value>1225.5</Value>
 								</Value>
 								<Value>
 									<Name>CameraMatrix[1,0]</Name>
@@ -13573,11 +14295,11 @@ External Setpoint Generation:
 								</Value>
 								<Value>
 									<Name>CameraMatrix[1,1]</Name>
-									<Value>0</Value>
+									<Value>2645.61681647355</Value>
 								</Value>
 								<Value>
 									<Name>CameraMatrix[1,2]</Name>
-									<Value>0</Value>
+									<Value>1027.5</Value>
 								</Value>
 								<Value>
 									<Name>CameraMatrix[2,0]</Name>
@@ -13589,31 +14311,31 @@ External Setpoint Generation:
 								</Value>
 								<Value>
 									<Name>CameraMatrix[2,2]</Name>
-									<Value>0</Value>
+									<Value>1</Value>
 								</Value>
 								<Value>
 									<Name>DistortionCoefficients[0]</Name>
-									<Value>0</Value>
+									<Value>12.1327027662466</Value>
 								</Value>
 								<Value>
 									<Name>DistortionCoefficients[1]</Name>
-									<Value>0</Value>
+									<Value>-2.58876813154685</Value>
 								</Value>
 								<Value>
 									<Name>DistortionCoefficients[2]</Name>
-									<Value>0</Value>
+									<Value>0.000680116041069277</Value>
 								</Value>
 								<Value>
 									<Name>DistortionCoefficients[3]</Name>
-									<Value>0</Value>
+									<Value>0.00279357974042024</Value>
 								</Value>
 								<Value>
 									<Name>DistortionCoefficients[4]</Name>
-									<Value>0</Value>
+									<Value>0.144663407571136</Value>
 								</Value>
 								<Value>
 									<Name>DistortionCoefficients[5]</Name>
-									<Value>0</Value>
+									<Value>12.4351146026131</Value>
 								</Value>
 								<Value>
 									<Name>DistortionCoefficients[6]</Name>
@@ -13625,7 +14347,7 @@ External Setpoint Generation:
 								</Value>
 								<Value>
 									<Name>RotationMatrix[0,0]</Name>
-									<Value>0</Value>
+									<Value>1</Value>
 								</Value>
 								<Value>
 									<Name>RotationMatrix[0,1]</Name>
@@ -13641,7 +14363,7 @@ External Setpoint Generation:
 								</Value>
 								<Value>
 									<Name>RotationMatrix[1,1]</Name>
-									<Value>0</Value>
+									<Value>1</Value>
 								</Value>
 								<Value>
 									<Name>RotationMatrix[1,2]</Name>
@@ -13657,7 +14379,7 @@ External Setpoint Generation:
 								</Value>
 								<Value>
 									<Name>RotationMatrix[2,2]</Name>
-									<Value>0</Value>
+									<Value>1</Value>
 								</Value>
 								<Value>
 									<Name>TranslationVector[0]</Name>
@@ -13669,6 +14391,654 @@ External Setpoint Generation:
 								</Value>
 								<Value>
 									<Name>TranslationVector[2]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[0]</Name>
+									<Value>-66</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[1]</Name>
+									<Value>-41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[2]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[3]</Name>
+									<Value>-49.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[4]</Name>
+									<Value>-41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[5]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[6]</Name>
+									<Value>-33</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[7]</Name>
+									<Value>-41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[8]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[9]</Name>
+									<Value>-16.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[10]</Name>
+									<Value>-41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[11]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[12]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[13]</Name>
+									<Value>-41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[14]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[15]</Name>
+									<Value>16.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[16]</Name>
+									<Value>-41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[17]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[18]</Name>
+									<Value>33</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[19]</Name>
+									<Value>-41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[20]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[21]</Name>
+									<Value>49.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[22]</Name>
+									<Value>-41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[23]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[24]</Name>
+									<Value>66</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[25]</Name>
+									<Value>-41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[26]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[27]</Name>
+									<Value>-66</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[28]</Name>
+									<Value>-24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[29]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[30]</Name>
+									<Value>-49.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[31]</Name>
+									<Value>-24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[32]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[33]</Name>
+									<Value>-33</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[34]</Name>
+									<Value>-24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[35]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[36]</Name>
+									<Value>-16.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[37]</Name>
+									<Value>-24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[38]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[39]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[40]</Name>
+									<Value>-24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[41]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[42]</Name>
+									<Value>16.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[43]</Name>
+									<Value>-24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[44]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[45]</Name>
+									<Value>33</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[46]</Name>
+									<Value>-24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[47]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[48]</Name>
+									<Value>49.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[49]</Name>
+									<Value>-24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[50]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[51]</Name>
+									<Value>66</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[52]</Name>
+									<Value>-24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[53]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[54]</Name>
+									<Value>-66</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[55]</Name>
+									<Value>-8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[56]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[57]</Name>
+									<Value>-49.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[58]</Name>
+									<Value>-8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[59]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[60]</Name>
+									<Value>-33</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[61]</Name>
+									<Value>-8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[62]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[63]</Name>
+									<Value>-16.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[64]</Name>
+									<Value>-8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[65]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[66]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[67]</Name>
+									<Value>-8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[68]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[69]</Name>
+									<Value>16.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[70]</Name>
+									<Value>-8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[71]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[72]</Name>
+									<Value>33</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[73]</Name>
+									<Value>-8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[74]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[75]</Name>
+									<Value>49.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[76]</Name>
+									<Value>-8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[77]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[78]</Name>
+									<Value>66</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[79]</Name>
+									<Value>-8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[80]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[81]</Name>
+									<Value>-66</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[82]</Name>
+									<Value>8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[83]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[84]</Name>
+									<Value>-49.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[85]</Name>
+									<Value>8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[86]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[87]</Name>
+									<Value>-33</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[88]</Name>
+									<Value>8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[89]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[90]</Name>
+									<Value>-16.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[91]</Name>
+									<Value>8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[92]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[93]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[94]</Name>
+									<Value>8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[95]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[96]</Name>
+									<Value>16.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[97]</Name>
+									<Value>8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[98]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[99]</Name>
+									<Value>33</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[100]</Name>
+									<Value>8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[101]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[102]</Name>
+									<Value>49.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[103]</Name>
+									<Value>8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[104]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[105]</Name>
+									<Value>66</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[106]</Name>
+									<Value>8.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[107]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[108]</Name>
+									<Value>-66</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[109]</Name>
+									<Value>24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[110]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[111]</Name>
+									<Value>-49.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[112]</Name>
+									<Value>24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[113]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[114]</Name>
+									<Value>-33</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[115]</Name>
+									<Value>24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[116]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[117]</Name>
+									<Value>-16.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[118]</Name>
+									<Value>24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[119]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[120]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[121]</Name>
+									<Value>24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[122]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[123]</Name>
+									<Value>16.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[124]</Name>
+									<Value>24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[125]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[126]</Name>
+									<Value>33</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[127]</Name>
+									<Value>24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[128]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[129]</Name>
+									<Value>49.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[130]</Name>
+									<Value>24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[131]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[132]</Name>
+									<Value>66</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[133]</Name>
+									<Value>24.75</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[134]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[135]</Name>
+									<Value>-66</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[136]</Name>
+									<Value>41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[137]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[138]</Name>
+									<Value>-49.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[139]</Name>
+									<Value>41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[140]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[141]</Name>
+									<Value>-33</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[142]</Name>
+									<Value>41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[143]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[144]</Name>
+									<Value>-16.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[145]</Name>
+									<Value>41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[146]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[147]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[148]</Name>
+									<Value>41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[149]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[150]</Name>
+									<Value>16.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[151]</Name>
+									<Value>41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[152]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[153]</Name>
+									<Value>33</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[154]</Name>
+									<Value>41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[155]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[156]</Name>
+									<Value>49.5</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[157]</Name>
+									<Value>41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[158]</Name>
+									<Value>0</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[159]</Name>
+									<Value>66</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[160]</Name>
+									<Value>41.25</Value>
+								</Value>
+								<Value>
+									<Name>CalibPatternRef[161]</Name>
 									<Value>0</Value>
 								</Value>
 								<Value>
@@ -13689,7 +15059,7 @@ External Setpoint Generation:
 			</App>
 		</Vision>
 		<Io>
-			<Device Id="1" DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="192.168.250.100.2.1" RemoteName="Device 1 (EtherCAT)" InfoImageId="2">
+			<Device Id="1" Disabled="true" DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="192.168.250.100.2.1" RemoteName="Device 1 (EtherCAT)" InfoImageId="4">
 				<Name>Device 1 (EtherCAT)</Name>
 				<AddressInfo>
 					<Pnp>
@@ -13700,6 +15070,9 @@ External Setpoint Generation:
 				</AddressInfo>
 				<Image Id="1" AddrType="9" ImageType="3">
 					<Name>Image</Name>
+				</Image>
+				<Image Id="2" AddrType="10" ImageType="3">
+					<Name>Image-2</Name>
 				</Image>
 				<Box Id="3" BoxType="9099">
 					<Name>Term 3 (EK1100)</Name>
@@ -19620,8 +20993,8 @@ Bit 8 - 15 : reserved]]></Comment>
 						<Fmmu>0000000000000000001400010100000002000000000000000000000000000000</Fmmu>
 						<Fmmu>00000000000000000d0800010100000003000000000000000000000000000000</Fmmu>
 						<SwitchPortData>00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</SwitchPortData>
-						<MBoxUserCmdData>020003000900000017000000030000000000000000000000000000000000000020c260010100000001496e746572706f6c6174696f6e2074696d6520756e697400</MBoxUserCmdData>
-						<MBoxUserCmdData>020003000900000018000000030000000000000000000000000000000000000020c2600201000000fe496e746572706f6c6174696f6e2074696d6520696e64657800</MBoxUserCmdData>
+						<MBoxUserCmdData>020003000900000017000000030000000000000000000000000000000000000020c260010100000002496e746572706f6c6174696f6e2074696d6520756e697400</MBoxUserCmdData>
+						<MBoxUserCmdData>020003000900000018000000030000000000000000000000000000000000000020c2600201000000fd496e746572706f6c6174696f6e2074696d6520696e64657800</MBoxUserCmdData>
 						<Pdo Name="1. TxPDO CSP" Index="#x1a00" Flags="#x0000" SyncMan="3">
 							<Entry Name="Statusword" Index="#x6041">
 								<Type>UINT</Type>
@@ -20365,18 +21738,435 @@ Bit 8 - 15 : reserved]]></Comment>
 				<Name>Device 2 (RT-Ethernet Adapter)</Name>
 				<AddressInfo>
 					<Pnp>
-						<DeviceDesc></DeviceDesc>
-						<DeviceName></DeviceName>
-						<DeviceData>000000000000</DeviceData>
+						<DeviceDesc>Ethernet 2 (TwinCAT-Intel PCI Ethernet Adapter (Gig</DeviceDesc>
+						<DeviceName>\DEVICE\{98115671-E9D5-4F45-985F-71976951FD3E}</DeviceName>
+						<DeviceData>000105753b0d</DeviceData>
 					</Pnp>
 				</AddressInfo>
-				<Ethernet Ports="1" VLanIds="0a0014001e00280032003c00460050005a0064006e00780082008c009600a000aa00b400be00c800d200dc00e600f000fa0004010e01180122012c01360140014a0154015e01680172017c01860190019a01a401ae01b801c201cc01d601e001ea01f401fe01080212021c02260230023a0244024e02580262026c0276028002">
+				<Module Id="#x01010020" KeepUnrestoredLinks="2">
+					<Name>IpStack (TCP/UDP RT)</Name>
+					<ImageId>1008</ImageId>
+					<TmcDesc GUID="{080D0399-6A65-408D-80E1-18D8F699496A}">
+						<Name>TCP/UDP RT</Name>
+						<CLSID ClassFactory="TCIOETH">{03010070-0000-0000-F000-000000000064}</CLSID>
+						<Info>
+							<ImageData>424de6000000000000007600000028000000100000000e000000010004000000000070000000000000000000000000000000000000000000000000008000008000000080800080000000800080008080000080808000c0c0c0000000ff0000ff000000ffff00ff000000ff00ff00ffff0000ffffff00ffffffffffffffffff788833338887ffff78883bb38887ffffffff3bb3ffffffffffff8778fffffffffffffffffffffffffffffffff999ffff78f78fffffffffff78f78ffff999ffff78f7888fffffffff78f78f78f999ffff78f78f78ffffffff78f7888ff999ffffffffffffffffff</ImageData>
+						</Info>
+						<Licenses>
+							<License>
+								<LicenseId>{081AC839-28D0-49CA-9792-72680E1F3249}</LicenseId>
+							</License>
+						</Licenses>
+						<InitSequence>PSO</InitSequence>
+						<Contexts>
+							<Context>
+								<Id>1</Id>
+							</Context>
+						</Contexts>
+						<Interfaces>
+							<Interface>
+								<Type GUID="{00000012-0000-0000-E000-000000000064}">ITComObject</Type>
+							</Interface>
+							<Interface>
+								<Type GUID="{03010035-0000-0000-E000-000000000064}">ITcIoEthProtocol</Type>
+							</Interface>
+							<Interface>
+								<Type GUID="{0301009E-0000-0000-E000-000000000064}">ITcIoArpPing</Type>
+							</Interface>
+							<Interface>
+								<Type GUID="{0301009D-0000-0000-E000-000000000064}">ITcIoIpStackControl</Type>
+							</Interface>
+							<Interface>
+								<Type GUID="{03010097-0000-0000-E000-000000000064}">ITcIoUdpProtocol</Type>
+							</Interface>
+							<Interface>
+								<Type GUID="{03010098-0000-0000-E000-000000000064}">ITcIoTcpProtocol</Type>
+							</Interface>
+						</Interfaces>
+						<Parameters>
+							<Parameter>
+								<Name>TcIoIpSettings</Name>
+								<BitSize>128</BitSize>
+								<SubItem>
+									<Name>IpAddress</Name>
+									<Type GUID="{18071995-0000-0000-0000-00000000003E}">IPADDR</Type>
+									<BitSize>32</BitSize>
+									<BitOffs>0</BitOffs>
+								</SubItem>
+								<SubItem>
+									<Name>SubnetMask</Name>
+									<Type GUID="{18071995-0000-0000-0000-00000000003E}">IPADDR</Type>
+									<BitSize>32</BitSize>
+									<BitOffs>32</BitOffs>
+								</SubItem>
+								<SubItem>
+									<Name>Gateway</Name>
+									<Type GUID="{18071995-0000-0000-0000-00000000003E}">IPADDR</Type>
+									<BitSize>32</BitSize>
+									<BitOffs>64</BitOffs>
+								</SubItem>
+								<SubItem>
+									<Name>DhcpEnable</Name>
+									<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+									<BitSize>8</BitSize>
+									<BitOffs>96</BitOffs>
+								</SubItem>
+								<SubItem>
+									<Name>ManualSettings</Name>
+									<Type GUID="{18071995-0000-0000-0000-000000000030}">BOOL</Type>
+									<BitSize>8</BitSize>
+									<BitOffs>104</BitOffs>
+								</SubItem>
+								<PTCID>#x03002050</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>IpMaxReceivers</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>4</Value>
+								</Default>
+								<PTCID>#x03011101</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>IpMaxPendingOnArp</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>40</Value>
+								</Default>
+								<PTCID>#x03011103</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>IpMacCacheSize</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>64</Value>
+								</Default>
+								<PTCID>#x03011104</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>IpMTU</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>1514</Value>
+								</Default>
+								<PTCID>#x03011105</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>IpRecvFrameQueueSize</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>255</Value>
+								</Default>
+								<PTCID>#x03011115</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>UdpMaxReceivers</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>4</Value>
+								</Default>
+								<PTCID>#x03011111</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>UdpMTU</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>1514</Value>
+								</Default>
+								<PTCID>#x03011112</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>UdpCheckCrc</Name>
+								<BitSize>8</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType>
+								<Default>
+									<EnumText>TRUE</EnumText>
+								</Default>
+								<PTCID>#x03011113</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TTL</Name>
+								<BitSize>8</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+								<Default>
+									<Value>128</Value>
+								</Default>
+								<PTCID>#x03011106</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>MulticastTTL</Name>
+								<BitSize>8</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+								<Default>
+									<Value>1</Value>
+								</Default>
+								<PTCID>#x0301110a</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>PassiveMode</Name>
+								<Comment><![CDATA[Ethernet adapter frame processing triggered by other protocol]]></Comment>
+								<BitSize>8</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType>
+								<PTCID>#x03011133</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>MulticastIpList</Name>
+								<BitSize>0</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-00000000003E}">IPADDR</BaseType>
+								<ArrayInfo>
+									<LBound>0</LBound>
+									<Elements Min="0" Max="8">0</Elements>
+								</ArrayInfo>
+								<PTCID>#x0301110d</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpMTU</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>1514</Value>
+								</Default>
+								<PTCID>#x03011122</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpCheckCrc</Name>
+								<BitSize>8</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000030}">BOOL</BaseType>
+								<Default>
+									<EnumText>TRUE</EnumText>
+								</Default>
+								<PTCID>#x03011123</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpMaxSocketCount</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>32</Value>
+								</Default>
+								<PTCID>#x03011124</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpReceiveBufferSize</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>16192</Value>
+								</Default>
+								<PTCID>#x03011125</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpTransmitBufferSize</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>16192</Value>
+								</Default>
+								<PTCID>#x03011126</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpMaxRetry</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>5</Value>
+								</Default>
+								<PTCID>#x03011127</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpTimeoutWait</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>60000</Value>
+								</Default>
+								<PTCID>#x03011128</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpTimeoutCon</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>5000</Value>
+								</Default>
+								<PTCID>#x03011129</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpTimeoutIdle</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>1000</Value>
+								</Default>
+								<PTCID>#x03011130</PTCID>
+							</Parameter>
+							<Parameter>
+								<Name>TcpRoundTripTime</Name>
+								<BitSize>32</BitSize>
+								<BaseType GUID="{18071995-0000-0000-0000-000000000008}">UDINT</BaseType>
+								<Default>
+									<Value>3000</Value>
+								</Default>
+								<PTCID>#x03011131</PTCID>
+							</Parameter>
+							<Parameter OnlineParameter="true">
+								<Name>IpStackDiagnosis</Name>
+								<BitSize>768</BitSize>
+								<BaseType GUID="{38621CD5-4239-4327-97F7-35F1414B7265}">IpStackDiagnosis</BaseType>
+								<PTCID>#x03011108</PTCID>
+							</Parameter>
+						</Parameters>
+						<InterfacePointers>
+							<InterfacePointer>
+								<PTCID>#x03002040</PTCID>
+								<Name>ITcIoEthAdapter</Name>
+								<Type GUID="{03010034-0000-0000-E000-000000000064}"></Type>
+							</InterfacePointer>
+						</InterfacePointers>
+						<Properties>
+							<Property>
+								<Name>Category</Name>
+								<Value>NeedEthernetAdapterPort</Value>
+							</Property>
+							<Property>
+								<Name>Category</Name>
+								<Value>NeedIoIdleTask</Value>
+							</Property>
+							<Property>
+								<Name>ChildCategory</Name>
+								<Value>IpProtocol</Value>
+							</Property>
+						</Properties>
+						<ParentOTCID>#x03010020</ParentOTCID>
+						<ParameterValues>
+							<Value>
+								<Name>TcIoIpSettings.IpAddress</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>TcIoIpSettings.SubnetMask</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>TcIoIpSettings.Gateway</Name>
+								<Value>0</Value>
+							</Value>
+							<Value>
+								<Name>TcIoIpSettings.DhcpEnable</Name>
+								<EnumText>FALSE</EnumText>
+							</Value>
+							<Value>
+								<Name>TcIoIpSettings.ManualSettings</Name>
+								<EnumText>FALSE</EnumText>
+							</Value>
+							<Value>
+								<Name>IpMaxReceivers</Name>
+								<Value>4</Value>
+							</Value>
+							<Value>
+								<Name>IpMaxPendingOnArp</Name>
+								<Value>40</Value>
+							</Value>
+							<Value>
+								<Name>IpMacCacheSize</Name>
+								<Value>64</Value>
+							</Value>
+							<Value>
+								<Name>IpMTU</Name>
+								<Value>1514</Value>
+							</Value>
+							<Value>
+								<Name>IpRecvFrameQueueSize</Name>
+								<Value>255</Value>
+							</Value>
+							<Value>
+								<Name>UdpMaxReceivers</Name>
+								<Value>4</Value>
+							</Value>
+							<Value>
+								<Name>UdpMTU</Name>
+								<Value>1514</Value>
+							</Value>
+							<Value>
+								<Name>UdpCheckCrc</Name>
+								<EnumText>TRUE</EnumText>
+							</Value>
+							<Value>
+								<Name>TTL</Name>
+								<Value>128</Value>
+							</Value>
+							<Value>
+								<Name>MulticastTTL</Name>
+								<Value>1</Value>
+							</Value>
+							<Value>
+								<Name>PassiveMode</Name>
+								<EnumText>FALSE</EnumText>
+							</Value>
+							<Value>
+								<Name>TcpMTU</Name>
+								<Value>1514</Value>
+							</Value>
+							<Value>
+								<Name>TcpCheckCrc</Name>
+								<EnumText>TRUE</EnumText>
+							</Value>
+							<Value>
+								<Name>TcpMaxSocketCount</Name>
+								<Value>32</Value>
+							</Value>
+							<Value>
+								<Name>TcpReceiveBufferSize</Name>
+								<Value>16192</Value>
+							</Value>
+							<Value>
+								<Name>TcpTransmitBufferSize</Name>
+								<Value>16192</Value>
+							</Value>
+							<Value>
+								<Name>TcpMaxRetry</Name>
+								<Value>5</Value>
+							</Value>
+							<Value>
+								<Name>TcpTimeoutWait</Name>
+								<Value>60000</Value>
+							</Value>
+							<Value>
+								<Name>TcpTimeoutCon</Name>
+								<Value>5000</Value>
+							</Value>
+							<Value>
+								<Name>TcpTimeoutIdle</Name>
+								<Value>1000</Value>
+							</Value>
+							<Value>
+								<Name>TcpRoundTripTime</Name>
+								<Value>3000</Value>
+							</Value>
+						</ParameterValues>
+						<InterfacePointerValues>
+							<Value>
+								<Name>ITcIoEthAdapter</Name>
+								<OTCID>#x03010020</OTCID>
+							</Value>
+						</InterfacePointerValues>
+					</TmcDesc>
+				</Module>
+				<Ethernet DeviceDesc="Ethernet 2 (TwinCAT-Intel PCI Ethernet Adapter (Gigabit) V2 #2)" Ports="1" VLanIds="0a0014001e00280032003c00460050005a0064006e00780082008c009600a000aa00b400be00c800d200dc00e600f000fa0004010e01180122012c01360140014a0154015e01680172017c01860190019a01a401ae01b801c201cc01d601e001ea01f401fe01080212021c02260230023a0244024e02580262026c0276028002">
 					<Esl SyncSlaveProtocolPort="-1"/>
 				</Ethernet>
 			</Device>
 		</Io>
 	</Project>
 	<Mappings>
+		<MappingInfo Identifier="{05000010-2001-0850-3000-040300205008}" Id="#x02030060" Watchdog="14000000040000000400000004000000"/>
 		<OwnerA Name="TINC^NC-Task 1 SAF^Axes^Axis 3">
 			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 3 (EK1100)^Term 5 (EL7201-9014)">
 				<Link VarA="Drive^Inputs^In^nDcOutputTime" VarB="InfoData^DcOutputShift"/>
