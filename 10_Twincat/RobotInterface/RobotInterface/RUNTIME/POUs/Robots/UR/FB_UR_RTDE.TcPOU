@@ -183,7 +183,7 @@ CASE nState OF
     bConnected := FALSE;
     bOperational := FALSE;
     bStreaming := FALSE;
-    Busy:=False;
+    bBusy:=False;
 
     nRxState := 0;
     nRxLen := 0;
@@ -742,7 +742,7 @@ CASE nState OF
     bConnected := TRUE;
     bOperational := TRUE;
     bStreaming := TRUE;
-    Busy:=False;
+    bBusy:=FALSE;
 
 
     // If receive FB is already active,
@@ -860,7 +860,7 @@ CASE nState OF
     bConnected := TRUE;
     bOperational := TRUE;
     bStreaming := FALSE;
-    Busy:=False;
+    bBusy:=FALSE;
 
     IF bResumeRequest THEN
 

@@ -131,7 +131,7 @@ IF State = eState.Active THEN
         20: // WaitReadQRCode_active
             IF pQRCodeSkill^.ExecutionDone THEN
                 bSubSkillRunning := FALSE;
-                SubSkill := 0;
+                
 
                 IF pQRCodeSkill^.ExecutionResult <> SUCCESS THEN
                     FailSkill(pQRCodeSkill^.hrLastError, 'QR code subskill failed');
@@ -279,7 +279,7 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[hrLastError := hrError;
 bSubSkillRunning := FALSE;
-SubSkill := 0;
+
 ExecutionDone := TRUE;
 ExecutionResult := FAILURE;
 Messenger.AddError(eMessageCategories.Undefined, Path, sMessage);
@@ -320,7 +320,7 @@ phase := 0;
 bStartedSubskill := FALSE;
 bRunDone := FALSE;
 bSubSkillRunning := FALSE;
-SubSkill := 0;
+
 ipImagePoints := 0;
 ipReferencePoints := 0;
 myResult := SUCCESS;
@@ -340,7 +340,7 @@ phase := 0;
 bStartedSubskill := FALSE;
 bRunDone := FALSE;
 bSubSkillRunning := FALSE;
-SubSkill := 0;
+
 ipImagePoints := 0;
 ipReferencePoints := 0;
 myResult := SUCCESS;
@@ -360,7 +360,7 @@ phase := 0;
 bStartedSubskill := FALSE;
 bRunDone := FALSE;
 bSubSkillRunning := FALSE;
-SubSkill := 0;
+
 ipImagePoints := 0;
 ipReferencePoints := 0;
 myResult := SUCCESS;

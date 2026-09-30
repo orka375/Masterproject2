@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <Itf Name="ITF_CUSTOM_TOOL" Id="{e895b00c-8266-4bbf-8de7-8180b6c896da}">
+    <Declaration><![CDATA[INTERFACE ITF_CUSTOM_TOOL
+]]></Declaration>
+    <Method Name="Grip" Id="{1fe2b9c8-3ecc-4dd9-8c61-eae7e6c9228f}">
+      <Declaration><![CDATA[METHOD Grip : eResult
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="Operational" Id="{fd0de506-4e95-492e-870e-eeeb708f7c63}">
+      <Declaration><![CDATA[PROPERTY Operational : BOOL]]></Declaration>
+      <Set Name="Set" Id="{5cd67e28-abb9-485b-8a7b-e50851dd6f66}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Method Name="Release" Id="{f0ef0859-c61a-4fd5-9a33-d1f6315a7ca7}">
+      <Declaration><![CDATA[METHOD Release : eResult
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

@@ -237,16 +237,6 @@ _urPreparedCommandID := CommandID;
 BeginCommand := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="CancelCommand" Id="{8442ea28-9ac3-4603-9729-cbc01e8341af}">
-      <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
-VAR_INPUT
-    CommandID : UINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[CancelCommand := SUPER^.CancelCommand(CommandID := CommandID);]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="ClearCommandBuffer" Id="{1a7241e9-68c7-492e-9051-fd39a397af77}">
       <Declaration><![CDATA[METHOD PUBLIC ClearCommandBuffer : BOOL
 ]]></Declaration>
@@ -270,19 +260,19 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-        <Method Name="HasPhysicalStopFailed" Id="{621239de-4d38-431b-b63c-dbb06d7151b2}">
-            <Declaration><![CDATA[METHOD PROTECTED HasPhysicalStopFailed : BOOL]]></Declaration>
-            <Implementation>
-                <ST><![CDATA[HasPhysicalStopFailed :=
+    <Method Name="HasPhysicalStopFailed" Id="{621239de-4d38-431b-b63c-dbb06d7151b2}">
+      <Declaration><![CDATA[METHOD PROTECTED HasPhysicalStopFailed : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[HasPhysicalStopFailed :=
         Script.bError
         OR NOT _RTDEConnected
         OR NOT _RTDEStreaming;]]></ST>
-            </Implementation>
-        </Method>
-        <Method Name="IsPhysicalStopComplete" Id="{c018477b-b6b4-480f-957c-7cf33dac5ee3}">
-            <Declaration><![CDATA[METHOD PROTECTED IsPhysicalStopComplete : BOOL]]></Declaration>
-            <Implementation>
-                <ST><![CDATA[IsPhysicalStopComplete :=
+      </Implementation>
+    </Method>
+    <Method Name="IsPhysicalStopComplete" Id="{c018477b-b6b4-480f-957c-7cf33dac5ee3}">
+      <Declaration><![CDATA[METHOD PROTECTED IsPhysicalStopComplete : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IsPhysicalStopComplete :=
         _urStopScriptSent
         AND NOT Script.bBusy
         AND ((RTDE.nRuntimeState = 2) OR (RTDE.nRuntimeState = 5))
@@ -307,8 +297,8 @@ IF IsPhysicalStopComplete THEN
         _urTransportSent := FALSE;
         _urStartSeen := FALSE;
 END_IF]]></ST>
-            </Implementation>
-        </Method>
+      </Implementation>
+    </Method>
     <Method Name="OnActivate" Id="{0ed4d272-2017-43c8-8627-328b7fa74b51}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
 VAR_INPUT
@@ -581,16 +571,6 @@ ELSE
 
             IF Operational THEN
 
-                Messenger.Clear(
-                    Name,
-                    'UR Dashboard interface error'
-                );
-
-                Messenger.Clear(
-                    Name,
-                    'UR RTDE interface error'
-                );
-
                 myResult := SUCCESS;
 
             ELSE
@@ -781,13 +761,6 @@ _tonCommandStart(IN := FALSE);
 SendCommand := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="StopMotion" Id="{6c944b84-e449-4e6e-ac8a-47dfa56f2ca8}">
-      <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[StopMotion := SUPER^.StopMotion();]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="StartPhysicalStop" Id="{64c68658-75d1-477e-80bb-359da509ea21}">
       <Declaration><![CDATA[METHOD PROTECTED StartPhysicalStop : BOOL
 VAR_INPUT
@@ -811,6 +784,13 @@ _urStopMotionPending := TRUE;
 _urStopScriptQueued := FALSE;
 _urStopScriptSent := FALSE;
 StartPhysicalStop := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StopMotion" Id="{6c944b84-e449-4e6e-ac8a-47dfa56f2ca8}">
+      <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StopMotion := SUPER^.StopMotion();]]></ST>
       </Implementation>
     </Method>
   </POU>

@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <DUT Name="eStopMode" Id="{d246b69f-46fc-4a3b-9bc0-f1d88280210e}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 {attribute 'strict'}
 TYPE eStopMode :
 (
-    CancelCommand := 0,
     ControlledStop := 1,
     StopAndDisable := 2
 );

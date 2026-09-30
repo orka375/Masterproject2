@@ -17,7 +17,6 @@ END_VAR
 
 VAR_OUTPUT
 	HMI_SKILL : stHMI_SKILL;
-	SubSkill: POINTER TO FB_1_Skill;
 END_VAR
 
 VAR
@@ -33,7 +32,7 @@ VAR
 	_executionDone       : BOOL;
 	_execuctionresult: eResult;
 
-	SubSkillPhase: INT;
+	
 	_bBusy: BOOL;
 	_Init_Skill: BOOL;
 	
@@ -61,13 +60,11 @@ END_VAR
 	_Init_Skill:=TRUE;
 	SETUP_SKILL();
 END_IF
+
+
 CYCLIC_BASE();
 RUN_DEBUG_SKILL();
-// CommandHandler(Cmd:=ADR(HMI_SKILL.Command),Stat:=ADR(HMI_SKILL.Status));
 
-// HMI command bits. Start is latched and driven until the skill is
-// Active (the state machine needs several cycles to progress);
-// Stop/Reset act on the rising edge.
 _rExec(CLK := HMI_SKILL.bExecute);
 _rStopCmd(CLK := HMI_SKILL.bStop);
 
@@ -82,7 +79,7 @@ END_IF
 
 
 IF _startReq THEN
-	IF (State = eState.Active) OR (State = eState.ErrorProcessing) THEN
+	IF (State = eState.Inactive) THEN //only if C
 		_startReq := FALSE;
 	ELSE
 		Execute();
@@ -90,24 +87,13 @@ IF _startReq THEN
 END_IF
 
 
-IF HMI_SKILL.ExternalImplementation THEN
-	ExecutionDone:=HMI_SKILL.Status.ExecutionDone;
-	Busy:=HMI_SKILL.Status.ExecutionBusy;
-	ExecutionResult:= HMI_SKILL.Status.ExecutionResult;
-	
-	IF ExecutionResult = ERROR THEN
-		MEssenger.AddError(eMessageCategories.External,Path,'External Execution failed');
-	END_IF
-END_IF
-
 
 CASE State OF
 	eState.Inactive:
-   		 _executionDone := FALSE;
+   		 ExecutionDone := FALSE;
 	
 	eState.Active:
-		// ExecutionDone/Busy are fed from Status when running external, so both paths share one completion check.
-		IF ExecutionDone AND NOT Busy THEN
+		IF ExecutionDone THEN
 			Deactivate();
 		END_IF
 
@@ -159,64 +145,6 @@ IF (LastTransitionType=eTransitions.Activate AND LastTransitionResult<=SUCCESS) 
  ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="ExecuteSubSkill" Id="{7f3779b3-4459-41d6-adfb-6aa7e70bc5db}">
-      <Declaration><![CDATA[// LEGACY: new skills call Execute once and poll ExecutionDone/ExecutionResult directly.
-    METHOD ExecuteSubSkill : BOOL
-VAR_INPUT
-	pSkillToExecute: POINTER TO FB_1_Skill;
-	pbTransition: POINTER TO BOOL;
-	ExecutionOfSubSkillDone: BOOL;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[ExecuteSubSkill := FALSE;
-
-IF (pSkillToExecute = 0) OR (pbTransition = 0) THEN
-  ExecutionDone := TRUE;
-  ExecutionResult := FAILURE;
-  Messenger.AddError(eMessageCategories.MissingData,Path,'Subskill or transition pointer is not assigned');
-  RETURN;
-END_IF
-
-IF SubSkillPhase= 0 THEN
-  SubSkill := pSkillToExecute;
-  SubSkill^.Execute();
-	bSubSkillRunning:=TRUE;
-	SubSkillPhase := 10;
-END_IF
-
-IF SubSkillPhase= 10 THEN		//DO
-  IF SubSkill = 0 THEN
-    ExecutionDone := TRUE;
-    ExecutionResult := FAILURE;
-    Messenger.AddError(eMessageCategories.MissingData,Path,'Active subskill pointer is not assigned');
-    RETURN;
-  END_IF
-
-  IF SubSkill^.ExecutionDone AND SubSkill^.ExecutionResult=SUCCESS THEN
-		SubSkillPhase := 20;
-	END_IF
-	
-	IF SubSkill^.ExecutionDone AND SubSkill^.ExecutionResult<>SUCCESS THEN
-		ExecutionDone:=TRUE;		//BUG
-		ExecutionResult:=FAILURE;
-		Deactivate();
-		Messenger.AddWarn(eMessageCategories.Undefined,Path,'SubSkill Execution failed/errored');
-	END_IF
-			
-			
-END_IF
-
-
-IF SubSkillPhase= 20 THEN
-	bSubSkillRunning:=FALSE;
-	SubSkill:=0;
-	SubSkillPhase := 0;
-	pbTransition^:=TRUE;
-  ExecuteSubSkill := TRUE;
-END_IF]]></ST>
-      </Implementation>
-    </Method>
     <Property Name="ExecutionDone" Id="{e8b4d378-09d9-465e-b949-6bfe1008a53f}">
       <Declaration><![CDATA[{warning 'Add property implementation'}
 PROPERTY ExecutionDone : BOOL
@@ -257,27 +185,6 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Method Name="ExternalStart" Id="{d91832b2-4616-45dd-a1a3-26b9ccee2843}">
-      <Declaration><![CDATA[METHOD ExternalStart : eREsult
-VAR_INPUT
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[HMI_SKILL.Command.bStart:=TRUE;
-
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="ExternalStop" Id="{9fb06c32-c1d9-4556-b64b-80d869122f68}">
-      <Declaration><![CDATA[METHOD ExternalStop : eREsult
-VAR_INPUT
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[HMI_SKILL.Command.bStop:=TRUE;
-]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="FB_Init" Id="{69f9f497-1b72-4d80-aee2-459cc303c27d}">
       <Declaration><![CDATA[METHOD FB_Init : BOOL
   VAR_INPUT
@@ -290,18 +197,11 @@ END_VAR
       <Implementation>
         <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
 
-  FOR iSkill := 1 TO SETUP.nSkillCount DO
-    IF SETUP.apSkill[iSkill] = THIS THEN
-      FB_Init := TRUE;
-      RETURN;
-    END_IF
-  END_FOR
 
-  IF SETUP.nSkillCount < SETUP.MaxNrofSkills THEN	//BUG
-    SETUP.nSkillCount := SETUP.nSkillCount + 1;
-    SETUP.apSkill[SETUP.nSkillCount] := THIS;
-    FB_Init := TRUE;
-  END_IF]]></ST>
+IF SETUP.nSkillCount < SETUP.MaxNrofSkills THEN	
+	SETUP.nSkillCount := SETUP.nSkillCount + 1;
+	SETUP.apSkill[SETUP.nSkillCount+1] := THIS;
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="onActivate" Id="{46f7f3ef-55a8-4a46-bd3a-f25fd3c3df9b}" FolderPath="StateControl\">
@@ -330,12 +230,7 @@ END_IF
 
 
 IF State>=eState.Inactive AND State<>eState.Active THEN
-	IF HMI_SKILL.ExternalImplementation THEN
-		myResult:= ExternalStart();
-	ELSE
 		myResult:=StartCustomSkill();
-	END_IF
-	
 ELSE
 	Messenger.AddWarn(eMessageCategories.StateMachine,Path,'OnActivate hat nichts gebracht, weil nicht >Inactive');
 	myResult:=FAILURE;
@@ -446,13 +341,8 @@ END_IF
 
 
 IF State>=eState.Deactivating THEN
-	IF HMI_SKILL.ExternalImplementation THEN
-		myResult:= ExternalStop();
-	ELSE
 		myResult:= StopCustomSkill();
-	END_IF
-// ELSIF State=eState.Deactivating	THEN
-// 	myResult:=SUCCESS;
+
 
 ELSE
 	Messenger.AddWarn(eMessageCategories.StateMachine,Path,'OnDeactivate hat nichts gebracht, weil nicht >Inactive');
@@ -495,29 +385,6 @@ IF pOwner <> 0 AND pOwner^.ActivSkill = THIS THEN
     pOwner^.ActivSkill := 0;
 END_IF
 
-IF SubSkill <> 0 THEN
-    CASE SubSkill^.State OF
-        eState.Active:
-            SubSkill^.Stop();
-
-        eState.ErrorProcessing:
-            SetRecoveryMode(Mode := SubSkill^.RecoveryMode);
-
-        eState.Inactive, eState.Unconfigured, eState.Finalized:
-            bSubSkillRunning := FALSE;
-            SubSkill := 0;
-            SubSkillPhase := 0;
-            myResult := SUCCESS;
-
-        ELSE
-            SubSkill^.Shutdown();
-    END_CASE
-ELSE
-    bSubSkillRunning := FALSE;
-    SubSkillPhase := 0;
-    myResult := SUCCESS;
-END_IF
-
 IF myResult = SUCCESS THEN
     ExecutionDone := TRUE;
     IF ExecutionResult = NONE OR ExecutionResult = SUCCESS THEN
@@ -549,21 +416,14 @@ myResult := NONE;
 _startReq := FALSE;
 nCalledCmdID := 0;
 
-IF HMI_SKILL.ExternalImplementation THEN
-    ExternalStop();
-END_IF
+    
 
-IF SubSkill <> 0 AND SubSkill^.State <> eState.Finalized THEN
-    SubSkill^.Shutdown();
-ELSE
-    SubSkill := 0;
-    bSubSkillRunning := FALSE;
-    SubSkillPhase := 0;
-    ExecutionDone := TRUE;
-    IF ExecutionResult = NONE THEN ExecutionResult := FAILURE; END_IF
-    HMI_BASE.bBusy:=False;
+
+ExecutionDone := TRUE;
+IF ExecutionResult = NONE THEN ExecutionResult := FAILURE; END_IF
+
     myResult := SUCCESS;
-END_IF
+
 
 onShutdown := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
@@ -585,6 +445,7 @@ END_IF
     <Action Name="SETUP_SKILL" Id="{75b72c65-b70c-49b5-b658-604ad26f3641}">
       <Implementation>
         <ST><![CDATA[SET_B:=SET_S;
+HMI_SKILL.Tag := TAG;
 ]]></ST>
       </Implementation>
     </Action>
@@ -593,8 +454,7 @@ END_IF
 METHOD  StartCustomSkill : eResult
 
 VAR
-	config_succ: BOOL:=TRUE;
-	act_succ: BOOL;
+
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[// ----- YOUR CODE HERE (incl. Alarms) -------------

@@ -12,8 +12,8 @@ STRUCT
 	bAcknowledgeRequired : BOOL;
 	bManualActionRequired : BOOL;
 	nRecoveryAttempt : UINT;
-	aNameOfSkills : ARRAY[1..MaxNrofSkills] OF STRING;
-	aTagOfSkills : ARRAY[1..MaxNrofSkills] OF STRING;
+	aNameOfSkills : ARRAY[1..MaxNrofSkillsPerUnit] OF STRING;
+	aTagOfSkills : ARRAY[1..MaxNrofSkillsPerUnit] OF STRING;
 
 
 END_STRUCT

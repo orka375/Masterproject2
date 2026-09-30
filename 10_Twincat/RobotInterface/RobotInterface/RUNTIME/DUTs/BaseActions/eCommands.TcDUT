@@ -17,7 +17,15 @@ TYPE eCommands :
 	NavigateToPoint	:=8,
 	Dock			:=9,
 	Undock			:=10,
-	Home			:=11
+	Homing			:=11,
+	StopMotion		:=12,
+	
+	
+	//Generic predefined Controls, no settings needed
+	MoveToHomePosition := 13,
+	MoveToSafePosition := 14
+	
+	
 	
 );
 END_TYPE

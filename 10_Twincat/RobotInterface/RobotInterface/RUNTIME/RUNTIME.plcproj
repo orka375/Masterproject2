@@ -69,9 +69,6 @@
     <Compile Include="DUTs\DB\ST_PointListEntry.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Error\eErrorReactions.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="DUTs\Error\eMessageCategories.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -111,6 +108,9 @@
     <Compile Include="DUTs\ITF_CUSTOM_SKILL.TcIO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\ITF_CUSTOM_TOOL.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\Manipulator\E_RobotCommand.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -145,6 +145,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Settings\stSettings_Skill.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Settings\stSettings_Tool.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\Skill\E_CommandHandshakeState.TcDUT">
@@ -370,9 +373,6 @@
     <Compile Include="POUs\Test\DEBUG_STATE.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\Test\FB_CAM.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="POUs\Test\TEST1.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -380,15 +380,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Test\TESTSETUP.TcGVL">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Test\TEST_AXIS.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Test\TEST_ROBOT.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\Test\TEST_Skill.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Test\TEST_Skill_2Points.TcPOU">
@@ -454,17 +445,6 @@
     </PlaceholderReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="RUNTIME.tmc">
-      <SubType>Content</SubType>
-    </None>
-    <Content Include="UNO.plcproj">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="UNO.tmc">
-      <SubType>Content</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="DUTs" />
     <Folder Include="DUTs\AMR" />
     <Folder Include="DUTs\BaseActions" />
@@ -508,6 +488,11 @@
     <Folder Include="POUs\Tools\Bistable_Gripper" />
     <Folder Include="POUs\Tools\Gimatic_UR_Gripper" />
     <Folder Include="VISUs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="RUNTIME.tmc">
+      <SubType>Content</SubType>
+    </None>
   </ItemGroup>
   <ProjectExtensions>
     <PlcProjectOptions>

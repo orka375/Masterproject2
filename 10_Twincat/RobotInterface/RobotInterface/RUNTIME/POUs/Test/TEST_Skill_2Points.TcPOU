@@ -21,91 +21,91 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[// Detect start command
-fbExecute(CLK := HMI_SKILL.bExecute);
-
-
-// Start / restart
-IF fbExecute.Q THEN
-	HMI_SKILL.bExecute:=FALSE;
-    Busy := TRUE;
-    ExecutionDone:=FALSE;
-	ExecutionResult:= NONE;
-END_IF
-
-
-
-
-// Stop immediately
-IF HMI_SKILL.bStop THEN
-    HMI_BASE.Busy:=False;
-    ExecutionDone:=TRUE;
-	ExecutionResult:= FAILURE;
-	phase:=0;
-	
-	pUR^.UR_COMM.Dashboard.Stop();
-	HMI_SKILL.bStop:=FALSE;
-ELSE
-
-    IF HMI_BASE.bBusy THEN
-		IF phase=0 THEN
-			pUR^.UR_COMM.Dashboard.LoadProgram(sPath:=PathOfURP);
-// 			pUR^.UR_COMM.Dashboard.GetLoadedProgram();
-			phase:=1;
-		END_IF
-		
-		IF phase=1 THEN
-			IF pUR^.UR_COMM.Dashboard.LastResponseIncludes('Loading') THEN
-				phase:=2;
-			ELSE 
-				pUR^.UR_COMM.Dashboard.GetLoadedProgram();
-				phase:=44;
-			END_IF
-		END_IF
-		
-		IF phase=44 THEN
-			IF pUR^.UR_COMM.Dashboard.LastResponseIncludes(PathOfURP) THEN
-				phase:=2;
-			ELSE
-				phase:=0;
-			END_IF
-		END_IF
-		
-		IF phase=2 THEN
-			pUR^.UR_COMM.Dashboard.Play();
-			phase:=3;
-		END_IF
-		
-		IF phase=3 THEN
-			IF pUR^.UR_COMM.Dashboard.LastResponseIncludes('Starting') THEN
-				HMI_SKILL.bExecute:=FALSE;
-				phase:=4;
-			ELSE
-				phase:=2;
-			END_IF
-		END_IF
-		
-		IF phase=4 THEN
-			WaitTimer(IN:=TRUE,PT:=T#2S);
-			IF WaitTimer.Q THEN
-				phase:=5;
-				WaitTimer(IN:=FALSE);
-				
-			END_IF
-		END_IF
-		
-		IF phase=5 THEN			
-			pUR^.UR_COMM.Dashboard.ProgramState();
-			IF pUR^.UR_COMM.Dashboard.LastResponseIncludes('STOPPED') THEN //Skill is finished
-				HMI_SKILL.bExecute:=FALSE;
-				ExecutionDone:=TRUE;
-				ExecutionResult:= SUCCESS;
-				HMI_BASE.bBusy:=FALSE;
-				phase:=0;
-			END_IF
-		END_IF
-    END_IF
-END_IF]]></ST>
+      <ST><![CDATA[// // Detect start command
+// fbExecute(CLK := HMI_SKILL.bExecute);
+// 
+// 
+// // Start / restart
+// IF fbExecute.Q THEN
+// 	HMI_SKILL.bExecute:=FALSE;
+//     Busy := TRUE;
+//     ExecutionDone:=FALSE;
+// 	ExecutionResult:= NONE;
+// END_IF
+// 
+// 
+// 
+// 
+// // Stop immediately
+// IF HMI_SKILL.bStop THEN
+//     HMI_BASE.Busy:=False;
+//     ExecutionDone:=TRUE;
+// 	ExecutionResult:= FAILURE;
+// 	phase:=0;
+// 	
+// 	pUR^.UR_COMM.Dashboard.Stop();
+// 	HMI_SKILL.bStop:=FALSE;
+// ELSE
+// 
+//     IF HMI_BASE.bBusy THEN
+// 		IF phase=0 THEN
+// 			pUR^.UR_COMM.Dashboard.LoadProgram(sPath:=PathOfURP);
+// // 			pUR^.UR_COMM.Dashboard.GetLoadedProgram();
+// 			phase:=1;
+// 		END_IF
+// 		
+// 		IF phase=1 THEN
+// 			IF pUR^.UR_COMM.Dashboard.LastResponseIncludes('Loading') THEN
+// 				phase:=2;
+// 			ELSE 
+// 				pUR^.UR_COMM.Dashboard.GetLoadedProgram();
+// 				phase:=44;
+// 			END_IF
+// 		END_IF
+// 		
+// 		IF phase=44 THEN
+// 			IF pUR^.UR_COMM.Dashboard.LastResponseIncludes(PathOfURP) THEN
+// 				phase:=2;
+// 			ELSE
+// 				phase:=0;
+// 			END_IF
+// 		END_IF
+// 		
+// 		IF phase=2 THEN
+// 			pUR^.UR_COMM.Dashboard.Play();
+// 			phase:=3;
+// 		END_IF
+// 		
+// 		IF phase=3 THEN
+// 			IF pUR^.UR_COMM.Dashboard.LastResponseIncludes('Starting') THEN
+// 				HMI_SKILL.bExecute:=FALSE;
+// 				phase:=4;
+// 			ELSE
+// 				phase:=2;
+// 			END_IF
+// 		END_IF
+// 		
+// 		IF phase=4 THEN
+// 			WaitTimer(IN:=TRUE,PT:=T#2S);
+// 			IF WaitTimer.Q THEN
+// 				phase:=5;
+// 				WaitTimer(IN:=FALSE);
+// 				
+// 			END_IF
+// 		END_IF
+// 		
+// 		IF phase=5 THEN			
+// 			pUR^.UR_COMM.Dashboard.ProgramState();
+// 			IF pUR^.UR_COMM.Dashboard.LastResponseIncludes('STOPPED') THEN //Skill is finished
+// 				HMI_SKILL.bExecute:=FALSE;
+// 				ExecutionDone:=TRUE;
+// 				ExecutionResult:= SUCCESS;
+// 				HMI_BASE.bBusy:=FALSE;
+// 				phase:=0;
+// 			END_IF
+// 		END_IF
+//     END_IF
+// END_IF]]></ST>
     </Implementation>
     <Folder Name="Internal" Id="{d0ebd9eb-5d8a-470c-8755-fc53a42a9d56}" />
     <Method Name="StartCustomSkill" Id="{88a59b24-0663-4b6c-97d9-4f04ba8f8d59}" FolderPath="Internal\">

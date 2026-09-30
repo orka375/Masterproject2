@@ -39,9 +39,9 @@ COMM := ADR(AXIS_COMM);
 SET_A := SETTINGS;
 _pSettingsLinAxis := ADR(SETTINGS);
 
-_axisPowered := AXIS_COMM.Powered;
-_axisHomed := AXIS_COMM.Homed;
-_axisActualPosition := AXIS_COMM.ActualPosition;
+Powered := AXIS_COMM.Powered;
+Homed := AXIS_COMM.Homed;
+ActualAxisPosition := AXIS_COMM.ActualPosition;
 _axisActualVelocity := AXIS_COMM.ActualVelocity;
 
 CYCLIC_LIN_AXIS();]]></ST>
@@ -89,7 +89,7 @@ CASE Cmd OF
             Acceleration := EffectiveAcceleration,
             Deceleration := SET_A.DefaultDeceleration,
             Jerk := SET_A.DefaultJerk);
-    eCommands.Home:
+    eCommands.Homing:
         Accepted := AXIS_COMM.SendHome(CommandID := NewCommandID);
 END_CASE
 

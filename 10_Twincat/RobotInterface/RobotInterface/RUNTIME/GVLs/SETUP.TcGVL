@@ -6,7 +6,9 @@
 VAR_GLOBAL CONSTANT
 	MaxNrofMessages: 		UINT	:= 30;
 	MaxNrofSavedPoints: 	UINT	:= 10;
-	MaxNrofSkills: 			UINT	:= 8;
+	MaxNrofSkillsPerUnit: 			UINT	:= 6;
+	
+	MaxNrofSkills: 			UINT	:= 32;
 	MaxNrofRobots: 			UINT 	:= 16;
 	MaxNrofManipulators: 	UINT 	:= 16;
 	MaxNrofAMRs: 			UINT 	:= 16;
@@ -16,6 +18,7 @@ VAR_GLOBAL CONSTANT
 	emptyCOMM: 				FB_1_COMM; 				//Dummy Instance of Comm
 	emptyTool:				FB_1_Tool;				//Dummy Instance of Tool
 	emptyManip:				FB_2_ROB_MANIP;
+	emptySettings: stCommand_Settings;
 	
 	PLCStandardUnits : ST_StandardUnits := (
 		Position            := eUnit.mm,
@@ -128,12 +131,12 @@ VAR_GLOBAL
 		yaw 	:=0
 	);
  		
-// 	UR_ALPHA: ROBOT_UR :=(
-// 		sRobotIp:='192.168.250.2',
-// 		pA_Skills:= [ADR(R1_PP),ADR(R1_Counter)],
+	UR_ALPHA: ROBOT_UR :=(
+		sRobotIp:='192.168.250.2',
+		Skills:= [ADR(R1_PP),ADR(R1_Counter)]
 // 		Settings.InstallationPose := PositionAlpha
-// 		
-// 	);
+		
+	);
 // 
 // // 	UR_BRAVO: ROBOT_UR :=(
 // // 		sRobotIp:='192.168.250.3',
@@ -141,14 +144,14 @@ VAR_GLOBAL
 // // 	);
 // 	
 
-	Settings_Charlie : stSettings_Manip := ();
+// 	Settings_Charlie : stSettings_Manip;
 		
 
 	MECA_CHARLIE: ROBOT_MECA500 := (
 		Skills:= [ADR(R2_PP),ADR(R2_Counter)],
-		Tool := ADR(GREIFER_CHARLIE),
+		Tool := ADR(GREIFER_CHARLIE)
 		// Meca500 native units: mm / deg / mm-s^-1 / deg-s^-1 / mm-s^-2 / deg-s^-2.
-		SET_M := Settings_Charlie
+// 		SET_M := Settings_Charlie
 	);
 	
 // 	nc_axis_delta: AXIS_REF;

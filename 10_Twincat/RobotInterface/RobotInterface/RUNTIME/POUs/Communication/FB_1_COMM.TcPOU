@@ -152,38 +152,6 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Method Name="CancelCommand" Id="{11fb9113-4fb9-4a31-ae60-c5862a43f890}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
-VAR_INPUT
-	CommandID : UINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[CancelCommand := FALSE;
-
-    IF CommandID = 0 THEN
-      RETURN;
-    END_IF
-
-    IF _stopPending THEN
-      CancelCommand :=
-        (_stopMode = eStopMode.CancelCommand)
-        AND (_stopCommandID = CommandID);
-      RETURN;
-    END_IF
-
-    IF (CommandID <> ActiveCommandID)
-       OR (CommandState = eProgress.FINALIZED)
-       OR (CommandState = eProgress.ABORTED)
-       OR (CommandState = eProgress.CANCELLING) THEN
-      RETURN;
-    END_IF
-
-    CancelCommand := RequestStop(
-      Mode := eStopMode.CancelCommand,
-      CommandID := CommandID);]]></ST>
-      </Implementation>
-    </Method>
     <Property Name="CommandResult" Id="{ef906cf3-c3b7-4110-a2da-473905a396c7}" FolderPath="FINAL\">
       <Declaration><![CDATA[PROPERTY CommandResult : eResult]]></Declaration>
       <Get Name="Get" Id="{460a019c-ad56-4214-8d20-9adaabd86832}">
@@ -522,28 +490,6 @@ END_IF
 EnsurePhysicalStopForLifecycle := MotionStopped;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="EStop" Id="{96e85bb1-70d4-4223-a0eb-213cbbd6ee94}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[{deprecated 'Use StopMotion. This method is not safety-rated.'}
-    METHOD EStop : BOOL
-VAR_INPUT
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[EStop := StopMotion();]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="HasPhysicalStopFailed" Id="{12330745-e63f-4d41-bda8-58db75744f34}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD PROTECTED HasPhysicalStopFailed : BOOL]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[HasPhysicalStopFailed := FALSE;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="IsPhysicalStopComplete" Id="{a2358909-04d0-45eb-b0cf-654df3863c15}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD PROTECTED IsPhysicalStopComplete : BOOL]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[IsPhysicalStopComplete := FALSE;]]></ST>
-      </Implementation>
-    </Method>
     <Property Name="MotionStopped" Id="{6f85e13b-3111-4868-89c6-48d06c5ec9cb}" FolderPath="FINAL\">
       <Declaration><![CDATA[PROPERTY MotionStopped : BOOL]]></Declaration>
       <Get Name="Get" Id="{6b3f956f-c326-49b2-847a-f3f969004932}">
@@ -756,12 +702,6 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Method Name="ReadSafetyStopActive" Id="{d51be24f-c85d-4f22-bd54-c005ed820661}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD PROTECTED ReadSafetyStopActive : BOOL]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[ReadSafetyStopActive := FALSE;]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="Reconnect" Id="{1b214bc4-2670-4530-9e2e-4fb9a9440c51}">
       <Declaration><![CDATA[METHOD Reconnect : BOOL
 ]]></Declaration>
@@ -794,43 +734,6 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Method Name="RequestStop" Id="{46fdadba-fab4-40e5-a78e-38cf87860cf7}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD PROTECTED RequestStop : BOOL
-  VAR_INPUT
-    Mode : eStopMode;
-    CommandID : UINT;
-  END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[RequestStop := FALSE;
-
-  IF _stopPending THEN
-    RequestStop :=
-      (_stopMode = Mode)
-      AND ((_stopCommandID = CommandID) OR (Mode <> eStopMode.CancelCommand));
-    RETURN;
-  END_IF
-
-  IF NOT StartPhysicalStop(Mode := Mode) THEN
-    RETURN;
-  END_IF
-
-  _stopPending := TRUE;
-  _stopMode := Mode;
-  _stopCommandID := CommandID;
-  _stopStarted := TRUE;
-  _stopFailed := FALSE;
-  _motionStopped := FALSE;
-  Busy := TRUE;
-
-  IF CommandID <> 0 THEN
-    CommandState := eProgress.CANCELLING;
-    CommandResult := eResult.NONE;
-  END_IF
-
-  _tonStopTimeout(IN := FALSE);
-  RequestStop := TRUE;]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="ResetCommunication" Id="{ce234f47-9067-45ef-9d48-468fcefbc15a}">
       <Declaration><![CDATA[METHOD PUBLIC ResetCommunication : BOOL
 ]]></Declaration>
@@ -862,59 +765,11 @@ ResetCommunication := TRUE;]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Method Name="ServiceStop" Id="{734e5444-b532-4d4d-aad2-d97492878da1}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD PROTECTED ServiceStop]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[IF NOT _stopPending THEN
-    RETURN;
-END_IF
-
-Busy := TRUE;
-
-IF HasPhysicalStopFailed() OR _tonStopTimeout.Q THEN
-    _stopFailed := TRUE;
-    CommandState := eProgress.FINALIZED;
-    CommandResult := eResult.ERROR;
-    Messenger.AddError(
-        eMessageCategories.HardwareFailure,
-        CONCAT(Path, '.StopMotion'),
-        'Controlled stop failed or timed out before standstill');
-    RETURN;
-END_IF
-
-IF NOT IsPhysicalStopComplete() THEN
-    RETURN;
-END_IF
-
-_stopPending := FALSE;
-_stopStarted := FALSE;
-_motionStopped := TRUE;
-Busy := FALSE;
-_tonStopTimeout(IN := FALSE);
-
-IF _stopCommandID <> 0 THEN
-    ActiveCommandID := 0;
-    CommandState := eProgress.ABORTED;
-    CommandResult := eResult.FAILURE;
-END_IF
-
-_stopCommandID := 0;]]></ST>
-      </Implementation>
-    </Method>
     <Action Name="SETUP_COMM" Id="{8953db30-ebf8-4ae1-b477-95a9c5b6fb8c}">
       <Implementation>
         <ST><![CDATA[]]></ST>
       </Implementation>
     </Action>
-    <Method Name="StartPhysicalStop" Id="{9950a8e6-d541-4a70-8b7d-dd37ce8e0800}" FolderPath="MotionControl\">
-      <Declaration><![CDATA[METHOD PROTECTED StartPhysicalStop : BOOL
-VAR_INPUT
-    Mode : eStopMode;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[StartPhysicalStop := FALSE;]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="StopMotion" Id="{87fb0928-6cea-447d-8282-693d0d33345f}" FolderPath="MotionControl\">
       <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
 ]]></Declaration>
@@ -926,7 +781,35 @@ END_VAR]]></Declaration>
 
     StopMotion := RequestStop(
       Mode := eStopMode.ControlledStop,
-      CommandID := ActiveCommandID);]]></ST>
+      CommandID := ActiveCommandID);
+	  
+	  
+	  RequestStop := FALSE;
+
+  IF _stopPending THEN
+    RequestStop := (_stopMode = Mode) AND ((_stopCommandID = CommandID) OR (Mode <> eStopMode.CancelCommand));
+    RETURN;
+  END_IF
+
+  IF NOT StartPhysicalStop(Mode := Mode) THEN
+    RETURN;
+  END_IF
+
+  _stopPending := TRUE;
+  _stopMode := Mode;
+  _stopCommandID := CommandID;
+  _stopStarted := TRUE;
+  _stopFailed := FALSE;
+  _motionStopped := FALSE;
+  Busy := TRUE;
+
+  IF CommandID <> 0 THEN
+    CommandState := eProgress.CANCELLING;
+    CommandResult := eResult.NONE;
+  END_IF
+
+  _tonStopTimeout(IN := FALSE);
+  RequestStop := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="StopPending" Id="{0d5ce5ca-c592-4ba5-acac-a6833088e4b8}" FolderPath="FINAL\">

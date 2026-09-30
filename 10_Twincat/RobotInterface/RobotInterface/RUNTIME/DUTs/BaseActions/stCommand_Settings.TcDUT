@@ -13,6 +13,7 @@ STRUCT
 	bValue: BOOL;
 	fValue: REAL;
 	nValue: INT;
+	ID: UINT;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

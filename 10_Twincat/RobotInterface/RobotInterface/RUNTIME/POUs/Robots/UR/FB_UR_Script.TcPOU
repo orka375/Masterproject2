@@ -167,7 +167,7 @@ CASE nState OF
         END_IF
 
         bConnected := FALSE;
-        Busy:=False;
+        bBusy:=FALSE;
         bSendRequest := FALSE;
         nScriptLen := 0;
         nState := 0;

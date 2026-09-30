@@ -3352,7 +3352,7 @@ IF phase = 0 THEN
 		res := pRob^.PM.Load(Param^.PickPositionName);
 		
 		IF res=SUCCESS THEN
-			T_Point  := FromPose(pRob^.PM.LoadedPoint);
+			T_Point  := FromPose(pRob^.PM.LoadedPose);
 			T_Offset := FromPose(Param^.PickPositionOffset);
 			
 			T_Result := Multiply(
@@ -3379,7 +3379,7 @@ IF phase = 10 THEN
 		res := pRob^.PM.Load(Param^.PlacePositionName);
 		
 		IF res=SUCCESS THEN
-      placepos := pROB^.PM.LoadedPoint;
+      placepos := pROB^.PM.LoadedPose;
       placepos.x := placepos.x + Param^.PlacePositionOffset.x;
       placepos.y := placepos.y + Param^.PlacePositionOffset.y;
       placepos.z := placepos.z + Param^.PlacePositionOffset.z;
@@ -3478,7 +3478,7 @@ IF Param^.MiddlePointName<>'' THEN
 	res := pRob^.PM.Load(Param^.MiddlePointName);
 	
 	IF res=SUCCESS THEN
-		middlepoint := pROB^.PM.LoadedPoint;
+		middlepoint := pROB^.PM.LoadedPose;
 		bGotMiddlePoint := TRUE;
 	END_IF
 END_IF

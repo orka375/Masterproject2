@@ -7,8 +7,7 @@ STRUCT
     bMoving : BOOL;
    	bEStop : BOOL;
     bInCollision : BOOL;
-    eModus : eMode;	
-
+	bPowered : BOOL;
 	ValueOfSpeedOverride : LREAL := 100.0;
 
 	TCPPos_HMIUnit : ST_Pose;		//mm/deg

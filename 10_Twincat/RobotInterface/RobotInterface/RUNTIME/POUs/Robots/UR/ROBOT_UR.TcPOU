@@ -104,8 +104,8 @@ IF _baActive THEN
     eCommandResult := UR_COMM.CommandResult;
 
     IF (eCommandStatus = FINALIZED) OR (eCommandStatus = ABORTED) THEN
-        _baActive := FALSE;
-        _baActiveID := 0;
+        
+        
         BA_Active := FALSE;
     END_IF
 END_IF
@@ -384,34 +384,14 @@ END_IF
 nCommandID := NewCommandID;
 eCommandStatus := INIT;
 eCommandResult := NONE;
-_baActive := TRUE;
-_baActiveID := NewCommandID;
+
+
 _baActiveCmd := Cmd;
 BA_Active := TRUE;
 UR_BA_ResultRaw := 0;
 
 CommandHandler := NewCommandID;
 ]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="EStop" Id="{6df22b90-0226-4a6b-8edb-494cabd2419d}">
-      <Declaration><![CDATA[METHOD EStop : BOOL]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[// Legacy compatibility only: this is a functional stop, NOT a safety-rated E-Stop.
-EStop := StopMotion();]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="OnCommandCancelled" Id="{2e38e3e3-769c-4ea8-9d8a-864eb0df647c}">
-      <Declaration><![CDATA[METHOD PROTECTED OnCommandCancelled
-VAR_INPUT
-    CommandID : UINT;
-END_VAR
-
-// Default: nothing to do.
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[_baActive := FALSE;
-_baActiveID := 0;]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnError" Id="{78e72456-3e0f-4ef5-90ee-9a21bb2238d6}" FolderPath="StateControl\">
@@ -433,8 +413,8 @@ myResult := NONE;
 IF _baActiveID <> 0 THEN
     UR_COMM.CancelCommand(CommandID := _baActiveID);
 END_IF
-_baActive := FALSE;
-_baActiveID := 0;
+
+
 BA_Active := FALSE;
 
 IF NOT UR_COMM.Busy THEN

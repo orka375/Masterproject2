@@ -3,12 +3,18 @@
   <DUT Name="stSettings_Rob" Id="{255a0367-527b-4706-b91f-917c8b67132d}">
     <Declaration><![CDATA[TYPE stSettings_Rob EXTENDS stSettings_Base :
 STRUCT
-	NameOfSafePosition : STRING := 'SAFE';
+	
 	LinearStandStillLimit : REAL := 1.0;	//mm/s
 	AngularStandStillLimit : REAL := 0.001;	//rad/s
-	SafePosition: stJoint6;
+	
+	UseSavedSecurePosition: BOOL := TRUE;
+	NameOfSavedSecurePosition: STRING := 'SAFE';
+	NameOfHomePosition: STRING := 'HOME';
+	ManualSecurePosition: stJoint6;
+	
 	SafePositionTolerance: LREAL := 0.5;	//mm
-	RegisterAsTopLevelRobot: BOOL := TRUE;
+	
+
 	InstallationPose : ST_Pose; // BRF expressed in WRF : stVector3d
 	StandardUnits : ST_StandardUnits := (
 		Position            := eUnit.mm,
@@ -22,7 +28,7 @@ STRUCT
 		JointAcceleration   := eUnit.rad
 	); 	// Native unit standard of THIS robot. Subclasses overwrite in their declaration/FB_Init.
 	// Base default = PLC standard (mm/rad), so conversions are a no-op if not overridden.
-
+	HomingVelocity : REAL := 10; 		//mm/s
 END_STRUCT
 END_TYPE
 ]]></Declaration>

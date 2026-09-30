@@ -35,10 +35,11 @@ END_VAR
         StopVelocityTolerance := SETTINGS.AngularStandStillLimit);
 COMM := ADR(AXIS_COMM);
 SET_A := SETTINGS;
-_axisPowered := AXIS_COMM.Powered;
-_axisHomed := AXIS_COMM.Homed;
-_axisActualPosition := AXIS_COMM.ActualPosition;
-_axisActualVelocity := AXIS_COMM.ActualVelocity;
+
+Powered := AXIS_COMM.Powered;
+Homed := AXIS_COMM.Homed;
+ActualAxisPosition := AXIS_COMM.ActualPosition;
+ActualAxisVelocity := AXIS_COMM.ActualVelocity;
 
 TCPPos_PLCUnit := SETTINGS.InstallationPose;
 TCPPos_PLCUnit.yaw := TCPPos_PLCUnit.yaw + _axisActualPosition;
@@ -93,7 +94,7 @@ CASE Cmd OF
             Acceleration := EffectiveAcceleration,
             Deceleration := SET_A.DefaultDeceleration,
             Jerk := SET_A.DefaultJerk);
-    eCommands.Home:
+    eCommands.Homing:
         Accepted := AXIS_COMM.SendHome(CommandID := NewCommandID);
 END_CASE
 
@@ -182,7 +183,6 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
 myResult := eResult.NONE;
-_axisCommandActive := FALSE;
 
 IF eParentResult <> eResult.SUCCESS THEN
     OnError := eParentResult;

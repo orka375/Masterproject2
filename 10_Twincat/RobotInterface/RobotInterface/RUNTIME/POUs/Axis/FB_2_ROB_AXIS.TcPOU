@@ -12,22 +12,70 @@ VAR_OUTPUT
   HMI_ROB_AXIS : stHMI_ROB_AXIS;
 END_VAR
 VAR
-  _axisPowered : BOOL;
-  _axisHomed : BOOL;
+
+
   _axisActualPosition : LREAL;
   _axisActualVelocity : LREAL;
+  
   _axisTargetPosition : LREAL;
   _axisTargetValid : BOOL;
-    _axisCommandActive : BOOL;
-    _activeCommand : eCommands;
-	_Init_Axis: BOOL;
-	h: BOOL;
+  
+_Init_Axis: BOOL;
+
+	AxisPos: st_Pose;
+	AxisVel: ST_pose;
+	JointPos: stJoint6;
+	JointVel: stJoint6;
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[CYCLIC_AXIS();]]></ST>
     </Implementation>
-    <Method Name="CommitAxisCommand" Id="{49deea93-5d94-4118-b965-e1ddfb619d08}">
+    <Folder Name="Generic Control" Id="{213dfb11-becf-4582-b0a8-e177a69c7abd}" />
+    <Folder Name="Generic Status" Id="{2a36d6fa-98a0-45c2-b7a0-ef1ae30752c6}" />
+    <Folder Name="Motion Control" Id="{7db7dd95-2943-4817-beb6-42969e39466b}" />
+    <Property Name="ActualAxisPosition" Id="{de17a366-4e0b-498b-a685-2fbc5b30108b}" FolderPath="Generic Status\">
+      <Declaration><![CDATA[PROPERTY ActualAxisPosition : REAL]]></Declaration>
+      <Get Name="Get" Id="{9765a06b-6f28-4eef-908d-b3346b557313}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualAxisPosition := _axisActualPosition;
+]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{57939f08-9cc3-47b9-bce9-761caa98afc1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ _axisActualPosition := ActualAxisPosition;
+]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ActualAxisVelocity" Id="{74e06603-b53c-43af-83e1-855fe30fb4d6}" FolderPath="Generic Status\">
+      <Declaration><![CDATA[PROPERTY ActualAxisVelocity : REAL]]></Declaration>
+      <Get Name="Get" Id="{24412f67-b7d7-4530-a57c-83621503436e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualAxisVelocity := _axisActualVelocity;
+]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{a1922fcb-7bf2-40bd-8334-4eb5100c821d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_axisActualVelocity := ActualAxisVelocity;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="CommitAxisCommand" Id="{49deea93-5d94-4118-b965-e1ddfb619d08}" FolderPath="Motion Control\">
       <Declaration><![CDATA[METHOD PROTECTED CommitAxisCommand : UINT
 VAR_INPUT
     Cmd : eCommands;
@@ -60,10 +108,6 @@ END_IF
 CYCLIC_ROB();
 
 // ------ WRITE HMI -------------------
-HMI_ROB_AXIS.AxisPowered := _axisPowered;
-Homed := _axisHomed;
-ActualPosition := _axisActualPosition;
-ActualVelocity := _axisActualVelocity;
 HMI_ROB_AXIS.AtMinLimit := _axisActualPosition <= (SET_A.MinPosition + SET_A.PositionTolerance);
 HMI_ROB_AXIS.AtMaxLimit := _axisActualPosition >= (SET_A.MaxPosition - SET_A.PositionTolerance);
 HMI_ROB_AXIS.InPosition := _axisTargetValid AND (ABS(_axisActualPosition - _axisTargetPosition) <= SET_A.PositionTolerance);
@@ -73,13 +117,23 @@ HMI_ROB_AXIS.InPosition := _axisTargetValid AND (ABS(_axisActualPosition - _axis
 
 
 // ------ WRITE PROPS/METHODS ---------
-  Homed := _axisHomed;
-  JointPos_PLCUnit.joint1 := _axisActualPosition;
-  JointVel_PLCUnit.joint1 := _axisActualVelocity;
-  
+AxisPos.x := _axisActualPosition;		
+AxisVel.x := _axisActualVelocity;
+
+ActualPosition := AxisPos;
+ActualVelocity := AxisVel;
+
+JointPos.joint1:= _axisActualPosition;
+JointVel.joint1 := _axisActualVelocity;
+
+ActualJointPosition := JointPos;
+ActualJointVelocity := JointVel;
+
+
+
   
 IF SET_A.RequireHomedForPositioning THEN
-	Operational := HMI_ROB_AXIS.ConfigurationValid AND _axisHomed;
+	Operational := HMI_ROB_AXIS.ConfigurationValid AND Homed;
 ELSE
 	Operational := HMI_ROB_AXIS.ConfigurationValid;
 END_IF
@@ -95,8 +149,8 @@ END_IF
 
 
 IF _axisCommandActive THEN
-  eCommandStatus := COMM^.CommandState;
-  eCommandResult := COMM^.CommandResult;
+  CommandState := COMM^.CommandState;
+  CommandResult := COMM^.CommandResult;
 
 	IF (eCommandStatus = eProgress.FINALIZED)
 	   OR (eCommandStatus = eProgress.ABORTED) THEN
@@ -115,7 +169,7 @@ END_IF
 ]]></ST>
       </Implementation>
     </Action>
-    <Method Name="MoveAbsolute" Id="{703f4764-794a-460f-a71a-f3edb4a5692c}">
+    <Method Name="MoveAbsolute" Id="{703f4764-794a-460f-a71a-f3edb4a5692c}" FolderPath="Motion Control\">
       <Declaration><![CDATA[METHOD PUBLIC MoveAbsolute : UINT
 VAR_INPUT
     Position : LREAL;
@@ -132,7 +186,7 @@ Settings.Acceleration := Acceleration;
 MoveAbsolute := CommandHandler(Cmd := eCommands.MoveL, Settings := Settings);]]></ST>
       </Implementation>
     </Method>
-    <Method Name="MoveRelative" Id="{3cff1824-2665-4bcb-a77b-94f33ba8001c}">
+    <Method Name="MoveRelative" Id="{3cff1824-2665-4bcb-a77b-94f33ba8001c}" FolderPath="Motion Control\">
       <Declaration><![CDATA[METHOD PUBLIC MoveRelative : UINT
 VAR_INPUT
     Distance : LREAL;
@@ -149,17 +203,7 @@ Settings.Acceleration := Acceleration;
 MoveRelative := CommandHandler(Cmd := eCommands.MoveLRelativ, Settings := Settings);]]></ST>
       </Implementation>
     </Method>
-    <Method Name="OnCommandCancelled" Id="{c04973a0-7c49-42f7-ac66-1da6b2ca83fa}">
-      <Declaration><![CDATA[METHOD PROTECTED OnCommandCancelled
-VAR_INPUT
-    CommandID : UINT;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[_axisCommandActive := FALSE;
-_axisTargetValid := FALSE;]]></ST>
-      </Implementation>
-    </Method>
-    <Property Name="Operational" Id="{1d20a798-1110-4d48-b45f-38bf9971ee10}">
+    <Property Name="Operational" Id="{1d20a798-1110-4d48-b45f-38bf9971ee10}" FolderPath="Generic Status\">
       <Declaration><![CDATA[PROPERTY Operational : BOOL]]></Declaration>
       <Set Name="Set" Id="{23cd9c8d-e612-4507-a9f3-7894efcefcf9}">
         <Declaration><![CDATA[
@@ -175,7 +219,7 @@ SUPER^.Operational := Operational;
         </Implementation>
       </Set>
     </Property>
-    <Method Name="PrepareAxisCommand" Id="{50fd267e-684c-4f32-aa42-74620d0a5a1e}">
+    <Method Name="PrepareAxisCommand" Id="{50fd267e-684c-4f32-aa42-74620d0a5a1e}" FolderPath="Motion Control\">
       <Declaration><![CDATA[METHOD PROTECTED PrepareAxisCommand : BOOL
 VAR_INPUT
     Cmd : eCommands;
@@ -213,7 +257,7 @@ CASE Cmd OF
         TargetPosition := _axisActualPosition + Settings.Pose.x;
         TargetValid := TRUE;
 
-    eCommands.Home:
+    eCommands.Homing:
         TargetValid := FALSE;
 
 ELSE
@@ -242,7 +286,7 @@ PrepareAxisCommand := NewCommandID <> 0;]]></ST>
 HMI_ROB_AXIS.ConfigurationValid := ValidateConfiguration();]]></ST>
       </Implementation>
     </Action>
-    <Method Name="ValidateConfiguration" Id="{8637ddc2-8443-4a23-a124-b1a4ea35a4ec}">
+    <Method Name="ValidateConfiguration" Id="{8637ddc2-8443-4a23-a124-b1a4ea35a4ec}" FolderPath="Generic Control\">
       <Declaration><![CDATA[METHOD PROTECTED ValidateConfiguration : BOOL]]></Declaration>
       <Implementation>
         <ST><![CDATA[ValidateConfiguration := FALSE;
@@ -261,7 +305,7 @@ HMI_ROB_AXIS.ConfigurationValid := ValidateConfiguration();]]></ST>
 ValidateConfiguration := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="ValidateDynamics" Id="{6e84b03d-2a24-42cf-b1db-75dc01483567}">
+    <Method Name="ValidateDynamics" Id="{6e84b03d-2a24-42cf-b1db-75dc01483567}" FolderPath="Generic Control\">
       <Declaration><![CDATA[METHOD PROTECTED ValidateDynamics : BOOL
 VAR_INPUT
     Velocity : LREAL;

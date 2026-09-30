@@ -3,13 +3,20 @@
   <Itf Name="ITF_CUSTOM_SKILL" Id="{8f6eace4-1ce3-47c4-ac9d-cfdc087b1091}">
     <Declaration><![CDATA[INTERFACE ITF_CUSTOM_SKILL
 ]]></Declaration>
-    <Method Name="StartCustomSkill" Id="{e26c5811-9a9c-41cd-a3f6-36e61b48ba59}">
+    <Folder Name="incl Call Parent" Id="{3fd66bbc-28bb-4062-b165-021c15079841}" />
+    <Property Name="Operational" Id="{8dbad60b-2af7-4d53-8ea7-bd74c989b93d}">
+      <Declaration><![CDATA[PROPERTY Operational : BOOL]]></Declaration>
+      <Set Name="Set" Id="{c0a0151e-b8e4-45d3-9ae4-094595e63945}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Method Name="StartCustomSkill" Id="{e26c5811-9a9c-41cd-a3f6-36e61b48ba59}" FolderPath="incl Call Parent\">
       <Declaration><![CDATA[{warning 'Add method implementation '}
 METHOD StartCustomSkill : eResult
 
 ]]></Declaration>
     </Method>
-    <Method Name="StopCustomSkill" Id="{f6f30784-7f29-4946-b6ca-b0a6d6572b85}">
+    <Method Name="StopCustomSkill" Id="{f6f30784-7f29-4946-b6ca-b0a6d6572b85}" FolderPath="incl Call Parent\">
       <Declaration><![CDATA[{warning 'Add method implementation '}
 METHOD StopCustomSkill : eResult
 ]]></Declaration>

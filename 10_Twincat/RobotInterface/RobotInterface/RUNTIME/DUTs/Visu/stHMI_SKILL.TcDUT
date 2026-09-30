@@ -3,16 +3,15 @@
   <DUT Name="stHMI_SKILL" Id="{a747dac1-4524-4a05-be3b-8256e4b5a769}">
     <Declaration><![CDATA[TYPE stHMI_SKILL :
 STRUCT
-	ExternalImplementation : BOOL := FALSE; //TODO
 	bExecute : BOOL;
     bStop    : BOOL;
-
-	{attribute 'OPC.UA.DA.StructuredType':=1}
-	{attribute 'OPC.UA.DA' := '1'}
-    Status    : stExternalStatus;
-	{attribute 'OPC.UA.DA.StructuredType':=1}
-	{attribute 'OPC.UA.DA' := '1'}
-    Command   : stExternalCommand;
+	Tag		: STRING;
+// 	{attribute 'OPC.UA.DA.StructuredType':=1}		//TODO
+// 	{attribute 'OPC.UA.DA' := '1'}
+//     Status    : stExternalStatus;
+// 	{attribute 'OPC.UA.DA.StructuredType':=1}
+// 	{attribute 'OPC.UA.DA' := '1'}
+//     Command   : stExternalCommand;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

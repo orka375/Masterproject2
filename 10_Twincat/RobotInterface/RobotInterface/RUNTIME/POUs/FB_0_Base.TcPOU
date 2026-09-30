@@ -13,7 +13,7 @@ VAR_INPUT
 	
 	{attribute 'OPC.UA.DA.StructuredType':=1}
 	{attribute 'OPC.UA.DA' := '1'}
-	Skills : ARRAY[1..MaxNrofSkills] OF POINTER TO FB_1_Skill;
+	Skills : ARRAY[1..MaxNrofSkillsPerUnit] OF POINTER TO FB_1_Skill;
 	
 	
 END_VAR
@@ -222,7 +222,7 @@ FOR j:= TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO
 			Messenger.AddError(eMessageCategories.ChildFailed,Path,CONCAT('Child skill fault: ',Skills[j]^.Name));
 		END_IF
 		
-		IF Skills[j]^.State = eState.Active THEN
+		IF Skills[j]^.Busy THEN
 			HMI_Base.bBusy:=TRUE;
 		END_IF
 	END_IF
@@ -377,7 +377,7 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[GetSkillByTag := 0;
-FOR i:= 1 TO SETUP.MaxNrofSkills DO
+FOR i:= 1 TO SETUP.MaxNrofSkillsPerUnit DO
 	IF (Skills[i] <> 0) THEN
 		IF (Skills[i]^.TAG = sTag) THEN
 			GetSkillByTag := Skills[i];

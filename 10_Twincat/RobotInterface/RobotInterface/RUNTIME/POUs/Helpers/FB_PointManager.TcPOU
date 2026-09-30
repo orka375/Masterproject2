@@ -95,9 +95,7 @@ _fMoveToEditedPoint(CLK := HMI_PM.bMoveRobotToEditedPoint);
 
 IF _fMoveToEditedPoint.Q THEN					//TODO
     IF (_moveToEditedPointExecuteId <> 0) AND (pRobot <> 0) THEN
-        IF NOT pRobot^.CancelCommand(CommandID := _moveToEditedPointExecuteId) THEN
-            pRobot^.StopMotion();
-        END_IF
+		pRobot^.StopMotion();
     END_IF
     _moveToEditedPointExecuteId := 0;
 END_IF
@@ -1063,19 +1061,17 @@ LoadById := SUCCESS;
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="LoadedPoint" Id="{ea20c9ff-92ea-4122-931a-45e49ef164f8}">
-      <Declaration><![CDATA[PROPERTY LoadedPoint : ST_Pose]]></Declaration>
+    <Property Name="LoadedPose" Id="{ea20c9ff-92ea-4122-931a-45e49ef164f8}">
+      <Declaration><![CDATA[PROPERTY LoadedPose : ST_Pose]]></Declaration>
       <Get Name="Get" Id="{bf2f00be-2b86-46ea-90a3-3f38e1e8b036}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[LoadedPoint.x := HMI_PM.loadedPoint.x;
-LoadedPoint.y := HMI_PM.loadedPoint.y;
-LoadedPoint.z := HMI_PM.loadedPoint.z;
-LoadedPoint.roll := HMI_PM.loadedPoint.rx;
-LoadedPoint.pitch := HMI_PM.loadedPoint.ry;
-LoadedPoint.yaw := HMI_PM.loadedPoint.rz;
+          <ST><![CDATA[LoadedPose := ChangePointFromHMIStandard(HMI_PM.loadedPoint);
+
+
+
 ]]></ST>
         </Implementation>
       </Get>
@@ -1430,12 +1426,7 @@ END_IF
 MEMCPY(ADR(HMI_PM.aPoints[nId]),ADR(HMI_PM.editedPoint),SIZEOF(HMI_PM.editedPoint));
 HMI_PM.editedPoint := PointToHMI(Point := HMI_PM.aPoints[nId]);
 
-pPoint := 0;
-bFound := FALSE;
-;
-;
 
-bDone := TRUE;
 HMI_PM.nSelectedPointId := nId;
 _nLastSelectedPointId := nId;
 nPointCount := nPointCount +1;
@@ -1486,11 +1477,6 @@ END_IF
 
 HMI_PM.editedPoint.id := _nEditingId;
 HMI_PM.editedPoint.name := sNewName;
-
-;
-;
-
-bDone := TRUE;
 HMI_PM.sLastOperation := 'Edited point name changed; press SAVE POINT to store it';
 
 Rename := TRUE;

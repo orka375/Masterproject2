@@ -3,7 +3,6 @@
   <DUT Name="stHMI_ROB_AXIS" Id="{1b002753-a75e-4568-a17d-b12d3acf058e}">
     <Declaration><![CDATA[TYPE stHMI_ROB_AXIS :
 STRUCT
-    AxisPowered : BOOL;
     ConfigurationValid : BOOL;
     AtMinLimit : BOOL;
     AtMaxLimit : BOOL;

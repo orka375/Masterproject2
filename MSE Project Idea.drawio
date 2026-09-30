@@ -1,4 +1,4 @@
-<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.8 Chrome/140.0.7339.240 Electron/38.4.0 Safari/537.36" version="28.2.8" pages="14">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.8 Chrome/140.0.7339.240 Electron/38.4.0 Safari/537.36" pages="15">
   <diagram id="p68D3ooxj7tIkpFUrLDf" name="CurrentState">
     <mxGraphModel dx="1414" dy="841" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -11780,6 +11780,46 @@
               <mxPoint x="3770" y="1360" />
             </Array>
           </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="tkugwQQIVAjUl2RfR_--" name="Page-15">
+    <mxGraphModel dx="1677" dy="681" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ZrNEoj1N2k89RLZ1bif7-3" edge="1" parent="1" source="ZrNEoj1N2k89RLZ1bif7-1" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9933FF;strokeWidth=4;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" target="ZrNEoj1N2k89RLZ1bif7-2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZrNEoj1N2k89RLZ1bif7-5" edge="1" parent="1" source="ZrNEoj1N2k89RLZ1bif7-1" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9933FF;strokeWidth=4;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" target="ZrNEoj1N2k89RLZ1bif7-4" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZrNEoj1N2k89RLZ1bif7-7" edge="1" parent="1" source="ZrNEoj1N2k89RLZ1bif7-1" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9933FF;strokeWidth=4;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" target="ZrNEoj1N2k89RLZ1bif7-6" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="420.03" y="530.03" />
+              <mxPoint x="680.03" y="530.03" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZrNEoj1N2k89RLZ1bif7-9" edge="1" parent="1" source="ZrNEoj1N2k89RLZ1bif7-1" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#9933FF;strokeWidth=4;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" target="ZrNEoj1N2k89RLZ1bif7-8" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZrNEoj1N2k89RLZ1bif7-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="BASE&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;If Skill = Active&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="360" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="ZrNEoj1N2k89RLZ1bif7-2" parent="1" style="whiteSpace=wrap;html=1;rounded=1;" value="COMM&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;If NOT COMM sending Command&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="200" x="170" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="ZrNEoj1N2k89RLZ1bif7-4" parent="1" style="whiteSpace=wrap;html=1;rounded=1;" value="SKILL&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;If State= Active&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="440" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="ZrNEoj1N2k89RLZ1bif7-6" parent="1" style="whiteSpace=wrap;html=1;rounded=1;" value="ROBOT&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;If Skill Active or CommandHandler&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="620" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="ZrNEoj1N2k89RLZ1bif7-8" parent="1" style="whiteSpace=wrap;html=1;rounded=1;" value="" vertex="1">
+          <mxGeometry height="60" width="120" y="570" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

@@ -27,7 +27,6 @@ VAR_OUTPUT
 END_VAR
 
 VAR
-	CurrentTCP : REFERENCE TO ST_Pose;		//Set Reference in ROB fb_Init
     T_W_B      : ST_TransformMatrix;		//Set in fb_Init
 	index: INT;
 	
@@ -63,6 +62,15 @@ END_VAR
           <ST><![CDATA[ActualJointPosition := JointPos_PLCUnit;]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{5200eb36-b713-4fd9-acea-1d29264b6a02}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[JointPos_PLCUnit:= ActualJointPosition;]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Property Name="ActualJointVelocity" Id="{947a6f2a-4f8a-49d4-9aa5-6819f46128db}" FolderPath="Generic Status\">
       <Declaration><![CDATA[{warning 'Add property implementation'}
@@ -121,6 +129,16 @@ END_VAR
           <ST><![CDATA[ActualVelocity := TCPVel_PLCUnit;]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{e2c2d2bc-653c-4555-bb7b-571a1ce7564a}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TCPVel_PLCUnit:= ActualVelocity;
+]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Method Name="AllocateCommandID" Id="{4de8c731-a286-4ca0-9f0f-d43282496255}" FolderPath="Command\">
       <Declaration><![CDATA[METHOD PROTECTED AllocateCommandID : UINT
@@ -147,8 +165,7 @@ AllocateCommandID := Idcounter;
     AND NOT ((nCommandID <> 0)
       AND ((eCommandStatus = INIT)
         OR (eCommandStatus = ACKNOWLEDGE)
-        OR (eCommandStatus = RUNNING)
-        OR (eCommandStatus = CANCELLING)));
+        OR (eCommandStatus = RUNNING)));
 
 IF CanAcceptCommand AND (COMM <> 0) AND (COMM <> ADR(emptyCOMM)) THEN
     CanAcceptCommand := COMM^.CanAcceptCommand;
@@ -156,58 +173,23 @@ END_IF]]></ST>
         </Implementation>
       </Get>
     </Property>
-    <Method Name="CancelCommand" Id="{b57e3248-65a9-4f87-b25a-fbc0300c26f8}" FolderPath="Command\">
-      <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
-VAR_INPUT
-	CommandID : UINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[
-CancelCommand := FALSE;
-
-// Invalid command ID.
-IF (CommandID = 0) OR (CommandID <> nCommandID) THEN
-    RETURN;
-END_IF
-
-// Already terminal.
-IF (CommandState = eProgress.FINALIZED)
-    OR (CommandState = eProgress.ABORTED) THEN
-    RETURN;
-END_IF
-
-// Communication layer must exist.
-IF (COMM = 0) OR (COMM = ADR(emptyCOMM)) THEN
-    RETURN;
-END_IF
-
-// COMM performs the technical cancellation.
-IF NOT COMM^.CancelCommand(
-    CommandID := CommandID
-) THEN
-    RETURN;
-END_IF
-
-_cancelRequestID := CommandID;
-_cancelNotificationSent := FALSE;
-eCommandStatus := eProgress.CANCELLING;
-eCommandResult := eResult.NONE;
-
-CancelCommand := TRUE;]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="CommandHandler" Id="{83e2d403-4d26-4906-9c94-3843f0c8311a}" FolderPath="Command\">
       <Declaration><![CDATA[{warning 'Override with your own Method in final FB'}
 METHOD CommandHandler : UINT
 VAR_INPUT
     Cmd      : eCommands;
-    Settings : stCommand_Settings;
+    Settings : stCommand_Settings := SETUP.emptySettings;
 END_VAR
-]]></Declaration>
+
+VAR
+
+	CancelRes: BOOL;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[(* Base implementation: unsupported. Final robot FB overrides this method. *)
 CommandHandler := 0;
+
+
 ]]></ST>
       </Implementation>
     </Method>
@@ -222,6 +204,15 @@ END_VAR
 ]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{4147eece-a2c2-4265-9a5a-16d2dfe5e198}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ nCommandID := CommandID;]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Property Name="CommandResult" Id="{2743123b-b65d-4f7b-9069-9ec61dd72659}" FolderPath="Command\">
       <Declaration><![CDATA[PROPERTY CommandResult : eResult]]></Declaration>
@@ -265,18 +256,18 @@ IF (State <> eState.Deactivating)
   _lifecycleStopComplete := FALSE;
 END_IF
 
-IF (_cancelRequestID <> 0) AND (COMM <> 0) AND (COMM <> ADR(emptyCOMM)) THEN
-  eCommandStatus := COMM^.CommandState;
-  eCommandResult := COMM^.CommandResult;
-
-  IF (eCommandStatus = eProgress.ABORTED) AND NOT _cancelNotificationSent THEN
-    _cancelNotificationSent := TRUE;
-    OnCommandCancelled(CommandID := _cancelRequestID);
-    _cancelRequestID := 0;
-  ELSIF eCommandStatus = eProgress.FINALIZED THEN
-    _cancelRequestID := 0;
-  END_IF
-END_IF
+// IF (_cancelRequestID <> 0) AND (COMM <> 0) AND (COMM <> ADR(emptyCOMM)) THEN		//TODO CANCEL
+//   eCommandStatus := COMM^.CommandState;
+//   eCommandResult := COMM^.CommandResult;
+// 
+//   IF (eCommandStatus = eProgress.ABORTED) AND NOT _cancelNotificationSent THEN
+//     _cancelNotificationSent := TRUE;
+//     OnCommandCancelled(CommandID := _cancelRequestID);
+//     _cancelRequestID := 0;
+//   ELSIF eCommandStatus = eProgress.FINALIZED THEN
+//     _cancelRequestID := 0;
+//   END_IF
+// END_IF
 
 
 
@@ -355,16 +346,9 @@ HMI_ROB.bOperational := Operational;
 ]]></ST>
       </Implementation>
     </Action>
-    <Method Name="EStop" Id="{ff1c583d-626a-4142-b727-591a7a8cf9e6}" FolderPath="Generic Control\">
-        <Declaration><![CDATA[{deprecated 'Use StopMotion. This method is not safety-rated.'}
-    METHOD EStop : BOOL]]></Declaration>
+    <Method Name="EnsureMotionStopped" Id="{e0f87680-a790-4af7-9869-97c5d171646e}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED EnsureMotionStopped : BOOL]]></Declaration>
       <Implementation>
-        <ST><![CDATA[EStop := StopMotion();]]></ST>
-      </Implementation>
-    </Method>
-      <Method Name="EnsureMotionStopped" Id="{e0f87680-a790-4af7-9869-97c5d171646e}" FolderPath="StateControl\">
-        <Declaration><![CDATA[METHOD PROTECTED EnsureMotionStopped : BOOL]]></Declaration>
-        <Implementation>
         <ST><![CDATA[EnsureMotionStopped := FALSE;
 
     IF (COMM = 0) OR (COMM = ADR(emptyCOMM)) THEN
@@ -388,8 +372,8 @@ HMI_ROB.bOperational := Operational;
     END_IF
 
     EnsureMotionStopped := _lifecycleStopComplete;]]></ST>
-        </Implementation>
-      </Method>
+      </Implementation>
+    </Method>
     <Method Name="FB_Init" Id="{7b302bc2-af12-4e54-8aa2-dca07a2dd5cc}">
       <Declaration><![CDATA[METHOD FB_Init : BOOL
   VAR_INPUT
@@ -402,24 +386,16 @@ HMI_ROB.bOperational := Operational;
       <Implementation>
         <ST><![CDATA[SUPER^.FB_Init(bInitRetains := bInitRetains, bInCopyCode := bInCopyCode);
 
-CurrentTCP REF= TCPPos_PLCUnit;
+
 T_W_B := FromPose(SET_R.InstallationPose);
 
-IF NOT SET_R.RegisterAsTopLevelRobot THEN
-	FB_Init := TRUE;
-	RETURN;
-END_IF
 
-FOR iRobot := 1 TO SETUP.nRobCount DO
-	IF SETUP.apRobot[iRobot] = THIS THEN
-		FB_Init := TRUE;
-		RETURN;
-	END_IF
-END_FOR
+
+
 
 IF SETUP.nRobCount < SETUP.MaxNrofRobots THEN
 	SETUP.nRobCount := SETUP.nRobCount + 1;
-	SETUP.apRobot[SETUP.nRobCount] := THIS;
+	SETUP.apRobot[SETUP.nRobCount+1] := THIS;
 	FB_Init := TRUE;
 END_IF
 
@@ -428,20 +404,6 @@ END_IF
 
 
 ]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="Home" Id="{332921a2-9f70-499b-943d-00519405a468}" FolderPath="Generic Control\">
-      <Declaration><![CDATA[{warning 'Add method implementation '}
-METHOD Home : UINT
-
-
-VAR
-	Config: stCommand_Settings;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[
-
-Home:= CommandHandler(Cmd:=eCommands.Home,Settings:=Config);]]></ST>
       </Implementation>
     </Method>
     <Property Name="Homed" Id="{0293db6b-1676-4fdb-900d-d48a6f2fe520}" FolderPath="Generic Status\">
@@ -464,6 +426,21 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
+    <Method Name="Homing" Id="{332921a2-9f70-499b-943d-00519405a468}" FolderPath="Generic Control\">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD Homing : UINT
+
+
+VAR
+	Config: stCommand_Settings;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+Config.Velocity := SET_R.HomingVelocity;
+
+Homing:= CommandHandler(Cmd:=eCommands.Homing,Settings:=Config);]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="InSavePosition" Id="{0b1ac6ae-f2f1-4986-8684-c6891da4f895}" FolderPath="Generic Status\">
       <Declaration><![CDATA[PROPERTY InSavePosition : BOOL]]></Declaration>
       <Get Name="Get" Id="{f07a4056-55e2-4a4d-b3fa-f23e3592a78e}">
@@ -474,12 +451,12 @@ END_VAR]]></Declaration>
           <ST><![CDATA[joints := ActualJointPosition;
 
 InSavePosition :=
-    (ABS(joints.joint1 - SET_R.SafePosition.joint1) <= SET_R.SafePositionTolerance) AND
-    (ABS(joints.joint2 - SET_R.SafePosition.joint2) <= SET_R.SafePositionTolerance) AND
-    (ABS(joints.joint3 - SET_R.SafePosition.joint3) <= SET_R.SafePositionTolerance) AND
-    (ABS(joints.joint4 - SET_R.SafePosition.joint4) <= SET_R.SafePositionTolerance) AND
-    (ABS(joints.joint5 - SET_R.SafePosition.joint5) <= SET_R.SafePositionTolerance) AND
-    (ABS(joints.joint6 - SET_R.SafePosition.joint6) <= SET_R.SafePositionTolerance);]]></ST>
+    (ABS(joints.joint1 - SET_R.ManualSecurePosition.joint1) <= SET_R.SafePositionTolerance) AND
+    (ABS(joints.joint2 - SET_R.ManualSecurePosition.joint2) <= SET_R.SafePositionTolerance) AND
+    (ABS(joints.joint3 - SET_R.ManualSecurePosition.joint3) <= SET_R.SafePositionTolerance) AND
+    (ABS(joints.joint4 - SET_R.ManualSecurePosition.joint4) <= SET_R.SafePositionTolerance) AND
+    (ABS(joints.joint5 - SET_R.ManualSecurePosition.joint5) <= SET_R.SafePositionTolerance) AND
+    (ABS(joints.joint6 - SET_R.ManualSecurePosition.joint6) <= SET_R.SafePositionTolerance);]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -515,38 +492,56 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Property Name="Mode" Id="{b02ce28c-7dc7-4355-aadb-75f0e04880fa}" FolderPath="Generic Status\">
-      <Declaration><![CDATA[{warning 'OVERRIDE'}
-PROPERTY Mode : eMode]]></Declaration>
-      <Get Name="Get" Id="{5422baec-3cfa-49de-a9e5-c204b5dc3b85}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[Mode := HMI_ROB.eModus;]]></ST>
-        </Implementation>
-      </Get>
-      <Set Name="Set" Id="{70edccef-4005-4ebc-8367-68039a4d1e15}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[HMI_ROB.eModus := Mode;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
-    <Method Name="MoveToSafePosition" Id="{1460c5aa-e9ef-4e0e-a2bc-5ac3c6af9cb6}" FolderPath="Generic Control\">
-      <Declaration><![CDATA[METHOD MoveToSafePosition : UINT
-VAR_INPUT
-    Velocity : LREAL;
-END_VAR
+    <Method Name="MoveToHomePosition" Id="{c14a5534-c5f9-4fac-a596-50be651bd65e}" FolderPath="Generic Control\">
+      <Declaration><![CDATA[METHOD MoveToHomePosition : UINT		//TODO
+
 VAR
     settings : stCommand_Settings;
-END_VAR]]></Declaration>
+END_VAR
+
+]]></Declaration>
       <Implementation>
-        <ST><![CDATA[settings.Velocity := Velocity;
-settings.Joints := SET_R.SafePosition;
-MoveToSafePosition := CommandHandler(Cmd := eCommands.MoveJJoints, Settings := settings);]]></ST>
+        <ST><![CDATA[settings.Velocity := SET_R.HomingVelocity;
+
+
+IF PM.Load(SET_R.NameOfHomePosition) = SUCCESS THEN												
+	settings.Pose := PM.LoadedPose;
+	MoveToSafePosition := CommandHandler(Cmd := eCommands.MoveJ, Settings := settings);
+ELSE
+	Messenger.AddError(eMessageCategories.MissingData,Path,'Home Position not found, aborted');
+	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="MoveToSafePosition" Id="{1460c5aa-e9ef-4e0e-a2bc-5ac3c6af9cb6}" FolderPath="Generic Control\">
+      <Declaration><![CDATA[METHOD MoveToSafePosition : UINT
+
+VAR
+    settings : stCommand_Settings;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[settings.Velocity := SET_R.HomingVelocity;
+
+IF SET_R.UseSavedSecurePosition THEN							//Not made: Able to save a Saveposition		
+	IF PM.Load(SET_R.NameOfSavedSecurePosition) = SUCCESS THEN												
+		settings.Pose := PM.LoadedPose;
+		MoveToSafePosition := CommandHandler(Cmd := eCommands.MoveJ, Settings := settings);
+		RETURN;
+	ELSE
+		Messenger.AddWarn(eMessageCategories.MissingData,Path,'Secure Position not found, using Manual Position');
+		
+	END_IF
+END_IF
+
+
+settings.Joints := SET_R.ManualSecurePosition;
+MoveToSafePosition := CommandHandler(Cmd := eCommands.MoveJJoints, Settings := settings);
+
+
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnActivate" Id="{c53d2e09-95f6-4470-b92a-1736ae881f81}" FolderPath="StateControl\">
@@ -619,18 +614,6 @@ END_IF
 //--------------------------------------------------
 OnCleanup := CombineResults(eParentResult,myResult);
 ]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="OnCommandCancelled" Id="{91234baa-4c31-4086-8ac7-29bfb64ae053}" FolderPath="Command\">
-      <Declaration><![CDATA[METHOD PROTECTED OnCommandCancelled
-VAR_INPUT
-    CommandID : UINT;
-END_VAR
-
-// Default: nothing to do.
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnConfigure" Id="{405f6b01-72da-4ba1-a9bb-82f8cc48639e}" FolderPath="StateControl\">
@@ -807,6 +790,25 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
+    <Property Name="Powered" Id="{110ec326-6e7c-44f2-915c-7dafa2d7f0fb}" FolderPath="Generic Status\">
+      <Declaration><![CDATA[PROPERTY Powered : BOOL]]></Declaration>
+      <Get Name="Get" Id="{9c1bf6ab-a19d-4b56-b4f0-7114872379b5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Powered:=HMI_ROB.bPowered;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{368defae-d77c-481a-9a3f-7c58e4d8aee0}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[HMI_ROB.bPowered:=Powered;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="Reset" Id="{2c7d1a90-4e33-4b71-9a02-8f1a2b3c4d50}" FolderPath="StateControl\">
       <Declaration><![CDATA[{attribute 'TcRpcEnable':='1'}
 METHOD PUBLIC Reset : eResult
@@ -929,7 +931,7 @@ END_VAR]]></Declaration>
 
 
 // CurrentTCP is always expected in BRF (PLC standard units).
-TCurrent := FromPose(Pose := CurrentTCP);
+TCurrent := FromPose(Pose := ActualPosition);
 TDelta   := FromPose(Pose := Delta);
 
 
@@ -987,42 +989,6 @@ Target := ToPose(T := TResult);
 ResolveRelativeTarget := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="SetOperationMode" Id="{a36cbff6-922e-4670-8cae-63446b6e1765}" FolderPath="Generic Control\">
-      <Declaration><![CDATA[{warning 'OVERRIDE'}
-METHOD SetOperationMode : eResult
-VAR_INPUT
-    mode : eMode;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[SetOperationMode := NONE;
-IF State <> eState.Active AND NOT Busy THEN
-	HMI_ROB.eModus := mode;
-END_IF
-
-
-// depend on Robot Type //TODO
-//check
-
-SetOperationMode:= SUCCESS;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="SetSpeedOverride" Id="{a5e39256-a687-447d-8a2a-a95ea9e40d2e}" FolderPath="Generic Control\">
-      <Declaration><![CDATA[{warning 'OVERRIDE'}
-METHOD SetSpeedOverride : BOOL
-VAR_INPUT
-    prozent : REAL;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[IF (prozent < 0.001) OR (prozent > 100.0) THEN
-    SetSpeedOverride := FALSE;
-    RETURN;
-END_IF
-HMI_ROB.ValueOfSpeedOverride := prozent; // depend on Robot Type //TODO
-SetSpeedOverride := TRUE;]]></ST>
-      </Implementation>
-    </Method>
     <Action Name="SETUP_ROB" Id="{a4cb3038-46c5-4081-b870-1e91e16123a5}">
       <Implementation>
         <ST><![CDATA[FOR j:= TO_INT(LOWER_BOUND(Skills, 1)) TO TO_INT(UPPER_BOUND(Skills, 1)) DO //fb_init??
@@ -1037,20 +1003,40 @@ PM.NameOfRobot:=Name;
 PM.MESSENGER.ParentMessenger:=ADR(Messenger);]]></ST>
       </Implementation>
     </Action>
-    <Method Name="StopMotion" Id="{2a9ef1f1-bebf-42b7-9028-b416fb72a19e}">
-      <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
+    <Property Name="SpeedOverride" Id="{264b7b02-b2eb-4a64-8c70-3421c0dcfab6}" FolderPath="Generic Status\">
+      <Declaration><![CDATA[PROPERTY SpeedOverride : REAL]]></Declaration>
+      <Get Name="Get" Id="{bf44923c-76c4-4a55-8a7f-83936e0fb927}">
+        <Declaration><![CDATA[VAR
+END_VAR
 ]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SpeedOverride := HMI_ROB.ValueOfSpeedOverride;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{00d512c8-cfe3-49b4-ac1a-2fe68ecc1046}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF (SpeedOverride < 0.001) OR (SpeedOverride > 100.0) THEN
+    HMI_ROB.ValueOfSpeedOverride := 100; 
+ELSE
+	HMI_ROB.ValueOfSpeedOverride := SpeedOverride;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="StopMotion" Id="{2a9ef1f1-bebf-42b7-9028-b416fb72a19e}" FolderPath="Generic Control\">
+      <Declaration><![CDATA[METHOD PUBLIC StopMotion : UINT
+
+
+VAR
+	settings: stCommand_Settings;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[StopMotion := FALSE;
+        <ST><![CDATA[
 
-// Communication layer must exist.
-IF (COMM = 0) OR (COMM = ADR(emptyCOMM)) THEN
-    RETURN;
-END_IF
-
-// Functional stop only.
-// No safety reset / no safety bypass.
-StopMotion := COMM^.StopMotion();]]></ST>
+StopMotion := CommandHandler(Cmd := eCommands.StopMotion,settings);]]></ST>
       </Implementation>
     </Method>
   </POU>

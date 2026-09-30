@@ -43,9 +43,9 @@ COMM := ADR(AXIS_COMM);
 
 
 // ------ WRITE PROPS/METHODS ---------
-_axisPowered := AXIS_COMM.Powered;
+Powered := AXIS_COMM.Powered;
 Homed := AXIS_COMM.Homed;
-_axisActualPosition := AXIS_COMM.ActualPosition;
+ActualAxisPosition := AXIS_COMM.ActualPosition;
 _axisActualVelocity := AXIS_COMM.ActualVelocity;
 
 
@@ -101,7 +101,7 @@ CASE Cmd OF
             Acceleration := EffectiveAcceleration,
             Deceleration := SET_A.DefaultDeceleration,
             Jerk := SET_A.DefaultJerk);
-    eCommands.Home:
+    eCommands.Homing:
         Accepted := AXIS_COMM.SendHome(CommandID := NewCommandID);
 END_CASE
 
@@ -127,7 +127,7 @@ eParentResult := SUPER^.OnActivate();
 myResult := eResult.NONE;
 
 IF eParentResult <> eResult.SUCCESS THEN
-    OnDeactivate := eParentResult;
+    OnActivate := eParentResult;
     RETURN;
 END_IF
 
@@ -190,7 +190,7 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
 myResult := eResult.NONE;
-_axisCommandActive := FALSE;
+
 
 IF eParentResult <> eResult.SUCCESS THEN
     OnError := eParentResult;

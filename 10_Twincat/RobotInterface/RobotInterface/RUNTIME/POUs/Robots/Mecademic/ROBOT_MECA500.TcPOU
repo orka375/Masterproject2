@@ -218,7 +218,7 @@ CASE Cmd OF
         rArgument6 := LREAL_TO_REAL(ChangeRealToRobotStandard(
             Value := Settings.Joints.joint6, Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits));
 
-    eCommands.Home:
+    eCommands.Homing:
         IF NOT MECA_COMM.Operational
             OR NOT MECA_COMM.bInActivated
             OR MECA_COMM.bInPaused
@@ -339,18 +339,6 @@ myResult := SUCCESS;
 //--------------------------------------------------
 OnCleanup := CombineResults(eParentResult,myResult);
 ]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="OnCommandCancelled" Id="{13e8209e-5c45-4452-9213-b3ab26f73c2a}">
-      <Declaration><![CDATA[METHOD PROTECTED OnCommandCancelled
-VAR_INPUT
-    CommandID : UINT;
-END_VAR
-
-// Default: nothing to do.
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[nTrackedMoveId := 0;]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnConfigure" Id="{0feda703-7699-45f8-8f76-44c854c951e2}" FolderPath="StateControl\">

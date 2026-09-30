@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stSettings_Tool" Id="{d986ce53-d7ae-426c-8c91-666efc38c677}">
+    <Declaration><![CDATA[TYPE stSettings_Tool :
+STRUCT
+	TCPOffset: ST_Pose;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

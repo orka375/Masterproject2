@@ -321,29 +321,22 @@ END_IF
 
 ]]></ST>
     </Implementation>
-    <Method Name="CancelCommand" Id="{1005bcbc-44f8-4f4b-a931-047ea1c4e83c}">
-      <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
-VAR_INPUT CommandID : UINT; END_VAR]]></Declaration>
+    <Method Name="HasPhysicalStopFailed" Id="{e2189263-6b4d-4d6b-a014-2c05313c251a}">
+      <Declaration><![CDATA[METHOD PROTECTED HasPhysicalStopFailed : BOOL]]></Declaration>
       <Implementation>
-                <ST><![CDATA[CancelCommand := SUPER^.CancelCommand(CommandID := CommandID);]]></ST>
-      </Implementation>
-    </Method>
-        <Method Name="HasPhysicalStopFailed" Id="{e2189263-6b4d-4d6b-a014-2c05313c251a}">
-            <Declaration><![CDATA[METHOD PROTECTED HasPhysicalStopFailed : BOOL]]></Declaration>
-            <Implementation>
-                <ST><![CDATA[HasPhysicalStopFailed :=
+        <ST><![CDATA[HasPhysicalStopFailed :=
         NOT Connected
         OR instJS_MC_ReadAxisError.AxisError;]]></ST>
-            </Implementation>
-        </Method>
-        <Method Name="IsPhysicalStopComplete" Id="{a45e45f6-2c52-41ec-9afd-ad2a8a4eaf33}">
-            <Declaration><![CDATA[METHOD PROTECTED IsPhysicalStopComplete : BOOL]]></Declaration>
-            <Implementation>
-                <ST><![CDATA[IsPhysicalStopComplete :=
+      </Implementation>
+    </Method>
+    <Method Name="IsPhysicalStopComplete" Id="{a45e45f6-2c52-41ec-9afd-ad2a8a4eaf33}">
+      <Declaration><![CDATA[METHOD PROTECTED IsPhysicalStopComplete : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IsPhysicalStopComplete :=
         instJS_MC_Stop.Done
         AND (ABS(ActualVelocity) <= StopVelocityTolerance);]]></ST>
-            </Implementation>
-        </Method>
+      </Implementation>
+    </Method>
     <Property Name="Operational" Id="{3082dfe5-e7b8-4a72-8bef-7a3622f99406}">
       <Declaration><![CDATA[PROPERTY Operational : BOOL]]></Declaration>
       <Set Name="Set" Id="{171050e5-ca18-45b7-8b14-978ef8b62a9f}">
@@ -375,7 +368,7 @@ ResetAxis := TRUE;]]></ST>
     <Method Name="ResetCommunication" Id="{6f453cd1-37c3-4b2f-8c3c-6f9c0288e8dd}">
       <Declaration><![CDATA[METHOD PUBLIC ResetCommunication : BOOL]]></Declaration>
       <Implementation>
-                <ST><![CDATA[IF StopPending THEN
+        <ST><![CDATA[IF StopPending THEN
         ResetCommunication := FALSE;
         RETURN;
 END_IF
@@ -462,19 +455,13 @@ Busy := TRUE;
 SendMoveRelative := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="StopMotion" Id="{32bb82d3-54f6-4f6b-b9d4-38e883063dfe}">
-      <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL]]></Declaration>
-      <Implementation>
-                <ST><![CDATA[StopMotion := SUPER^.StopMotion();]]></ST>
-      </Implementation>
-    </Method>
-        <Method Name="StartPhysicalStop" Id="{41894244-e836-4346-b9ba-c1e4a58979cc}">
-            <Declaration><![CDATA[METHOD PROTECTED StartPhysicalStop : BOOL
+    <Method Name="StartPhysicalStop" Id="{41894244-e836-4346-b9ba-c1e4a58979cc}">
+      <Declaration><![CDATA[METHOD PROTECTED StartPhysicalStop : BOOL
 VAR_INPUT
         Mode : eStopMode;
 END_VAR]]></Declaration>
-            <Implementation>
-                <ST><![CDATA[StartPhysicalStop := FALSE;
+      <Implementation>
+        <ST><![CDATA[StartPhysicalStop := FALSE;
 IF NOT Connected OR NOT instJS_MC_Init.Valid THEN
         RETURN;
 END_IF
@@ -484,7 +471,13 @@ _moveRelExecute := FALSE;
 _homeExecute := FALSE;
 _stopExecute := TRUE;
 StartPhysicalStop := TRUE;]]></ST>
-            </Implementation>
-        </Method>
+      </Implementation>
+    </Method>
+    <Method Name="StopMotion" Id="{32bb82d3-54f6-4f6b-b9d4-38e883063dfe}">
+      <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StopMotion := SUPER^.StopMotion();]]></ST>
+      </Implementation>
+    </Method>
   </POU>
 </TcPlcObject>

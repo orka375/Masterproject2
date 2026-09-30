@@ -21,22 +21,22 @@ END_VAR
 
   CASE _pSettingsLinAxis^.Direction OF
     eDirections.Xplus:
-      TCPPos_PLCUnit.x := TCPPos_PLCUnit.x + (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
+      TCPPos_PLCUnit.x := TCPPos_PLCUnit.x + (ActualAxisPosition - _pSettingsLinAxis^.ZeroPosition);
       TCPVel_PLCUnit.x := _axisActualVelocity;
     eDirections.Xminus:
-      TCPPos_PLCUnit.x := TCPPos_PLCUnit.x - (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
+      TCPPos_PLCUnit.x := TCPPos_PLCUnit.x - (ActualAxisPosition - _pSettingsLinAxis^.ZeroPosition);
       TCPVel_PLCUnit.x := -_axisActualVelocity;
     eDirections.Yplus:
-      TCPPos_PLCUnit.y := TCPPos_PLCUnit.y + (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
+      TCPPos_PLCUnit.y := TCPPos_PLCUnit.y + (ActualAxisPosition - _pSettingsLinAxis^.ZeroPosition);
       TCPVel_PLCUnit.y := _axisActualVelocity;
     eDirections.Yminus:
-      TCPPos_PLCUnit.y := TCPPos_PLCUnit.y - (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
+      TCPPos_PLCUnit.y := TCPPos_PLCUnit.y - (ActualAxisPosition - _pSettingsLinAxis^.ZeroPosition);
       TCPVel_PLCUnit.y := -_axisActualVelocity;
     eDirections.Zplus:
-      TCPPos_PLCUnit.z := TCPPos_PLCUnit.z + (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
+      TCPPos_PLCUnit.z := TCPPos_PLCUnit.z + (ActualAxisPosition - _pSettingsLinAxis^.ZeroPosition);
       TCPVel_PLCUnit.z := _axisActualVelocity;
     eDirections.Zminus:
-      TCPPos_PLCUnit.z := TCPPos_PLCUnit.z - (_axisActualPosition - _pSettingsLinAxis^.ZeroPosition);
+      TCPPos_PLCUnit.z := TCPPos_PLCUnit.z - (ActualAxisPosition - _pSettingsLinAxis^.ZeroPosition);
       TCPVel_PLCUnit.z := -_axisActualVelocity;
   END_CASE
 END_IF

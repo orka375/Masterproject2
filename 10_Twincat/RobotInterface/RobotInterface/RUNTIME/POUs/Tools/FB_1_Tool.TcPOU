@@ -4,7 +4,7 @@
     <Declaration><![CDATA[FUNCTION_BLOCK FB_1_Tool EXTENDS FB_0_Base
 VAR_INPUT
 	pROB: POINTER TO FB_2_ROB_MANIP;
-
+	SET_T: stSettings_Tool;
 END_VAR
 VAR_OUTPUT
 	HMI_TOOL: stHMI_TOOL;
@@ -72,17 +72,11 @@ END_VAR
 
 
 
-FOR iTool := 1 TO SETUP.nToolCount DO
-  IF SETUP.apTool[iTool] = THIS THEN
-    FB_Init := TRUE;
-    RETURN;
-  END_IF
-END_FOR
+
 
 IF SETUP.nToolCount < SETUP.MaxNrofTools THEN	
   SETUP.nToolCount := SETUP.nToolCount + 1;
-  SETUP.apTool[SETUP.nToolCount] := THIS;
-  FB_Init := TRUE;
+  SETUP.apTool[SETUP.nToolCount+1] := THIS;
 END_IF]]></ST>
       </Implementation>
     </Method>
@@ -95,27 +89,6 @@ END_VAR
         <ST><![CDATA[]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Mount" Id="{9841653f-1fe3-4f46-893d-a32680152253}">
-      <Declaration><![CDATA[METHOD Mount : BOOL
-VAR_INPUT
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[HMI_TOOL.bMounted := TRUE;
-      Mount := TRUE;
-]]></ST>
-      </Implementation>
-    </Method>
-    <Property Name="Mounted" Id="{67364a27-71c7-4ed2-b024-58abaace377b}">
-      <Declaration><![CDATA[PROPERTY Mounted : BOOL]]></Declaration>
-      <Get Name="Get" Id="{a3302d2d-ceba-42df-acfc-0b00da5af4c8}">
-        <Declaration><![CDATA[]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[Mounted:=HMI_TOOL.bMounted;
-]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
     <Method Name="onActivate" Id="{f08f7dc1-202a-4da9-a3e3-b4c98ccb8fdb}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED onActivate : eResult
 VAR_INPUT
@@ -363,15 +336,5 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Method Name="Unmount" Id="{c0d7d9fa-164b-431f-9214-cc51690578b8}">
-      <Declaration><![CDATA[METHOD Unmount : BOOL
-VAR_INPUT
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[HMI_TOOL.bMounted := FALSE;
-      Unmount := TRUE;]]></ST>
-      </Implementation>
-    </Method>
   </POU>
 </TcPlcObject>

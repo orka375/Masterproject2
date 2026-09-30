@@ -71,5 +71,21 @@ END_VAR
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>
+    <Method Name="WriteProps" Id="{f49c7b9a-4ac7-4980-a154-62f9ecf2bf3a}">
+      <Declaration><![CDATA[METHOD WriteProps
+VAR_INPUT
+	Homed			:BOOL;
+	InSavePosition	:BOOL;
+	IsInCollision	:BOOL;
+	IsMoving		:BOOL;
+	Mode			:eMode;
+	ActualPosition	:st_Pose;
+	AcutalJointPosition :stJoint6;
+	AcutalVelocity :st_Pose;
+	AcutalJointVelocity :stJoint6;
+	
+END_VAR
+]]></Declaration>
+    </Method>
   </Itf>
 </TcPlcObject>
