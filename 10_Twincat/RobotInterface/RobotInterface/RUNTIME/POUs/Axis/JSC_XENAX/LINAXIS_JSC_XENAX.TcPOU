@@ -95,7 +95,6 @@ END_CASE
 
 IF Accepted THEN
     CommandHandler := CommitAxisCommand(
-        Cmd := Cmd,
         NewCommandID := NewCommandID,
         TargetPosition := TargetPosition,
         TargetValid := TargetValid);
@@ -178,7 +177,6 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
 myResult := eResult.NONE;
-_axisCommandActive := FALSE;
 
 IF eParentResult <> eResult.SUCCESS THEN
     OnError := eParentResult;

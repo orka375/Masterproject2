@@ -117,7 +117,6 @@ IF State = eState.Active THEN
 
         10: // StartReadQRCode_entry: call previously created skill once
             IF NOT bStartedSubskill THEN
-                SubSkill := pQRCodeSkill;
                 bSubSkillRunning := TRUE;
                 resSubskill := pQRCodeSkill^.Execute();
                 IF resSubskill > SUCCESS THEN

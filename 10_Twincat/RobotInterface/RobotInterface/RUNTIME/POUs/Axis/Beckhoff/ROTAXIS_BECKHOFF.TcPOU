@@ -100,7 +100,6 @@ END_CASE
 
 IF Accepted THEN
     CommandHandler := CommitAxisCommand(
-        Cmd := Cmd,
         NewCommandID := NewCommandID,
         TargetPosition := TargetPosition,
         TargetValid := TargetValid);

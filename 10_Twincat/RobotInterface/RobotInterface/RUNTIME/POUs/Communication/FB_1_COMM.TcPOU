@@ -115,7 +115,12 @@ END_VAR
       <Get Name="Get" Id="{33a32cb5-dcf8-4f92-b164-a220f8b7b981}">
         <Declaration><![CDATA[]]></Declaration>
         <Implementation>
-          <ST><![CDATA[Busy := _commCommandBusy;]]></ST>
+          <ST><![CDATA[Busy :=
+    _commCommandBusy
+    OR _stopPending
+    OR (_eCommState = E_CommState.eConnecting)
+    OR (_eCommState = E_CommState.eDisconnecting)
+    OR (_eCommState = E_CommState.eReconnectWait);]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{591498ad-c58c-4078-81de-4fbf8227f63f}">
@@ -235,19 +240,6 @@ END_IF
 
 CYCLIC_BASE();
 
-ServiceStop();
-
-
-Busy :=
-    (_eCommState = E_CommState.eConnecting)
-    OR
-    (_eCommState = E_CommState.eDisconnecting)
-    OR
-    (_eCommState = E_CommState.eReconnectWait);
-	
-	
-	
-
 
 // --------------------------------------------------
 // Timers
@@ -270,9 +262,42 @@ _tonReconnectDelay(
 );
 
 _tonStopTimeout(
-  IN := _stopPending AND _stopStarted AND NOT _stopFailed,
-  PT := SET_C.tStopTimeout
+    IN := _stopPending AND _stopStarted AND NOT _stopFailed,
+    PT := SET_C.tStopTimeout
 );
+
+// Complete the stop through the concrete communication adapter.
+IF _stopPending THEN
+    _stopFailed := HasPhysicalStopFailed() OR _tonStopTimeout.Q;
+
+    IF _stopFailed THEN
+        IF _tonStopTimeout.Q THEN
+            Messenger.AddError(eMessageCategories.TimeoutFailure, CONCAT(Path, '.StopMotion'),
+                'Physical stop timed out');
+        ELSE
+            Messenger.AddError(eMessageCategories.HardwareFailure, CONCAT(Path, '.StopMotion'),
+                'Physical stop failed');
+        END_IF
+
+        IF _stopCommandID <> 0 THEN
+            CommandState := eProgress.FINALIZED;
+            CommandResult := eResult.ERROR;
+            ActiveCommandID := 0;
+        END_IF
+        _commCommandBusy := FALSE;
+        _stopPending := FALSE;
+
+    ELSIF IsPhysicalStopComplete() THEN
+        _motionStopped := TRUE;
+        IF _stopCommandID <> 0 THEN
+            CommandState := eProgress.ABORTED;
+            CommandResult := eResult.FAILURE;
+            ActiveCommandID := 0;
+        END_IF
+        _commCommandBusy := FALSE;
+        _stopPending := FALSE;
+    END_IF
+END_IF
 
 
 
@@ -770,46 +795,61 @@ ResetCommunication := TRUE;]]></ST>
         <ST><![CDATA[]]></ST>
       </Implementation>
     </Action>
+    <Method Name="StartPhysicalStop" Id="{6d5b6f41-1418-4c48-bbc2-6114f0f7d8b1}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD PROTECTED StartPhysicalStop : BOOL
+VAR_INPUT
+    Mode : eStopMode;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StartPhysicalStop := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsPhysicalStopComplete" Id="{71f60ec4-31d0-4e17-8b67-d728e2c25281}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD PROTECTED IsPhysicalStopComplete : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IsPhysicalStopComplete := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPhysicalStopFailed" Id="{b5963943-a3ea-4c64-bb8c-83f43ac4a85d}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD PROTECTED HasPhysicalStopFailed : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[HasPhysicalStopFailed := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReadSafetyStopActive" Id="{5059d265-c10c-4372-bf89-b2b839ae1ec7}" FolderPath="MotionControl\">
+      <Declaration><![CDATA[METHOD PROTECTED ReadSafetyStopActive : BOOL]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ReadSafetyStopActive := FALSE;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="StopMotion" Id="{87fb0928-6cea-447d-8282-693d0d33345f}" FolderPath="MotionControl\">
       <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF _stopPending THEN
-      StopMotion := TRUE;
-      RETURN;
-    END_IF
+        <ST><![CDATA[StopMotion := FALSE;
 
-    StopMotion := RequestStop(
-      Mode := eStopMode.ControlledStop,
-      CommandID := ActiveCommandID);
-	  
-	  
-	  RequestStop := FALSE;
-
-  IF _stopPending THEN
-    RequestStop := (_stopMode = Mode) AND ((_stopCommandID = CommandID) OR (Mode <> eStopMode.CancelCommand));
+IF _stopPending THEN
+    StopMotion := TRUE;
     RETURN;
-  END_IF
+END_IF
 
-  IF NOT StartPhysicalStop(Mode := Mode) THEN
+IF NOT StartPhysicalStop(Mode := eStopMode.ControlledStop) THEN
     RETURN;
-  END_IF
+END_IF
 
-  _stopPending := TRUE;
-  _stopMode := Mode;
-  _stopCommandID := CommandID;
-  _stopStarted := TRUE;
-  _stopFailed := FALSE;
-  _motionStopped := FALSE;
-  Busy := TRUE;
+_stopPending := TRUE;
+_stopMode := eStopMode.ControlledStop;
+_stopCommandID := ActiveCommandID;
+_stopStarted := TRUE;
+_stopFailed := FALSE;
+_motionStopped := FALSE;
 
-  IF CommandID <> 0 THEN
-    CommandState := eProgress.CANCELLING;
+IF _stopCommandID <> 0 THEN
     CommandResult := eResult.NONE;
-  END_IF
+END_IF
 
-  _tonStopTimeout(IN := FALSE);
-  RequestStop := TRUE;]]></ST>
+_tonStopTimeout(IN := FALSE);
+StopMotion := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="StopPending" Id="{0d5ce5ca-c592-4ba5-acac-a6833088e4b8}" FolderPath="FINAL\">

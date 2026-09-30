@@ -448,7 +448,7 @@ myResult := NONE;
 // Keep Robot result ABORTED/ERROR from FB_1_ROB, but cancel the concrete COMM job
 // so transport recovery never waits on an interrupted motion indefinitely.
 IF nTrackedMoveId <> 0 THEN
-    MECA_COMM.CancelCommand(CommandID := nTrackedMoveId);
+    MECA_COMM.StopMotion();
     nTrackedMoveId := 0;
 END_IF
 

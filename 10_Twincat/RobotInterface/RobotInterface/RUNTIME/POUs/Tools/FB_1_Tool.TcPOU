@@ -287,8 +287,7 @@ END_VAR
   END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF HMI_TOOL.bMounted THEN
-    crx := COS(currPos.roll);
+        <ST><![CDATA[crx := COS(currPos.roll);
     srx := SIN(currPos.roll);
     cry := COS(currPos.pitch);
     sry := SIN(currPos.pitch);
@@ -311,10 +310,7 @@ END_VAR
     TargetPositionWithToolOffset.z := currPos.z + offsetZ;
     TargetPositionWithToolOffset.roll := currPos.roll + HMI_TOOL.TCPOffset.roll;
     TargetPositionWithToolOffset.pitch := currPos.pitch + HMI_TOOL.TCPOffset.pitch;
-    TargetPositionWithToolOffset.yaw := currPos.yaw + HMI_TOOL.TCPOffset.yaw;
-ELSE
-    TargetPositionWithToolOffset := currPos;
-END_IF]]></ST>
+TargetPositionWithToolOffset.yaw := currPos.yaw + HMI_TOOL.TCPOffset.yaw;]]></ST>
       </Implementation>
     </Method>
     <Property Name="ToolTCPOffset" Id="{e0b49844-92df-4ecd-a4dd-cf580748e257}">

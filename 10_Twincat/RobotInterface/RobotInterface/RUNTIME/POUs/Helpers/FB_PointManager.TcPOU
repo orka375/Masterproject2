@@ -1006,14 +1006,17 @@ LoadById := SUCCESS;
       <Declaration><![CDATA[PROPERTY LoadedPose : ST_Pose]]></Declaration>
       <Get Name="Get" Id="{bf2f00be-2b86-46ea-90a3-3f38e1e8b036}">
         <Declaration><![CDATA[VAR
+    Point : stStoredPoint;
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[LoadedPose := ChangePointFromHMIStandard(HMI_PM.loadedPoint);
-
-
-
-]]></ST>
+          <ST><![CDATA[Point := PointFromHMI(Point := HMI_PM.loadedPoint);
+LoadedPose.x := Point.x;
+LoadedPose.y := Point.y;
+LoadedPose.z := Point.z;
+LoadedPose.roll := Point.rx;
+LoadedPose.pitch := Point.ry;
+LoadedPose.yaw := Point.rz;]]></ST>
         </Implementation>
       </Get>
     </Property>

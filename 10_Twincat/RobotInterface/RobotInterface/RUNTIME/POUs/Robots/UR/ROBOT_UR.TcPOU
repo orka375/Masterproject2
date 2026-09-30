@@ -18,7 +18,8 @@ VAR_OUTPUT
 END_VAR
 
 VAR
-    _urFeedbackRPY  : ST_Pose;
+    _urFeedbackRPY   : ST_Pose;
+    _urTCPPosPLCUnit : ST_Pose;
 END_VAR
 
 
@@ -67,17 +68,15 @@ IF UR_COMM.RTDE.bNewData THEN
         ry := UR_COMM.RTDE.aActualTCPPose[4],
         rz := UR_COMM.RTDE.aActualTCPPose[5]);
 
-    _urFeedbackPose.x := UR_COMM.RTDE.aActualTCPPose[0];
-    _urFeedbackPose.y := UR_COMM.RTDE.aActualTCPPose[1];
-    _urFeedbackPose.z := UR_COMM.RTDE.aActualTCPPose[2];
-    _urFeedbackPose.roll  := _urFeedbackRPY.roll;
-    _urFeedbackPose.pitch := _urFeedbackRPY.pitch;
-    _urFeedbackPose.yaw   := _urFeedbackRPY.yaw;
-
-    // Convert translation to millimetres and preserve the RPY angles in radians.
-    TCPPos_PLCUnit := ChangePoseFromRobotStandard(
-        Pose := _urFeedbackPose,
-        RobotStandardUnits := SET_R.StandardUnits);
+    _urTCPPosPLCUnit.x := ChangeRealFromRobotStandard(
+        Value := UR_COMM.RTDE.aActualTCPPose[0], Category := eUnitCategory.Position, RobotStandardUnits := SET_R.StandardUnits);
+    _urTCPPosPLCUnit.y := ChangeRealFromRobotStandard(
+        Value := UR_COMM.RTDE.aActualTCPPose[1], Category := eUnitCategory.Position, RobotStandardUnits := SET_R.StandardUnits);
+    _urTCPPosPLCUnit.z := ChangeRealFromRobotStandard(
+        Value := UR_COMM.RTDE.aActualTCPPose[2], Category := eUnitCategory.Position, RobotStandardUnits := SET_R.StandardUnits);
+    _urTCPPosPLCUnit.roll  := _urFeedbackRPY.roll;
+    _urTCPPosPLCUnit.pitch := _urFeedbackRPY.pitch;
+    _urTCPPosPLCUnit.yaw   := _urFeedbackRPY.yaw;
 
     JointPos_PLCUnit.joint1 := ChangeRealFromRobotStandard(
         Value := UR_COMM.RTDE.aActualQ[0], Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits);
@@ -93,27 +92,36 @@ IF UR_COMM.RTDE.bNewData THEN
         Value := UR_COMM.RTDE.aActualQ[5], Category := eUnitCategory.Joint, RobotStandardUnits := SET_R.StandardUnits);
 END_IF
 
+TCPPos_PLCUnit := URTCPPos_PLCUnit;
+
 (* Generic Basic Action lifecycle. UR_COMM owns transport/RTDE interpretation;
    this robot adapter only latches the semantic command state/result. *)
-BA_Active := _baActive;
-BA_Command := UR_COMM.RTDE.nBACommand;       // legacy/native diagnostic only
-UR_BA_ResultRaw := UR_COMM.RTDE.nBAResult;   // legacy/native diagnostic only
+BA_Command := UR_COMM.RTDE.nBACommand;
+UR_BA_ResultRaw := UR_COMM.RTDE.nBAResult;
 
-IF _baActive THEN
-    eCommandStatus := UR_COMM.CommandState;
-    eCommandResult := UR_COMM.CommandResult;
-
-    IF (eCommandStatus = FINALIZED) OR (eCommandStatus = ABORTED) THEN
-        
-        
-        BA_Active := FALSE;
-    END_IF
+IF CommandID <> 0 THEN
+    eCommandStatus := CommandState;
+    eCommandResult := CommandResult;
 END_IF
+
+BA_Active := (CommandID <> 0)
+    AND ((eCommandStatus = eProgress.INIT)
+      OR (eCommandStatus = eProgress.ACKNOWLEDGE)
+      OR (eCommandStatus = eProgress.RUNNING));
 
 CYCLIC_MANIP();
 ]]></ST>
     </Implementation>
     <Folder Name="StateControl" Id="{43ee0662-5196-4508-b770-66090b492908}" />
+    <Property Name="URTCPPos_PLCUnit" Id="{f8888525-078d-46bb-82f5-817953bd1c7b}">
+      <Declaration><![CDATA[PROPERTY URTCPPos_PLCUnit : ST_Pose]]></Declaration>
+      <Get Name="Get" Id="{745b5c51-bf0f-4240-b8d9-9a9263899872}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[URTCPPos_PLCUnit := _urTCPPosPLCUnit;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Method Name="CommandHandler" Id="{d7ca35aa-fd04-4db2-bc8f-94c9161e0ebc}">
       <Declaration><![CDATA[METHOD CommandHandler : UINT
 VAR_INPUT
@@ -150,7 +158,7 @@ CommandHandler := 0;
 bSupported := FALSE;
 nCommand := -1;
 
-IF _baActive OR NOT CanAcceptCommand OR NOT UR_COMM.CanAcceptCommand THEN
+IF NOT CanAcceptCommand OR NOT UR_COMM.CanAcceptCommand THEN
     RETURN;
 END_IF
 
@@ -381,12 +389,9 @@ IF NOT UR_COMM.SendCommand(CommandID := NewCommandID) THEN
     RETURN;
 END_IF
 
-nCommandID := NewCommandID;
-eCommandStatus := INIT;
-eCommandResult := NONE;
-
-
-_baActiveCmd := Cmd;
+CommandID := NewCommandID;
+CommandState := eProgress.INIT;
+CommandResult := eResult.NONE;
 BA_Active := TRUE;
 UR_BA_ResultRaw := 0;
 
@@ -407,14 +412,7 @@ END_VAR
         <ST><![CDATA[eParentResult := SUPER^.OnError();
 myResult := NONE;
 
-// Vendor-specific recovery only. The generic parent has already terminalized the
-// semantic robot command as ABORTED/ERROR. Cancel the corresponding COMM job once;
-// do not requeue a stop every recovery cycle.
-IF _baActiveID <> 0 THEN
-    UR_COMM.CancelCommand(CommandID := _baActiveID);
-END_IF
-
-
+// FB_1_ROB owns the physical stop and terminal command state.
 BA_Active := FALSE;
 
 IF NOT UR_COMM.Busy THEN
