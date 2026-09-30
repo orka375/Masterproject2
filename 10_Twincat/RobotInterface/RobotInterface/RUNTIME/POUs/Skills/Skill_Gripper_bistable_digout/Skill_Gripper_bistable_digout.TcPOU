@@ -80,7 +80,7 @@ IF Phase=20 THEN
 	END_IF
 
 	IF (Phase = 20) AND tTimeout.Q THEN
-		pTool^.pROB^.CancelCommand(CommandID := nCalledCmdID);
+		pTool^.pROB^.StopMotion();
 		ExecutionDone := TRUE;
 		ExecutionResult := FAILURE;
 		Messenger.AddWarn(eMessageCategories.TimeoutFailure,Path,'Failed because timeout');

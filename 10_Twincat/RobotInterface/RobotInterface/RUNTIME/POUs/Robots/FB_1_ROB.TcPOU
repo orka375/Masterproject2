@@ -225,6 +225,15 @@ END_VAR
 ]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{c29cbfae-44af-4688-9231-cff74c2ee443}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[eCommandResult := CommandResult;
+IF (COMM <> 0) AND (COMM <> ADR(emptyCOMM)) THEN
+    COMM^.CommandResult := CommandResult;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Property Name="CommandState" Id="{6c07ca32-53d2-4833-85fe-587d61a168d6}" FolderPath="Command\">
       <Declaration><![CDATA[PROPERTY CommandState : eProgress]]></Declaration>
@@ -237,6 +246,15 @@ END_VAR
 ]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{6eb2d0d5-717a-4e91-ab0f-27827dd25d8f}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[eCommandStatus := CommandState;
+IF (COMM <> 0) AND (COMM <> ADR(emptyCOMM)) THEN
+    COMM^.CommandState := CommandState;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Action Name="CYCLIC_ROB" Id="{ebf16c89-c511-406b-9426-1ade99c4f730}">
       <Implementation>
@@ -255,20 +273,6 @@ IF (State <> eState.Deactivating)
   _lifecycleStopRequested := FALSE;
   _lifecycleStopComplete := FALSE;
 END_IF
-
-// IF (_cancelRequestID <> 0) AND (COMM <> 0) AND (COMM <> ADR(emptyCOMM)) THEN		//TODO CANCEL
-//   eCommandStatus := COMM^.CommandState;
-//   eCommandResult := COMM^.CommandResult;
-// 
-//   IF (eCommandStatus = eProgress.ABORTED) AND NOT _cancelNotificationSent THEN
-//     _cancelNotificationSent := TRUE;
-//     OnCommandCancelled(CommandID := _cancelRequestID);
-//     _cancelRequestID := 0;
-//   ELSIF eCommandStatus = eProgress.FINALIZED THEN
-//     _cancelRequestID := 0;
-//   END_IF
-// END_IF
-
 
 
 // HMI display mirrors: _tcppos/_jointpos stay in PLC standard (mm/rad); display in mm/deg.
@@ -333,8 +337,7 @@ HMI_ROB.bMoving :=
 HMI_BASE.bBusy := (nCommandID <> 0)
   AND ((eCommandStatus = INIT)
     OR (eCommandStatus = ACKNOWLEDGE)
-    OR (eCommandStatus = RUNNING)
-    OR (eCommandStatus = CANCELLING));
+    OR (eCommandStatus = RUNNING));
 
 IF (COMM <> 0) AND (COMM <> ADR(emptyCOMM)) THEN
   HMI_BASE.bBusy := HMI_BASE.bBusy OR COMM^.StopPending;
@@ -493,7 +496,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="MoveToHomePosition" Id="{c14a5534-c5f9-4fac-a596-50be651bd65e}" FolderPath="Generic Control\">
-      <Declaration><![CDATA[METHOD MoveToHomePosition : UINT		//TODO
+      <Declaration><![CDATA[METHOD MoveToHomePosition : UINT
 
 VAR
     settings : stCommand_Settings;
@@ -501,17 +504,15 @@ END_VAR
 
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[settings.Velocity := SET_R.HomingVelocity;
+        <ST><![CDATA[MoveToHomePosition := 0;
+settings.Velocity := SET_R.HomingVelocity;
 
-
-IF PM.Load(SET_R.NameOfHomePosition) = SUCCESS THEN												
-	settings.Pose := PM.LoadedPose;
-	MoveToSafePosition := CommandHandler(Cmd := eCommands.MoveJ, Settings := settings);
+IF PM.Load(SET_R.NameOfHomePosition) = SUCCESS THEN
+    settings.Pose := PM.LoadedPose;
+    MoveToHomePosition := CommandHandler(Cmd := eCommands.MoveJ, Settings := settings);
 ELSE
-	Messenger.AddError(eMessageCategories.MissingData,Path,'Home Position not found, aborted');
-	
-END_IF
-]]></ST>
+    Messenger.AddError(eMessageCategories.MissingData, Path, 'Home Position not found, aborted');
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="MoveToSafePosition" Id="{1460c5aa-e9ef-4e0e-a2bc-5ac3c6af9cb6}" FolderPath="Generic Control\">
@@ -562,8 +563,6 @@ END_VAR]]></Declaration>
 //--------------------------------------------------
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
-
-SetOperationMode(mode:=eMode.Automatic);
 
 IF Comm^.LastTransitionType = eTransitions.Activate THEN
 	IF Comm^.LastTransitionResult = SUCCESS THEN
@@ -1027,16 +1026,12 @@ END_IF]]></ST>
       </Set>
     </Property>
     <Method Name="StopMotion" Id="{2a9ef1f1-bebf-42b7-9028-b416fb72a19e}" FolderPath="Generic Control\">
-      <Declaration><![CDATA[METHOD PUBLIC StopMotion : UINT
-
-
-VAR
-	settings: stCommand_Settings;
-END_VAR]]></Declaration>
+      <Declaration><![CDATA[METHOD PUBLIC StopMotion : BOOL]]></Declaration>
       <Implementation>
-        <ST><![CDATA[
-
-StopMotion := CommandHandler(Cmd := eCommands.StopMotion,settings);]]></ST>
+        <ST><![CDATA[StopMotion := FALSE;
+IF (COMM <> 0) AND (COMM <> ADR(emptyCOMM)) THEN
+    StopMotion := COMM^.StopMotion();
+END_IF]]></ST>
       </Implementation>
     </Method>
   </POU>

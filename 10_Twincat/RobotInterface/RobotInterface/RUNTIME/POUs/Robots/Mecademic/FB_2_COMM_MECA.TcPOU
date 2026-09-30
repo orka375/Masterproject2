@@ -267,16 +267,6 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Method Name="CancelCommand" Id="{6f24f5bc-a6da-4f3c-9b54-f4f931d3caba}" FolderPath="ITF_Implementation\">
-      <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
-VAR_INPUT
-	CommandID : UINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[CancelCommand := SUPER^.CancelCommand(CommandID := CommandID);]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="ClearMotion" Id="{4e27c0e3-b74a-440c-bebc-156c0921230b}">
       <Declaration><![CDATA[METHOD ClearMotion : BOOL]]></Declaration>
       <Implementation>

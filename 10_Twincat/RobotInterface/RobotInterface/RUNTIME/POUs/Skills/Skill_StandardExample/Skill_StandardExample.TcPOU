@@ -126,7 +126,7 @@ CASE Phase OF
             END_IF
 
             IF (Phase = 40) AND tonMove.Q THEN
-                pRob^.CancelCommand(CommandID := MoveID);
+                pRob^.StopMotion();
                 ExecutionDone := TRUE;
                 ExecutionResult := FAILURE;
                 Messenger.AddWarn(eMessageCategories.TimeoutFailure, Path, 'Robot move timeout');

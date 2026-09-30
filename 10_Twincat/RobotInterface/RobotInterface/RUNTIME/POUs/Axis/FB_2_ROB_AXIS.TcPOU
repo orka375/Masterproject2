@@ -78,7 +78,6 @@ END_VAR
     <Method Name="CommitAxisCommand" Id="{49deea93-5d94-4118-b965-e1ddfb619d08}" FolderPath="Motion Control\">
       <Declaration><![CDATA[METHOD PROTECTED CommitAxisCommand : UINT
 VAR_INPUT
-    Cmd : eCommands;
     NewCommandID : UINT;
     TargetPosition : LREAL;
     TargetValid : BOOL;
@@ -87,11 +86,9 @@ END_VAR]]></Declaration>
         <ST><![CDATA[CommitAxisCommand := 0;
 IF NewCommandID = 0 THEN RETURN; END_IF
 
-nCommandID := NewCommandID;
-eCommandStatus := eProgress.INIT;
-eCommandResult := eResult.NONE;
-_activeCommand := Cmd;
-_axisCommandActive := TRUE;
+CommandID := NewCommandID;
+CommandState := eProgress.INIT;
+CommandResult := eResult.NONE;
 _axisTargetPosition := TargetPosition;
 _axisTargetValid := TargetValid;
 CommitAxisCommand := NewCommandID;]]></ST>
@@ -148,20 +145,16 @@ END_IF
 
 
 
-IF _axisCommandActive THEN
-  CommandState := COMM^.CommandState;
-  CommandResult := COMM^.CommandResult;
+IF CommandID <> 0 THEN
+    eCommandStatus := CommandState;
+    eCommandResult := CommandResult;
 
-	IF (eCommandStatus = eProgress.FINALIZED)
-	   OR (eCommandStatus = eProgress.ABORTED) THEN
-	IF (eCommandStatus = eProgress.FINALIZED)
-	   AND (eCommandResult = eResult.SUCCESS)
-	   AND _axisTargetValid
-	   AND NOT HMI_ROB_AXIS.InPosition THEN
-	  eCommandResult := eResult.FAILURE;
-	END_IF
-		_axisCommandActive := FALSE;
-	END_IF
+    IF (eCommandStatus = eProgress.FINALIZED)
+       AND (eCommandResult = eResult.SUCCESS)
+       AND _axisTargetValid
+       AND NOT HMI_ROB_AXIS.InPosition THEN
+        CommandResult := eResult.FAILURE;
+    END_IF
 END_IF
 
 
@@ -240,7 +233,7 @@ TargetValid := FALSE;
 EffectiveVelocity := 0.0;
 EffectiveAcceleration := 0.0;
 
-IF NOT Operational OR _axisCommandActive THEN RETURN; END_IF
+IF NOT Operational OR NOT CanAcceptCommand THEN RETURN; END_IF
 
 CASE Cmd OF
     eCommands.MoveL,
