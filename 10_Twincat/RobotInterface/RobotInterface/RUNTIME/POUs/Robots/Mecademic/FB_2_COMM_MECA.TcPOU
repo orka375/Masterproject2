@@ -267,16 +267,6 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Method Name="CancelCommand" Id="{6f24f5bc-a6da-4f3c-9b54-f4f931d3caba}" FolderPath="ITF_Implementation\">
-      <Declaration><![CDATA[METHOD PUBLIC CancelCommand : BOOL
-VAR_INPUT
-	CommandID : UINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[CancelCommand := SUPER^.CancelCommand(CommandID := CommandID);]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="ClearMotion" Id="{4e27c0e3-b74a-440c-bebc-156c0921230b}">
       <Declaration><![CDATA[METHOD ClearMotion : BOOL]]></Declaration>
       <Implementation>
@@ -296,41 +286,6 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Method Name="EStop" Id="{1201c9fe-9f43-4ede-acd9-d1680b76e6d2}" FolderPath="ITF_Implementation\">
-      <Declaration><![CDATA[{deprecated 'Use StopMotion. This method is not safety-rated.'}
-    METHOD EStop : BOOL
-VAR_INPUT
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[EStop := StopMotion();]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="HasPhysicalStopFailed" Id="{ec5c2ca8-bfa3-4bfe-8344-ce091281263b}" FolderPath="ITF_Implementation\">
-      <Declaration><![CDATA[METHOD PROTECTED HasPhysicalStopFailed : BOOL]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[HasPhysicalStopFailed :=
-    NOT bFeedbackValid
-    OR bInConnectionDropped
-    OR bInCollision
-    OR (nInErrorCode <> 0);]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="IsPhysicalStopComplete" Id="{67c7a714-bc71-44a0-ae7b-b8132779995d}" FolderPath="ITF_Implementation\">
-      <Declaration><![CDATA[METHOD PROTECTED IsPhysicalStopComplete : BOOL]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[IsPhysicalStopComplete :=
-      NOT bInBusy
-      AND ((bInEStop OR bInPStop2)
-        OR (bInPaused AND (NOT _mecaStopClearRequired OR bInCleared)));
-
-IF IsPhysicalStopComplete THEN
-    _mecaStopClearRequired := FALSE;
-    bCommandPending := FALSE;
-    _mecaHomeCommandActive := FALSE;
-END_IF]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="Home" Id="{bde77e6a-1735-404c-a869-5ff38ebb95c0}">
       <Declaration><![CDATA[METHOD Home : BOOL]]></Declaration>
       <Implementation>
@@ -433,12 +388,6 @@ ResetError := TRUE;]]></ST>
       <Implementation>
         <ST><![CDATA[bRequestResume := TRUE;
 ResumeMotion := TRUE;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="ReadSafetyStopActive" Id="{4e644a4d-fefa-4032-916a-dca8c6ed86fe}" FolderPath="ITF_Implementation\">
-      <Declaration><![CDATA[METHOD PROTECTED ReadSafetyStopActive : BOOL]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[ReadSafetyStopActive := bInEStop OR bInPStop2;]]></ST>
       </Implementation>
     </Method>
     <Method Name="SendCommand" Id="{117a722d-2825-43a2-bbc5-d9c38667f200}">
@@ -547,40 +496,5 @@ IF QueueMotion(
         <ST><![CDATA[StopMotion := SUPER^.StopMotion();]]></ST>
       </Implementation>
     </Method>
-      <Method Name="StartPhysicalStop" Id="{77adcb35-1435-44f6-ace2-3d6e2db0fe46}" FolderPath="ITF_Implementation\">
-        <Declaration><![CDATA[METHOD PROTECTED StartPhysicalStop : BOOL
-    VAR_INPUT
-      Mode : eStopMode;
-    END_VAR]]></Declaration>
-        <Implementation>
-        <ST><![CDATA[StartPhysicalStop := FALSE;
-    IF NOT bFeedbackValid
-       OR NOT bDynamicDataValid
-       OR bInConnectionDropped
-       OR (nInErrorCode <> 0) THEN
-      RETURN;
-    END_IF
-
-    IF bInEStop OR bInPStop2 THEN
-      _mecaStopClearRequired := FALSE;
-      StartPhysicalStop := TRUE;
-      RETURN;
-    END_IF
-
-    IF NOT bInActivated THEN
-      RETURN;
-    END_IF
-
-    // Remove commands not yet accepted and prevent queued movement from resuming.
-    bCommandPending := FALSE;
-    bRequestPause := TRUE;
-    _mecaStopClearRequired := ActiveCommandID <> 0;
-    IF _mecaStopClearRequired THEN
-      bRequestClearMove := TRUE;
-    END_IF
-
-    StartPhysicalStop := TRUE;]]></ST>
-        </Implementation>
-      </Method>
   </POU>
 </TcPlcObject>

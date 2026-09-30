@@ -70,11 +70,5 @@ METHOD EStop : BOOL]]></Declaration>
     <Method Name="StopMotion" Id="{3b308f0d-1722-4c55-ad45-3e6af059b598}">
       <Declaration><![CDATA[METHOD StopMotion : BOOL]]></Declaration>
     </Method>
-    <Property Name="StopPending" Id="{0aa2a3db-80f2-430e-954b-da72a526bb31}">
-      <Declaration><![CDATA[PROPERTY StopPending : BOOL]]></Declaration>
-      <Get Name="Get" Id="{bfb8a4e3-a4e8-4d1a-ac55-25c66a080a11}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Get>
-    </Property>
   </Itf>
 </TcPlcObject>

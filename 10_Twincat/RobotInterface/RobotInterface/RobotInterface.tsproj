@@ -5179,7 +5179,7 @@ External Setpoint Generation:
 		</System>
 		<Motion>
 			<NC>
-				<SafTask Disabled="true" Priority="4" CycleTime="20000" AmsPort="501" IoAtBegin="true" SafTaskInfo="256" HighPrioAds="true">
+				<SafTask Priority="4" CycleTime="20000" AmsPort="501" IoAtBegin="true" SafTaskInfo="256" HighPrioAds="true">
 					<Name>NC-Task 1 SAF</Name>
 					<Vars VarGrpType="1" InsertType="1">
 						<Name>Inputs</Name>
@@ -5877,7 +5877,7 @@ External Setpoint Generation:
 					</ParameterValues>
 				</TmcDesc>
 			</JobPool>
-			<App Disabled="true" VisionAppGUID="{8B57EA84-8DE8-4BA6-8A71-C0758843F55B}">
+			<App VisionAppGUID="{8B57EA84-8DE8-4BA6-8A71-C0758843F55B}">
 				<Name>Application1</Name>
 				<Camera Id="1" VisionObjectGUID="{003A7717-EB03-402F-B9B6-2B0E9644880F}">
 					<Name>Camera1</Name>
@@ -13689,7 +13689,7 @@ External Setpoint Generation:
 			</App>
 		</Vision>
 		<Io>
-			<Device Id="1" Disabled="true" DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="192.168.250.100.2.1" RemoteName="Device 1 (EtherCAT)" InfoImageId="2">
+			<Device Id="1" DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="192.168.250.100.2.1" RemoteName="Device 1 (EtherCAT)" InfoImageId="2">
 				<Name>Device 1 (EtherCAT)</Name>
 				<AddressInfo>
 					<Pnp>
