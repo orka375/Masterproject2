@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stSettings_Camera" Id="{4aede540-508f-4dd9-96e9-57227feb46e2}">
+    <Declaration><![CDATA[TYPE stSettings_Camera :
+STRUCT
+	aCameraMatrix : TcVnMatrix3x3_LREAL;
+    aDistortionCoefficients : TcVnArray8_LREAL;
+	UseParamFile : BOOL := TRUE;
+	sFilePath: STRING;
+END_STRUCT
+END_TYPE
+
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

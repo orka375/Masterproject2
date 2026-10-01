@@ -298,7 +298,7 @@ END_VAR]]></Declaration>
 myResult:=NONE;
 // ----- YOUR CODE HERE (incl. Alarms) -------------
 
-myResult:=SUCCESS;
+
 
 IF pOwner = 0 THEN
   MEssenger.AddWarn(eMessageCategories.StateMachine,Path,'On_XX not possible because owner is not assigned');
@@ -306,6 +306,8 @@ IF pOwner = 0 THEN
 ELSIF pOwner^.State < eState.Configuring  THEN
 	MEssenger.AddWarn(eMessageCategories.StateMachine,Path,'On_XX not possible because _owner/pRob is not ready');
 	myResult:=None;
+ELSE
+	myResult:=SUCCESS;
 END_IF
 
 // ----- END YOUR CODE -----------------------------

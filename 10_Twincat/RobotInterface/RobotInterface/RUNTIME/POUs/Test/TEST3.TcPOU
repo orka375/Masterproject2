@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="TEST3" Id="{5e80ff28-a5a1-4844-b680-4a1e89a48fd6}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM TEST3
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SETUP.AXIS_FOXTROTT();
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

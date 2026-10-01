@@ -127,6 +127,7 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Server\ADS\ADS.Config.default.json" />
+    <Content Include="Server\ADS\ADS.Config.default.json" />
     <Content Include="UserControl\Skill_Paras\PickPlace.usercontrol">
       <SubType>Content</SubType>
     </Content>

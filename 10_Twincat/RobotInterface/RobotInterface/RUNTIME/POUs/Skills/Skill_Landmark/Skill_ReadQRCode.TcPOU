@@ -1,12 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="Skill_ReadQRCode" Id="{29f5a9c6-117b-4db2-964a-513390c6853e}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK Skill_ReadQRCode EXTENDS FB_1_Skill
+    <Declaration><![CDATA[FUNCTION_BLOCK Skill_ReadQRCode EXTENDS FB_2_VisionSkills
 
 
 VAR_INPUT
-    pCamera         : POINTER TO FB_VN_GevCameraControl;
-
+    
+	Param			: POINTER TO stParam_ReadQRCode;
+	
 END_VAR
 
 VAR
@@ -32,8 +33,9 @@ VAR
 
 
     
-	CamState: Tc3_Vision.ETcVnCameraState;
-	SUCCESSFULL_DECODED: BOOL;
+	CamState			: Tc3_Vision.ETcVnCameraState;
+	SUCCESSFULL_DECODED	: BOOL;
+	NotFoundTimer		: TON;
 END_VAR
 
 VAR_OUTPUT
@@ -46,21 +48,22 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[
-CYCLIC_SKILL();
+CYCLIC_VISIONSKILL();
 
+NotFoundTimer();
 
 
 IF State = eState.Active THEN
-	CamState := pCamera^.GetState();
+	CamState := CAM.GetState();
 	
 	CASE CamState OF
 		
 	TCVN_CS_INITIAL, TCVN_CS_INITIALIZING, TCVN_CS_INITIALIZED, TCVN_CS_OPENING, TCVN_CS_OPENED, TCVN_CS_STARTACQUISITION:
-		hr := pCamera^.StartAcquisition();
+		hr := CAM.StartAcquisition();
 		
 	TCVN_CS_ACQUIRING:
 	
-		hr := pCamera^.GetCurrentImage(ipImageIn);
+		hr := CAM.GetCurrentImage(ipImageIn);
 	
 		IF SUCCEEDED(hr) AND ipImageIn <> 0 THEN
 	
@@ -89,7 +92,8 @@ IF State = eState.Active THEN
 				hr := F_VN_PutTextExp(sCodeAsString, ipImageRes, 50, 100, ETcVnFontType.TCVN_FT_HERSHEY_PLAIN, 5, aColorRed,3, TCVN_LT_4_CONNECTED, FALSE, hr);
 				
 				// Draw Code Contour into Result Image
-				hr := F_VN_DrawContours(ipCodeContourList, 0, ipImageRes, aColorRed, 3, hr); 			
+				hr := F_VN_DrawContours(ipCodeContourList, 0, ipImageRes, aColorRed, 3, hr); 	
+				SUCCESSFULL_DECODED:=TRUE;		
 			ELSE			
 				// Write HRESULT into Result Image
 				sText := CONCAT('Returncode ', DINT_TO_STRING(hr));
@@ -106,46 +110,35 @@ IF State = eState.Active THEN
 			// Disply Result Image
 			hr := F_VN_TransformIntoDisplayableImage(ipImageRes, ipImageResDisp, hr);
 			
-			SUCCESSFULL_DECODED:=TRUE;
+			
 			
 			
 		END_IF
 	
 	TCVN_CS_ERROR:
-		hr := pCamera^.Reset();
+		hr := CAM.Reset();
+		
+		
 		
 	END_CASE	
+END_IF
 
 
-
+IF NotFoundTimer.Q THEN
+	//Timeout
+	ExecutionDone:=TRUE;
+	ExecutionResult:=FAILURE;
+	Deactivate();
 END_IF
 
 
 IF SUCCESSFULL_DECODED THEN
 	ExecutionDone:=TRUE;
 	ExecutionResult:=SUCCESS;
-	
+	Deactivate();
 END_IF
-//             100:
-//                 IF NOT bRunDone THEN
-//                     bQRCodeFound := TRUE;
-//                     hrLastError := S_OK;
-//                     ExecutionResult := SUCCESS;
-//                     ExecutionDone := TRUE;
-//                     bRunDone := TRUE;
-//                     fbTimeout(IN := FALSE, PT := tTimeout);
-//                 END_IF
-// 
-//             // 900 - Aborted / timed out / failed: await skill deactivation.
-//             900:
-//                 fbTimeout(IN := FALSE, PT := tTimeout);
-//         END_CASE
-//     END_IF
-// ELSE
-//     fbTimeout(IN := FALSE, PT := tTimeout);
-// END_IF]]></ST>
+]]></ST>
     </Implementation>
-    <Folder Name="Internal" Id="{6553d82c-833e-40e5-a849-b9061c767792}" />
     <Folder Name="StateControl" Id="{78f66f39-33d4-43c5-adc9-d819ee5a7735}" />
     <Method Name="OnActivate" Id="{20e02ee2-d5a7-4ea2-a227-7228b0891a5a}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
@@ -157,9 +150,14 @@ END_VAR]]></Declaration>
         <ST><![CDATA[eParentResult := SUPER^.OnActivate();
 
 
+NotFoundTimer(IN:=TRUE,PT:=Param^.tTimeout);
+
+
+
 ExecutionDone := FALSE;
 ExecutionResult := NONE;
 myResult := SUCCESS;
+SUCCESSFULL_DECODED:=FALSE;
 
 OnActivate := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
@@ -175,6 +173,8 @@ END_VAR]]></Declaration>
 
 myResult := SUCCESS;
 
+NotFoundTimer(IN:=FALSE);
+
 OnDeactivate := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
@@ -186,8 +186,18 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[eParentResult := SUPER^.OnError();
+myResult := NONE;
 
-myResult := SUCCESS;
+
+CamState := CAM.GetState();
+
+CASE CamState OF
+	TCVN_CS_ERROR:
+		hr := CAM.Reset();
+	TCVN_CS_INITIAL:
+		myResult := SUCCESS;
+END_CASE
+		
 
 OnError := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>

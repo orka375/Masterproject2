@@ -4,15 +4,28 @@
     <Declaration><![CDATA[PROGRAM TEST2
 
 VAR
-	Life: FB_0_BASE;
-	CAM: FB_VN_GevCameraControl;
+	MANTA: FB_1_Camera;
+	SettingsQR : stParam_ReadQRCode;
+	
 	QR: Skill_ReadQRCode;
+	LM: Skill_FindLandmark6D;
 	
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[Life();
-Life.CYCLIC_BASE();
-QR(pCamera:=ADR(CAM),pOwner:=ADR(Life));]]></ST>
+      <ST><![CDATA[SettingsQR.tTimeout := T#8S;
+QR.Param := ADR(SettingsQR);
+
+
+LM.pQRCodeSkill:=ADR(QR);
+LM.fQRCodeEdgeLengthMm:=40;
+
+
+Manta.SET_CAM.sFilePath:= 'C:\Users\Administrator\Desktop\CamConfig_Manta_ETA_V300926.json';
+Manta.VisionSkills[1]:= ADR(QR);
+Manta.VisionSkills[2]:= ADR(LM);
+Manta();
+
+]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

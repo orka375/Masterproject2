@@ -2,9 +2,9 @@
 <TcLicenseInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2011/11/TcLicenseInfo">
 	<LicenseInfo>
 		<SystemId>{882A43FD-EAE0-E2C0-3553-72FC071C3FA9}</SystemId>
-		<IssueTime>2026-09-30T12:31:00</IssueTime>
-		<ExpireTime>2026-10-08T00:00:00</ExpireTime>
-		<LicenseKey>f39334812887771220ba3d2cdd47de2120ba762f5d3e68db3d09d2e41d23995162b0d47950fc37fe9dbf66c194219a0c7d19c6fb811992170b0f936030fdeff9e7318dedf17a19f4cdafc828cbba7e725f1edf5e6630cc53d6ea397c5c840ecb21d7e9cb17fe7104060befb2123d6f5d26535799abab52e7e554fca773983db6109269022123268cb758fa25dd5dce98542e7c9489d224731ede77a8440c2dbac599f266ed50c1e1a7dd50a380095d7608d4a689fea22b452948cd671504f65646037623ccf3ea4a33670d63d39859dee73a53ffed8e1d2d1e1949d0ecaf613c8df046f643a3fafab02df9e42b0441785736596257437d3d9c2e951ebf68d9ff</LicenseKey>
+		<IssueTime>2026-10-01T08:13:00</IssueTime>
+		<ExpireTime>2026-10-09T00:00:00</ExpireTime>
+		<LicenseKey>d79a142d8fe49d5882e316a2516daea69afc74b04a97d00a17cc358f6bdfdc88bcdec9d82c989022fde92e8ae4cfb4ab605a413fb7c1ebb23b1d4e7ce26ca7db2700ca3ba8fe2a4a25bc9dafdde853346ced0a1f6b8661dddb2ba79f4209ada41d38d0646d92174b34e07e68753159bdf0741d47614f2ee72b1a5a3e5bcb7841fc81e8305e60853f83e1ae98984b70cfcde3c7165d98c8e2cca2f523a98ac5b97ca102844e3a1e0e792e390888de57e062150cf68e449f44e9cf63063209a7802cc1c90b4457210e9f7faecf405e24845c776ab60cbcd5c7fbc29f0285e3045c3f4d8944facc8cb8403c4b4aa11f4ef43e9261c46bafdc58bddec247d6d84792</LicenseKey>
 		<License>
 			<LicenseId>{A19036CF-A53B-4E3A-99FF-023EF5C4798B}</LicenseId>
 			<Name>TC3 NC PTP Axis</Name>
@@ -34,6 +34,11 @@
 			<LicenseId>{5762C59F-F838-4092-B24F-4E469453D3E9}</LicenseId>
 			<Name>TC3 Vision Code Reading</Name>
 			<OrderNo>TF7250</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{05A2BB1C-6F39-46A3-BAEE-FC6B5DA5439C}</LicenseId>
+			<Name>TC3 Vision Metrology 2D</Name>
+			<OrderNo>TF7300</OrderNo>
 		</License>
 		<License>
 			<LicenseId>{2C358067-6E81-4F6A-B8D9-AC1F63FEB6FD}</LicenseId>

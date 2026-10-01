@@ -63,6 +63,7 @@ CanAcceptCommand := NOT _stopExecute AND NOT _resetExecute;
 
 	//OVERRIDE
 Operational := _startupResetDone;
+Operational := TRUE;
 
 // ------ CALL POUS AND ERROR SURVEILLANCE ----------
 

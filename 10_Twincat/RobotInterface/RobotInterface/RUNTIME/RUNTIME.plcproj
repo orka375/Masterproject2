@@ -253,6 +253,12 @@
     <Compile Include="POUs\Axis\JSC_XENAX\LINAXIS_JSC_XENAX.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Camera\FB_1_Camera.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Camera\stSettings_Camera.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Communication\FB_1_COMM.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -328,6 +334,9 @@
     <Compile Include="POUs\Skills\FB_1_Skill.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Skills\FB_2_VisionSkills.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Skills\Skill_Axis_MoveDemo\Skill_Axis_MoveDemo.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -355,6 +364,9 @@
     <Compile Include="POUs\Skills\Skill_Landmark\Skill_ReadQRCode.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\Skills\Skill_Landmark\stParam_ReadQRCode.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Skills\Skill_PickAndPlace\Skill_PickPlace.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -377,6 +389,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Test\TEST2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Test\TEST3.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Test\TESTSETUP.TcGVL">
@@ -469,6 +484,7 @@
     <Folder Include="POUs\Jog" />
     <Folder Include="POUs\Axis" />
     <Folder Include="POUs\Archiv_TODO" />
+    <Folder Include="POUs\Camera" />
     <Folder Include="POUs\Skills\Skill_Axis_MoveDemo" />
     <Folder Include="POUs\Skills\Skill_Landmark" />
     <Folder Include="POUs\Skills\Skill_Gripper_bistable_digout" />

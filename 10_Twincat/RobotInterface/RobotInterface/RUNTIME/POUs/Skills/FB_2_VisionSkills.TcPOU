@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_2_VisionSkills" Id="{c094065f-2319-4570-a12a-5a88ea805ce7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_2_VisionSkills EXTENDS FB_1_Skill
+VAR_INPUT
+	pOwnerCam: POINTER TO FB_1_Camera;
+	CAM : REFERENCE TO FB_VN_GevCameraControl;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_Init_VisionSkill: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[pOwner := pOwnerCam;
+IF pOwnerCam<>0 THEN
+	CAM REF= pOwnerCam^.CAM;
+END_IF
+]]></ST>
+    </Implementation>
+    <Action Name="CYCLIC_VISIONSKILL" Id="{a00d0d3e-61e2-40da-bba0-005e9199daed}">
+      <Implementation>
+        <ST><![CDATA[IF NOT _Init_VisionSkill THEN
+	_Init_VisionSkill:=TRUE;
+	SETUP_VISIONSKILL();
+END_IF
+
+
+CYCLIC_SKILL();
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="SETUP_VISIONSKILL" Id="{7da519fc-3c12-42b6-8bb9-d77a4915edef}">
+      <Implementation>
+        <ST><![CDATA[pOwner := pOwnerCam;
+IF pOwnerCam<>0 THEN
+	CAM REF= pOwnerCam^.CAM;
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+  </POU>
+</TcPlcObject>

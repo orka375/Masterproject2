@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <DUT Name="stParam_ReadQRCode" Id="{ed643308-4ec3-4a60-a022-371297b545be}">
+    <Declaration><![CDATA[TYPE stParam_ReadQRCode :
+STRUCT
+	tTimeout		: TIME := T#7S;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

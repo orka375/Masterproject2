@@ -1,38 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="Skill_FindLandmark6D" Id="{f74af431-203c-45ea-b1c5-99d698ba5355}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK Skill_FindLandmark6D EXTENDS FB_1_Skill
-(*
-    Finds one planar QR landmark and calculates its full 6D pose.
+    <Declaration><![CDATA[FUNCTION_BLOCK Skill_FindLandmark6D EXTENDS FB_2_VisionSkills
 
-    First stage: calls the previously created Skill_ReadQRCode as a subskill.
-    Second stage: builds four 2D/3D point correspondences and calls
-    F_VN_SolvePnP.
-    Third stage: transforms camera coordinates into robot-base coordinates.
-
-    Eye-in-hand requirement:
-      aRotation_BaseCamera / aTranslation_BaseCamera must describe the camera
-      pose in robot-base coordinates AT THE IMAGE CAPTURE TIME:
-
-      T_Base_Camera = T_Base_Flange(capture) * T_Flange_Camera(hand-eye)
-
-    This skill only locates the landmark. It sends no robot motion command.
-
-    Landmark convention:
-      Origin: QR center
-      X: from corner 0 to corner 1
-      Y: from corner 0 to corner 3
-      Z: X cross Y (normal to QR plane)
-
-    IMPORTANT: Verify the corner order returned by the installed Tc3_Vision
-    version with a known test image. F_VN_ReadQRCodeExp documents the contour
-    type, but not a stable semantic corner numbering convention.
-*)
 
 VAR_INPUT
     // Vorhandene Eingänge beibehalten.
-    aCameraMatrix : TcVnMatrix3x3_LREAL;
-    aDistortionCoefficients : TcVnArray8_LREAL;
+
 END_VAR
 
 VAR_INPUT
@@ -47,7 +21,7 @@ VAR_INPUT
 
     // Reject an unstable pose if the reprojection error exceeds this value.
     fMaxReprojectionErrorPx : LREAL := 2.0;
-    SFCInit                  : BOOL;
+
 END_VAR
 
 VAR_OUTPUT
@@ -82,10 +56,34 @@ VAR
     bRunDone          : BOOL;
     fSum              : LREAL;
     resSubskill       : eResult;
-
+	
+	ipQRCodeContour : ITcVnContainer;
+    aContourPoint   : TcVnPoint2_DINT;
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[
+      <ST><![CDATA[CYCLIC_VISIONSKILL();
+
+// Identity rotation matrix
+aRotation_BaseCamera[0, 0] := 1.0;
+aRotation_BaseCamera[0, 1] := 0.0;
+aRotation_BaseCamera[0, 2] := 0.0;
+
+aRotation_BaseCamera[1, 0] := 0.0;
+aRotation_BaseCamera[1, 1] := 1.0;
+aRotation_BaseCamera[1, 2] := 0.0;
+
+aRotation_BaseCamera[2, 0] := 0.0;
+aRotation_BaseCamera[2, 1] := 0.0;
+aRotation_BaseCamera[2, 2] := 1.0;
+
+
+// Zero translation vector
+aTranslation_BaseCamera[0] := 0.0;
+aTranslation_BaseCamera[1] := 0.0;
+aTranslation_BaseCamera[2] := 200.0;
+
+
+
 IF State = eState.Active THEN
     
 	pQRCodeSkill^.Execute();
@@ -94,10 +92,31 @@ IF State = eState.Active THEN
 		sLandmarkId := pQRCodeSkill^.sCodeAsString;
 		fHalfEdge := fQRCodeEdgeLengthMm * 0.5;
 
-		FOR l := 0 TO 3 DO
-			aImagePoints[l][0] := DINT_TO_REAL(pQRCodeSkill^.ipCodeContourList[i][0]);
-			aImagePoints[l][1] := DINT_TO_REAL(pQRCodeSkill^.ipCodeContourList[i][1]);
-		END_FOR
+				// Get contour of first QR code.
+		// ipCodeContourList is Vector<Vector<TcVnPoint2_DINT>>
+		hr := F_VN_GetAt_ITcVnContainer(
+			ipSrcContainer  := pQRCodeSkill^.ipCodeContourList,
+			ipDestContainer := ipQRCodeContour,
+			nIndex          := 0,
+			hrPrev          := S_OK
+		);
+		
+		// Extract the four QR corner points
+		IF SUCCEEDED(hr) AND_THEN ipQRCodeContour <> 0 THEN
+			FOR l := 0 TO 3 DO
+				hr := F_VN_GetAt_TcVnPoint2_DINT(
+					ipContainer := ipQRCodeContour,
+					aElement    := aContourPoint,
+					nIndex      := INT_TO_ULINT(l),
+					hrPrev      := hr
+				);
+				IF SUCCEEDED(hr) THEN
+					aImagePoints[l][0] := DINT_TO_REAL(aContourPoint[0]);
+					aImagePoints[l][1] := DINT_TO_REAL(aContourPoint[1]);
+				END_IF
+			END_FOR
+		
+		END_IF
 
 		// Known physical QR corners around the landmark origin.
 		// Punkt 0: links oben beziehungsweise definierter Startpunkt
@@ -143,15 +162,12 @@ IF State = eState.Active THEN
 				ipReferencePoints,
 				hr);
 		END_FOR
-
-
-
   
 		hr := F_VN_SolvePnP(
 			ipImagePoints           := ipImagePoints,
 			ipReferencePoints       := ipReferencePoints,
-			aCameraMatrix           := aCameraMatrix,
-			aDistortionCoefficients := aDistortionCoefficients,
+			aCameraMatrix           := pOwnerCam^.aCameraMatrixLocal,
+			aDistortionCoefficients := pOwnerCam^.aDistortionCoefficientsLocal,
 			aRotationMatrix         := aRotation_CameraLandmark,
 			aTranslationVector      := aTranslation_CameraLandmark,
 			fReprojError            := fReprojectionErrorPx,
@@ -182,29 +198,20 @@ IF State = eState.Active THEN
 			END_FOR
 
 		 bLandmarkFound := TRUE;
+		 ExecutionDone:=TRUE;
+		 ExecutionResult:=SUCCESS;
+		 Deactivate();
    
 		END_IF
+		
+	ELSIF pQRCodeSkill^.ExecutionDone AND pQRCodeSkill^.ExecutionResult = FAILURE THEN
+		ExecutionDone:=TRUE;
+		ExecutionResult:=FAILURE;
+		Deactivate();
 	END_IF
 END_IF]]></ST>
     </Implementation>
-    <Folder Name="Internal" Id="{fd5d0038-a1df-4790-910c-093be1ff8c36}" />
     <Folder Name="StateControl" Id="{f071cfd0-c82f-48d1-88d7-ad572fd8b5ec}" />
-    <Method Name="FailSkill" Id="{5601531b-936e-4c11-a983-0e8519eb31a8}" FolderPath="Internal\">
-      <Declaration><![CDATA[METHOD PRIVATE FailSkill
-VAR_INPUT
-    hrError  : HRESULT;
-    sMessage : STRING;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[hrLastError := hrError;
-bSubSkillRunning := FALSE;
-
-ExecutionDone := TRUE;
-ExecutionResult := FAILURE;
-Messenger.AddError(eMessageCategories.Undefined, Path, sMessage);
-SFCInit := TRUE;]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="OnActivate" Id="{7a374fea-0c4d-40af-aaf4-06ebd09eb300}" FolderPath="StateControl\">
       <Declaration><![CDATA[METHOD PROTECTED OnActivate : eResult
 VAR
@@ -212,18 +219,19 @@ VAR
     myResult      : eResult;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[eParentResult := SUPER^.OnActivate();
+        <ST><![CDATA[
+eParentResult := SUPER^.onActivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 phase := 0;
-SFCInit := FALSE;
-bStartedSubskill := FALSE;
-bRunDone := FALSE;
 bLandmarkFound := FALSE;
-sLandmarkId := '';
-hrLastError := S_OK;
-ipImagePoints := 0;
-ipReferencePoints := 0;
-myResult := SUCCESS;
-OnActivate := CombineResults(eParentResult, myResult);]]></ST>
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onActivate := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnDeactivate" Id="{22ccc076-a6b7-419c-a99d-0d58678c0ad4}" FolderPath="StateControl\">
@@ -233,17 +241,17 @@ VAR
     myResult      : eResult;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[eParentResult := SUPER^.OnDeactivate();
-SFCInit := TRUE;
+        <ST><![CDATA[eParentResult := SUPER^.onDeactivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 phase := 0;
-bStartedSubskill := FALSE;
-bRunDone := FALSE;
-bSubSkillRunning := FALSE;
+myResult:=SUCCESS;
 
-ipImagePoints := 0;
-ipReferencePoints := 0;
-myResult := SUCCESS;
-OnDeactivate := CombineResults(eParentResult, myResult);]]></ST>
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onDeactivate := CombineResults(eParentResult,myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnError" Id="{9a28fe08-923e-4c66-b184-a7131e6614b1}" FolderPath="StateControl\">
@@ -253,17 +261,18 @@ VAR
     myResult      : eResult;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[eParentResult := SUPER^.OnError();
-SFCInit := TRUE;
-phase := 0;
-bStartedSubskill := FALSE;
-bRunDone := FALSE;
-bSubSkillRunning := FALSE;
-
+        <ST><![CDATA[eParentResult := SUPER^.onError();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 ipImagePoints := 0;
 ipReferencePoints := 0;
-myResult := SUCCESS;
-OnError := CombineResults(eParentResult, myResult);]]></ST>
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onError := CombineResults(eParentResult, myResult);
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="OnShutdown" Id="{22712f1e-c3c0-49fd-b881-37948bb72a67}" FolderPath="StateControl\">
@@ -273,17 +282,18 @@ VAR
     myResult      : eResult;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
-SFCInit := TRUE;
+        <ST><![CDATA[eParentResult := SUPER^.onShutdown();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
 phase := 0;
-bStartedSubskill := FALSE;
-bRunDone := FALSE;
-bSubSkillRunning := FALSE;
-
 ipImagePoints := 0;
 ipReferencePoints := 0;
-myResult := SUCCESS;
-OnShutdown := CombineResults(eParentResult, myResult);]]></ST>
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onShutdown := CombineResults(eParentResult, myResult);]]></ST>
       </Implementation>
     </Method>
   </POU>

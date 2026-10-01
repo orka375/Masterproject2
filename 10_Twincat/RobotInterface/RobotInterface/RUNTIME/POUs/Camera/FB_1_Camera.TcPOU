@@ -1,0 +1,395 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
+  <POU Name="FB_1_Camera" Id="{10e561f6-05fb-48b7-85cc-15c4d0c3c4c8}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_1_Camera EXTENDS FB_0_Base
+VAR_INPUT
+	SET_CAM : stSettings_Camera;
+	CAM: FB_VN_GevCameraControl;
+	VisionSkills : ARRAY[1..SETUP.MaxNrofSkillsperUnit] OF POINTER TO FB_2_VisionSkills;
+	
+END_VAR
+VAR_OUTPUT
+	aCameraMatrixLocal : TcVnMatrix3x3_LREAL;
+    aDistortionCoefficientsLocal : TcVnArray8_LREAL;
+END_VAR
+VAR
+	_INIT_CAM: BOOL;
+	_requestReadParamsFile: BOOL;
+	res: eResult;
+END_VAR
+
+VAR	//READPARAMSFILE
+    fbJson : FB_JsonDomParser;
+
+    jsonRoot     : SJsonValue;
+    jsonMatrix   : SJsonValue;
+    jsonRow      : SJsonValue;
+    jsonValue    : SJsonValue;
+    jsonDist     : SJsonValue;
+
+    bLoad : BOOL;
+    bLoaded : BOOL;
+
+    nState : UINT := 0;
+
+ 
+
+    rTrig : R_TRIG;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CYCLIC_CAM();]]></ST>
+    </Implementation>
+    <Folder Name="StateControl" Id="{8be19e11-1543-44f0-9365-207353e3479f}" />
+    <Action Name="CYCLIC_CAM" Id="{7413976a-14f3-4f89-a2cb-2c4befe116b4}">
+      <Implementation>
+        <ST><![CDATA[// ------ CALL CYCLIC -----------------
+IF NOT _INIT_CAM THEN
+	_INIT_CAM:=TRUE;
+	SETUP_CAM();
+END_IF
+
+CYCLIC_BASE();
+
+
+// ------ WRITE HMI -------------------
+		// NO HMI STRUCT
+
+// ------ READ FROM HMI ---------------
+		// NO HMI STRUCT
+	
+
+
+// ------ WRITE PROPS/METHODS ---------
+	//Operational := ??
+	
+	
+// ----- CALL POUS AND ERROR SURVEILLANCE ----------
+
+
+// ----- REST --------------------
+
+IF _requestReadParamsFile THEN
+	res := ReadParamsFile();
+	
+	IF SUCCESS = res THEN
+		_requestReadParamsFile := FALSE;
+	ELSIF FAILURE = res THEN
+		//Using Params from Settings
+		aCameraMatrixLocal := SET_CAM.aCameraMatrix;
+    	aDistortionCoefficientsLocal := SET_CAM.aDistortionCoefficients;
+		_requestReadParamsFile := FALSE;
+	END_IF
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="onActivate" Id="{ecf82beb-28a8-4731-bac1-44ceabff9dcc}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onActivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onActivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onActivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onCleanup" Id="{3afebe17-ae45-4224-9d89-d73dd002cad9}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onCleanup : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onCleanup();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+myResult:=SUCCESS;
+
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onCleanup := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onConfigure" Id="{31176d48-02dc-42e6-9659-169e4a43750b}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onConfigure : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onConfigure();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onConfigure := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onDeactivate" Id="{fd5d9db6-ba12-461b-88b8-632c02f7db7b}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onDeactivate : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onDeactivate();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+onDeactivate := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onError" Id="{7d0d3119-dac7-4f8b-9cb6-cb4255be1f70}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onError : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.onError();
+
+
+myResult := SUCCESS;
+
+onError := CombineResults(eParentResult, myResult);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="onShutdown" Id="{de0cde26-3a2a-46b9-8d05-9addf3b62c0c}" FolderPath="StateControl\">
+      <Declaration><![CDATA[METHOD PROTECTED onShutdown : eResult
+VAR_INPUT
+END_VAR
+
+VAR
+	eParentResult: eResult;
+	myResult: ERESULT;
+END_VAR
+
+VAR //YOUR CODE
+	succ : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[eParentResult := SUPER^.OnShutdown();
+//--------------------------------------------------
+myResult:=NONE;
+// ----- YOUR CODE HERE (incl. Alarms) -------------
+
+myResult:=SUCCESS;
+
+// ----- END YOUR CODE -----------------------------
+//--------------------------------------------------
+OnShutdown := CombineResults(eParentResult,myResult);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReadParamsFile" Id="{a022e4cd-9428-4c98-b173-3dd260cf9668}">
+      <Declaration><![CDATA[METHOD ReadParamsFile : eResult
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+
+CASE nState OF
+
+	0:
+		bLoad:=TRUE;
+		nState:=10;
+		
+		
+    // -----------------------------------------------------
+    // Load JSON file
+    // -----------------------------------------------------
+    10:
+		
+        bLoaded := fbJson.LoadDocumentFromFile(
+            sFile := SET_CAM.sFilePath,
+            bExec := bLoad,
+        );
+
+        // LoadDocumentFromFile resets bLoad when finished
+        IF NOT bLoad THEN
+            IF bLoaded THEN
+                nState := 20;
+            ELSE
+                Messenger.AddWarn(eMessageCategories.MissingData,Path,'Could not load Camera Params File');
+				ReadParamsFile := FAILURE;
+            END_IF
+
+        END_IF
+
+
+    // -----------------------------------------------------
+    // Parse camera matrix
+    // -----------------------------------------------------
+    20:
+        jsonRoot := fbJson.GetDocumentRoot();
+
+        IF jsonRoot = 0 THEN
+            nState := 100;
+        ELSE
+            jsonMatrix := fbJson.FindMember(
+                jsonRoot,
+                'CameraMatrix'
+            );
+
+            IF jsonMatrix = 0 THEN
+                nState := 100;
+            ELSE
+				//Found
+                FOR i := 0 TO 2 DO
+					jsonRow := fbJson.GetArrayValueByIdx(jsonMatrix,i);
+		
+					IF jsonRow = 0 THEN
+						nState := 100;
+						RETURN;
+					END_IF
+		
+					FOR j := 0 TO 2 DO
+						jsonValue := fbJson.GetArrayValueByIdx(jsonRow,j);
+		
+						IF jsonValue = 0 THEN
+							nState := 100;
+							RETURN;
+						END_IF
+		
+						aCameraMatrixLocal[i, j] := fbJson.GetDouble(jsonValue);
+					END_FOR
+				END_FOR
+		
+				nState := 30;
+            END_IF
+        END_IF
+
+
+
+    // -----------------------------------------------------
+    // Find distortion coefficients
+    // -----------------------------------------------------
+    30:
+        jsonDist := fbJson.FindMember(
+            jsonRoot,
+            'DistortionCoefficients'
+        );
+
+        IF jsonDist = 0 THEN
+            nState := 100;
+        ELSE
+            FOR i := 0 TO 7 DO
+				jsonValue := fbJson.GetArrayValueByIdx(jsonDist,i);
+	
+				IF jsonValue = 0 THEN
+					nState := 100;
+					RETURN;
+				END_IF
+				aDistortionCoefficientsLocal[i] :=fbJson.GetDouble(jsonValue);
+			END_FOR
+        nState := 40;
+        END_IF
+
+    40:
+        ReadParamsFile := SUCCESS;
+        nState := 0;
+
+
+    // -----------------------------------------------------
+    // Error
+    // -----------------------------------------------------
+    100:
+        ReadParamsFile := FAILURE;
+        nState := 0;
+
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Action Name="SETUP_CAM" Id="{7d3ec5aa-481b-46e2-8949-8e856cba5d9b}">
+      <Implementation>
+        <ST><![CDATA[IF SET_CAM.UseParamFile THEN
+	_requestReadParamsFile:=TRUE;
+END_IF
+
+j:=0;
+FOR i := 1 TO TO_INT(UPPER_BOUND(VisionSkills,1)) DO
+	IF VisionSkills[i]<>0 THEN
+		VisionSkills[i]^.pOwnerCam:=THIS;
+		WHILE Skills[j+1]<> 0 DO
+			j := j+1;
+		END_WHILE
+		
+		IF j+1 < SETUP.MaxNrofSkillsPerUnit THEN //fill
+			Skills[j+1] := VisionSkills[i];
+
+	END_IF
+	ELSE
+		RETURN;
+	END_IF
+	
+	
+	
+	
+END_FOR]]></ST>
+      </Implementation>
+    </Action>
+  </POU>
+</TcPlcObject>
